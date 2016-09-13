@@ -38,7 +38,7 @@ namespace EntityFrameworkCore.Detached
             return _queryBuilder.GetRootQuery<TEntity>().AsNoTracking();
         }
 
-        public virtual async Task<TEntity> Load<TEntity>(params object[] key)
+        public virtual async Task<TEntity> LoadAsync<TEntity>(params object[] key)
             where TEntity : class
         {
             EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
@@ -48,7 +48,7 @@ namespace EntityFrameworkCore.Detached
                                       .SingleOrDefaultAsync(GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), key));
         }
 
-        public virtual async Task<TRoot> Save<TRoot>(TRoot root)
+        public virtual async Task<TRoot> SaveAsync<TRoot>(TRoot root)
             where TRoot : class
         {
             // temporally disabled autodetect changes
@@ -74,7 +74,7 @@ namespace EntityFrameworkCore.Detached
             return dbEntity;
         }
 
-        public virtual async Task Delete<TRoot>(TRoot root)
+        public virtual async Task DeleteAsync<TRoot>(TRoot root)
         {
             EntityType entityType = _context.Model.FindEntityType(typeof(TRoot)) as EntityType;
             Delete(entityType, root);

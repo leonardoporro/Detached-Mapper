@@ -34,7 +34,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     }
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the items is added to the the database.
                 Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
@@ -69,7 +69,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     }
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the items is added to the the database.
                 Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
@@ -99,7 +99,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     OwnedReference = new OwnedReference { Id = 1, Name = "Owned Reference 2" }
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the owned reference is replaced:
                 Assert.False(context.OwnedReferences.Any(o => o.Name == "Owned Reference 1"));
@@ -127,7 +127,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     OwnedReference = null
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the owned reference is removed:
                 Assert.False(context.OwnedReferences.Any(o => o.Name == "Owned Reference 1"));
@@ -161,7 +161,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     AssociatedReference = new AssociatedReference { Id = 1, Name = "Modified Associated Reference 1" },
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the associated reference still exsits:
                 Assert.True(context.AssociatedReferences.Any(a => a.Name == "Associated Reference 1"));
@@ -196,7 +196,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     OwnedReference = null
                 };
 
-                await detachedContext.Save(detachedEntity);
+                await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the associated reference still exsits:
                 Assert.True(context.AssociatedReferences.Any(a => a.Name == "Associated Reference 1"));
