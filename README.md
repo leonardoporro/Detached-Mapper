@@ -36,3 +36,6 @@ To be able to process the [Owned] and [Associated] attributes, a convention buil
 ```
 
 WARNING: THIS PROJECT MAKES USE OF SOME INTERNAL ENTITY FRAMEWORK FEATURES AND IT CAN BE BROKEN BY FUTURE CHANGES.
+
+# Nu-get:
+https://www.nuget.org/packages/EntityFrameworkCore.Detached/
