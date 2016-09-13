@@ -1,10 +1,5 @@
-﻿using EntityFrameworkCore.Detached.Conventions;
-using EntityFrameworkCore.Detached.Tests.Model;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EntityFrameworkCore.Detached.Tests.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,7 +9,7 @@ namespace EntityFrameworkCore.Detached.Tests
     public class DetachedContextTests
     {
         [Fact(DisplayName = "Owned Collection: Add Item")]
-        public void OwnedCollectionAddItem()
+        public async Task OwnedCollectionAddItem()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -39,8 +34,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     }
                 };
 
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the items is added to the the database.
                 Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
@@ -50,7 +44,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact(DisplayName = "Owned Collection: Remove Item")]
-        public void OwnedCollectionRemoveItem()
+        public async Task OwnedCollectionRemoveItem()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -75,8 +69,7 @@ namespace EntityFrameworkCore.Detached.Tests
                     }
                 };
 
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the items is added to the the database.
                 Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
@@ -86,7 +79,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact(DisplayName = "Owned Reference: Set")]
-        public void OwnedRefereceSet()
+        public async Task OwnedRefereceSet()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -105,8 +98,8 @@ namespace EntityFrameworkCore.Detached.Tests
                     Id = 1,
                     OwnedReference = new OwnedReference { Id = 1, Name = "Owned Reference 2" }
                 };
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the owned reference is replaced:
                 Assert.False(context.OwnedReferences.Any(o => o.Name == "Owned Reference 1"));
@@ -114,7 +107,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact(DisplayName = "Owned Reference: Remove")]
-        public void OwnedReferenceRemove()
+        public async Task OwnedReferenceRemove()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -133,8 +126,8 @@ namespace EntityFrameworkCore.Detached.Tests
                     Id = 1,
                     OwnedReference = null
                 };
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the owned reference is removed:
                 Assert.False(context.OwnedReferences.Any(o => o.Name == "Owned Reference 1"));
@@ -142,7 +135,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact(DisplayName = "Associated Reference: Set")]
-        public void AssociatedReferenceSet()
+        public async Task AssociatedReferenceSet()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -167,8 +160,8 @@ namespace EntityFrameworkCore.Detached.Tests
                     Id = 1,
                     AssociatedReference = new AssociatedReference { Id = 1, Name = "Modified Associated Reference 1" },
                 };
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the associated reference still exsits:
                 Assert.True(context.AssociatedReferences.Any(a => a.Name == "Associated Reference 1"));
@@ -176,7 +169,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact(DisplayName = "Associated Reference: Remove")]
-        public void AssociatedReferenceRemove()
+        public async Task AssociatedReferenceRemove()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -202,8 +195,8 @@ namespace EntityFrameworkCore.Detached.Tests
                     AssociatedReference = null,
                     OwnedReference = null
                 };
-                detachedContext.UpdateRoot(detachedEntity);
-                detachedContext.SaveChanges();
+
+                await detachedContext.Save(detachedEntity);
 
                 // THEN the associated reference still exsits:
                 Assert.True(context.AssociatedReferences.Any(a => a.Name == "Associated Reference 1"));

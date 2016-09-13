@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
-    public class DetachedContext : IDisposable
+    public class DetachedContext
     {
         #region Fields
 
@@ -38,19 +38,29 @@ namespace EntityFrameworkCore.Detached
             return _queryBuilder.GetRootQuery<TEntity>().AsNoTracking();
         }
 
-        public virtual TRoot UpdateRoot<TRoot>(TRoot root)
+        public virtual async Task<TEntity> Load<TEntity>(params object[] key)
+            where TEntity : class
+        {
+            EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
+
+            return await _queryBuilder.GetRootQuery<TEntity>()
+                                      .AsNoTracking()
+                                      .SingleOrDefaultAsync(GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), key));
+        }
+
+        public virtual async Task<TRoot> Save<TRoot>(TRoot root)
             where TRoot : class
         {
-            //temporally disabled autodetect changes (changes are set manually).
-            //bool autoDetectChanges = _context.ChangeTracker.AutoDetectChangesEnabled;
+            // temporally disabled autodetect changes
+            bool autoDetectChanges = _context.ChangeTracker.AutoDetectChangesEnabled;
             _context.ChangeTracker.AutoDetectChangesEnabled = false;
 
             EntityType entityType = _context.Model.FindEntityType(typeof(TRoot)) as EntityType;
 
-            // load the entity with all the includes.
+            // load the persisted entity, with all the includes
             TRoot dbEntity = _queryBuilder.GetRootQuery<TRoot>()
                                 .AsTracking()
-                                .SingleOrDefault(entityType.GetFindByKeyExpression(root));
+                                .SingleOrDefault(GetFindByKeyExpression(entityType, root));
 
             if (dbEntity == null)
                 Add(entityType, root); // entity does not exist.
@@ -58,87 +68,17 @@ namespace EntityFrameworkCore.Detached
                 Merge(entityType, root, dbEntity); // entity exists.
 
             // re-enable autodetect changes.
-            //_context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+            await _context.SaveChangesAsync();
+            _context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
             return dbEntity;
         }
 
-        public virtual void DeleteRoot<TRoot>(TRoot root)
+        public virtual async Task Delete<TRoot>(TRoot root)
         {
             EntityType entityType = _context.Model.FindEntityType(typeof(TRoot)) as EntityType;
             Delete(entityType, root);
-        }
-
-        protected virtual void Add(EntityType entityType, object entity)
-        {
-            if (entity == null)
-                return;
-
-            var entry = _context.Attach(entity);
-            entry.State = EntityState.Added;
-
-            foreach (Navigation navigation in entityType.GetNavigations())
-            {
-                if (navigation.IsOwned()) //recursive add for owned properties.
-                {
-                    object value = navigation.Getter.GetClrValue(entity);
-                    if (value != null)
-                    {
-                        EntityType itemType = navigation.GetTargetType();
-                        if (navigation.IsCollection())
-                        {
-                            foreach (object item in (IEnumerable)value)
-                            {
-                                Add(itemType, item); //add collection item.
-                            }
-                        }
-                        else
-                        {
-                            Add(itemType, value); //add reference.
-                        }
-                    }
-                }
-            }
-        }
-
-        protected virtual void Delete(EntityType entityType, object entity)
-        {
-            if (entity == null)
-                return;
-
-            var entry = _context.Attach(entity);
-            entry.State = EntityState.Deleted;
-
-            foreach (Navigation navigation in entityType.GetNavigations())
-            {
-                if (navigation.IsOwned()) //recursive deletion for owned properties.
-                {
-                    object value = navigation.Getter.GetClrValue(entity);
-                    if (value != null)
-                    {
-                        EntityType itemType = navigation.GetTargetType();
-                        if (navigation.IsCollection())
-                        {
-                            foreach (object item in (IEnumerable)value)
-                            {
-                                Delete(itemType, item); //delete collection item.
-                            }
-                        }
-                        else
-                        {
-                            Delete(itemType, value); //delete reference.
-                        }
-                    }
-                }
-            }
-        }
-
-        protected virtual void Attach(EntityType entityType, object entity)
-        {
-            EntityEntry entry = _context.Entry(entity);
-
-            _context.Attach(entity);
-            entry.State = EntityState.Unchanged;
+            await _context.SaveChangesAsync();
         }
 
         protected virtual void Merge(EntityType entityType, object newEntity, object dbEntity)
@@ -244,6 +184,78 @@ namespace EntityFrameworkCore.Detached
             }
         }
 
+        protected virtual void Add(EntityType entityType, object entity)
+        {
+            if (entity == null)
+                return;
+
+            var entry = _context.Attach(entity);
+            entry.State = EntityState.Added;
+
+            foreach (Navigation navigation in entityType.GetNavigations())
+            {
+                if (navigation.IsOwned()) //recursive add for owned properties.
+                {
+                    object value = navigation.Getter.GetClrValue(entity);
+                    if (value != null)
+                    {
+                        EntityType itemType = navigation.GetTargetType();
+                        if (navigation.IsCollection())
+                        {
+                            foreach (object item in (IEnumerable)value)
+                            {
+                                Add(itemType, item); //add collection item.
+                            }
+                        }
+                        else
+                        {
+                            Add(itemType, value); //add reference.
+                        }
+                    }
+                }
+            }
+        }
+
+        protected virtual void Delete(EntityType entityType, object entity)
+        {
+            if (entity == null)
+                return;
+
+            var entry = _context.Attach(entity);
+            entry.State = EntityState.Deleted;
+
+            foreach (Navigation navigation in entityType.GetNavigations())
+            {
+                if (navigation.IsOwned()) //recursive deletion for owned properties.
+                {
+                    object value = navigation.Getter.GetClrValue(entity);
+                    if (value != null)
+                    {
+                        EntityType itemType = navigation.GetTargetType();
+                        if (navigation.IsCollection())
+                        {
+                            foreach (object item in (IEnumerable)value)
+                            {
+                                Delete(itemType, item); //delete collection item.
+                            }
+                        }
+                        else
+                        {
+                            Delete(itemType, value); //delete reference.
+                        }
+                    }
+                }
+            }
+        }
+
+        protected virtual void Attach(EntityType entityType, object entity)
+        {
+            EntityEntry entry = _context.Entry(entity);
+
+            _context.Attach(entity);
+            entry.State = EntityState.Unchanged;
+        }
+
         protected virtual bool EqualByKey(Key key, object a, object b)
         {
             bool equal = a != null && b != null;
@@ -273,19 +285,29 @@ namespace EntityFrameworkCore.Detached
             return null;
         }
 
-        public void SaveChanges()
+        protected virtual Expression<Func<TEntity, bool>> GetFindByKeyExpression<TEntity>(EntityType entityType, TEntity instance)
         {
-            _context.SaveChanges();
+            Key key = entityType.FindPrimaryKey();
+            object[] keyValues = key.Properties.Select(p => p.Getter.GetClrValue(instance)).ToArray();
+            return GetFindByKeyExpression<TEntity>(entityType, key, keyValues);
         }
 
-        public async Task SaveChangesAsync()
+        protected virtual Expression<Func<TEntity, bool>> GetFindByKeyExpression<TEntity>(EntityType entityType, Key key, object[] keyValues)
         {
-            await _context.SaveChangesAsync();
-        }
+            ParameterExpression param = Expression.Parameter(entityType.ClrType, entityType.ClrType.Name.ToLower());
 
-        public void Dispose()
-        {
-            _context.Dispose();
+            Func<int, Expression> buildCompare = i =>
+                Expression.Equal(Expression.Property(param, key.Properties[i].PropertyInfo),
+                                 Expression.Constant(keyValues[i]));
+
+            Expression findExpr = buildCompare(0);
+
+            for (int i = 1; i < key.Properties.Count; i++)
+            {
+                findExpr = Expression.AndAlso(findExpr, buildCompare(i));
+            }
+
+            return Expression.Lambda<Func<TEntity, bool>>(findExpr, param);
         }
     }
 }
