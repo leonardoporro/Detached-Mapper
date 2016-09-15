@@ -10,10 +10,15 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
+    /// <summary>
+    /// Provides queries to fetch root entities. A root is an entity with their owned and associated
+    /// children that works as a single unit.
+    /// </summary>
     public class QueryBuilder
     {
         #region Fields
-
+    
+        // Include LINQ methods to invoke dynamically.
         static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
@@ -35,6 +40,10 @@ namespace EntityFrameworkCore.Detached
 
         #region Ctor.
 
+        /// <summary>
+        /// Initializes a new instance of QueryBuilder.
+        /// </summary>
+        /// <param name="context">An instance of a regular DbContext.</param>
         public QueryBuilder(DbContext context)
         {
             _context = context;
@@ -42,6 +51,12 @@ namespace EntityFrameworkCore.Detached
 
         #endregion
 
+        /// <summary>
+        /// Creates a query and includes 1st level associated properties and nth level owned
+        /// properties recursively.
+        /// </summary>
+        /// <typeparam name="TEntity">Type of the entity to query.</typeparam>
+        /// <returns>Base IQueryable with the included navigation properties.</TEntity></returns>
         public virtual IQueryable<TEntity> GetRootQuery<TEntity>()
             where TEntity : class
         {
@@ -60,7 +75,14 @@ namespace EntityFrameworkCore.Detached
             return (IQueryable<TEntity>)query;
         }
 
-        void GetIncludePaths(EntityType parentType, EntityType entityType, NavigationNode path, List<NavigationNode> results)
+        /// <summary>
+        /// Gets the path list that should be included for the given entity type.
+        /// </summary>
+        /// <param name="parentType">EntityType of the parent entity.</param>
+        /// <param name="entityType">Target EntityType of the property.</param>
+        /// <param name="path">Path that is currently being built.</param>
+        /// <param name="results">Final list of paths to include.</param>
+        protected virtual void GetIncludePaths(EntityType parentType, EntityType entityType, NavigationNode path, List<NavigationNode> results)
         {
             var navs = entityType.GetNavigations()
                                 .Select(n => new
@@ -93,6 +115,13 @@ namespace EntityFrameworkCore.Detached
             }
         }
 
+        /// <summary>
+        /// Includes the specified path into the given query.
+        /// </summary>
+        /// <param name="query">IQueryable that will include the path.</param>
+        /// <param name="path">Path to include.</param>
+        /// <param name="rootType">Clr type of the initial IQueryable</param>
+        /// <returns>IQueryable with the included path.</returns>
         protected virtual object IncludePath(object query, NavigationNode path, Type rootType)
         {
             MethodInfo methodInfo;
@@ -121,13 +150,25 @@ namespace EntityFrameworkCore.Detached
         }
     }
 
-
+    /// <summary>
+    /// Linked list that hold the partial/final paths to include when creating the root query.
+    /// </summary>
     public class NavigationNode
     {
+        /// <summary>
+        /// The previous (parent) property to include.
+        /// </summary>
         public NavigationNode Previous { get; set; }
 
+        /// <summary>
+        /// The current property to include.
+        /// </summary>
         public Navigation Navigation { get; set; }
 
+        /// <summary>
+        /// Returns the string representation of the path.
+        /// </summary>
+        /// <returns>The string representation of the path.</returns>
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();

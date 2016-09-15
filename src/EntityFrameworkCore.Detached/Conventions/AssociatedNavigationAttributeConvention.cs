@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Conventions
 {
+    /// <summary>
+    /// Handles [Associated] attribute.
+    /// </summary>
     public class AssociatedNavigationAttributeConvention : NavigationAttributeNavigationConvention<AssociatedAttribute>
     {
         public override InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation, AssociatedAttribute attribute)

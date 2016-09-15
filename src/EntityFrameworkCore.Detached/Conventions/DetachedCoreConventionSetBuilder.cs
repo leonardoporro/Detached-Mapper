@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Conventions
 {
+    /// <summary>
+    /// Custom ConventionSetBuilder that provides handling to [Associated] and [Owned] attributes.
+    /// </summary>
     public class DetachedCoreConventionSetBuilder : CoreConventionSetBuilder
     {
         public override ConventionSet CreateConventionSet()

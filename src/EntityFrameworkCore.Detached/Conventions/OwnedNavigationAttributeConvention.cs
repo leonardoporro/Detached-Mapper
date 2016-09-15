@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Conventions
 {
+    /// <summary>
+    /// Handles [Owned] attribute.
+    /// </summary>
     public class OwnedNavigationAttributeConvention : NavigationAttributeNavigationConvention<OwnedAttribute>
     {
         public override InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation, OwnedAttribute attribute)

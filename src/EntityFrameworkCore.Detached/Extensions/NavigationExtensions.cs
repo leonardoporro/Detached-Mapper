@@ -10,18 +10,30 @@ namespace EntityFrameworkCore.Detached
 {
     public static class NavigationExtensions
     {
+        /// <summary>
+        /// Returns whether this navigation property is configured as Owned.
+        /// </summary>
+        /// <returns>True if the property is owned.</returns>
         public static bool IsOwned(this Navigation navigation)
         {
             var annotation = navigation.FindAnnotation(typeof(OwnedAttribute).FullName);
             return annotation != null;
         }
 
+        /// <summary>
+        /// Returns whether this navigation property is configured as Associated.
+        /// </summary>
+        /// <returns>True if the property is associated.</returns>
         public static bool IsAssociated(this Navigation navigation)
         {
             var annotation = navigation.FindAnnotation(typeof(AssociatedAttribute).FullName);
             return annotation != null;
         }
 
+        /// <summary>
+        /// Returns a member expression for this property.
+        /// The expression should look like: entity => entity.[property.Name].
+        /// </summary>
         public static Expression GetMemberExpression(this PropertyBase property)
         {
             Type entityType = property.DeclaringEntityType.ClrType;
