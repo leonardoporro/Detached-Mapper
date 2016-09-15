@@ -2,21 +2,21 @@
   "version": "1.0.0-*",
   "testRunner": "xunit",
   "dependencies": {
-    "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.NETCore.App": "1.0.1",
-    "System.ComponentModel.Annotations": "4.1.0",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "xunit": "2.2.0-beta2-build3300",
     "Microsoft.EntityFrameworkCore": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.0.1",
     "EntityFrameworkCore.Detached": "1.0.0-*",
-    "EntityFrameworkCore.Detached.DataAnnotations": "1.0.0-*"
+    "EntityFrameworkCore.Detached.DataAnnotations": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0-alpha1-22023"
   },
   "frameworks": {
     "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "portable-net45+win8"
-      ]
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      }
     }
   }
 }

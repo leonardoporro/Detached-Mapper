@@ -19,20 +19,20 @@ namespace EntityFrameworkCore.Detached
         #region Fields
     
         // Include LINQ methods to invoke dynamically.
-        static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(mi => !mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+        //static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
+        //    = typeof(EntityFrameworkQueryableExtensions)
+        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
+        //        .Single(mi => !mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
-        static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+        //static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
+        //    = typeof(EntityFrameworkQueryableExtensions)
+        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
+        //        .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
-        static readonly MethodInfo IncludeMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
-                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
+        //static readonly MethodInfo IncludeMethodInfo
+        //    = typeof(EntityFrameworkQueryableExtensions)
+        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
+        //        .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
         DbContext _context;
 
@@ -60,19 +60,19 @@ namespace EntityFrameworkCore.Detached
         public virtual IQueryable<TEntity> GetRootQuery<TEntity>()
             where TEntity : class
         {
-            object query = _context.Set<TEntity>();
             EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
 
             //include paths.
-            List<NavigationNode> paths = new List<NavigationNode>();
+            List<string> paths = new List<string>();
             GetIncludePaths(null, entityType, null, paths);
 
-            foreach (var path in paths)
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+            foreach (string path in paths)
             {
-                query = IncludePath(query, path, entityType.ClrType);
+                query = query.Include(path);
             }
 
-            return (IQueryable<TEntity>)query;
+            return query;
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace EntityFrameworkCore.Detached
         /// <param name="entityType">Target EntityType of the property.</param>
         /// <param name="path">Path that is currently being built.</param>
         /// <param name="results">Final list of paths to include.</param>
-        protected virtual void GetIncludePaths(EntityType parentType, EntityType entityType, NavigationNode path, List<NavigationNode> results)
+        protected virtual void GetIncludePaths(EntityType parentType, EntityType entityType, NavigationNode path, List<string> results)
         {
             var navs = entityType.GetNavigations()
                                 .Select(n => new
@@ -106,47 +106,13 @@ namespace EntityFrameworkCore.Detached
                     if (nav.IsOwned)
                         GetIncludePaths(entityType, nav.TargetType, newPath, results);
                     else
-                        results.Add(newPath);
+                        results.Add(newPath.ToString());
                 }
             }
             else
             {
-                results.Add(path);
+                results.Add(path.ToString());
             }
-        }
-
-        /// <summary>
-        /// Includes the specified path into the given query.
-        /// </summary>
-        /// <param name="query">IQueryable that will include the path.</param>
-        /// <param name="path">Path to include.</param>
-        /// <param name="rootType">Clr type of the initial IQueryable</param>
-        /// <returns>IQueryable with the included path.</returns>
-        protected virtual object IncludePath(object query, NavigationNode path, Type rootType)
-        {
-            MethodInfo methodInfo;
-
-            if (path.Previous != null)
-            {
-                // recurse to root.
-                query = IncludePath(query, path.Previous, rootType);
-
-                methodInfo = path.Previous.Navigation.IsCollection()
-                     ? ThenIncludeAfterCollectionMethodInfo
-                     : ThenIncludeAfterReferenceMethodInfo;
-
-                methodInfo = methodInfo.MakeGenericMethod(rootType,
-                                                          path.Navigation.DeclaringEntityType.ClrType,
-                                                          path.Navigation.PropertyInfo.PropertyType);
-            }
-            else
-            {
-                methodInfo = IncludeMethodInfo.MakeGenericMethod(
-                    path.Navigation.DeclaringEntityType.ClrType,
-                    path.Navigation.PropertyInfo.PropertyType);
-            }
-
-            return methodInfo.Invoke(null, new object[] { query, path.Navigation.GetMemberExpression() });
         }
     }
 

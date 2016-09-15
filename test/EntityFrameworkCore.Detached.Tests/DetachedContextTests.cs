@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.Detached.Tests.Model;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -8,7 +7,7 @@ namespace EntityFrameworkCore.Detached.Tests
 {
     public class DetachedContextTests
     {
-        [Fact(DisplayName = "Owned Collection: Add Item")]
+        [Fact(DisplayName = "Owned Collection: Add Item 1")]
         public async Task OwnedCollectionAddItem()
         {
             using (TestDbContext context = new TestDbContext())
@@ -54,9 +53,9 @@ namespace EntityFrameworkCore.Detached.Tests
                 context.Add(new Entity
                 {
                     OwnedList = new[]  {
-                        new OwnedListItem { Id = 1, Name = "Owned Item A" },
-                        new OwnedListItem { Id = 2, Name = "Owned Item B" }
-                    }
+                            new OwnedListItem { Id = 1, Name = "Owned Item A" },
+                            new OwnedListItem { Id = 2, Name = "Owned Item B" }
+                        }
                 });
                 context.SaveChanges();
 
@@ -65,8 +64,8 @@ namespace EntityFrameworkCore.Detached.Tests
                 {
                     Id = 1,
                     OwnedList = new[]  {
-                        new OwnedListItem { Id = 2, Name = "Owned Item B" },
-                    }
+                            new OwnedListItem { Id = 2, Name = "Owned Item B" },
+                        }
                 };
 
                 await detachedContext.SaveAsync(detachedEntity);
@@ -144,9 +143,9 @@ namespace EntityFrameworkCore.Detached.Tests
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]
                 {
-                    new AssociatedReference { Id = 1, Name = "Associated Reference 1" },
-                    new AssociatedReference { Id = 2, Name = "Associated Reference 2" }
-                };
+                        new AssociatedReference { Id = 1, Name = "Associated Reference 1" },
+                        new AssociatedReference { Id = 2, Name = "Associated Reference 2" }
+                    };
                 context.AddRange(references);
                 context.Add(new Entity
                 {
@@ -178,9 +177,9 @@ namespace EntityFrameworkCore.Detached.Tests
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]
                 {
-                    new AssociatedReference { Id = 1, Name = "Associated Reference 1" },
-                    new AssociatedReference { Id = 2, Name = "Associated Reference 2" }
-                };
+                        new AssociatedReference { Id = 1, Name = "Associated Reference 1" },
+                        new AssociatedReference { Id = 2, Name = "Associated Reference 2" }
+                    };
                 context.AddRange(references);
                 context.Add(new Entity
                 {
