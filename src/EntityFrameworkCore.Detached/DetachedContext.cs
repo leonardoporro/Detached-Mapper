@@ -39,7 +39,7 @@ namespace EntityFrameworkCore.Detached
         }
 
         #endregion
-    
+
         /// <summary>
         /// Returns an IQueryable with the Includes needed to fetch a detached root entity.
         /// </summary>
@@ -230,29 +230,32 @@ namespace EntityFrameworkCore.Detached
             if (entity == null)
                 return;
 
-            var entry = _context.Attach(entity);
+            var entry = _context.Entry(entity);
             entry.State = EntityState.Added;
 
             foreach (Navigation navigation in entityType.GetNavigations())
             {
-                if (navigation.IsOwned()) //recursive add for owned properties.
+                bool owned = navigation.IsOwned();
+                bool associated = navigation.IsAssociated();
+                EntityType navType = navigation.GetTargetType();
+
+                object navValue = navigation.Getter.GetClrValue(entity);
+                if (navigation.IsCollection())
                 {
-                    object value = navigation.Getter.GetClrValue(entity);
-                    if (value != null)
+                    foreach (object navItem in (IEnumerable)navValue)
                     {
-                        EntityType itemType = navigation.GetTargetType();
-                        if (navigation.IsCollection())
-                        {
-                            foreach (object item in (IEnumerable)value)
-                            {
-                                Add(itemType, item); //add collection item.
-                            }
-                        }
-                        else
-                        {
-                            Add(itemType, value); //add reference.
-                        }
+                        if (associated)
+                            Attach(navType, navItem);
+                        else if (owned)
+                            Add(navType, navItem);
                     }
+                }
+                else
+                {
+                    if (associated)
+                        Attach(navType, navValue);
+                    else if (owned)
+                        Add(navType, navValue);
                 }
             }
         }
@@ -348,7 +351,7 @@ namespace EntityFrameworkCore.Detached
             }
             return null;
         }
-        
+
         /// <summary>
         /// Gets an expression to query a root entity by its key.
         /// The expression should look like "entity => entity.Key == [instance.Key]" where 

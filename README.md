@@ -43,21 +43,22 @@ Company company = await context.LoadAsync<Company>(1);
 ```
 
 # Configuration:
-To be able to process the [Owned] and [Associated] attributes, a convention builder is needed.
+To be able to process the [Owned] and [Associated] attributes, a custom convention builder is needed.
 You can replace the ICoreConventionSetBuilder service by overriding OnConfiguring in your DbContext:
 
 ```csharp
 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
-    optionsBuilder.ReplaceService<ICoreConventionSetBuilder, DetachedCoreConventionSetBuilder>();
+    optionsBuilder.UseDetached().UseSqlServer(...);
 }
 ```
 Or if you are using your own service collection: 
+
 ```csharp
 
             var serviceProvider = new ServiceCollection()
                  .AddEntityFrameworkInMemoryDatabase()
-                 .AddSingleton<ICoreConventionSetBuilder, DetachedCoreConventionSetBuilder>()
+                 .AddEntityFrameworkDetached()
                  .BuildServiceProvider();
 ```
 

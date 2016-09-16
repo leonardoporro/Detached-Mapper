@@ -19,6 +19,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFrameworkCore.Detache
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFrameworkCore.Detached.DataAnnotations", "src\EntityFrameworkCore.Detached.DataAnnotations\EntityFrameworkCore.Detached.DataAnnotations.xproj", "{CAE57FCE-7531-44CE-8A64-0433DAA578D3}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFrameworkCore.Detached.Demo", "test\EntityFrameworkCore.Detached.Demo\EntityFrameworkCore.Detached.Demo.xproj", "{79A5655D-7919-46C8-9252-57E23F875AB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{CAE57FCE-7531-44CE-8A64-0433DAA578D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAE57FCE-7531-44CE-8A64-0433DAA578D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAE57FCE-7531-44CE-8A64-0433DAA578D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79A5655D-7919-46C8-9252-57E23F875AB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79A5655D-7919-46C8-9252-57E23F875AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79A5655D-7919-46C8-9252-57E23F875AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79A5655D-7919-46C8-9252-57E23F875AB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,5 +51,6 @@ Global
 		{8555F84A-E20D-4C08-A5D6-E50BFC1AD458} = {2A413C2B-93C8-4CD7-BCBE-F6DE1B3ADEA9}
 		{25A5DE5A-7F46-4A46-8865-4BB44EBBE13D} = {6CBDF9FC-D22B-426E-A5A6-E4A2D095976E}
 		{CAE57FCE-7531-44CE-8A64-0433DAA578D3} = {6CBDF9FC-D22B-426E-A5A6-E4A2D095976E}
+		{79A5655D-7919-46C8-9252-57E23F875AB4} = {2A413C2B-93C8-4CD7-BCBE-F6DE1B3ADEA9}
 	EndGlobalSection
 EndGlobal

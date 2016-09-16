@@ -27,9 +27,9 @@ namespace EntityFrameworkCore.Detached.Tests.Model
         static DbContextOptions GetTestDbContextOptions()
         {
             var serviceProvider = new ServiceCollection()
-                 .AddEntityFrameworkInMemoryDatabase()
-                 .AddSingleton<ICoreConventionSetBuilder, DetachedCoreConventionSetBuilder>()
-                 .BuildServiceProvider();
+                     .AddEntityFrameworkInMemoryDatabase()
+                     .AddEntityFrameworkDetached()
+                     .BuildServiceProvider();
 
             var builder = new DbContextOptionsBuilder<TestDbContext>();
 

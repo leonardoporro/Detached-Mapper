@@ -109,7 +109,7 @@ namespace EntityFrameworkCore.Detached
                         results.Add(newPath.ToString());
                 }
             }
-            else
+            else if (path != null)
             {
                 results.Add(path.ToString());
             }
