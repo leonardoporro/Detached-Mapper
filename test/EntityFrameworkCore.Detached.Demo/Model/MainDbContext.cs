@@ -18,5 +18,9 @@ namespace EntityFrameworkCore.Detached.Demo.Model
         public DbSet<SellPoint> SellPoints { get; set; }
 
         public DbSet<SellPointType> SellPointTypes { get; set; }
+
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Role> Roles { get; set; }
     }
 }

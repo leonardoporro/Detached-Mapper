@@ -74,6 +74,23 @@ namespace EntityFrameworkCore.Detached.Demo
                     new SellPoint { Name = "France", Address = "500 Rue Saint-Paul 34000 Montpellier, France", Type = new SellPointType { Id = 1 } }
                 })
             });
+
+            dbContext.AddRange(new[]
+            {
+                new Role { Name = "Admin" },
+                new Role { Name = "User" }
+            });
+            await dbContext.SaveChangesAsync();
+
+            await detached.SaveAsync(new User
+            {
+                Name = "Test User",
+                Roles = new[]
+                {
+                    new Role { Id = 1 },
+                    new Role { Id = 2 }
+                }
+            });
         }
     }
 }

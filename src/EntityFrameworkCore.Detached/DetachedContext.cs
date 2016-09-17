@@ -240,22 +240,25 @@ namespace EntityFrameworkCore.Detached
                 EntityType navType = navigation.GetTargetType();
 
                 object navValue = navigation.Getter.GetClrValue(entity);
-                if (navigation.IsCollection())
+                if (navValue != null)
                 {
-                    foreach (object navItem in (IEnumerable)navValue)
+                    if (navigation.IsCollection())
+                    {
+                        foreach (object navItem in (IEnumerable)navValue)
+                        {
+                            if (associated)
+                                Attach(navType, navItem);
+                            else if (owned)
+                                Add(navType, navItem);
+                        }
+                    }
+                    else
                     {
                         if (associated)
-                            Attach(navType, navItem);
+                            Attach(navType, navValue);
                         else if (owned)
-                            Add(navType, navItem);
+                            Add(navType, navValue);
                     }
-                }
-                else
-                {
-                    if (associated)
-                        Attach(navType, navValue);
-                    else if (owned)
-                        Add(navType, navValue);
                 }
             }
         }
