@@ -10,7 +10,7 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
-- 1.0.0
+- 1.0.0-alpha3
  * [Owned] and [Associated] attributes to define scope when loading a graph.
  * Roots<TEntity>(): returns an IQueryable with the proper includes (joins).
  * LoadAsync<TEntity>(object[] key): loads a single detached root by its key.
