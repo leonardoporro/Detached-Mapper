@@ -8,5 +8,16 @@ namespace EntityFrameworkCore.Detached.DataAnnotations
     [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
     public sealed class ManyToManyAttribute : Attribute
     {
+        public ManyToManyAttribute()
+        {
+
+        }
+
+        public ManyToManyAttribute(string tableName)
+        {
+            this.TableName = tableName;
+        }
+
+        public string TableName { get; set; }
     }
 }

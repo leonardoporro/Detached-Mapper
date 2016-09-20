@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Conventions;
+using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -23,6 +24,10 @@ namespace EntityFrameworkCore.Detached.Tests.Model
         public DbSet<OwnedListItem> OwnedListItems { get; set; }
 
         public DbSet<AssociatedListItem> AssociatedListItems { get; set; }
+
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Role> Roles { get; set; }
 
         static DbContextOptions GetTestDbContextOptions()
         {

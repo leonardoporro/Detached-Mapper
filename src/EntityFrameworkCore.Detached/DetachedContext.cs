@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.DataAnnotations;
+using EntityFrameworkCore.Detached.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,6 +24,7 @@ namespace EntityFrameworkCore.Detached
 
         DbContext _context;
         QueryBuilder _queryBuilder;
+        ManyToManyPatchContext _manyToManyPatch;
 
         #endregion
 
@@ -36,6 +38,7 @@ namespace EntityFrameworkCore.Detached
         {
             _context = context;
             _queryBuilder = new QueryBuilder(context);
+            _manyToManyPatch = new ManyToMany.ManyToManyPatchContext(context);
         }
 
         #endregion
@@ -62,9 +65,37 @@ namespace EntityFrameworkCore.Detached
         {
             EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
 
-            return await _queryBuilder.GetRootQuery<TEntity>()
-                                      .AsNoTracking()
-                                      .SingleOrDefaultAsync(GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), key));
+            var findByKeyExpr = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), key);
+
+            TEntity entity =  await _queryBuilder.GetRootQuery<TEntity>()
+                                          .AsNoTracking()
+                                          .SingleOrDefaultAsync(findByKeyExpr);
+            if (entity != null)
+                await _manyToManyPatch.LoadManyToManyRelations(entityType, entity);
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Loads a detached root entity by a filter.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr type of the root entity to load.</typeparam>
+        /// <param name="filter">Filter expression</param>
+        /// <returns>A detached list of root entity with its associated and owned children.</returns>
+        public virtual async Task<List<TEntity>> LoadAsync<TEntity>(Expression<Func<TEntity, bool>> filter)
+            where TEntity : class
+        {
+            EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
+
+            List<TEntity> list = await _queryBuilder.GetRootQuery<TEntity>()
+                                                    .AsNoTracking()
+                                                    .Where(filter)
+                                                    .ToListAsync();
+
+            foreach (TEntity entity in list)
+                await _manyToManyPatch.LoadManyToManyRelations(entityType, entity);
+
+            return list;
         }
 
         /// <summary>

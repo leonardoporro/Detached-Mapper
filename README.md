@@ -62,5 +62,12 @@ Or if you are using your own service collection:
                  .BuildServiceProvider();
 ```
 
+# Build
+
+In order to get alpha EF Core dependencies, you would need to add myget.org.
+Go to menu Tools -> Options -> NuGet Package Manager -> Package Sources and add this source:
+https://dotnet.myget.org/F/aspnetcore-dev/
+Then you will be able to download EF Core 1.1.0-alpha...
+
 # Nuget package:
 https://www.nuget.org/packages/EntityFrameworkCore.Detached/

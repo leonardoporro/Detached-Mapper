@@ -9,6 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using EntityFrameworkCore.Detached.Demo.Model;
+using EntityFrameworkCore.Detached.ManyToMany;
+using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Collections;
 
 namespace EntityFrameworkCore.Detached.Demo
 {
@@ -52,7 +57,7 @@ namespace EntityFrameworkCore.Detached.Demo
         {
             await dbContext.Database.EnsureDeletedAsync();
             await dbContext.Database.EnsureCreatedAsync();
-            
+
             dbContext.AddRange(new[]
             {
                 new SellPointType { Name = "Type 1" },
@@ -81,16 +86,6 @@ namespace EntityFrameworkCore.Detached.Demo
                 new Role { Name = "User" }
             });
             await dbContext.SaveChangesAsync();
-
-            await detached.SaveAsync(new User
-            {
-                Name = "Test User",
-                Roles = new[]
-                {
-                    new Role { Id = 1 },
-                    new Role { Id = 2 }
-                }
-            });
         }
     }
 }

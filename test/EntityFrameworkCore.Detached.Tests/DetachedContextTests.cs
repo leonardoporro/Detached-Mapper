@@ -7,8 +7,8 @@ namespace EntityFrameworkCore.Detached.Tests
 {
     public class DetachedContextTests
     {
-        [Fact(DisplayName = "Owned Collection: Add Item 1")]
-        public async Task OwnedCollectionAddItem()
+        [Fact]
+        public async Task when_item_is_added_to_owned_collection__item_is_created()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -42,8 +42,8 @@ namespace EntityFrameworkCore.Detached.Tests
             }
         }
 
-        [Fact(DisplayName = "Owned Collection: Remove Item")]
-        public async Task OwnedCollectionRemoveItem()
+        [Fact]
+        public async Task when_item_is_removed_from_owned_collection__item_is_deleted()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -77,8 +77,8 @@ namespace EntityFrameworkCore.Detached.Tests
             }
         }
 
-        [Fact(DisplayName = "Owned Reference: Set")]
-        public async Task OwnedRefereceSet()
+        [Fact]
+        public async Task when_owned_property_is_set_to_entity__entity_is_created()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -105,8 +105,8 @@ namespace EntityFrameworkCore.Detached.Tests
             }
         }
 
-        [Fact(DisplayName = "Owned Reference: Remove")]
-        public async Task OwnedReferenceRemove()
+        [Fact]
+        public async Task when_owned_property_is_set_to_null__entity_is_deleted()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -133,8 +133,8 @@ namespace EntityFrameworkCore.Detached.Tests
             }
         }
 
-        [Fact(DisplayName = "Associated Reference: Set")]
-        public async Task AssociatedReferenceSet()
+        [Fact]
+        public async Task when_associated_property_is_set_to_entity__entity_is_related_to_existing()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -167,8 +167,8 @@ namespace EntityFrameworkCore.Detached.Tests
             }
         }
 
-        [Fact(DisplayName = "Associated Reference: Remove")]
-        public async Task AssociatedReferenceRemove()
+        [Fact]
+        public async Task when_associated_property_is_set_to_null__entity_is_preserved()
         {
             using (TestDbContext context = new TestDbContext())
             {

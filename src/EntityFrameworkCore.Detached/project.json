@@ -4,7 +4,7 @@
     "NETStandard.Library": "1.6.0",
     "EntityFrameworkCore.Detached.DataAnnotations": "1.0.0-*",
     "Microsoft.EntityFrameworkCore": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-alpha1-22157"
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-*"
   },
   "frameworks": {
     "net451": {},

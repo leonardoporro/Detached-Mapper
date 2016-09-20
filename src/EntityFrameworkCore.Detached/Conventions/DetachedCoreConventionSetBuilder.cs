@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using EntityFrameworkCore.Detached.ManyToMany;
 
 namespace EntityFrameworkCore.Detached.Conventions
 {
@@ -15,10 +16,11 @@ namespace EntityFrameworkCore.Detached.Conventions
     {
         public override ConventionSet CreateConventionSet()
         {
-            var set = base.CreateConventionSet();
+            var set = base.CreateConventionSet(); 
+
             set.NavigationAddedConventions.Add(new AssociatedNavigationAttributeConvention());
             set.NavigationAddedConventions.Add(new OwnedNavigationAttributeConvention());
-            set.NavigationAddedConventions.Add(new ManyToManyNavigationAttributeConvention());
+            set.NavigationAddedConventions.Add(new ManyToManyPatchAttributeConvention());
 
             return set;
         }
