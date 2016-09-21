@@ -20,12 +20,6 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
             this.detached = new DetachedContext(dbContext);
         }
 
-        [HttpGet]
-        public async Task<IList<Company>> Get()
-        {
-            return await detached.Roots<Company>().ToListAsync();
-        }
-
         [HttpGet("{id}")]
         public async Task<Company> Get(int id)
         {

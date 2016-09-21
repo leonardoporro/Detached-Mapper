@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.Detached.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
-    public static class NavigationExtensions
+    /// <summary>
+    /// Provides extra features for properties.
+    /// </summary>
+    public static class PropertyExtensions
     {
         /// <summary>
         /// Returns whether this navigation property is configured as Owned.
@@ -42,6 +46,19 @@ namespace EntityFrameworkCore.Detached
 
             ParameterExpression param = Expression.Parameter(entityType, entityType.Name.ToLower());
             return Expression.Lambda(delType, Expression.Property(param, property.PropertyInfo), param);
+        }
+
+        /// <summary>
+        /// Gets a collection value as a PrimaryKey -> Entity hash table to do lookups in O(1).
+        /// </summary>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="instance">The entity instance.</param>
+        /// <returns></returns>
+        public static Dictionary<string, object> GetValueAsHashTable(this Navigation navigation, object instance)
+        {
+            ICollection collection = navigation.Getter.GetClrValue(instance) as ICollection;
+            EntityType entityType = navigation.GetTargetType();
+            return entityType.CreateHashTable(collection);
         }
     }
 }

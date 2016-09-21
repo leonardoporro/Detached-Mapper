@@ -22,8 +22,10 @@ namespace EntityFrameworkCore.Detached.ManyToMany
     {
         public EntityType EntityType { get; set; }
 
-        public PropertyBase Property { get; set; }
-
         public string PropertyName { get; set; }
+
+        public IClrPropertyGetter Getter { get; set; }
+
+        public IClrPropertySetter Setter { get; set; }
     }
 }

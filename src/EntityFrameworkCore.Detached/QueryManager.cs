@@ -4,69 +4,59 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
-    /// <summary>
-    /// Provides queries to fetch root entities. A root is an entity with their owned and associated
-    /// children that works as a single unit.
-    /// </summary>
-    public class QueryBuilder
+    public class QueryManager : IQueryManager
     {
         #region Fields
-    
-        // Include LINQ methods to invoke dynamically.
-        //static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
-        //    = typeof(EntityFrameworkQueryableExtensions)
-        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-        //        .Single(mi => !mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
-        //static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
-        //    = typeof(EntityFrameworkQueryableExtensions)
-        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-        //        .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
-
-        //static readonly MethodInfo IncludeMethodInfo
-        //    = typeof(EntityFrameworkQueryableExtensions)
-        //        .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
-        //        .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
-
-        DbContext _context;
+        DbContext _dbContext;
 
         #endregion
 
         #region Ctor.
 
-        /// <summary>
-        /// Initializes a new instance of QueryBuilder.
-        /// </summary>
-        /// <param name="context">An instance of a regular DbContext.</param>
-        public QueryBuilder(DbContext context)
+        public QueryManager(DbContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         #endregion
-
-        /// <summary>
-        /// Creates a query and includes 1st level associated properties and nth level owned
-        /// properties recursively.
-        /// </summary>
-        /// <typeparam name="TEntity">Type of the entity to query.</typeparam>
-        /// <returns>Base IQueryable with the included navigation properties.</TEntity></returns>
-        public virtual IQueryable<TEntity> GetRootQuery<TEntity>()
+   
+        public virtual Task<TEntity> FindEntityByKey<TEntity>(EntityType entityType, object[] keyValues)
             where TEntity : class
         {
-            EntityType entityType = _context.Model.FindEntityType(typeof(TEntity)) as EntityType;
+            Expression<Func<TEntity, bool>> filter = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), keyValues);
+            return GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().SingleOrDefaultAsync();
+        }
 
+        public virtual Task<List<TEntity>> FindEntities<TEntity>(EntityType entityType, Expression<Func<TEntity, bool>> filter)
+           where TEntity : class
+        {
+            return GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().ToListAsync();
+        }
+
+        public virtual Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity)
+            where TEntity : class
+        {
+            Key key = entityType.FindPrimaryKey();
+            object[] keyValues = key.Properties.Select(p => p.Getter.GetClrValue(detachedEntity)).ToArray();
+            Expression<Func<TEntity, bool>> filter = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), keyValues);
+
+            return GetBaseQuery<TEntity>(entityType).Where(filter).AsTracking().SingleOrDefaultAsync();
+        }
+
+        protected virtual IQueryable<TEntity> GetBaseQuery<TEntity>(EntityType entityType)
+            where TEntity : class
+        {
             //include paths.
             List<string> paths = new List<string>();
             GetIncludePaths(null, entityType, null, paths);
 
-            IQueryable<TEntity> query = _context.Set<TEntity>();
+            IQueryable<TEntity> query = _dbContext.Set<TEntity>();
             foreach (string path in paths)
             {
                 query = query.Include(path);
@@ -75,13 +65,6 @@ namespace EntityFrameworkCore.Detached
             return query;
         }
 
-        /// <summary>
-        /// Gets the path list that should be included for the given entity type.
-        /// </summary>
-        /// <param name="parentType">EntityType of the parent entity.</param>
-        /// <param name="entityType">Target EntityType of the property.</param>
-        /// <param name="path">Path that is currently being built.</param>
-        /// <param name="results">Final list of paths to include.</param>
         protected virtual void GetIncludePaths(EntityType parentType, EntityType entityType, NavigationNode path, List<string> results)
         {
             var navs = entityType.GetNavigations()
@@ -113,6 +96,21 @@ namespace EntityFrameworkCore.Detached
             {
                 results.Add(path.ToString());
             }
+        }
+
+        protected virtual Expression<Func<TEntity, bool>> GetFindByKeyExpression<TEntity>(EntityType entityType, Key key, object[] keyValues)
+        {
+            ParameterExpression param = Expression.Parameter(entityType.ClrType, entityType.ClrType.Name.ToLower());
+            Func<int, Expression> buildCompare = i =>
+                Expression.Equal(Expression.Property(param, key.Properties[i].PropertyInfo),
+                                 Expression.Constant(keyValues[i]));
+
+            Expression findExpr = buildCompare(0);
+            for (int i = 1; i < key.Properties.Count; i++)
+            {
+                findExpr = Expression.AndAlso(findExpr, buildCompare(i));
+            }
+            return Expression.Lambda<Func<TEntity, bool>>(findExpr, param);
         }
     }
 

@@ -67,7 +67,7 @@ namespace EntityFrameworkCore.Detached.Demo
             });
             await dbContext.SaveChangesAsync();
 
-            DetachedContext detached = new DetachedContext(dbContext);
+            IDetachedContext detached = new DetachedContext(dbContext);
             await detached.SaveAsync(new Company()
             {
                 Name = "Hello Company!",
@@ -79,13 +79,6 @@ namespace EntityFrameworkCore.Detached.Demo
                     new SellPoint { Name = "France", Address = "500 Rue Saint-Paul 34000 Montpellier, France", Type = new SellPointType { Id = 1 } }
                 })
             });
-
-            dbContext.AddRange(new[]
-            {
-                new Role { Name = "Admin" },
-                new Role { Name = "User" }
-            });
-            await dbContext.SaveChangesAsync();
         }
     }
 }

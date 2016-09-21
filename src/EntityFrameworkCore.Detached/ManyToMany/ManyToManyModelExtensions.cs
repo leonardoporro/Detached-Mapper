@@ -82,7 +82,7 @@ namespace EntityFrameworkCore.Detached.ManyToMany
 
             CreatePrimaryKey(m2mEntityBuilder);
 
-            Navigation nav = RemoveOriginalOneToManyAssociation(end1EntityType, end2EntityType, propertyName);
+            Navigation originalNavigation = RemoveOriginalOneToManyAssociation(end1EntityType, end2EntityType, propertyName);
 
             ManyToManyNavigation m2mNavigation = new ManyToManyNavigation
             {
@@ -90,7 +90,8 @@ namespace EntityFrameworkCore.Detached.ManyToMany
                 {
                     PropertyName = propertyName,
                     EntityType = end1EntityType,
-                    Property = new Property(nav.PropertyInfo, end1EntityType, ConfigurationSource.Explicit)
+                    Getter = originalNavigation.Getter,
+                    Setter = originalNavigation.Setter
                 },
                 End2 = new ManyToManyNavigationEnd
                 {

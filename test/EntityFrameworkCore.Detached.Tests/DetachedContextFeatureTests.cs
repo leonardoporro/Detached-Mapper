@@ -1,11 +1,13 @@
-﻿using EntityFrameworkCore.Detached.Tests.Model;
+﻿using EntityFrameworkCore.Detached.ManyToMany;
+using EntityFrameworkCore.Detached.Tests.Model;
+using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace EntityFrameworkCore.Detached.Tests
 {
-    public class DetachedContextTests
+    public class DetachedContextFeatureTests
     {
         [Fact]
         public async Task when_item_is_added_to_owned_collection__item_is_created()
@@ -36,7 +38,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the items is added to the the database.
-                Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
+                Entity persistedEntity = await detachedContext.LoadAsync<Entity>(1);
                 Assert.True(persistedEntity.OwnedList.Any(s => s.Name == "Owned Item A"));
                 Assert.True(persistedEntity.OwnedList.Any(s => s.Name == "Owned Item B"));
             }
@@ -47,7 +49,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 // GIVEN an enity root with an owned list:
                 context.Add(new Entity
@@ -71,7 +73,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 await detachedContext.SaveAsync(detachedEntity);
 
                 // THEN the items is added to the the database.
-                Entity persistedEntity = detachedContext.Roots<Entity>().Single(r => r.Id == 1);
+                Entity persistedEntity = await detachedContext.LoadAsync<Entity>(1);
                 Assert.False(persistedEntity.OwnedList.Any(s => s.Name == "Owned Item A"));
                 Assert.True(persistedEntity.OwnedList.Any(s => s.Name == "Owned Item B"));
             }
@@ -82,7 +84,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 // GIVEN an enity root with references:
                 context.Add(new Entity
@@ -110,7 +112,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 // GIVEN an enity root with references:
                 context.Add(new Entity
@@ -138,7 +140,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]
@@ -172,7 +174,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]

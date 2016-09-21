@@ -7,7 +7,7 @@
     "Microsoft.EntityFrameworkCore": "1.1.0-*",
     "EntityFrameworkCore.Detached": "1.0.0-*",
     "EntityFrameworkCore.Detached.DataAnnotations": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0-alpha1-22023"
+    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0-*"
   },
   "frameworks": {
     "netcoreapp1.0": {

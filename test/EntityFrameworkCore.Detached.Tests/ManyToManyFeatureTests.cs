@@ -9,7 +9,7 @@ using Xunit;
 
 namespace EntityFrameworkCore.Detached.Tests
 {
-    public class ManyToManyTests
+    public class ManyToManyFeatureTests
     {
         [Fact]
         public async Task when_entity_is_loaded__many_to_many_is_loaded()
@@ -37,10 +37,38 @@ namespace EntityFrameworkCore.Detached.Tests
                 });
                 context.SaveChanges();
 
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext detachedContext = new DetachedContext(context);
 
                 User persisted = await detachedContext.LoadAsync<User>(1);
                 Assert.Equal(2, persisted.Roles.Count);
+                Assert.True(persisted.Roles.Any(r => r.Name == "Admin"));
+                Assert.True(persisted.Roles.Any(r => r.Name == "PowerUser"));
+            }
+        }
+
+        [Fact]
+        public async Task when_entity_is_saved__many_to_many_is_saved()
+        {
+            using (TestDbContext dbContext = new TestDbContext())
+            {
+                DetachedContext detachedContext = new DetachedContext(dbContext);
+
+                dbContext.AddRange(new[]
+                {
+                    new Role { Name = "Admin" },
+                    new Role { Name = "User" }
+                });
+                await dbContext.SaveChangesAsync();
+
+                await detachedContext.SaveAsync(new User
+                {
+                    Name = "U",
+                    Roles = new[] { new Role { Id = 1 } }
+                });
+
+                User persisted = await detachedContext.LoadAsync<User>(1);
+                Assert.Equal(2, persisted.Roles.Count);
+                Assert.True(persisted.Roles.Any(r => r.Name == "Admin"));
             }
         }
     }

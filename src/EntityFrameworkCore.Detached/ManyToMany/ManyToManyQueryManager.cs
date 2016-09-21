@@ -6,23 +6,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace EntityFrameworkCore.Detached.ManyToMany
 {
-    public class ManyToManyPatchContext
+    public class ManyToManyQueryManager : QueryManager
     {
         #region Fields
 
-        static MethodInfo LoadCollectionMethodInfo = typeof(ManyToManyPatchContext).GetMethod(nameof(LoadCollection), BindingFlags.NonPublic | BindingFlags.Instance);
+        static MethodInfo LoadCollectionMethodInfo = typeof(ManyToManyQueryManager).GetMethod(nameof(LoadCollection), BindingFlags.NonPublic | BindingFlags.Instance);
         DbContext _dbContext;
 
         #endregion
 
         #region Ctor.
 
-        public ManyToManyPatchContext(DbContext context)
+        public ManyToManyQueryManager(DbContext dbContext)
+            : base(dbContext)
         {
-            _dbContext = context;
+            _dbContext = dbContext;
         }
 
         #endregion
@@ -45,7 +47,7 @@ namespace EntityFrameworkCore.Detached.ManyToMany
                 object loadedCollection = await loadedCollectionTask;
 
                 // set the result to the many to many property.
-                m2mProperty.End1.Property.Setter.SetClrValue(entity, loadedCollection);
+                m2mProperty.End1.Setter.SetClrValue(entity, loadedCollection);
             }
 
             // recursively load other many to many properties.
@@ -82,6 +84,32 @@ namespace EntityFrameworkCore.Detached.ManyToMany
                              .Where(m2m => m2m.End1 == entity)
                              .Select(m2m => m2m.End2)
                              .ToListAsync();
+        }
+
+        public override async Task<TEntity> FindEntityByKey<TEntity>(EntityType entityType, object[] keyValues)
+        {
+            TEntity entity = await base.FindEntityByKey<TEntity>(entityType, keyValues);
+            if (entity != null)
+                await LoadManyToManyRelations(entityType, entity);
+            return entity;
+        }
+
+        public override async Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity)
+        {
+            TEntity entity = await base.FindPersistedEntity<TEntity>(entityType, detachedEntity);
+            if (entity != null)
+                await LoadManyToManyRelations(entityType, entity);
+            return entity;
+        }
+
+        public override async Task<List<TEntity>> FindEntities<TEntity>(EntityType entityType, Expression<Func<TEntity, bool>> filter)
+        {
+            List<TEntity> entities = await base.FindEntities<TEntity>(entityType, filter);
+            foreach (TEntity entity in entities)
+            {
+                await LoadManyToManyRelations(entityType, entity);
+            }
+            return entities;
         }
     }
 }
