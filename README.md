@@ -10,11 +10,15 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
+- 1.0.0-alpha4
+ * [ManyToMany] PATCH to work with a simple 1-level many to many association such as User -> Roles.
+ (while we wait for the feature).
+
 - 1.0.0-alpha3
  * [Owned] and [Associated] attributes to define scope when loading a graph.
- * Roots<TEntity>(): returns an IQueryable with the proper includes (joins).
- * LoadAsync<TEntity>(object[] key): loads a single detached root by its key.
- * SaveAsync: persists a single detached root to the database. 
+ * LoadAsync<TEntity>(key): loads a single detached root by its key.
+ * LoadAsync<TEntity>(filter): loads a single detached root filtered by an expression.
+ * SaveAsync: persists a detached root (with its children) to the database. 
 
 Usage looks like this:
 ```csharp
@@ -68,6 +72,8 @@ In order to get alpha EF Core dependencies, you would need to add myget.org.
 Go to menu Tools -> Options -> NuGet Package Manager -> Package Sources and add this source:
 https://dotnet.myget.org/F/aspnetcore-dev/
 Then you will be able to download EF Core 1.1.0-alpha...
+
+Also .NET Core 1.0.1 - VS 2015 Tooling Preview 2 (https://go.microsoft.com/fwlink/?LinkID=827546) is required.
 
 # Nuget package:
 https://www.nuget.org/packages/EntityFrameworkCore.Detached/
