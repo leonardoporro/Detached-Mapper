@@ -1,4 +1,5 @@
-﻿using EntityFrameworkCore.Detached.Demo.Model;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.Demo.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,8 @@ namespace EntityFrameworkCore.Detached.Demo
             // Add framework services.
             services.AddMvc();
             services.AddEntityFrameworkDetached();
-            services.AddDbContext<MainDbContext>(cfg => cfg.UseDetached().UseSqlServer(Configuration.GetConnectionString("Default")));
             services.AddSessionInfoProvider(() => "Current User");
+            services.AddDbContext<MainDbContext>(cfg => cfg.UseDetached().UseSqlServer(Configuration.GetConnectionString("Default")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,7 +62,7 @@ namespace EntityFrameworkCore.Detached.Demo
             });
             await dbContext.SaveChangesAsync();
 
-            DetachedContext<MainDbContext> detached = new DetachedContext<MainDbContext>(dbContext);
+            DetachedContext<MainDbContext> detached = new DetachedContext<MainDbContext>(dbContext, new DelegateSessionInfoProvider(() => "System"));
             await detached.SaveAsync(new Company()
             {
                 Name = "Hello Company!",

@@ -12,6 +12,7 @@ Thanks in advance for your help!
 Features:
 - 1.0.0-alpha5: Audit. Supports automatic setting properties marked as [CreatedBy] [CreatedDate]
 [ModifiedBy] and [ModifiedDate].
+An instance of IDetachedSessionInfoProvider is needed to get the current logged user name.
 
 - 1.0.0-alpha4
  * [ManyToMany] PATCH to work with a simple 1-level many to many association such as User -> Roles.
