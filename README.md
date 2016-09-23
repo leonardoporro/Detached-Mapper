@@ -10,6 +10,9 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
+- 1.0.0-alpha5: Audit. Supports automatic setting properties marked as [CreatedBy] [CreatedDate]
+[ModifiedBy] and [ModifiedDate].
+
 - 1.0.0-alpha4
  * [ManyToMany] PATCH to work with a simple 1-level many to many association such as User -> Roles.
  (while we wait for the feature).
@@ -23,7 +26,7 @@ Features:
 Usage looks like this:
 ```csharp
 // Create a detached wrapper for your context.
-DetachedContext context = new DetachedContext(new YourDbContext());
+IDetachedContext<YourDbContext> context = new DetachedContext<YourDbContext>(new YourDbContext());
 
 // Get some detached entity root. e.g.: Company has an [Owned] list of Employees.
 Company company = new Company {

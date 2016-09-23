@@ -1,4 +1,5 @@
-﻿using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Tests.Model.Audit;
+using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,9 +23,11 @@ namespace EntityFrameworkCore.Detached.Tests.Model
 
         public DbSet<AssociatedListItem> AssociatedListItems { get; set; }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<EntityForAudit> EntitiesForAudit { get; set; }
 
-        public DbSet<Role> Roles { get; set; }
+        public DbSet<ManyToManyEndA> Users { get; set; }
+
+        public DbSet<ManyToManyEndB> Roles { get; set; }
 
         static DbContextOptions GetTestDbContextOptions()
         {

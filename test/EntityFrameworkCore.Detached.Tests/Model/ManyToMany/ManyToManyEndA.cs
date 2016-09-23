@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Tests.Model.ManyToMany
 {
-    public class User
+    public class ManyToManyEndA
     {
         [Key]
         public int Id { get; set; }
@@ -15,6 +15,6 @@ namespace EntityFrameworkCore.Detached.Tests.Model.ManyToMany
         public string Name { get; set; }
 
         [ManyToMany]
-        public ICollection<Role> Roles { get; set; }
+        public ICollection<ManyToManyEndB> EndB { get; set; }
     }
 }

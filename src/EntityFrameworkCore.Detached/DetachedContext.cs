@@ -28,11 +28,10 @@ namespace EntityFrameworkCore.Detached
         /// <param name="context">The base DbContext instance.</param>
         /// <param name="queryManager">The manager for db queries.</param>
         /// <param name="updateManager">The manager for db updates.</param>
-        public DetachedContext(TDbContext dbContext, IDetachedSessionInfoProvider sessionInfoProvider)
+        public DetachedContext(TDbContext dbContext)
+            : this(dbContext, null)
         {
-            _dbContext = dbContext;
-            _queryManager = new ManyToManyQueryManager(dbContext);
-            _updateManager = new ManyToManyUpdateManager(dbContext, sessionInfoProvider);
+
         }
 
         /// <summary>
@@ -41,16 +40,20 @@ namespace EntityFrameworkCore.Detached
         /// <param name="context">The base DbContext instance.</param>
         /// <param name="queryManager">The manager for db queries.</param>
         /// <param name="updateManager">The manager for db updates.</param>
-        public DetachedContext(TDbContext dbContext)
-            : this(dbContext, null)
+        public DetachedContext(TDbContext dbContext, IDetachedSessionInfoProvider sessionInfoProvider)
         {
-
+            _dbContext = dbContext;
+            _queryManager = new ManyToManyQueryManager(dbContext);
+            _updateManager = new ManyToManyUpdateManager(dbContext, sessionInfoProvider);
         }
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Gets the underlying DbContext instance.
+        /// </summary>
         public TDbContext DbContext
         {
             get
@@ -83,6 +86,8 @@ namespace EntityFrameworkCore.Detached
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
 
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
+            if (entityType == null)
+                throw new ArgumentException($"{typeof(TEntity)} is not a valid entity.");
 
             // load the persisted entity, with all the includes
             TEntity dbEntity = await _queryManager.FindPersistedEntity<TEntity>(entityType, root);

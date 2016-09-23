@@ -34,7 +34,7 @@ namespace EntityFrameworkCore.Detached.Managers
 
             foreach (Property property in entityType.GetProperties())
             {
-                if (!(property.IsKeyOrForeignKey() || property.IsShadowProperty))
+                if (ShouldOverwriteProperty(property))
                 {
                     object newValue = property.Getter.GetClrValue(newEntity);
                     object dbValue = property.Getter.GetClrValue(dbEntity);
@@ -251,6 +251,16 @@ namespace EntityFrameworkCore.Detached.Managers
                 }
             }
             return equal;
+        }
+
+        /// <summary>
+        /// Returns if the property should be persisted.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        protected virtual bool ShouldOverwriteProperty(Property property)
+        {
+            return !(property.IsKeyOrForeignKey() || property.IsShadowProperty || property.IsDetachedIgnore());
         }
     }
 }

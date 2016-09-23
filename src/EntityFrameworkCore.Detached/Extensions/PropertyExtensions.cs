@@ -14,6 +14,8 @@ namespace EntityFrameworkCore.Detached
     /// </summary>
     public static class PropertyExtensions
     {
+        const string DETACHED_IGNORE = "DETACHED_IGNORE";
+
         /// <summary>
         /// Returns whether this navigation property is configured as Owned.
         /// </summary>
@@ -59,6 +61,16 @@ namespace EntityFrameworkCore.Detached
             ICollection collection = navigation.Getter.GetClrValue(instance) as ICollection;
             EntityType entityType = navigation.GetTargetType();
             return entityType.CreateHashTable(collection);
+        }
+
+        public static void DetachedIgnore(this PropertyBase property)
+        {
+            property.SetAnnotation(DETACHED_IGNORE, true, ConfigurationSource.DataAnnotation);
+        }
+
+        public static bool IsDetachedIgnore(this PropertyBase property)
+        {
+            return property.FindAnnotation(DETACHED_IGNORE) != null;
         }
     }
 }

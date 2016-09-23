@@ -10,6 +10,8 @@ namespace EntityFrameworkCore.Detached
     /// </summary>
     public static class AuditExtensions
     {
+        const string DETACHED_PROPERTY_IS_AUDIT = "DETACHED_PROPERTY_IS_AUDIT";
+
         /// <summary>
         /// Gets or creates the metadata needed to set audit information.
         /// </summary>
@@ -48,7 +50,7 @@ namespace EntityFrameworkCore.Detached
                 AuditProperties props = (AuditProperties)annotation.Value;
 
                 if (props.CreatedBy != null)
-                   entry.Property(props.CreatedDate.Name).CurrentValue = user;
+                   entry.Property(props.CreatedBy.Name).CurrentValue = user;
 
                 if (props.CreatedDate != null)
                     entry.Property(props.CreatedDate.Name).CurrentValue = props.GetValueForDate(props.CreatedDate.ClrType, dateTime); ;

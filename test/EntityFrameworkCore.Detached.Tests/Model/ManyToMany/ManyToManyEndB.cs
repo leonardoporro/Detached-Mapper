@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Tests.Model.ManyToMany
 {
-    public class Role
+    public class ManyToManyEndB
     {
         [Key]
         public int Id { get; set; }

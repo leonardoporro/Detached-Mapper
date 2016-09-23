@@ -13,7 +13,7 @@ namespace EntityFrameworkCore.Detached.Conventions
         {
             AuditProperties auditProps = propertyBuilder.Metadata.DeclaringEntityType.GetOrCreateAuditProperties();
             auditProps.ModifiedBy = propertyBuilder.Metadata;
-
+            propertyBuilder.Metadata.DetachedIgnore();
             return propertyBuilder;
         }
     }

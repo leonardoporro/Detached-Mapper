@@ -12,7 +12,7 @@ namespace EntityFrameworkCore.Detached.Conventions
         {
             AuditProperties auditProps = propertyBuilder.Metadata.DeclaringEntityType.GetOrCreateAuditProperties();
             auditProps.CreatedBy = propertyBuilder.Metadata;
-
+            propertyBuilder.Metadata.DetachedIgnore();
             return propertyBuilder;
         }
     }

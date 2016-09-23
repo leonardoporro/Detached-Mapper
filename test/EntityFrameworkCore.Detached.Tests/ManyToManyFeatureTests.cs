@@ -15,33 +15,33 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                Role[] roles = new[]
+                ManyToManyEndB[] roles = new[]
                 {
-                    new Role { Name = "Admin" },
-                    new Role { Name = "PowerUser" },
-                    new Role { Name = "User" }
+                    new ManyToManyEndB { Name = "EndB 1" },
+                    new ManyToManyEndB { Name = "EndB 2" },
+                    new ManyToManyEndB { Name = "EndB 3" }
                 };
                 context.AddRange(roles);
 
-                User user = new User
+                ManyToManyEndA user = new ManyToManyEndA
                 {
-                    Name = "Test User"
+                    Name = "Test Root"
                 };
                 context.Add(user);
 
                 context.AddRange(new[]
                 {
-                    new ManyToManyEntity<User,Role> { End1 = user, End2 = roles[0] },
-                    new ManyToManyEntity<User, Role> { End1 = user, End2 = roles[1] }
+                    new ManyToManyEntity<ManyToManyEndA,ManyToManyEndB> { End1 = user, End2 = roles[0] },
+                    new ManyToManyEntity<ManyToManyEndA, ManyToManyEndB> { End1 = user, End2 = roles[1] }
                 });
                 context.SaveChanges();
 
                 IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
-                User persisted = await detachedContext.LoadAsync<User>(1);
-                Assert.Equal(2, persisted.Roles.Count);
-                Assert.True(persisted.Roles.Any(r => r.Name == "Admin"));
-                Assert.True(persisted.Roles.Any(r => r.Name == "PowerUser"));
+                ManyToManyEndA persisted = await detachedContext.LoadAsync<ManyToManyEndA>(1);
+                Assert.Equal(2, persisted.EndB.Count);
+                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 1"));
+                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 2"));
             }
         }
 
@@ -50,24 +50,24 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext dbContext = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext<TestDbContext>(dbContext);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(dbContext);
 
                 dbContext.AddRange(new[]
                 {
-                    new Role { Name = "Admin" },
-                    new Role { Name = "User" }
+                    new ManyToManyEndB { Name = "EndB 1" },
+                    new ManyToManyEndB { Name = "EndB 2" }
                 });
                 await dbContext.SaveChangesAsync();
 
-                await detachedContext.SaveAsync(new User
+                await detachedContext.SaveAsync(new ManyToManyEndA
                 {
-                    Name = "U",
-                    Roles = new[] { new Role { Id = 1 } }
+                    Name = "Test",
+                    EndB = new[] { new ManyToManyEndB { Id = 1 } }
                 });
 
-                User persisted = await detachedContext.LoadAsync<User>(1);
-                Assert.Equal(1, persisted.Roles.Count);
-                Assert.True(persisted.Roles.Any(r => r.Name == "Admin"));
+                ManyToManyEndA persisted = await detachedContext.LoadAsync<ManyToManyEndA>(1);
+                Assert.Equal(1, persisted.EndB.Count);
+                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 1"));
             }
         }
 
@@ -78,33 +78,33 @@ namespace EntityFrameworkCore.Detached.Tests
             {
                 dbContext.AddRange(new[]
                 {
-                    new Role { Name = "Admin" },
-                    new Role { Name = "User" }
+                    new ManyToManyEndB { Name = "EndB 1" },
+                    new ManyToManyEndB { Name = "EndB 2" }
                 });
                 await dbContext.SaveChangesAsync();
 
                 IDetachedContext<TestDbContext> detached = new DetachedContext<TestDbContext>(dbContext);
-                await detached.SaveAsync(new User
+                await detached.SaveAsync(new ManyToManyEndA
                 {
-                    Name = "Test User",
-                    Roles = new[]
+                    Name = "Test Root",
+                    EndB = new[]
                     {
-                        new Role { Id = 1 },
-                        new Role { Id = 2 }
+                        new ManyToManyEndB { Id = 1 },
+                        new ManyToManyEndB { Id = 2 }
                     }
                 });
 
-                await detached.SaveAsync(new User
+                await detached.SaveAsync(new ManyToManyEndA
                 {
                     Id = 1,
-                    Name = "Test User",
-                    Roles = new[]
+                    Name = "Test Root",
+                    EndB = new[]
                     {
-                        new Role { Id = 1 },
+                        new ManyToManyEndB { Id = 1 },
                     }
                 });
 
-                User persisted = await detached.LoadAsync<User>(1);
+                ManyToManyEndA persisted = await detached.LoadAsync<ManyToManyEndA>(1);
             }
         }
     }

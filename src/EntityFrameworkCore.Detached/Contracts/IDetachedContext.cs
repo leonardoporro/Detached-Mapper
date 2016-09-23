@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,8 +11,14 @@ namespace EntityFrameworkCore.Detached.Contracts
     /// Handles detached root entities. A root is an entity with their owned and associated
     /// children that works as a single unit.
     /// </summary>
-    public interface IDetachedContext
+    public interface IDetachedContext<TDbContext>
+        where TDbContext : DbContext
     {
+        /// <summary>
+        /// Gets the underlying DbContext instance.
+        /// </summary>
+        TDbContext DbContext { get; }
+
         /// <summary>
         /// Loads a detached root entity by its key. A root is an entity with their owned and associated
         /// children that works as a single unit.
@@ -45,10 +52,5 @@ namespace EntityFrameworkCore.Detached.Contracts
         /// <typeparam name="TEntity">Clr type of the root entity to delete.</typeparam>
         /// <param name="root">The detached root entity to delete.</param>
         Task DeleteAsync<TEntity>(TEntity root) where TEntity : class;
-    }
-
-    public interface IDetachedContext<TDbContext> : IDetachedContext
-    {
-
     }
 }
