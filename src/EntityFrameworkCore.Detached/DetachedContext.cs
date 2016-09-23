@@ -1,5 +1,5 @@
-﻿using EntityFrameworkCore.Detached;
-using EntityFrameworkCore.Detached.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.Managers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
-    public class DetachedContext : IDetachedContext
+    public class DetachedContext<TDbContext> : IDetachedContext<TDbContext>
+        where TDbContext : DbContext
     {
         #region Fields
 
-        DbContext _dbContext;
-        QueryManager _queryManager;
-        IUpdateManager _updateManager;
+        TDbContext _dbContext;
+        IDetachedQueryManager _queryManager;
+        IDetachedUpdateManager _updateManager;
 
         #endregion
 
@@ -25,9 +26,13 @@ namespace EntityFrameworkCore.Detached
         /// Initializes a new instance of DetachedContext.
         /// </summary>
         /// <param name="context">The base DbContext instance.</param>
-        public DetachedContext(DbContext dbContext)
-            : this(dbContext, new ManyToManyQueryManager(dbContext), new ManyToManyUpdateManager(dbContext))
+        /// <param name="queryManager">The manager for db queries.</param>
+        /// <param name="updateManager">The manager for db updates.</param>
+        public DetachedContext(TDbContext dbContext, IDetachedSessionInfoProvider sessionInfoProvider)
         {
+            _dbContext = dbContext;
+            _queryManager = new ManyToManyQueryManager(dbContext);
+            _updateManager = new ManyToManyUpdateManager(dbContext, sessionInfoProvider);
         }
 
         /// <summary>
@@ -36,11 +41,22 @@ namespace EntityFrameworkCore.Detached
         /// <param name="context">The base DbContext instance.</param>
         /// <param name="queryManager">The manager for db queries.</param>
         /// <param name="updateManager">The manager for db updates.</param>
-        public DetachedContext(DbContext dbContext, QueryManager queryManager, IUpdateManager updateManager)
+        public DetachedContext(TDbContext dbContext)
+            : this(dbContext, null)
         {
-            _dbContext = dbContext;
-            _queryManager = queryManager;
-            _updateManager = updateManager;
+
+        }
+
+        #endregion
+
+        #region Properties
+
+        public TDbContext DbContext
+        {
+            get
+            {
+                return _dbContext;
+            }
         }
 
         #endregion
@@ -83,7 +99,7 @@ namespace EntityFrameworkCore.Detached
             return dbEntity;
         }
 
-        public virtual async Task DeleteAsync<TEntity>(TEntity root) 
+        public virtual async Task DeleteAsync<TEntity>(TEntity root)
             where TEntity : class
         {
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;

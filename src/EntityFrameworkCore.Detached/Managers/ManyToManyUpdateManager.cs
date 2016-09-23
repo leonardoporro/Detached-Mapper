@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Collections;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.Metadata;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
-namespace EntityFrameworkCore.Detached.ManyToMany
+namespace EntityFrameworkCore.Detached.Managers
 {
     public class ManyToManyUpdateManager : UpdateManager
     {
-        DbContext _dbContext;
+        #region Fields
 
-        public ManyToManyUpdateManager(DbContext dbContext)
-            : base(dbContext)
+        DbContext _dbContext;
+        IDetachedSessionInfoProvider sessionInfoProvider;
+
+        #endregion
+
+        #region Ctor.
+
+        public ManyToManyUpdateManager(DbContext dbContext, IDetachedSessionInfoProvider sessionInfoProvider)
+            : base(dbContext, sessionInfoProvider)
         {
             _dbContext = dbContext;
         }
+
+        #endregion
 
         public override void Add(EntityType entityType, object entity)
         {
@@ -42,7 +51,7 @@ namespace EntityFrameworkCore.Detached.ManyToMany
 
                 foreach (object newItem in newCollection)
                 {
-                    string key = entityType.GetKeyForHashTable(newItem);
+                    string key = navigation.End2.EntityType.GetKeyForHashTable(newItem);
                     if (dbTable.ContainsKey(key))
                     {
                         dbTable.Remove(key);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached
+namespace EntityFrameworkCore.Detached.Managers
 {
-    public class QueryManager : IQueryManager
+    public class QueryManager : IDetachedQueryManager
     {
         #region Fields
 

@@ -1,8 +1,5 @@
-﻿using EntityFrameworkCore.Detached.Conventions;
-using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EntityFrameworkCore.Detached.Tests.Model

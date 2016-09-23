@@ -1,10 +1,6 @@
-﻿using EntityFrameworkCore.Detached.Conventions;
-using EntityFrameworkCore.Detached.DataAnnotations;
-using System;
+﻿using EntityFrameworkCore.Detached.DataAnnotations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Demo.Model
 {
@@ -18,6 +14,7 @@ namespace EntityFrameworkCore.Detached.Demo.Model
         [ManyToMany("UserRoles")]
         public IList<Role> Roles { get; set; }
 
-        public Company Company { get; set; }
+        [ManyToMany("UserDependants")]
+        public IList<Dependants> Dependants { get; set; }
     }
 }

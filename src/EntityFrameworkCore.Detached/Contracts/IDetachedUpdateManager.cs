@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached
+namespace EntityFrameworkCore.Detached.Contracts
 {
-    public interface IUpdateManager
+    public interface IDetachedUpdateManager
     {
         /// <summary>
         /// Merges a detached entity with a persisted entity.

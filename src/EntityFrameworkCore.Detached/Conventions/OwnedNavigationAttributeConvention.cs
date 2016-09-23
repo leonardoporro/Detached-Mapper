@@ -18,6 +18,7 @@ namespace EntityFrameworkCore.Detached.Conventions
         {
             navigation.SetAnnotation(typeof(OwnedAttribute).FullName, attribute, ConfigurationSource.DataAnnotation);
             relationshipBuilder.DeleteBehavior(DeleteBehavior.Cascade, ConfigurationSource.DataAnnotation);
+
             return relationshipBuilder;
         }
     }

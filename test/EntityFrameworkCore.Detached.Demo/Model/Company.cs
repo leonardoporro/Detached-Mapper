@@ -16,5 +16,17 @@ namespace EntityFrameworkCore.Detached.Demo.Model
 
         [Owned]
         public IList<SellPoint> SellPoints { get; set; }
+
+        [CreatedBy]
+        public string CreatedBy { get; set; }
+
+        [CreatedDate]
+        public DateTime CreatedDate { get; set; }
+
+        [ModifiedBy]
+        public string ModifiedBy { get; set; }
+
+        [ModifiedDate]
+        public DateTime ModifiedDate { get; set; }
     }
 }

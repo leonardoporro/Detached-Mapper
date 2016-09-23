@@ -5,25 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using EntityFrameworkCore.Detached.Demo.Model;
 using Microsoft.EntityFrameworkCore;
+using EntityFrameworkCore.Detached.Contracts;
 
 namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
     [Route("api/company")]
     public class CompanyController : Controller
     {
-        MainDbContext dbContext;
-        DetachedContext detached;
+        IDetachedContext<MainDbContext> _detached;
 
-        public CompanyController(MainDbContext dbContext)
+        public CompanyController(IDetachedContext<MainDbContext> detached)
         {
-            this.dbContext = dbContext;
-            this.detached = new DetachedContext(dbContext);
+            _detached = detached;
         }
 
         [HttpGet("{id}")]
         public async Task<Company> Get(int id)
         {
-            return await detached.LoadAsync<Company>(id);
+            return await _detached.LoadAsync<Company>(id);
         }
 
         [HttpPost]
@@ -31,7 +30,7 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
         {
             try
             {
-                await detached.SaveAsync(company);
+                await _detached.SaveAsync(company);
                 return Json(new { Result = true });
             }
             catch(Exception x)

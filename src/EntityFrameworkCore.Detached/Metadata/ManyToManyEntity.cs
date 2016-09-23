@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached.ManyToMany
+namespace EntityFrameworkCore.Detached.Metadata
 {
     /// <summary>
     /// Provides a ClrType for many to many intermediate tables.

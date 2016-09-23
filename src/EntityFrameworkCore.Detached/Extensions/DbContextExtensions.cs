@@ -1,14 +1,9 @@
-﻿using EntityFrameworkCore.Detached.Conventions;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.Conventions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
@@ -27,23 +22,34 @@ namespace EntityFrameworkCore.Detached
         /// <summary>
         /// Configures the service collection to use EF Core Detached.
         /// Adds the Convention Set Builder needed to process the [Owned] and [Attached] attributes.
+        /// Adds [ManyToMany] patch.
+        /// Adds [CreatedBy] [CreatedDate] [ModifiedBy] and [ModifiedDate] handling.
         /// </summary>
         public static IServiceCollection AddEntityFrameworkDetached(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<ICoreConventionSetBuilder, DetachedCoreConventionSetBuilder>();
+            serviceCollection.AddScoped<ICoreConventionSetBuilder, DetachedCoreConventionSetBuilder>();
+            serviceCollection.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
+
             return serviceCollection;
         }
 
-        //public static ReferenceNavigationBuilder<TEntity, TProperty> OwnsOne<TEntity, TProperty>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, IEnumerable<TProperty>>> navigationExpression)
-        //    where TEntity : class
-        //{
-        //    builder.HasOne(navigationExpression);
+        /// <summary>
+        /// Adds a IDetachedSessionInfoProvider to get the user name and date for audit purposes.
+        /// </summary>
+        public static IServiceCollection AddSessionInfoProvider<TProvider>(this IServiceCollection serviceCollection)
+            where TProvider : class, IDetachedSessionInfoProvider
+        {
+            serviceCollection.AddScoped<IDetachedSessionInfoProvider, TProvider>();
+            return serviceCollection;
+        }
 
-        //    string name = ((MemberExpression)navigationExpression.Body).Member.Name;
-        //    Navigation nav = builder.Metadata.GetNavigations().Where(e => e.Name == name).FirstOrDefault() as Navigation;
-        //    nav.AddAnnotation("Owned", true);
-
-        //    return builder;
-        //}
+        /// <summary>
+        /// Adds a IDetachedSessionInfoProvider to get the user name and date for audit purposes.
+        /// </summary>
+        public static IServiceCollection AddSessionInfoProvider(this IServiceCollection serviceCollection, Func<string> getCurrentUser)
+        {
+            serviceCollection.AddSingleton<IDetachedSessionInfoProvider>(new DelegateSessionInfoProvider(getCurrentUser));
+            return serviceCollection;
+        }
     }
 }

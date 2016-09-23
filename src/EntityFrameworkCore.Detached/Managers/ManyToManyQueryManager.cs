@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.Detached.Metadata;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 
-namespace EntityFrameworkCore.Detached.ManyToMany
+namespace EntityFrameworkCore.Detached.Managers
 {
     public class ManyToManyQueryManager : QueryManager
     {

@@ -1,6 +1,5 @@
-﻿using EntityFrameworkCore.Detached.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Contracts;
 using EntityFrameworkCore.Detached.Tests.Model;
-using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,7 +13,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with an owned list:
                 context.Add(new Entity
@@ -49,7 +48,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with an owned list:
                 context.Add(new Entity
@@ -84,7 +83,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with references:
                 context.Add(new Entity
@@ -112,7 +111,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context); 
 
                 // GIVEN an enity root with references:
                 context.Add(new Entity
@@ -140,7 +139,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]
@@ -174,7 +173,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with references:
                 AssociatedReference[] references = new[]

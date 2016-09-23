@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using EntityFrameworkCore.Detached.ManyToMany;
 
 namespace EntityFrameworkCore.Detached.Conventions
 {
@@ -18,9 +12,16 @@ namespace EntityFrameworkCore.Detached.Conventions
         {
             var set = base.CreateConventionSet(); 
 
+            // detached
             set.NavigationAddedConventions.Add(new AssociatedNavigationAttributeConvention());
             set.NavigationAddedConventions.Add(new OwnedNavigationAttributeConvention());
+            // many to many
             set.NavigationAddedConventions.Add(new ManyToManyPatchAttributeConvention());
+            // audit
+            set.PropertyAddedConventions.Add(new CreatedByPropertyAttributeConvention());
+            set.PropertyAddedConventions.Add(new CreatedDatePropertyAttributeConvention());
+            set.PropertyAddedConventions.Add(new ModifiedByPropertyAttributeConvention());
+            set.PropertyAddedConventions.Add(new ModifiedDatePropertyAttributeConvention());
 
             return set;
         }

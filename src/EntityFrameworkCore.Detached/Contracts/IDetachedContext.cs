@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached
+namespace EntityFrameworkCore.Detached.Contracts
 {
     /// <summary>
     /// Handles detached root entities. A root is an entity with their owned and associated
@@ -45,5 +45,10 @@ namespace EntityFrameworkCore.Detached
         /// <typeparam name="TEntity">Clr type of the root entity to delete.</typeparam>
         /// <param name="root">The detached root entity to delete.</param>
         Task DeleteAsync<TEntity>(TEntity root) where TEntity : class;
+    }
+
+    public interface IDetachedContext<TDbContext> : IDetachedContext
+    {
+
     }
 }

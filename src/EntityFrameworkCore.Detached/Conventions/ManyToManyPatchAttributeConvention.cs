@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace EntityFrameworkCore.Detached.ManyToMany
+namespace EntityFrameworkCore.Detached.Conventions
 {
     /// <summary>
     /// Handles [ManyToMany] attribute.

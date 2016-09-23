@@ -5,9 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached
+namespace EntityFrameworkCore.Detached.Contracts
 {
-    public interface IQueryManager
+    public interface IDetachedQueryManager
     {
         /// <summary>
         /// Gets a query to find a root entity by its key.

@@ -1,25 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace EntityFrameworkCore.Detached
+namespace EntityFrameworkCore.Detached.Managers
 {
-    public class UpdateManager : IUpdateManager
+    public class UpdateManager : IDetachedUpdateManager
     {
         #region Fields
 
         DbContext _dbContext;
+        IDetachedSessionInfoProvider _sessionInfoProvider;
 
         #endregion
 
         #region Ctor.
 
-        public UpdateManager(DbContext dbContext )
+        public UpdateManager(DbContext dbContext, IDetachedSessionInfoProvider sessionInfoProvider)
         {
             _dbContext = dbContext;
+            _sessionInfoProvider = sessionInfoProvider;
         }
 
         #endregion
@@ -27,6 +30,7 @@ namespace EntityFrameworkCore.Detached
         public virtual void Merge(EntityType entityType, object newEntity, object dbEntity)
         {
             EntityEntry dbEntry = _dbContext.Attach(dbEntity);
+            bool modified = false;
 
             foreach (Property property in entityType.GetProperties())
             {
@@ -38,6 +42,7 @@ namespace EntityFrameworkCore.Detached
                     if (!object.Equals(dbValue, newValue))
                     {
                         dbEntry.Property(property.Name).CurrentValue = newValue;
+                        modified = true;
                     }
                 }
             }
@@ -83,6 +88,7 @@ namespace EntityFrameworkCore.Detached
                                 Attach(navType, newItem);
 
                             mergedList.Add(newItem);
+                            modified = true;
                         }
                     }
 
@@ -90,6 +96,7 @@ namespace EntityFrameworkCore.Detached
                     foreach (var dbItem in dbTable)
                     {
                         Delete(navType, dbItem.Value);
+                        modified = true;
                     }
 
                     // let EF do the rest of the work.
@@ -124,8 +131,15 @@ namespace EntityFrameworkCore.Detached
                         }
                         // let EF do the rest of the work.
                         dbEntry.Reference(navigation.Name).CurrentValue = newValue;
+                        modified = true;
                     }
                 }
+            }
+
+            if (modified && _sessionInfoProvider != null)
+            {
+                dbEntry.SetModifiedAuditInfo(_sessionInfoProvider.GetCurrentUser(),
+                                             _sessionInfoProvider.GetCurrentDateTime());
             }
         }
 
@@ -164,6 +178,12 @@ namespace EntityFrameworkCore.Detached
                             Add(navType, navValue);
                     }
                 }
+            }
+
+            if (_sessionInfoProvider != null)
+            {
+                entry.SetCreatedAuditInfo(_sessionInfoProvider.GetCurrentUser(),
+                                           _sessionInfoProvider.GetCurrentDateTime());
             }
         }
 

@@ -1,8 +1,7 @@
-﻿using EntityFrameworkCore.Detached.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.Metadata;
 using EntityFrameworkCore.Detached.Tests.Model;
 using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -37,7 +36,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 });
                 context.SaveChanges();
 
-                IDetachedContext detachedContext = new DetachedContext(context);
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 User persisted = await detachedContext.LoadAsync<User>(1);
                 Assert.Equal(2, persisted.Roles.Count);
@@ -51,7 +50,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext dbContext = new TestDbContext())
             {
-                DetachedContext detachedContext = new DetachedContext(dbContext);
+                IDetachedContext detachedContext = new DetachedContext<TestDbContext>(dbContext);
 
                 dbContext.AddRange(new[]
                 {
@@ -67,8 +66,45 @@ namespace EntityFrameworkCore.Detached.Tests
                 });
 
                 User persisted = await detachedContext.LoadAsync<User>(1);
-                Assert.Equal(2, persisted.Roles.Count);
+                Assert.Equal(1, persisted.Roles.Count);
                 Assert.True(persisted.Roles.Any(r => r.Name == "Admin"));
+            }
+        }
+
+        [Fact]
+        public async Task when_entity_is_edited__many_to_many_is_merged()
+        {
+            using (TestDbContext dbContext = new TestDbContext())
+            {
+                dbContext.AddRange(new[]
+                {
+                    new Role { Name = "Admin" },
+                    new Role { Name = "User" }
+                });
+                await dbContext.SaveChangesAsync();
+
+                IDetachedContext<TestDbContext> detached = new DetachedContext<TestDbContext>(dbContext);
+                await detached.SaveAsync(new User
+                {
+                    Name = "Test User",
+                    Roles = new[]
+                    {
+                        new Role { Id = 1 },
+                        new Role { Id = 2 }
+                    }
+                });
+
+                await detached.SaveAsync(new User
+                {
+                    Id = 1,
+                    Name = "Test User",
+                    Roles = new[]
+                    {
+                        new Role { Id = 1 },
+                    }
+                });
+
+                User persisted = await detached.LoadAsync<User>(1);
             }
         }
     }
