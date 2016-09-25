@@ -11,7 +11,7 @@ namespace EntityFrameworkCore.Detached.Contracts
     /// Handles detached root entities. A root is an entity with their owned and associated
     /// children that works as a single unit.
     /// </summary>
-    public interface IDetachedContext<TDbContext>
+    public interface IDetachedContext<TDbContext> : IDisposable
         where TDbContext : DbContext
     {
         /// <summary>
@@ -44,7 +44,7 @@ namespace EntityFrameworkCore.Detached.Contracts
         /// <typeparam name="TEntity">Clr type of the root entity to save.</typeparam>
         /// <param name="root">The detached root entity to save.</param>
         /// <returns>The saved root entity.</returns>
-        Task<TEntity> SaveAsync<TEntity>(TEntity root) where TEntity : class;
+        Task<TEntity> UpdateAsync<TEntity>(TEntity root) where TEntity : class;
 
         /// <summary>
         /// Deletes a detached root entity with its owned children.
@@ -52,5 +52,11 @@ namespace EntityFrameworkCore.Detached.Contracts
         /// <typeparam name="TEntity">Clr type of the root entity to delete.</typeparam>
         /// <param name="root">The detached root entity to delete.</param>
         Task DeleteAsync<TEntity>(TEntity root) where TEntity : class;
+
+        /// <summary>
+        /// Asynchronously save the context changes to the db.
+        /// It also disables automatic change tracking to prevent unwanted modifications.
+        /// </summary>
+        Task<int> SaveChangesAsync();
     }
 }

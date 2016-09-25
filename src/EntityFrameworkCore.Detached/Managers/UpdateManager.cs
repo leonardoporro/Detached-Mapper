@@ -29,7 +29,10 @@ namespace EntityFrameworkCore.Detached.Managers
 
         public virtual void Merge(EntityType entityType, object newEntity, object dbEntity)
         {
-            EntityEntry dbEntry = _dbContext.Attach(dbEntity);
+            EntityEntry dbEntry = _dbContext.Entry(dbEntity);
+            if (dbEntry.State == EntityState.Detached)
+                dbEntry.State = EntityState.Unchanged;
+
             bool modified = false;
 
             foreach (Property property in entityType.GetProperties())
@@ -149,7 +152,8 @@ namespace EntityFrameworkCore.Detached.Managers
                 return;
 
             var entry = _dbContext.Entry(entity);
-            entry.State = EntityState.Added;
+            if (entry.State !=  EntityState.Added)
+                entry.State = EntityState.Added;
 
             foreach (Navigation navigation in entityType.GetNavigations())
             {
@@ -192,7 +196,7 @@ namespace EntityFrameworkCore.Detached.Managers
             if (entity == null)
                 return;
 
-            var entry = _dbContext.Attach(entity);
+            var entry = _dbContext.Entry(entity);
             entry.State = EntityState.Deleted;
 
             foreach (Navigation navigation in entityType.GetNavigations())
@@ -223,7 +227,7 @@ namespace EntityFrameworkCore.Detached.Managers
         {
             EntityEntry entry = _dbContext.Entry(entity);
 
-            _dbContext.Attach(entity);
+
             entry.State = EntityState.Unchanged;
         }
 

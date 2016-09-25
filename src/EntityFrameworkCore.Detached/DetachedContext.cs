@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
 {
-    public class DetachedContext<TDbContext> : IDetachedContext<TDbContext>
+    public class DetachedContext<TDbContext> : IDetachedContext<TDbContext>, IDisposable
         where TDbContext : DbContext
     {
         #region Fields
@@ -78,7 +78,7 @@ namespace EntityFrameworkCore.Detached
             return await _queryManager.FindEntities<TEntity>(entityType, filter);
         }
 
-        public virtual async Task<TEntity> SaveAsync<TEntity>(TEntity root)
+        public virtual async Task<TEntity> UpdateAsync<TEntity>(TEntity root)
             where TEntity : class
         {
             // temporally disabled autodetect changes
@@ -98,10 +98,23 @@ namespace EntityFrameworkCore.Detached
                 _updateManager.Merge(entityType, root, dbEntity); // entity exists.
 
             // re-enable autodetect changes.
-            await _dbContext.SaveChangesAsync();
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
             return dbEntity;
+        }
+
+        public virtual async Task<int> SaveChangesAsync()
+        {
+            // temporally disabled autodetect changes
+            bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            int result =  await _dbContext.SaveChangesAsync();
+            
+            // re-enable autodetect changes.
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
+            return result;
         }
 
         public virtual async Task DeleteAsync<TEntity>(TEntity root)
@@ -110,6 +123,15 @@ namespace EntityFrameworkCore.Detached
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
             _updateManager.Delete(entityType, root);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            if (_dbContext != null)
+            {
+                _dbContext.Dispose();
+                _dbContext = null;
+            }
         }
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using EntityFrameworkCore.Detached.Demo.Model;
 using Microsoft.EntityFrameworkCore;
 using EntityFrameworkCore.Detached.Contracts;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
@@ -30,7 +32,9 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
         {
             try
             {
-                await _detached.SaveAsync(company);
+                await _detached.UpdateAsync(company);
+                await _detached.SaveChangesAsync();
+
                 return Json(new { Result = true });
             }
             catch(Exception x)

@@ -63,7 +63,7 @@ namespace EntityFrameworkCore.Detached.Demo
             await dbContext.SaveChangesAsync();
 
             DetachedContext<MainDbContext> detached = new DetachedContext<MainDbContext>(dbContext, new DelegateSessionInfoProvider(() => "System"));
-            await detached.SaveAsync(new Company()
+            await detached.UpdateAsync(new Company()
             {
                 Name = "Hello Company!",
                 SellPoints = new List<SellPoint>(new[]
@@ -74,6 +74,7 @@ namespace EntityFrameworkCore.Detached.Demo
                     new SellPoint { Name = "France", Address = "500 Rue Saint-Paul 34000 Montpellier, France", Type = new SellPointType { Id = 1 } }
                 })
             });
+            await detached.SaveChangesAsync();
         }
     }
 }

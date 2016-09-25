@@ -59,11 +59,12 @@ namespace EntityFrameworkCore.Detached.Tests
                 });
                 await dbContext.SaveChangesAsync();
 
-                await detachedContext.SaveAsync(new ManyToManyEndA
+                await detachedContext.UpdateAsync(new ManyToManyEndA
                 {
                     Name = "Test",
                     EndB = new[] { new ManyToManyEndB { Id = 1 } }
                 });
+                await detachedContext.SaveChangesAsync();
 
                 ManyToManyEndA persisted = await detachedContext.LoadAsync<ManyToManyEndA>(1);
                 Assert.Equal(1, persisted.EndB.Count);
@@ -84,7 +85,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 await dbContext.SaveChangesAsync();
 
                 IDetachedContext<TestDbContext> detached = new DetachedContext<TestDbContext>(dbContext);
-                await detached.SaveAsync(new ManyToManyEndA
+                await detached.UpdateAsync(new ManyToManyEndA
                 {
                     Name = "Test Root",
                     EndB = new[]
@@ -93,8 +94,9 @@ namespace EntityFrameworkCore.Detached.Tests
                         new ManyToManyEndB { Id = 2 }
                     }
                 });
+                await detached.SaveChangesAsync();
 
-                await detached.SaveAsync(new ManyToManyEndA
+                await detached.UpdateAsync(new ManyToManyEndA
                 {
                     Id = 1,
                     Name = "Test Root",
@@ -103,6 +105,7 @@ namespace EntityFrameworkCore.Detached.Tests
                         new ManyToManyEndB { Id = 1 },
                     }
                 });
+                await detached.SaveChangesAsync();
 
                 ManyToManyEndA persisted = await detached.LoadAsync<ManyToManyEndA>(1);
             }

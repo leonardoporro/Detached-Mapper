@@ -19,10 +19,11 @@ namespace EntityFrameworkCore.Detached.Tests
             IDetachedSessionInfoProvider sessionProvider = new DelegateSessionInfoProvider(() => "Test User");
             IDetachedContext<TestDbContext> context = new DetachedContext<TestDbContext>(new TestDbContext(), sessionProvider);
 
-            await context.SaveAsync(new EntityForAudit
+            await context.UpdateAsync(new EntityForAudit
             {
                 Name = "Test"
             });
+            await context.SaveChangesAsync();
 
             EntityForAudit persisted = await context.LoadAsync<EntityForAudit>(1);
             Assert.Equal("Test User", persisted.CreatedBy);
@@ -38,19 +39,22 @@ namespace EntityFrameworkCore.Detached.Tests
             IDetachedSessionInfoProvider sessionProvider = new DelegateSessionInfoProvider(() => userName);
             IDetachedContext<TestDbContext> context = new DetachedContext<TestDbContext>(dbContext, sessionProvider);
 
-            await context.SaveAsync(new EntityForAudit
+            await context.UpdateAsync(new EntityForAudit
             {
                 Name = "Test"
             });
+            await context.SaveChangesAsync();
+
             EntityForAudit persisted = await context.LoadAsync<EntityForAudit>(1);
 
             // WHEN the entity is modified
             userName = "Test User 2";
-            await context.SaveAsync(new EntityForAudit
+            await context.UpdateAsync(new EntityForAudit
             {
                 Id = 1,
                 Name = "Test Modified"
             });
+            await context.SaveChangesAsync();
 
             EntityForAudit persisted2 = await context.LoadAsync<EntityForAudit>(1);
 

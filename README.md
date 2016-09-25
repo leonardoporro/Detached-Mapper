@@ -10,9 +10,11 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
-- 1.0.0-alpha5: Audit. Supports automatic setting properties marked as [CreatedBy] [CreatedDate]
+- 1.0.0-alpha5: 
+* Audit. Supports automatic setting properties marked as [CreatedBy] [CreatedDate]
 [ModifiedBy] and [ModifiedDate].
 An instance of IDetachedSessionInfoProvider is needed to get the current logged user name.
+* Supports dependency injection.
 
 - 1.0.0-alpha4
  * [ManyToMany] PATCH to work with a simple 1-level many to many association such as User -> Roles.
@@ -22,7 +24,7 @@ An instance of IDetachedSessionInfoProvider is needed to get the current logged 
  * [Owned] and [Associated] attributes to define scope when loading a graph.
  * LoadAsync<TEntity>(key): loads a single detached root by its key.
  * LoadAsync<TEntity>(filter): loads a single detached root filtered by an expression.
- * SaveAsync: persists a detached root (with its children) to the database. 
+ * UpdateAsync: persists a detached root (with its children) to the database. 
 
 Usage looks like this:
 ```csharp
@@ -38,7 +40,8 @@ Company company = new Company {
 }
 
 // Save the detached entity to the database.
-await context.SaveAsync(company);              
+await context.UpdateAsync(company);
+await context.SaveChangesAsync();  
 ```
 You can also get detached root entities:
 

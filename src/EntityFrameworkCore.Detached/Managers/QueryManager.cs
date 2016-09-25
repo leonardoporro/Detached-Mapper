@@ -47,7 +47,7 @@ namespace EntityFrameworkCore.Detached.Managers
             object[] keyValues = key.Properties.Select(p => p.Getter.GetClrValue(detachedEntity)).ToArray();
             Expression<Func<TEntity, bool>> filter = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), keyValues);
 
-            return GetBaseQuery<TEntity>(entityType).Where(filter).AsTracking().SingleOrDefaultAsync();
+            return GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().SingleOrDefaultAsync();
         }
 
         protected virtual IQueryable<TEntity> GetBaseQuery<TEntity>(EntityType entityType)
