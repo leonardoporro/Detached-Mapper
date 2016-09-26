@@ -63,11 +63,19 @@ namespace EntityFrameworkCore.Detached
             return entityType.CreateHashTable(collection);
         }
 
+        /// <summary>
+        /// Ignores a property for the detached Update/Delete process.
+        /// </summary>
+        /// <param name="property">The property to ignore.</param>
         public static void DetachedIgnore(this PropertyBase property)
         {
             property.SetAnnotation(DETACHED_IGNORE, true, ConfigurationSource.DataAnnotation);
         }
 
+        /// <summary>
+        /// Gets whether a property is ignored for the detached Update/Delete process.
+        /// </summary>
+        /// <param name="property">The property </param>
         public static bool IsDetachedIgnore(this PropertyBase property)
         {
             return property.FindAnnotation(DETACHED_IGNORE) != null;

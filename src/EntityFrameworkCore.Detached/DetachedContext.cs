@@ -110,9 +110,9 @@ namespace EntityFrameworkCore.Detached
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
 
             int result =  await _dbContext.SaveChangesAsync();
-            
+
             // re-enable autodetect changes.
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;// autoDetectChanges;
 
             return result;
         }
@@ -120,9 +120,16 @@ namespace EntityFrameworkCore.Detached
         public virtual async Task DeleteAsync<TEntity>(TEntity root)
             where TEntity : class
         {
+            // temporally disabled autodetect changes
+            bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
-            _updateManager.Delete(entityType, root);
-            await _dbContext.SaveChangesAsync();
+            TEntity persisted = await _queryManager.FindPersistedEntity<TEntity>(entityType, root);
+            _updateManager.Delete(entityType, persisted);
+
+            // re-enable autodetect changes.
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;// autoDetectChanges;
         }
 
         public void Dispose()

@@ -57,5 +57,16 @@ namespace EntityFrameworkCore.Detached
             }
             return table;
         }
+
+        public static object[] GetKeyValues (this Key key, object instance)
+        {
+            return key.Properties.Select(p => p.Getter.GetClrValue(instance)).ToArray();
+        }
+
+        public static object[] GetKeyValues(this EntityType entityType, object instance)
+        {
+            Key key = entityType.FindPrimaryKey();
+            return key.Properties.Select(p => p.Getter.GetClrValue(instance)).ToArray();
+        }
     }
 }

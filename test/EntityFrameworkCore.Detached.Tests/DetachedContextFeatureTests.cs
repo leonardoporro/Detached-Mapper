@@ -1,5 +1,6 @@
 ﻿using EntityFrameworkCore.Detached.Contracts;
 using EntityFrameworkCore.Detached.Tests.Model;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -156,7 +157,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 {
                     AssociatedReference = references[0],
                 });
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 // WHEN the owned and the associated references are set to null:
                 Entity detachedEntity = new Entity
@@ -206,6 +207,48 @@ namespace EntityFrameworkCore.Detached.Tests
 
                 // THEN the associated reference still exsits:
                 Assert.True(context.AssociatedReferences.Any(a => a.Name == "Associated Reference 1"));
+            }
+        }
+
+        [Fact]
+        public async Task when_entity_is_deleted__owned_properties_are_deleted()
+        {
+            using (TestDbContext context = new TestDbContext())
+            {
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
+
+                // GIVEN an enity root with an owned list:
+                var associatedItems = new List<AssociatedListItem>(new[]
+                {
+                    new AssociatedListItem { Name = "Associated Item 1" },
+                    new AssociatedListItem { Name = "Associated Item 2" }
+                });
+                context.AddRange(associatedItems);
+                await context.SaveChangesAsync();
+
+                context.Add(new Entity
+                {
+                    OwnedList = new List<OwnedListItem>(new[]  {
+                        new OwnedListItem { Name = "Owned Item A" },
+                        new OwnedListItem { Name = "Owned Item B" },
+                        new OwnedListItem { Name = "Owned Item C" }
+                    }),
+                    AssociatedList = associatedItems
+                });
+                context.SaveChanges();
+
+                // WHEN the entity is deleted:
+                await detachedContext.DeleteAsync(new Entity { Id = 1 });
+                await detachedContext.SaveChangesAsync();
+
+                // THEN owned items are removed:
+                Assert.False(context.OwnedListItems.Any(e => e.Name == "Owned Item A"));
+                Assert.False(context.OwnedListItems.Any(e => e.Name == "Owned Item B"));
+                Assert.False(context.OwnedListItems.Any(e => e.Name == "Owned Item C"));
+
+                // and the associated items are not removed:
+                Assert.True(context.AssociatedListItems.Any(e => e.Name == "Associated Item 1"));
+                Assert.True(context.AssociatedListItems.Any(e => e.Name == "Associated Item 2"));
             }
         }
     }

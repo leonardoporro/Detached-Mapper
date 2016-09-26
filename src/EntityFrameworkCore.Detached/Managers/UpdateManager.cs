@@ -31,7 +31,7 @@ namespace EntityFrameworkCore.Detached.Managers
         {
             EntityEntry dbEntry = _dbContext.Entry(dbEntity);
             if (dbEntry.State == EntityState.Detached)
-                dbEntry.State = EntityState.Unchanged;
+                dbEntry = _dbContext.Attach(dbEntity);
 
             bool modified = false;
 
