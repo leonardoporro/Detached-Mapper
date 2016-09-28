@@ -26,7 +26,7 @@ namespace EntityFrameworkCore.Detached.Managers
         }
 
         #endregion
-   
+
         public virtual Task<TEntity> FindEntityByKey<TEntity>(EntityType entityType, object[] keyValues)
             where TEntity : class
         {
@@ -101,10 +101,25 @@ namespace EntityFrameworkCore.Detached.Managers
 
         protected virtual Expression<Func<TEntity, bool>> GetFindByKeyExpression<TEntity>(EntityType entityType, Key key, object[] keyValues)
         {
+            if (keyValues == null || keyValues.Any(kv => kv == null))
+                throw new ArgumentException("Key values cannot be null.", nameof(keyValues));
+
+            if (key.Properties.Count != keyValues.Length)
+                throw new ArgumentException($"Key values count mismatch, expected {string.Join(",", key.Properties.Select(p => p.Name))}");
+
             ParameterExpression param = Expression.Parameter(entityType.ClrType, entityType.ClrType.Name.ToLower());
             Func<int, Expression> buildCompare = i =>
-                Expression.Equal(Expression.Property(param, key.Properties[i].PropertyInfo),
-                                 Expression.Constant(keyValues[i]));
+            {
+                object keyValue = keyValues[i];
+                Property keyProperty = key.Properties[i];
+                if (keyValue.GetType() != keyProperty.ClrType)
+                {
+                    keyValue = Convert.ChangeType(keyValue, keyProperty.ClrType);
+                }
+
+                return Expression.Equal(Expression.Property(param, keyProperty.PropertyInfo),
+                                        Expression.Constant(keyValue));
+            };
 
             Expression findExpr = buildCompare(0);
             for (int i = 1; i < key.Properties.Count; i++)

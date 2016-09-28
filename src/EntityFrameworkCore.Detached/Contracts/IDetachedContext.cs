@@ -54,6 +54,13 @@ namespace EntityFrameworkCore.Detached.Contracts
         Task DeleteAsync<TEntity>(TEntity root) where TEntity : class;
 
         /// <summary>
+        /// Deletes a detached root entity with its owned children.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr type of the root entity to delete.</typeparam>
+        /// <param name="key">The key of the detached root entity to delete.</param>
+        Task DeleteAsync<TEntity>(params object[] key) where TEntity : class;
+
+        /// <summary>
         /// Asynchronously save the context changes to the db.
         /// It also disables automatic change tracking to prevent unwanted modifications.
         /// </summary>

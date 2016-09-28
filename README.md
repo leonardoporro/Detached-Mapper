@@ -10,6 +10,9 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
+- 1.0.0-alpha8:
+DeleteAsync: Deletes an entity by key (pending since alpha3).
+LoadAsync error fixed when the key value passed and the property type was not matching.
 - 1.0.0-alpha5: 
 * Audit. Supports automatic setting properties marked as [CreatedBy] [CreatedDate]
 [ModifiedBy] and [ModifiedDate].

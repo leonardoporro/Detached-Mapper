@@ -115,7 +115,7 @@ namespace EntityFrameworkCore.Detached.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
-                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context); 
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 // GIVEN an enity root with references:
                 context.Add(new Entity
@@ -249,6 +249,28 @@ namespace EntityFrameworkCore.Detached.Tests
                 // and the associated items are not removed:
                 Assert.True(context.AssociatedListItems.Any(e => e.Name == "Associated Item 1"));
                 Assert.True(context.AssociatedListItems.Any(e => e.Name == "Associated Item 2"));
+            }
+        }
+
+        [Fact]
+        public async Task when_entity_is_loaded_by_key__type_conversion_is_made()
+        {
+            using (TestDbContext context = new TestDbContext())
+            {
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
+
+                await detachedContext.UpdateAsync(new Entity
+                {
+                    Name = "Test entity"
+                });
+                await detachedContext.SaveChangesAsync();
+
+
+                Entity persisted = await detachedContext.LoadAsync<Entity>("1");
+                Assert.NotNull(persisted);
+
+                persisted = await detachedContext.LoadAsync<Entity>(1);
+                Assert.NotNull(persisted);
             }
         }
     }
