@@ -25,9 +25,9 @@ namespace EntityFrameworkCore.Detached.Tests.Model
 
         public DbSet<EntityForAudit> EntitiesForAudit { get; set; }
 
-        public DbSet<ManyToManyEndA> Users { get; set; }
+        public DbSet<ManyToManyEndA> ManyToManyEndA { get; set; }
 
-        public DbSet<ManyToManyEndB> Roles { get; set; }
+        public DbSet<ManyToManyEndB> ManyToManyEndB { get; set; }
 
         static DbContextOptions GetTestDbContextOptions()
         {

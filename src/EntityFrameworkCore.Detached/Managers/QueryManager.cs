@@ -7,6 +7,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using EntityFrameworkCore.Detached.DataAnnotations;
+using EntityFrameworkCore.Detached.Paged;
+using EntityFrameworkCore.Detached.DataAnnotations.Paged;
+using System.Reflection;
 
 namespace EntityFrameworkCore.Detached.Managers
 {
@@ -27,27 +31,70 @@ namespace EntityFrameworkCore.Detached.Managers
 
         #endregion
 
-        public virtual Task<TEntity> FindEntityByKey<TEntity>(EntityType entityType, object[] keyValues)
+        public virtual async Task<TEntity> FindEntityByKey<TEntity>(EntityType entityType, object[] keyValues)
             where TEntity : class
         {
             Expression<Func<TEntity, bool>> filter = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), keyValues);
-            return GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().SingleOrDefaultAsync();
+            return await GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().SingleOrDefaultAsync();
         }
 
-        public virtual Task<List<TEntity>> FindEntities<TEntity>(EntityType entityType, Expression<Func<TEntity, bool>> filter)
+        public virtual async Task<List<TEntity>> FindEntities<TEntity>(EntityType entityType, Expression<Func<TEntity, bool>> filter)
            where TEntity : class
         {
-            return GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().ToListAsync();
+            return await GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().ToListAsync();
         }
 
-        public virtual Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity)
+        public virtual async Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity)
             where TEntity : class
         {
             Key key = entityType.FindPrimaryKey();
             object[] keyValues = key.Properties.Select(p => p.Getter.GetClrValue(detachedEntity)).ToArray();
             Expression<Func<TEntity, bool>> filter = GetFindByKeyExpression<TEntity>(entityType, entityType.FindPrimaryKey(), keyValues);
 
-            return GetBaseQuery<TEntity>(entityType).Where(filter).AsTracking().SingleOrDefaultAsync();
+            return await GetBaseQuery<TEntity>(entityType).Where(filter).AsTracking().SingleOrDefaultAsync();
+        }
+
+        public async Task<IPagedResult<TEntity>> GetPage<TEntity>(EntityType entityType, IPagedRequest<TEntity> request) where TEntity : class
+        {
+            IQueryable<TEntity> baseQuery = GetBaseQuery<TEntity>(entityType);
+
+            IPagedResult<TEntity> result = new PagedResult<TEntity>();
+            result.PageSize = request.PageSize;
+            result.PageIndex = request.PageIndex;
+
+            // apply filter.
+            if (request.FilterBy != null)
+            {
+                baseQuery = baseQuery.Where(request.FilterBy);
+            }
+
+            // apply order by.
+            if (!string.IsNullOrEmpty(request.OrderBy))
+            {
+                string propertyName;
+                bool asc;
+                GetOrderByParameters(request.OrderBy, out propertyName, out asc);
+                var orderByExpression = GetOrderByMemberExpression<TEntity>(entityType.ClrType, propertyName);
+                if (asc)
+                    baseQuery = baseQuery.OrderBy(orderByExpression);
+                else
+                    baseQuery = baseQuery.OrderByDescending(orderByExpression);
+            }
+
+            // apply pagination.
+            if (request.PageSize > 0)
+            {
+                result.RowCount = await baseQuery.CountAsync();
+                baseQuery = baseQuery.Skip((request.PageIndex - 1) * request.PageSize)
+                                     .Take(request.PageSize);
+
+                result.PageCount = (int)Math.Ceiling((float)result.RowCount / result.PageSize);
+            }
+
+            // fill results.
+            result.Items = await baseQuery.ToListAsync();
+
+            return result;
         }
 
         protected virtual IQueryable<TEntity> GetBaseQuery<TEntity>(EntityType entityType)
@@ -127,6 +174,59 @@ namespace EntityFrameworkCore.Detached.Managers
                 findExpr = Expression.AndAlso(findExpr, buildCompare(i));
             }
             return Expression.Lambda<Func<TEntity, bool>>(findExpr, param);
+        }
+
+        Expression<Func<TEntity, TValue>> GetMemberExpression<TEntity, TValue>(Type clrType, string propertyName)
+        {
+            ParameterExpression param = Expression.Parameter(clrType);
+            Expression body = Expression.Property(param, propertyName);
+            return Expression.Lambda<Func<TEntity, TValue>>(body, param);
+        }
+
+        void GetOrderByParameters(string columnExpression, out string propertyName, out bool asc)
+        {
+            string[] orderByParts = columnExpression.Split(' ');
+            if (orderByParts.Length == 2)
+            {
+                propertyName = orderByParts[0].Trim();
+                switch (orderByParts[1].Trim().ToLower())
+                {
+                    case "asc":
+                        asc = true;
+                        break;
+                    case "desc":
+                        asc = false;
+                        break;
+                    default:
+                        throw new Exception("Invalid order direction. Please specify ASC or DESC.");
+                }
+            }
+            else
+            {
+                propertyName = columnExpression.Trim();
+                asc = true;
+            }
+        }
+
+        PropertyInfo GetPropertyByName(Type clrType, string propertyName)
+        {
+            foreach(PropertyInfo propInfo in clrType.GetRuntimeProperties())
+            {
+                if (string.Compare(propInfo.Name, propertyName, true) == 0)
+                    return propInfo;
+            }
+            return null;
+        }
+
+        Expression<Func<TEntity, object>> GetOrderByMemberExpression<TEntity>(Type clrType, string propertyName)
+        {
+            PropertyInfo propInfo = GetPropertyByName(clrType, propertyName);
+            if (propInfo == null)
+                throw new ArgumentException($"Property {propertyName} does not exist in object {clrType}.");
+
+            ParameterExpression param = Expression.Parameter(clrType);
+            Expression body = Expression.Property(param, propInfo);
+            return Expression.Lambda<Func<TEntity, object>>(body, param);
         }
     }
 

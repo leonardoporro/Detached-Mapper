@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using EntityFrameworkCore.Detached.DataAnnotations;
+using EntityFrameworkCore.Detached.DataAnnotations.Paged;
 
 namespace EntityFrameworkCore.Detached.Contracts
 {
@@ -32,5 +34,14 @@ namespace EntityFrameworkCore.Detached.Contracts
         /// <param name="keyValues">One or more values for the entity key to find.</param>
         /// <returns>IQueryable filtered by key.</returns>
         Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity) where TEntity : class;
+
+        /// <summary>
+        /// Gets a paged result containing page items and query result size.
+        /// </summary>
+        /// <typeparam name="TEntity">The clr type of the entity.</typeparam>
+        /// <param name="entityType">Entity metadata.</param>
+        /// <param name="request">The request parameters.</param>
+        /// <returns>A paged result containing query size and page items.</returns>
+        Task<IPagedResult<TEntity>> GetPage<TEntity>(EntityType entityType, IPagedRequest<TEntity> request) where TEntity : class;
     }
 }

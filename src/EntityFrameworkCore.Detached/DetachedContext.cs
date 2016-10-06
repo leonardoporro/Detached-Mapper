@@ -1,4 +1,6 @@
 ﻿using EntityFrameworkCore.Detached.Contracts;
+using EntityFrameworkCore.Detached.DataAnnotations;
+using EntityFrameworkCore.Detached.DataAnnotations.Paged;
 using EntityFrameworkCore.Detached.Managers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -76,6 +78,13 @@ namespace EntityFrameworkCore.Detached
         {
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
             return await _queryManager.FindEntities<TEntity>(entityType, filter);
+        }
+
+        public virtual async Task<IPagedResult<TEntity>> LoadPageAsync<TEntity>(IPagedRequest<TEntity> request)
+            where TEntity : class
+        {
+            EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
+            return await _queryManager.GetPage<TEntity>(entityType, request);
         }
 
         public virtual async Task<TEntity> UpdateAsync<TEntity>(TEntity root)
