@@ -10,6 +10,8 @@ or join https://github.com/leonardoporro/EntityFrameworkCore.Detached.
 Thanks in advance for your help!
 
 Features:
+- 1.0.0-alpha12: 
+ * Added projections to LoadAsync and LoadPageAsync.
 - 1.0.0-alpha10:
  * LoadPageAsync: Loads paged results (with filtered and sorted items) automatically.
 

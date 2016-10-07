@@ -80,12 +80,29 @@ namespace EntityFrameworkCore.Detached
             return await _queryManager.FindEntities<TEntity>(entityType, filter);
         }
 
+        public virtual async Task<List<TItem>> LoadAsync<TEntity, TItem>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, TItem>> project) 
+            where TEntity : class
+            where TItem : class
+        {
+            EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
+            return null;// await _queryManager.FindEntities<TEntity, TItem>(entityType, filter, project);
+        }
+
         public virtual async Task<IPagedResult<TEntity>> LoadPageAsync<TEntity>(IPagedRequest<TEntity> request)
             where TEntity : class
         {
             EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
             return await _queryManager.GetPage<TEntity>(entityType, request);
         }
+
+        public virtual async Task<IPagedResult<TItem>> LoadPageAsync<TEntity, TItem>(IPagedRequest<TEntity> request, Expression<Func<TEntity, TItem>> project)
+            where TEntity : class
+            where TItem : class
+        {
+            EntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity)) as EntityType;
+            return await _queryManager.GetPage<TEntity, TItem>(entityType, request, project);
+        }
+
 
         public virtual async Task<TEntity> UpdateAsync<TEntity>(TEntity root)
             where TEntity : class

@@ -42,7 +42,7 @@ namespace EntityFrameworkCore.Detached
         /// </summary>
         public static Expression GetMemberExpression(this PropertyBase property)
         {
-            Type entityType = property.DeclaringEntityType.ClrType;
+            Type entityType = property.DeclaringType.ClrType;
             Type delType = typeof(Func<,>).MakeGenericType(entityType,
                                                            property.PropertyInfo.PropertyType);
 

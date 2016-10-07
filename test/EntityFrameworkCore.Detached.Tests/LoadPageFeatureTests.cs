@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.Detached.DataAnnotations;
 using EntityFrameworkCore.Detached.Paged;
 using EntityFrameworkCore.Detached.Tests.Model;
+using EntityFrameworkCore.Detached.Tests.Model.Paged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,6 +112,41 @@ namespace EntityFrameworkCore.Detached.Tests
                 Assert.Equal(30, result.RowCount);
                 Assert.Equal(3, result.PageCount);
                 Assert.Equal("Entity 21", result.Items.First().Name);
+            }
+        }
+
+        [Fact]
+        public async Task when_a_transformed_page_is_requested__the_page_is_loaded()
+        {
+            using (TestDbContext dbContext = new TestDbContext())
+            {
+                // GIVEN a list of entities:
+                for (int i = 1; i <= 50; i++)
+                {
+                    dbContext.Entities.Add(new Entity
+                    {
+                        Name = "Entity " + i.ToString("D2")
+                    });
+                }
+                await dbContext.SaveChangesAsync();
+
+                // WHEN a page of size 10 is loaded:
+                DetachedContext<TestDbContext> detached = new DetachedContext<Model.TestDbContext>(dbContext);
+
+                IPagedResult<Item> result = await detached.LoadPageAsync(new PagedRequest<Entity>
+                {
+                    PageIndex = 1,
+                    PageSize = 10,
+                    FilterBy = e => string.Compare(e.Name, "Entity 20") > 0
+                }, e => new Item { Id = e.Id, Description = e.Name });
+
+                // THEN page contains 10 transformed items and correct indexes and count values:
+                Assert.Equal(10, result.Items.Count);
+                Assert.Equal(10, result.PageSize);
+                Assert.Equal(1, result.PageIndex);
+                Assert.Equal(30, result.RowCount);
+                Assert.Equal(3, result.PageCount);
+                Assert.Equal("Entity 21", result.Items.First().Description);
             }
         }
     }

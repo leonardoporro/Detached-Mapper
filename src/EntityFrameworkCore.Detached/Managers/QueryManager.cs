@@ -44,6 +44,13 @@ namespace EntityFrameworkCore.Detached.Managers
             return await GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().ToListAsync();
         }
 
+        public virtual async Task<List<TItem>> FindEntities<TEntity, TItem>(EntityType entityType, Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, TItem>> project)
+           where TEntity : class
+           where TItem : class
+        {
+            return await GetBaseQuery<TEntity>(entityType).Where(filter).AsNoTracking().Select(project).ToListAsync();
+        }
+
         public virtual async Task<TEntity> FindPersistedEntity<TEntity>(EntityType entityType, object detachedEntity)
             where TEntity : class
         {
@@ -56,12 +63,11 @@ namespace EntityFrameworkCore.Detached.Managers
 
         public async Task<IPagedResult<TEntity>> GetPage<TEntity>(EntityType entityType, IPagedRequest<TEntity> request) where TEntity : class
         {
-            IQueryable<TEntity> baseQuery = GetBaseQuery<TEntity>(entityType);
-
             IPagedResult<TEntity> result = new PagedResult<TEntity>();
             result.PageSize = request.PageSize;
             result.PageIndex = request.PageIndex;
 
+            IQueryable<TEntity> baseQuery = GetBaseQuery<TEntity>(entityType);
             // apply filter.
             if (request.FilterBy != null)
             {
@@ -93,6 +99,50 @@ namespace EntityFrameworkCore.Detached.Managers
 
             // fill results.
             result.Items = await baseQuery.ToListAsync();
+
+            return result;
+        }
+
+        public async Task<IPagedResult<TItem>> GetPage<TEntity, TItem>(EntityType entityType, IPagedRequest<TEntity> request, Expression<Func<TEntity, TItem>> project) 
+            where TEntity : class
+            where TItem : class
+        {
+            IPagedResult<TItem> result = new PagedResult<TItem>();
+            result.PageSize = request.PageSize;
+            result.PageIndex = request.PageIndex;
+
+            IQueryable<TEntity> baseQuery = GetBaseQuery<TEntity>(entityType);
+            // apply filter.
+            if (request.FilterBy != null)
+            {
+                baseQuery = baseQuery.Where(request.FilterBy);
+            }
+
+            // apply order by.
+            if (!string.IsNullOrEmpty(request.OrderBy))
+            {
+                string propertyName;
+                bool asc;
+                GetOrderByParameters(request.OrderBy, out propertyName, out asc);
+                var orderByExpression = GetOrderByMemberExpression<TEntity>(entityType.ClrType, propertyName);
+                if (asc)
+                    baseQuery = baseQuery.OrderBy(orderByExpression);
+                else
+                    baseQuery = baseQuery.OrderByDescending(orderByExpression);
+            }
+
+            // apply pagination.
+            if (request.PageSize > 0)
+            {
+                result.RowCount = await baseQuery.CountAsync();
+                baseQuery = baseQuery.Skip((request.PageIndex - 1) * request.PageSize)
+                                     .Take(request.PageSize);
+
+                result.PageCount = (int)Math.Ceiling((float)result.RowCount / result.PageSize);
+            }
+
+            // fill results.
+            result.Items = await baseQuery.Select(project).ToListAsync();
 
             return result;
         }
