@@ -80,11 +80,7 @@ namespace EntityFrameworkCore.Detached.Managers
                 string propertyName;
                 bool asc;
                 GetOrderByParameters(request.OrderBy, out propertyName, out asc);
-                var orderByExpression = GetOrderByMemberExpression<TEntity>(entityType.ClrType, propertyName);
-                if (asc)
-                    baseQuery = baseQuery.OrderBy(orderByExpression);
-                else
-                    baseQuery = baseQuery.OrderByDescending(orderByExpression);
+                baseQuery = baseQuery.OrderByPropertyName(propertyName, asc);
             }
 
             // apply pagination.
@@ -124,11 +120,7 @@ namespace EntityFrameworkCore.Detached.Managers
                 string propertyName;
                 bool asc;
                 GetOrderByParameters(request.OrderBy, out propertyName, out asc);
-                var orderByExpression = GetOrderByMemberExpression<TEntity>(entityType.ClrType, propertyName);
-                if (asc)
-                    baseQuery = baseQuery.OrderBy(orderByExpression);
-                else
-                    baseQuery = baseQuery.OrderByDescending(orderByExpression);
+                baseQuery = baseQuery.OrderByPropertyName(propertyName, asc);
             }
 
             // apply pagination.
@@ -256,27 +248,6 @@ namespace EntityFrameworkCore.Detached.Managers
                 propertyName = columnExpression.Trim();
                 asc = true;
             }
-        }
-
-        PropertyInfo GetPropertyByName(Type clrType, string propertyName)
-        {
-            foreach(PropertyInfo propInfo in clrType.GetRuntimeProperties())
-            {
-                if (string.Compare(propInfo.Name, propertyName, true) == 0)
-                    return propInfo;
-            }
-            return null;
-        }
-
-        Expression<Func<TEntity, object>> GetOrderByMemberExpression<TEntity>(Type clrType, string propertyName)
-        {
-            PropertyInfo propInfo = GetPropertyByName(clrType, propertyName);
-            if (propInfo == null)
-                throw new ArgumentException($"Property {propertyName} does not exist in object {clrType}.");
-
-            ParameterExpression param = Expression.Parameter(clrType);
-            Expression body = Expression.Property(param, propInfo);
-            return Expression.Lambda<Func<TEntity, object>>(body, param);
         }
     }
 
