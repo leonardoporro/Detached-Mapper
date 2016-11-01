@@ -11,10 +11,8 @@ namespace EntityFrameworkCore.Detached.Demo.Model
 
         public string Name { get; set; }
 
-        [ManyToMany("UserRoles")]
         public IList<Role> Roles { get; set; }
 
-        [ManyToMany("UserDependants")]
         public IList<Dependants> Dependants { get; set; }
     }
 }

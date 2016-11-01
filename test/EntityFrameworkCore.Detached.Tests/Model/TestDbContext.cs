@@ -1,5 +1,6 @@
-﻿using EntityFrameworkCore.Detached.Tests.Model.Audit;
-using EntityFrameworkCore.Detached.Tests.Model.ManyToMany;
+﻿using EntityFrameworkCore.Detached.Plugins.Auditing;
+using EntityFrameworkCore.Detached.Tests.Plugins.Auditing;
+using EntityFrameworkCore.Detached.Tests.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,12 +8,6 @@ namespace EntityFrameworkCore.Detached.Tests.Model
 {
     public class TestDbContext : DbContext
     {
-        public TestDbContext()
-            : base(GetTestDbContextOptions())
-        {
-
-        }
-
         public DbSet<Entity> Entities { get; set; }
 
         public DbSet<AssociatedReference> AssociatedReferences { get; set; }
@@ -23,25 +18,22 @@ namespace EntityFrameworkCore.Detached.Tests.Model
 
         public DbSet<AssociatedListItem> AssociatedListItems { get; set; }
 
-        public DbSet<EntityForAudit> EntitiesForAudit { get; set; }
+        public DbSet<EntityForAuditing> EntitiesForAudit { get; set; }
 
-        public DbSet<ManyToManyEndA> ManyToManyEndA { get; set; }
-
-        public DbSet<ManyToManyEndB> ManyToManyEndB { get; set; }
-
-        static DbContextOptions GetTestDbContextOptions()
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            base.OnConfiguring(optionsBuilder);
+
             var serviceProvider = new ServiceCollection()
-                     .AddEntityFrameworkInMemoryDatabase()
-                     .AddEntityFrameworkDetached()
-                     .BuildServiceProvider();
+                                         .AddEntityFrameworkInMemoryDatabase()
+                                         .AddDetachedEntityFramework()
+                                         .AddDetachedAuditing()
+                                         .AddSingleton<ISessionInfoProvider>(SessionInfoProvider.Default)
+                                         .BuildServiceProvider();
 
-            var builder = new DbContextOptionsBuilder<TestDbContext>();
-
-            builder.UseInternalServiceProvider(serviceProvider)
-                   .UseInMemoryDatabase();
-
-            return builder.Options;
+            optionsBuilder.UseInternalServiceProvider(serviceProvider)
+                          .UseInMemoryDatabase()
+                          .UseDetached(opts => opts.UseAuditing());
         }
     }
 }

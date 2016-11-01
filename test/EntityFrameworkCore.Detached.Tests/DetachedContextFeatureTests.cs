@@ -1,5 +1,4 @@
-﻿using EntityFrameworkCore.Detached.Contracts;
-using EntityFrameworkCore.Detached.Tests.Model;
+﻿using EntityFrameworkCore.Detached.Tests.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +9,50 @@ namespace EntityFrameworkCore.Detached.Tests
     public class DetachedContextFeatureTests
     {
         [Fact]
-        public async Task when_item_is_added_to_owned_collection__item_is_created()
+        public async Task when_root_persisted__children_are_persisted()
+        {
+            using (IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>())
+            {
+                // GIVEN a context:
+                detachedContext.DbContext.AddRange(new[]
+                {
+                    new AssociatedListItem { Id = 1, Name = "Associated 1" },
+                    new AssociatedListItem { Id = 2, Name = "Associated 2" }
+                });
+                detachedContext.DbContext.Add(new AssociatedReference { Id = 1, Name = "Associated 1" });
+                await detachedContext.DbContext.SaveChangesAsync();
+
+                // WHEN an entity is persisted:
+                await detachedContext.UpdateAsync(new Entity
+                {
+                    Name = "Test entity",
+                    AssociatedList = new[]
+                    {
+                        new AssociatedListItem { Id = 1, Name = "Sarlanga" },
+                        new AssociatedListItem { Id = 2 }
+                    },
+                    AssociatedReference = new AssociatedReference { Id = 1 },
+                    OwnedList = new[]
+                    {
+                        new OwnedListItem { Name = "Owned 1" },
+                        new OwnedListItem { Name = "Owned 2" }
+                    },
+                    OwnedReference = new OwnedReference { Name = "Owned Reference 1" }
+                });
+                await detachedContext.SaveChangesAsync();
+
+                // THEN the entity should be loaded correctly:
+                Entity persisted = await detachedContext.LoadAsync<Entity>("1");
+                Assert.NotNull(persisted);
+                Assert.Equal(2, persisted.AssociatedList.Count);
+                Assert.NotNull(persisted.AssociatedReference);
+                Assert.Equal(2, persisted.OwnedList.Count);
+                Assert.NotNull(persisted.OwnedReference);
+            }
+        }
+
+        [Fact]
+        public async Task when_add_item_to_collection__item_is_created()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -46,7 +88,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_item_is_removed_from_owned_collection__item_is_deleted()
+        public async Task when_remove_item_from_owned_collection__item_is_deleted()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -82,7 +124,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_owned_property_is_set_to_entity__entity_is_created()
+        public async Task when_owned_reference_set_to_entity__entity_is_created()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -95,11 +137,11 @@ namespace EntityFrameworkCore.Detached.Tests
                 });
                 context.SaveChanges();
 
-                // WHEN the owned and the associated references are set to null:
+                // WHEN the owned reference is set:
                 Entity detachedEntity = new Entity
                 {
                     Id = 1,
-                    OwnedReference = new OwnedReference { Id = 1, Name = "Owned Reference 2" }
+                    OwnedReference = new OwnedReference { Id = 2, Name = "Owned Reference 2" }
                 };
 
                 await detachedContext.UpdateAsync(detachedEntity);
@@ -111,7 +153,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_owned_property_is_set_to_null__entity_is_deleted()
+        public async Task when_owned_reference_set_to_null__entity_is_deleted()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -140,7 +182,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_associated_property_is_set_to_entity__entity_is_related_to_existing()
+        public async Task when_associated_reference_set_to_entity__entity_is_related_to_existing()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -175,7 +217,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_associated_property_is_set_to_null__entity_is_preserved()
+        public async Task when_associated_reference_set_to_null__entity_is_preserved()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -211,7 +253,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_entity_is_deleted__owned_properties_are_deleted()
+        public async Task when_entity_deleted__owned_properties_are_deleted()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -238,7 +280,7 @@ namespace EntityFrameworkCore.Detached.Tests
                 context.SaveChanges();
 
                 // WHEN the entity is deleted:
-                await detachedContext.DeleteAsync(new Entity { Id = 1 });
+                await detachedContext.DeleteAsync<Entity>(1);
                 await detachedContext.SaveChangesAsync();
 
                 // THEN owned items are removed:
@@ -253,7 +295,7 @@ namespace EntityFrameworkCore.Detached.Tests
         }
 
         [Fact]
-        public async Task when_entity_is_loaded_by_key__type_conversion_is_made()
+        public async Task when_load_by_key__type_conversion_is_made()
         {
             using (TestDbContext context = new TestDbContext())
             {
@@ -271,6 +313,25 @@ namespace EntityFrameworkCore.Detached.Tests
 
                 persisted = await detachedContext.LoadAsync<Entity>(1);
                 Assert.NotNull(persisted);
+            }
+        }
+
+        [Fact]
+        public async Task when_load_sorted__result_is_ordered()
+        {
+            using (TestDbContext dbContext = new TestDbContext())
+            {
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(dbContext);
+                dbContext.AddRange(new[]
+                {
+                    new Entity { Name = "Order By Entity 2" },
+                    new Entity { Name = "Order By Entity 1" },
+                    new Entity { Name = "Order By Entity 3" }
+                });
+                await dbContext.SaveChangesAsync();
+
+
+
             }
         }
     }

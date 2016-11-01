@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EntityFrameworkCore.Detached.Demo.Model;
+using EntityFrameworkCore.Detached.Demo.Services;
 using Microsoft.AspNetCore.Mvc;
-using EntityFrameworkCore.Detached.Demo.Model;
-using Microsoft.EntityFrameworkCore;
-using EntityFrameworkCore.Detached.Contracts;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
@@ -15,10 +11,44 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
     public class CompanyController : Controller
     {
         IDetachedContext<MainDbContext> _detached;
+        static bool initialized = false;
 
         public CompanyController(IDetachedContext<MainDbContext> detached)
         {
             _detached = detached;
+            if (!initialized)
+            {
+                Initialize().Wait();
+                initialized = true;
+            }
+        }
+
+        async Task Initialize()
+        {
+            await _detached.DbContext.Database.EnsureDeletedAsync();
+            await _detached.DbContext.Database.EnsureCreatedAsync();
+
+            _detached.DbContext.AddRange(new[]
+            {
+                new SellPointType { Name = "Type 1" },
+                new SellPointType { Name = "Type 2" },
+                new SellPointType { Name = "Type 3" },
+                new SellPointType { Name = "Type 4" }
+            });
+            await _detached.DbContext.SaveChangesAsync();
+
+            await _detached.UpdateAsync(new Company()
+            {
+                Name = "Hello Company!",
+                SellPoints = new List<SellPoint>(new[]
+                {
+                    new SellPoint { Name = "USA", Address = "9999 12th Avenue Seattle, WA 98122, EE. UU.", Type = new SellPointType { Id = 1 }},
+                    new SellPoint { Name = "Argentina", Address = "Mitre 564, Rosario, Santa Fe, Argentina", Type = new SellPointType { Id = 1 } },
+                    new SellPoint { Name = "Germany", Address = "Gartenstraße 1000, 30161 Hannover, Germany", Type = new SellPointType { Id = 1 } },
+                    new SellPoint { Name = "France", Address = "500 Rue Saint-Paul 34000 Montpellier, France", Type = new SellPointType { Id = 1 } }
+                })
+            });
+            await _detached.SaveChangesAsync();
         }
 
         [HttpGet("{id}")]
@@ -32,6 +62,8 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
         {
             try
             {
+                SessionInfoProvider.Default.CurrentUser = "CurrentUser";
+
                 await _detached.UpdateAsync(company);
                 await _detached.SaveChangesAsync();
 
