@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
 {
     public static class ManyToManySetup
     {
-        public static IServiceCollection AddManyToManyHelpers(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddDetachedManyToManyHelper(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDetachedPlugin, ManyToManyPlugin>();
             serviceCollection.AddConventionBuilder<ManyToManyConventions>();
@@ -18,7 +18,7 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
 
         public static DetachedOptionsExtension UseManyToManyHelpers(this DetachedOptionsExtension detachedOptions)
         {
-            detachedOptions.DetachedServices.AddManyToManyHelpers();
+            detachedOptions.DetachedServices.AddDetachedManyToManyHelper();
             return detachedOptions;
         }
     }

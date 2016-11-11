@@ -138,13 +138,11 @@ namespace EntityFrameworkCore.Detached.Tests
                 context.SaveChanges();
 
                 // WHEN the owned reference is set:
-                Entity detachedEntity = new Entity
+                await detachedContext.UpdateAsync(new Entity
                 {
                     Id = 1,
                     OwnedReference = new OwnedReference { Id = 2, Name = "Owned Reference 2" }
-                };
-
-                await detachedContext.UpdateAsync(detachedEntity);
+                });
                 await detachedContext.SaveChangesAsync();
 
                 // THEN the owned reference is replaced:

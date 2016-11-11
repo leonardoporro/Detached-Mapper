@@ -6,25 +6,29 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Plugins.Auditing
 {
-    public class AuditingPlugin : IDetachedPlugin
+    public class AuditingPlugin : DetachedPlugin
     {
         IDetachedContext _detachedContext;
         ISessionInfoProvider _sessionInfoProvider;
+        IEventManager _eventManager;
 
-        public AuditingPlugin(ISessionInfoProvider sessionInfoProvider)
+        public AuditingPlugin(ISessionInfoProvider sessionInfoProvider,
+                              IEventManager eventManager)
         {
             _sessionInfoProvider = sessionInfoProvider;
+            _eventManager = eventManager;
         }
 
-        public bool IsEnabled { get; set; } = true;
-
-        public int Priority { get; } = 0;
-
-        public void Initialize(IDetachedContext detachedContext)
+        protected override void OnEnabled()
         {
-            _detachedContext = detachedContext;
-            _detachedContext.Events.EntityAdded += Events_EntityAdded;
-            _detachedContext.Events.EntityMerged += Events_EntityMerged;
+            _eventManager.EntityAdded += Events_EntityAdded;
+            _eventManager.EntityMerged += Events_EntityMerged;
+        }
+
+        protected override void OnDisabled()
+        {
+            _eventManager.EntityAdded -= Events_EntityAdded;
+            _eventManager.EntityMerged -= Events_EntityMerged;
         }
 
         private void Events_EntityAdded(object sender, EntityAddedEventArgs e)
@@ -66,12 +70,6 @@ namespace EntityFrameworkCore.Detached.Plugins.Auditing
                         e.EntityEntry.Property(props.ModifiedDate.Name).CurrentValue = props.GetValueForDate(props.ModifiedDate.ClrType, dateTime);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _detachedContext.Events.EntityAdded -= Events_EntityAdded;
-            _detachedContext.Events.EntityMerged -= Events_EntityMerged;
         }
     }
 }

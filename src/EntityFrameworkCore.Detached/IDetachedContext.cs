@@ -19,7 +19,9 @@ namespace EntityFrameworkCore.Detached
         /// <summary>
         /// Gets the events for this detached context.
         /// </summary>
-        EventManager Events { get; }
+        IEventManager Events { get; }
+
+        DbContext DbContext { get; }
 
         /// <summary>
         /// Gets the IQueryable for the given entity with the includes needed for associated and 
@@ -96,6 +98,6 @@ namespace EntityFrameworkCore.Detached
         /// <summary>
         /// Gets the underlying DbContext instance.
         /// </summary>
-        TDbContext DbContext { get; }
+        new TDbContext DbContext { get; }
     }
 }

@@ -5,15 +5,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace EntityFrameworkCore.Detached.Plugins.ManyToManyPatch
+namespace EntityFrameworkCore.Detached.Plugins.PartialKey
 {
-    public class ManyToManyPluginConventions : ICustomConventionBuilder
+    public class PartialKeyConventions : ICustomConventionBuilder
     {
         public int Priority { get; } = 0;
 
         public void AddConventions(ConventionSet conventionSet)
         {
-            conventionSet.NavigationAddedConventions.Add(new ManyToManyPluginAttributeConvention());
+            conventionSet.EntityTypeAddedConventions.Add(new PartialKeyEntityConvention());
         }
     }
 }

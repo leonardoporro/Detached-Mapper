@@ -7,10 +7,10 @@ namespace EntityFrameworkCore.Detached.Plugins
 {
     public interface IDetachedPlugin : IDisposable
     {
-        void Initialize(IDetachedContext detachedContext);
-
         bool IsEnabled { get; set; }
 
         int Priority { get; }
+
+        string Name { get; }
     }
 }

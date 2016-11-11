@@ -11,7 +11,7 @@ namespace EntityFrameworkCore.Detached.Plugins.Auditing.Conventions
         {
             var auditProps = AuditingPluginMetadata.GetMetadata(propertyBuilder.Metadata.DeclaringEntityType);
             auditProps.ModifiedBy = propertyBuilder.Metadata;
-            propertyBuilder.Metadata.Ignore();
+            propertyBuilder.Metadata.DetachedIgnore();
             return propertyBuilder;
         }
     }

@@ -15,7 +15,7 @@ namespace EntityFrameworkCore.Detached
     /// </summary>
     public static class PropertyExtensions
     {
-        const string DETACHED_IGNORE = "DETACHED_IGNORE";
+        const string DETACHED_IGNORE = "EntityFrameworkCore.Detached->IGNORE";
 
         /// <summary>
         /// Returns whether this navigation property is configured as Owned.
@@ -28,6 +28,14 @@ namespace EntityFrameworkCore.Detached
         }
 
         /// <summary>
+        /// Set this navigation property as Owned.
+        /// </summary>
+        public static void Owned(this Navigation navigation, ConfigurationSource source)
+        {
+            var annotation = navigation.SetAnnotation(typeof(OwnedAttribute).FullName, true, source);
+        }
+
+        /// <summary>
         /// Returns whether this navigation property is configured as Associated.
         /// </summary>
         /// <returns>True if the property is associated.</returns>
@@ -35,6 +43,14 @@ namespace EntityFrameworkCore.Detached
         {
             var annotation = navigation.FindAnnotation(typeof(AssociatedAttribute).FullName);
             return annotation != null;
+        }
+
+        /// <summary>
+        /// Returns whether this navigation property is configured as Owned.
+        /// </summary>
+        public static void Associated(this Navigation navigation, ConfigurationSource source)
+        {
+            var annotation = navigation.SetAnnotation(typeof(AssociatedAttribute).FullName, true, source);
         }
 
         /// <summary>
@@ -64,7 +80,7 @@ namespace EntityFrameworkCore.Detached
         /// Ignores a property for the detached Update/Delete process.
         /// </summary>
         /// <param name="property">The property to ignore.</param>
-        public static void Ignore(this PropertyBase property)
+        public static void DetachedIgnore(this PropertyBase property)
         {
             property.SetAnnotation(DETACHED_IGNORE, true, ConfigurationSource.DataAnnotation);
         }

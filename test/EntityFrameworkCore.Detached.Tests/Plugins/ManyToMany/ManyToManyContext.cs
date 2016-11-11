@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Plugins.ManyToMany;
+using EntityFrameworkCore.Detached.Plugins.PartialKey;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,12 +18,18 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
             var serviceProvider = new ServiceCollection()
                                          .AddEntityFrameworkInMemoryDatabase()
                                          .AddDetachedEntityFramework()
-                                         .AddManyToManyHelpers()
+                                         .AddDetachedManyToManyHelper()
+                                         .AddDetachedPartialKey()
                                          .BuildServiceProvider();
 
             optionsBuilder.UseInternalServiceProvider(serviceProvider)
                           .UseInMemoryDatabase()
                           .UseDetached();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

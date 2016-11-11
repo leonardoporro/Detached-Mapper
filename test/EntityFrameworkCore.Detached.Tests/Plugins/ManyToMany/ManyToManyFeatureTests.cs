@@ -1,127 +1,117 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
+using System.Linq;
 
 namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
 {
     public class ManyToManyFeatureTests
     {
         [Fact]
-        public async Task Saraasa()
+        public async Task when_entity_is_loaded__many_to_many_is_loaded()
         {
-            using (ManyToManyContext context = new ManyToManyContext())
+            using (ManyToManyContext dbContext = new ManyToManyContext())
             {
-                context.User.Add(new User
+                dbContext.AddRange(new[]
                 {
-
+                    new Role { Name = "Role 1" },
+                    new Role { Name = "Role 2" }
                 });
-                await context.SaveChangesAsync();
+                dbContext.SaveChanges();
+
+                dbContext.Add(new User
+                {
+                    Name = "Test Root"
+                });
+                dbContext.SaveChanges();
+
+                dbContext.AddRange(new[]
+                {
+                    new UserRoles { User = dbContext.User.First(), Role = dbContext.Roles.First() },
+                    new UserRoles { User = dbContext.User.First(), Role = dbContext.Roles.Last()  }
+                });
+                dbContext.SaveChanges();
+
+                IDetachedContext<ManyToManyContext> detachedContext = new DetachedContext<ManyToManyContext>(dbContext);
+
+                User persisted = await detachedContext.LoadAsync<User>(1);
+                Assert.Equal(2, persisted.UserRoles.Count);
+                Assert.Equal(2, persisted.Roles.Count);
+                Assert.True(persisted.Roles.Any(r => r.Name == "Role 1"));
+                Assert.True(persisted.Roles.Any(r => r.Name == "Role 2"));
             }
+        }
 
-            //        [Fact]
-            //        public async Task when_entity_is_loaded__many_to_many_is_loaded()
-            //        {
-            //            using (TestDbContext dbContext = new TestDbContext())
-            //            {
-            //                ManyToManyEndB[] roles = new[]
-            //                {
-            //                    new ManyToManyEndB { Name = "EndB 1" },
-            //                    new ManyToManyEndB { Name = "EndB 2" },
-            //                    new ManyToManyEndB { Name = "EndB 3" }
-            //                };
-            //                dbContext.AddRange(roles);
+        [Fact]
+        public async Task when_entity_is_saved__many_to_many_is_saved()
+        {
+            using (ManyToManyContext dbContext = new ManyToManyContext())
+            {
+                IDetachedContext<ManyToManyContext> detachedContext = new DetachedContext<ManyToManyContext>(dbContext);
+                dbContext.AddRange(new[]
+                {
+                    new Role { Name = "Role 1" },
+                    new Role { Name = "Role 2" }
+                });
+                await dbContext.SaveChangesAsync();
 
-            //                ManyToManyEndA user = new ManyToManyEndA
-            //                {
-            //                    Name = "Test Root"
-            //                };
-            //                dbContext.Add(user);
+                await detachedContext.UpdateAsync(new User
+                {
+                    Name = "Test",
+                    Roles = new[] {
+                        new Role { Id = 1 }
+                    }
+                });
+                await detachedContext.SaveChangesAsync();
 
-            //                dbContext.AddRange(new[]
-            //                {
-            //                    new ManyToManyEntity<ManyToManyEndA,ManyToManyEndB> { End1 = user, End2 = roles[0] },
-            //                    new ManyToManyEntity<ManyToManyEndA, ManyToManyEndB> { End1 = user, End2 = roles[1] }
-            //                });
-            //                dbContext.SaveChanges();
+                User persisted = await detachedContext.LoadAsync<User>(1);
+                Assert.Equal(1, persisted.Roles.Count);
+                Assert.Equal(1, persisted.UserRoles.Count);
+                Assert.True(persisted.Roles.Any(r => r.Name == "Role 1"));
+            }
+        }
 
-            //                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(dbContext);
+        [Fact]
+        public async Task when_entity_is_edited__many_to_many_is_merged()
+        {
+            using (ManyToManyContext dbContext = new ManyToManyContext())
+            {
+                // GIVEN some entities of type B:
+                dbContext.AddRange(new[]
+                {
+                    new Role { Name = "EndB 1" },
+                    new Role { Name = "EndB 2" },
+                    new Role { Name = "EndB 3" }
+                });
+                await dbContext.SaveChangesAsync();
 
-            //                ManyToManyEndA persisted = await detachedContext.LoadAsync<ManyToManyEndA>(1);
-            //                Assert.Equal(2, persisted.EndB.Count);
-            //                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 1"));
-            //                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 2"));
-            //            }
-            //        }
+                // AND a root A containing two associations of B.
+                IDetachedContext<ManyToManyContext> detached = new DetachedContext<ManyToManyContext>(dbContext);
+                await detached.UpdateAsync(new User
+                {
+                    Name = "Test Root",
+                    Roles = new[]
+                    {
+                        new Role { Id = 1, Name = "Role 1" },
+                        new Role { Id = 2, Name = "Role 2" }
+                    }
+                });
+                await detached.SaveChangesAsync();
 
-            //        [Fact]
-            //        public async Task when_entity_is_saved__many_to_many_is_saved()
-            //        {
-            //            using (TestDbContext dbContext = new TestDbContext())
-            //            {
-            //                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(dbContext);
+                // WHEN a root with only one association of B is saved:
+                await detached.UpdateAsync(new User
+                {
+                    Id = 1,
+                    Name = "Test Root",
+                    Roles = new[]
+                    {
+                        new Role { Id = 3, Name = "Role 3" },
+                    }
+                });
+                await detached.SaveChangesAsync();
 
-            //                dbContext.AddRange(new[]
-            //                {
-            //                    new ManyToManyEndB { Name = "EndB 1" },
-            //                    new ManyToManyEndB { Name = "EndB 2" }
-            //                });
-            //                await dbContext.SaveChangesAsync();
-
-            //                await detachedContext.UpdateAsync(new ManyToManyEndA
-            //                {
-            //                    Name = "Test",
-            //                    EndB = new[] { new ManyToManyEndB { Id = 1 } }
-            //                });
-            //                await detachedContext.SaveChangesAsync();
-
-            //                ManyToManyEndA persisted = await detachedContext.LoadAsync<ManyToManyEndA>(1);
-            //                Assert.Equal(1, persisted.EndB.Count);
-            //                Assert.True(persisted.EndB.Any(r => r.Name == "EndB 1"));
-            //            }
-            //        }
-
-            //        [Fact]
-            //        public async Task when_entity_is_edited__many_to_many_is_merged()
-            //        {
-            //            using (TestDbContext dbContext = new TestDbContext())
-            //            {
-            //                // GIVEN some entities of type B:
-            //                dbContext.AddRange(new[]
-            //                {
-            //                    new ManyToManyEndB { Name = "EndB 1" },
-            //                    new ManyToManyEndB { Name = "EndB 2" },
-            //                    new ManyToManyEndB { Name = "EndB 3" }
-            //                });
-            //                await dbContext.SaveChangesAsync();
-
-            //                // AND a root A containing two associations of B.
-            //                IDetachedContext<TestDbContext> detached = new DetachedContext<TestDbContext>(dbContext);
-            //                await detached.UpdateAsync(new ManyToManyEndA
-            //                {
-            //                    Name = "Test Root",
-            //                    EndB = new[]
-            //                    {
-            //                        new ManyToManyEndB { Id = 1, Name = "EndB 1" },
-            //                        new ManyToManyEndB { Id = 2, Name = "EndB 2" }
-            //                    }
-            //                });
-            //                await detached.SaveChangesAsync();
-
-            //                // WHEN a root with only one association of B is saved:
-            //                await detached.UpdateAsync(new ManyToManyEndA
-            //                {
-            //                    Id = 1,
-            //                    Name = "Test Root",
-            //                    EndB = new[]
-            //                    {
-            //                        new ManyToManyEndB { Id = 3, Name = "EndB 3" },
-            //                    }
-            //                });
-            //                await detached.SaveChangesAsync();
-
-            //                // THEN the association to the second item is removed:
-            //                ManyToManyEndA persisted = await detached.LoadAsync<ManyToManyEndA>(1);
-            //            }
-            //        }
+                // THEN the association to the second item is removed:
+                User persisted = await detached.LoadAsync<User>(1);
+            }
         }
     }
 }
