@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Events;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,12 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
         Dictionary<Type, List<ManyToManyMetadata>> _metadataCache = new Dictionary<Type, List<ManyToManyMetadata>>();
         IEventManager _eventManager;
 
-        public ManyToManyPlugin(IEventManager eventManager, IModel model)
+        public ManyToManyPlugin(IEventManager eventManager, DbContext dbContext)
         {
             _eventManager = eventManager;
          
             string annotationKey = typeof(ManyToManyMetadata).FullName;
-            foreach (IEntityType entityType in model.GetEntityTypes())
+            foreach (IEntityType entityType in dbContext.Model.GetEntityTypes())
             {
                 var annotation = entityType.FindAnnotation(annotationKey);
                 if (annotation != null)
@@ -30,7 +31,6 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
             _eventManager.EntityAdding += Events_EntityAdding;
             _eventManager.EntityMerging += Events_EntityMerging;
             _eventManager.EntityLoaded += Events_EntityLoaded;
-            IsEnabled = true;
         }
 
         protected override void OnDisabled()
@@ -38,7 +38,6 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
             _eventManager.EntityAdding -= Events_EntityAdding;
             _eventManager.EntityMerging -= Events_EntityMerging;
             _eventManager.EntityLoaded -= Events_EntityLoaded;
-            IsEnabled = false;
         }
 
         private void Events_EntityLoaded(object sender, EntityLoadedEventArgs e)

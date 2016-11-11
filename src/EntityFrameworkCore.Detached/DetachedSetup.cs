@@ -26,42 +26,44 @@ namespace EntityFrameworkCore.Detached
                              .AddScoped<IEventManager, EventManager>()
                              .AddScoped<IPluginManager, PluginManager>()
                              .AddScoped<IKeyServicesFactory, KeyServicesFactory>()
+                             .AddSingleton<IKeyServicesCache, KeyServicesCache>()
                              .AddScoped<IEntryFinder, EntryFinder>()
                              .AddScoped<ILoadServices, LoadServices>()
                              .AddScoped<IUpdateServices, UpdateServices>()
-                             .AddScoped<DbContext>(sp => sp.GetRequiredService<IDetachedServices>().DetachedContext.DbContext);
+                             .AddScoped(sp => sp.GetRequiredService<IDetachedServices>().DetachedContext.DbContext)
+                             .AddScoped(sp => sp.GetRequiredService<IDetachedServices>().DetachedContext);
 
             return serviceCollection;
         }
 
-    public static IServiceCollection AddConventionBuilder<TConventionBuilder>(this IServiceCollection serviceCollection)
-        where TConventionBuilder : class, ICustomConventionBuilder
-    {
-        serviceCollection.AddScoped<ICustomConventionBuilder, TConventionBuilder>();
-        return serviceCollection;
-    }
+        public static IServiceCollection AddConventionBuilder<TConventionBuilder>(this IServiceCollection serviceCollection)
+            where TConventionBuilder : class, ICustomConventionBuilder
+        {
+            serviceCollection.AddScoped<ICustomConventionBuilder, TConventionBuilder>();
+            return serviceCollection;
+        }
 
-    public static DbContextOptionsBuilder UseDetached(this DbContextOptionsBuilder builder, Action<DetachedOptionsExtension> options = null)
-    {
-        DetachedOptionsExtension detachedOptions = new DetachedOptionsExtension();
-        options?.Invoke(detachedOptions);
-        ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(detachedOptions);
-        return builder;
-    }
+        public static DbContextOptionsBuilder UseDetached(this DbContextOptionsBuilder builder, Action<DetachedOptionsExtension> options = null)
+        {
+            DetachedOptionsExtension detachedOptions = new DetachedOptionsExtension();
+            options?.Invoke(detachedOptions);
+            ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(detachedOptions);
+            return builder;
+        }
 
-    public static DetachedOptionsExtension AddSingleton<TService>(this DetachedOptionsExtension options, TService instance)
-        where TService : class
-    {
-        options.DetachedServices.AddSingleton(instance);
-        return options;
-    }
+        public static DetachedOptionsExtension AddSingleton<TService>(this DetachedOptionsExtension options, TService instance)
+            where TService : class
+        {
+            options.DetachedServices.AddSingleton(instance);
+            return options;
+        }
 
-    public static DetachedOptionsExtension AddScoped<TService, TImplementation>(this DetachedOptionsExtension options)
-       where TService : class
-       where TImplementation : class, TService
-    {
-        options.DetachedServices.AddScoped<TService, TImplementation>();
-        return options;
+        public static DetachedOptionsExtension AddScoped<TService, TImplementation>(this DetachedOptionsExtension options)
+           where TService : class
+           where TImplementation : class, TService
+        {
+            options.DetachedServices.AddScoped<TService, TImplementation>();
+            return options;
+        }
     }
-}
 }

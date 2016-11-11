@@ -17,13 +17,19 @@ namespace EntityFrameworkCore.Detached.Plugins
                                        .ToList();
         }
 
-        public void EnableAllPlugins()
+        public void Initialize()
+        {
+            foreach (IDetachedPlugin plugin in _plugins)
+                plugin.Initialize();
+        }
+
+        public void EnableAll()
         {
             foreach (IDetachedPlugin plugin in _plugins)
                 plugin.IsEnabled = true;
         }
 
-        public void DisableAllPlugins()
+        public void DisableAll()
         {
             foreach (IDetachedPlugin plugin in _plugins)
                 plugin.IsEnabled = false;

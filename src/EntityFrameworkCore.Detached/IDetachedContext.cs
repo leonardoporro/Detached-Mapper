@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Events;
+using EntityFrameworkCore.Detached.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,6 +21,8 @@ namespace EntityFrameworkCore.Detached
         /// Gets the events for this detached context.
         /// </summary>
         IEventManager Events { get; }
+
+        IPluginManager Plugins { get; }
 
         DbContext DbContext { get; }
 

@@ -39,6 +39,11 @@ namespace EntityFrameworkCore.Detached.Plugins
 
         public virtual int Priority { get; set; }
 
+        public virtual void Initialize()
+        {
+            IsEnabled = true;
+        }
+
         protected virtual void OnEnabled()
         {
            

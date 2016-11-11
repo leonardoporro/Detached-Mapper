@@ -8,9 +8,11 @@ namespace EntityFrameworkCore.Detached.Plugins
 
         IDetachedPlugin this[string name] { get; }
 
-        void EnableAllPlugins();
+        void Initialize();
 
-        void DisableAllPlugins();
+        void EnableAll();
+
+        void DisableAll();
 
         void Dispose();
     }

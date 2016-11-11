@@ -12,5 +12,7 @@ namespace EntityFrameworkCore.Detached.Plugins
         int Priority { get; }
 
         string Name { get; }
+
+        void Initialize();
     }
 }

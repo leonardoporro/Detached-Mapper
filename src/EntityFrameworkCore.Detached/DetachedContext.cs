@@ -26,12 +26,9 @@ namespace EntityFrameworkCore.Detached
 
         TDbContext _dbContext;
         IServiceProvider _serviceProvider;
-        ILoadServices _loadServices;
-        IUpdateServices _updateServices;
-        IEventManager _eventManager;
-        IPluginManager _pluginManager;
         IDbContextOptions _dbContextOptions;
         DetachedOptionsExtension _detachedOptions;
+        IDetachedServices _detachedServices;
 
         #endregion
 
@@ -47,24 +44,21 @@ namespace EntityFrameworkCore.Detached
             _dbContext = dbContext;
             _serviceProvider = ((IInfrastructure<IServiceProvider>)_dbContext).Instance;
 
-            IServiceProvider _scopedProvider = _serviceProvider.GetRequiredService<IServiceScopeFactory>()
-                                                               .CreateScope()
-                                                               .ServiceProvider;
+            // create a scope for services and plugins.
+            IServiceProvider scopedProvider = _serviceProvider.GetRequiredService<IServiceScopeFactory>()
+                                                              .CreateScope()
+                                                              .ServiceProvider;
 
-            IDetachedServices currentDetachedContext = _scopedProvider.GetService<IDetachedServices>();
-            currentDetachedContext.Initialize(this);
+            // get update and load services and event manager.
+            _detachedServices = scopedProvider.GetService<IDetachedServices>();
+            _detachedServices.Initialize(this, scopedProvider);
 
-            // detached services.
-            _eventManager = _scopedProvider.GetService<IEventManager>();
-            _pluginManager = _scopedProvider.GetService<IPluginManager>();
-            _loadServices = _scopedProvider.GetService<ILoadServices>();
-            _updateServices = _scopedProvider.GetService<IUpdateServices>();
-
-            // ef options.
+            // get ef options.
             _dbContextOptions = _serviceProvider.GetService<IDbContextOptions>();
             _detachedOptions = _dbContextOptions.FindExtension<DetachedOptionsExtension>();
 
-            _pluginManager.EnableAllPlugins();
+            // load plugins.
+            _detachedServices.PluginManager.Initialize();
         }
 
         #endregion
@@ -91,7 +85,15 @@ namespace EntityFrameworkCore.Detached
         {
             get
             {
-                return _eventManager;
+                return _detachedServices.EventManager;
+            }
+        }
+
+        public IPluginManager Plugins
+        {
+            get
+            {
+                return _detachedServices.PluginManager;
             }
         }
 
@@ -99,24 +101,24 @@ namespace EntityFrameworkCore.Detached
 
         public IQueryable<TEntity> GetBaseQuery<TEntity>() where TEntity : class
         {
-            return _loadServices.GetBaseQuery<TEntity>();
+            return _detachedServices.LoadServices.GetBaseQuery<TEntity>();
         }
 
         public async Task<TEntity> LoadAsync<TEntity>(params object[] key) where TEntity : class
         {
-            return await _loadServices.LoadAsync<TEntity>(key);
+            return await _detachedServices.LoadServices.LoadAsync<TEntity>(key);
         }
 
         public async Task<List<TEntity>> LoadAsync<TEntity>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryConfig) where TEntity : class
         {
-            return await _loadServices.LoadAsync<TEntity>(queryConfig);
+            return await _detachedServices.LoadServices.LoadAsync<TEntity>(queryConfig);
         }
 
         public async Task<List<TResult>> LoadAsync<TEntity, TResult>(Func<IQueryable<TEntity>, IQueryable<TResult>> queryConfig)
             where TEntity : class
             where TResult : class
         {
-            return await _loadServices.LoadAsync<TEntity, TResult>(queryConfig);
+            return await _detachedServices.LoadServices.LoadAsync<TEntity, TResult>(queryConfig);
         }
 
         public virtual async Task<TEntity> UpdateAsync<TEntity>(TEntity root)
@@ -126,15 +128,15 @@ namespace EntityFrameworkCore.Detached
             bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
 
-            TEntity persisted = await _loadServices.LoadPersisted<TEntity>(root);
+            TEntity persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(root);
             if (persisted == null) // add new entity.
             {
-                persisted = (TEntity)_updateServices.Add(root).Entity;
+                persisted = (TEntity)_detachedServices.UpdateServices.Add(root).Entity;
             }
             else
             {
                 persisted = (TEntity)Events.OnRootLoaded(persisted, _dbContext).Root; // entity to merge has been loaded.
-                _updateServices.Merge(root, persisted); // merge existing entity.
+                _detachedServices.UpdateServices.Merge(root, persisted); // merge existing entity.
             }
             // re-enable autodetect changes.
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
@@ -149,9 +151,9 @@ namespace EntityFrameworkCore.Detached
             bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
 
-            TEntity persisted = await _loadServices.LoadPersisted<TEntity>(keyValues);
+            TEntity persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(keyValues);
             if (persisted != null)
-                _updateServices.Delete(persisted);
+                _detachedServices.UpdateServices.Delete(persisted);
 
             // re-enable autodetect changes.
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
@@ -177,7 +179,7 @@ namespace EntityFrameworkCore.Detached
             {
                 _dbContext.Dispose();
                 _dbContext = null;
-                _pluginManager.Dispose();
+                _detachedServices.Dispose();
             }
         }
     }

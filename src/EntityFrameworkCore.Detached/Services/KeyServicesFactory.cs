@@ -13,37 +13,40 @@ namespace EntityFrameworkCore.Detached.Services
     public class KeyServicesFactory : IKeyServicesFactory
     {
         DbContext _dbContext;
+        Type _dbContextType;
+        IKeyServicesCache _keyServicesCache;
 
-        public KeyServicesFactory(DbContext dbContext)
+        public KeyServicesFactory(DbContext dbContext, IKeyServicesCache keyServicesCache)
         {
             _dbContext = dbContext;
+            _dbContextType = dbContext.GetType();
+            _keyServicesCache = keyServicesCache;
         }
 
         public IKeyServices<TEntity> GetKeyServices<TEntity>()
         {
-            IEntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity));
-            return new KeyServices<TEntity>(entityType);
+            return (IKeyServices<TEntity>)_keyServicesCache.GetOrCreate(_dbContext.GetType(), typeof(TEntity), () =>
+            {
+                IEntityType entityType = _dbContext.Model.FindEntityType(typeof(TEntity));
+                return new KeyServices<TEntity>(entityType);
+            });
         }
 
         public IKeyServices GetKeyServices(IEntityType entityType)
         {
-            return  CreateKeyServices(entityType);
+            return _keyServicesCache.GetOrCreate(_dbContext.GetType(), entityType.ClrType, () =>
+                {
+                    return (IKeyServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
+                });
         }
 
         public IKeyServices GetKeyServices(Type clrType)
         {
-            return CreateKeyServices(clrType);
-        }
-
-        public IKeyServices CreateKeyServices(IEntityType entityType)
-        {
-            return (IKeyServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
-        }
-
-        public IKeyServices CreateKeyServices(Type clrType)
-        {
-            IEntityType entityType = _dbContext.Model.FindEntityType(clrType);
-            return (IKeyServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
+            return _keyServicesCache.GetOrCreate(_dbContext.GetType(), clrType, () =>
+                {
+                    IEntityType entityType = _dbContext.Model.FindEntityType(clrType);
+                    return (IKeyServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
+                });
         }
     }
 }
