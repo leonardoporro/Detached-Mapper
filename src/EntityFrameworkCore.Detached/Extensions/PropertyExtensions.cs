@@ -15,8 +15,6 @@ namespace EntityFrameworkCore.Detached
     /// </summary>
     public static class PropertyExtensions
     {
-        const string DETACHED_IGNORE = "EntityFrameworkCore.Detached->IGNORE";
-
         /// <summary>
         /// Returns whether this navigation property is configured as Owned.
         /// </summary>
@@ -59,7 +57,16 @@ namespace EntityFrameworkCore.Detached
         /// <param name="property">The property </param>
         public static bool IsIgnored(this IPropertyBase property)
         {
-            return property.FindAnnotation(DETACHED_IGNORE) != null;
+            return property.FindAnnotation(typeof(IgnoredAtrribute).FullName) != null;
+        }
+
+        /// <summary>
+        /// Ignores a property for the detached Update/Delete process.
+        /// </summary>
+        /// <param name="property">The property to ignore.</param>
+        public static void DetachedIgnore(this PropertyBase property)
+        {
+            property.SetAnnotation(typeof(IgnoredAtrribute).FullName, true, ConfigurationSource.DataAnnotation);
         }
 
         /// <summary>
@@ -74,15 +81,6 @@ namespace EntityFrameworkCore.Detached
 
             ParameterExpression param = Expression.Parameter(entityType, entityType.Name.ToLower());
             return Expression.Lambda(delType, Expression.Property(param, property.PropertyInfo), param);
-        }
-
-        /// <summary>
-        /// Ignores a property for the detached Update/Delete process.
-        /// </summary>
-        /// <param name="property">The property to ignore.</param>
-        public static void DetachedIgnore(this PropertyBase property)
-        {
-            property.SetAnnotation(DETACHED_IGNORE, true, ConfigurationSource.DataAnnotation);
         }
     }
 }

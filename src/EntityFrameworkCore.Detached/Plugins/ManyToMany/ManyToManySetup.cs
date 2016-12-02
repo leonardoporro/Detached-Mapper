@@ -16,7 +16,7 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany
             return serviceCollection;
         }
 
-        public static DetachedOptionsExtension UseManyToManyHelpers(this DetachedOptionsExtension detachedOptions)
+        public static DetachedOptionsExtension UseManyToManyHelper(this DetachedOptionsExtension detachedOptions)
         {
             detachedOptions.DetachedServices.AddDetachedManyToManyHelper();
             return detachedOptions;

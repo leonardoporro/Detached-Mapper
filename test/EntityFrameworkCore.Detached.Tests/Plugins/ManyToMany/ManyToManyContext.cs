@@ -26,10 +26,5 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
                           .UseInMemoryDatabase()
                           .UseDetached();
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
     }
 }

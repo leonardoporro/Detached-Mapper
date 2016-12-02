@@ -2,30 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Tools
 {
     public class SortEntry<TEntity, TResult> : ISortEntry<TEntity>
     {
-        public Expression<Func<TEntity, TResult>> Expression { get; set; }
+        public SortEntry()
+        {
+
+        }
+
+        public SortEntry(PropertyInfo propInfo, bool ascending)
+        {
+            ParameterExpression param = Expression.Parameter(typeof(TEntity));
+            Expression body = Expression.Property(param, propInfo);
+            SortMemberExpression = Expression.Lambda<Func<TEntity, TResult>>(body, param);
+
+            Ascending = ascending;
+        }
+
+        public Expression<Func<TEntity, TResult>> SortMemberExpression { get; set; }
 
         public bool Ascending { get; set; }
 
         public IOrderedQueryable<TEntity> ApplyOrderBy(IQueryable<TEntity> query)
         {
             if (Ascending)
-                return query.OrderBy(Expression);
+                return query.OrderBy(SortMemberExpression);
             else
-                return query.OrderByDescending(Expression);
+                return query.OrderByDescending(SortMemberExpression);
         }
 
         public IOrderedQueryable<TEntity> ApplyThenBy(IOrderedQueryable<TEntity> query)
         {
             if (Ascending)
-                return query.ThenBy(Expression);
+                return query.ThenBy(SortMemberExpression);
             else
-                return query.ThenBy(Expression);
+                return query.ThenBy(SortMemberExpression);
         }
     }
 }

@@ -1,6 +1,11 @@
-﻿using EntityFrameworkCore.Detached.DataAnnotations;
+﻿using EntityFrameworkCore.Detached.DataAnnotations.Plugins.ManyToMany;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Demo.Model
 {
@@ -11,8 +16,10 @@ namespace EntityFrameworkCore.Detached.Demo.Model
 
         public string Name { get; set; }
 
-        public IList<Role> Roles { get; set; }
+        [ManyToMany(nameof(Roles)), JsonIgnore]
+        public IList<UserRoles> UserRoles { get; set; }
 
-        public IList<Dependants> Dependants { get; set; }
+        [NotMapped]
+        public IList<Role> Roles { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Events;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.Detached.Tools;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,46 +8,43 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Plugins.Pagination
 {
+    /// <summary>
+    /// Provides paged query extensions to a detached context.
+    /// </summary>
     public static class DetachedContextExtensions
     {
-        public static async Task<IPaginatedResult<TProjection>> LoadPageAsync<TEntity, TProjection>(this IDetachedContext detachedContext, IPaginatedRequest<TEntity> request, Expression<Func<TEntity, TProjection>> projection)
+        /// <summary>
+        /// Loads a page of the specified entity, and projects it to the given type.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr type of the entity.</typeparam>
+        /// <typeparam name="TProjection">Clr type of the result object.</typeparam>
+        /// <param name="detachedSet">The detached context.</param>
+        /// <param name="request">The request to load.</param>
+        /// <param name="projection">The projection function.</param>
+        /// <returns>A projected and paged result.</returns>
+        public static async Task<IPagedData<TProjection>> LoadPageAsync<TEntity, TProjection>(this IDetachedSet<TEntity> detachedSet, int pageIndex, int pageSize, Func<IQueryable<TEntity>, IQueryable<TProjection>> configureQuery = null)
             where TEntity : class
             where TProjection : class
         {
-            IQueryable<TEntity> query = detachedContext.GetBaseQuery<TEntity>();
+            IPagedData<TProjection> result = new PagedData<TProjection>();
+            result.PageIndex = Math.Max(1, pageIndex);
+            result.PageSize = pageSize;
 
-            IPaginatedResult<TProjection> result = new PaginatedResult<TProjection>();
-            result.PageIndex = Math.Max(1, request.PageIndex);
-            result.PageSize = request.PageSize;
+            IQueryable<TEntity> query = detachedSet.GetBaseQuery();
+            IQueryable<TProjection> finalQuery = configureQuery?.Invoke(query);
 
-            if (request.Filter != null)
-                query = query.Where(request.Filter);
-
-            if (request.Sorter != null)
-                query = request.Sorter.Apply(query);
-
-            if (request.RowCount == 0)
-                result.RowCount = await query.CountAsync();
-            else
-                result.RowCount = request.RowCount;
-
+            result.RowCount = await finalQuery.CountAsync();
             result.PageCount = (int)Math.Ceiling((result.RowCount / Math.Max(result.PageSize, 1.0)));
 
             if (result.PageSize > 1)
             {
-                query = query.Skip((request.PageIndex - 1) * request.PageSize)
-                             .Take(request.PageSize);
+                finalQuery = finalQuery.Skip((pageIndex - 1) * pageSize)
+                                       .Take(pageSize);
             }
 
-            result.Items = await query.Select(projection).ToListAsync();
+            result.Items = await finalQuery.ToListAsync();
 
             return result;
-        }
-
-        public static async Task<IPaginatedResult<TEntity>> LoadPageAsync<TEntity>(this IDetachedContext detachedContext, IPaginatedRequest<TEntity> request)
-            where TEntity : class
-        {
-            return await LoadPageAsync(detachedContext, request, e => e);
         }
     }
 }

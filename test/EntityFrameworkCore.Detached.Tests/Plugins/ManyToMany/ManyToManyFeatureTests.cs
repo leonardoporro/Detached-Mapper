@@ -33,7 +33,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
 
                 IDetachedContext<ManyToManyContext> detachedContext = new DetachedContext<ManyToManyContext>(dbContext);
 
-                User persisted = await detachedContext.LoadAsync<User>(1);
+                User persisted = await detachedContext.Set<User>().LoadAsync(1);
                 Assert.Equal(2, persisted.UserRoles.Count);
                 Assert.Equal(2, persisted.Roles.Count);
                 Assert.True(persisted.Roles.Any(r => r.Name == "Role 1"));
@@ -54,7 +54,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
                 });
                 await dbContext.SaveChangesAsync();
 
-                await detachedContext.UpdateAsync(new User
+                await detachedContext.Set<User>().UpdateAsync(new User
                 {
                     Name = "Test",
                     Roles = new[] {
@@ -63,7 +63,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
                 });
                 await detachedContext.SaveChangesAsync();
 
-                User persisted = await detachedContext.LoadAsync<User>(1);
+                User persisted = await detachedContext.Set<User>().LoadAsync(1);
                 Assert.Equal(1, persisted.Roles.Count);
                 Assert.Equal(1, persisted.UserRoles.Count);
                 Assert.True(persisted.Roles.Any(r => r.Name == "Role 1"));
@@ -86,7 +86,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
 
                 // AND a root A containing two associations of B.
                 IDetachedContext<ManyToManyContext> detached = new DetachedContext<ManyToManyContext>(dbContext);
-                await detached.UpdateAsync(new User
+                await detached.Set<User>().UpdateAsync(new User
                 {
                     Name = "Test Root",
                     Roles = new[]
@@ -98,7 +98,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
                 await detached.SaveChangesAsync();
 
                 // WHEN a root with only one association of B is saved:
-                await detached.UpdateAsync(new User
+                await detached.Set<User>().UpdateAsync(new User
                 {
                     Id = 1,
                     Name = "Test Root",
@@ -110,7 +110,7 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.ManyToMany
                 await detached.SaveChangesAsync();
 
                 // THEN the association to the second item is removed:
-                User persisted = await detached.LoadAsync<User>(1);
+                User persisted = await detached.Set<User>().LoadAsync(1);
             }
         }
     }

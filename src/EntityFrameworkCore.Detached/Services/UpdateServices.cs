@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCore.Detached.Events;
+using EntityFrameworkCore.Detached.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -20,6 +21,7 @@ namespace EntityFrameworkCore.Detached.Services
         IEntryFinder _entryServices;
         IKeyServicesFactory _keyServicesFactory;
         DbContext _dbContext;
+        DetachedOptionsExtension _options;
 
         #endregion
 
@@ -28,12 +30,14 @@ namespace EntityFrameworkCore.Detached.Services
         public UpdateServices(DbContext dbContext,
                               IEntryFinder entryServices,
                               IKeyServicesFactory keyServicesFactory,
-                              IEventManager eventManager)
+                              IEventManager eventManager,
+                              DetachedOptionsExtension options)
         {
             _dbContext = dbContext;
             _eventManager = eventManager;
             _entryServices = entryServices;
             _keyServicesFactory = keyServicesFactory;
+            _options = options;
         }
 
         #endregion
@@ -44,7 +48,10 @@ namespace EntityFrameworkCore.Detached.Services
             foreach (PropertyEntry property in destEntry.Properties)
             {
                 if (!(property.Metadata.FieldInfo == null ||
-                      property.Metadata.IsKeyOrForeignKey() ||
+                      property.Metadata.IsPrimaryKey() ||
+                      property.Metadata.IsForeignKey() ||
+                      property.Metadata.IsStoreGeneratedAlways ||
+                      property.Metadata.IsReadOnlyAfterSave ||
                       property.Metadata.IsIgnored()))
                 {
                     IClrPropertyGetter getter = property.Metadata.GetGetter();
@@ -68,14 +75,28 @@ namespace EntityFrameworkCore.Detached.Services
             return Add(detached, null, new HashSet<object>());
         }
 
-        public virtual EntityEntry Add(object detached, NavigationEntry parentNavigation, HashSet<object> visited)
+        protected virtual EntityEntry Add(object detached, NavigationEntry parentNavigation, HashSet<object> visited)
         {
             var args = _eventManager.OnEntityAdding(detached, parentNavigation);
 
+            // set state.
             EntityEntry persisted = GetEntry(args.Entity);
             persisted.State = EntityState.Added;
             visited.Add(persisted.Entity);
 
+            // trying to add an entity that has a primary key defined?. 
+            if (persisted.IsKeySet
+                && _options.ThrowExceptionOnEntityNotFound
+                && persisted.Properties.Where(p => p.Metadata.IsKey()).Any(p => p.Metadata.ValueGenerated != ValueGenerated.Never))
+            {
+                throw new EntityNotFoundException
+                {
+                    EntityType = persisted.Metadata.ClrType,
+                    KeyValues = persisted.Properties.Where(p => p.Metadata.IsKey()).Select(p => p.CurrentValue).ToArray()
+                };
+            }
+
+            // recurse through navigations.
             foreach (NavigationEntry navigationEntry in persisted.Navigations)
             {
                 IEntityType navType = navigationEntry.Metadata.GetTargetType();
@@ -85,11 +106,13 @@ namespace EntityFrameworkCore.Detached.Services
                 if (!(associated || owned))
                     continue;
 
-                IList mergedList = Activator.CreateInstance(typeof(List<>).MakeGenericType(navType.ClrType)) as IList;
                 if (navigationEntry.CurrentValue != null)
                 {
                     if (navigationEntry.Metadata.IsCollection())
                     {
+                        // create a 3rd list object to update change tracker and also avoid read-only collection exceptions.
+                        IList mergedList = Activator.CreateInstance(typeof(List<>).MakeGenericType(navType.ClrType)) as IList;
+
                         foreach (object navItem in (IEnumerable)navigationEntry.CurrentValue)
                         {
                             if (associated)
@@ -97,12 +120,15 @@ namespace EntityFrameworkCore.Detached.Services
                             else if (owned)
                                 mergedList.Add(Add(navItem, navigationEntry, visited).Entity);
                         }
+
+                        // let EF Core do the work.
                         navigationEntry.CurrentValue = mergedList;
                     }
                     else
                     {
                         if (!visited.Contains(navigationEntry.CurrentValue))
                         {
+                            // recurse and let EF Core do the work.
                             if (associated)
                                 navigationEntry.CurrentValue = Attach(navigationEntry.CurrentValue, navigationEntry).Entity;
                             else if (owned)
@@ -120,7 +146,7 @@ namespace EntityFrameworkCore.Detached.Services
             return Attach(detached, null);
         }
 
-        public virtual EntityEntry Attach(object detached, NavigationEntry parentNavigation)
+        protected virtual EntityEntry Attach(object detached, NavigationEntry parentNavigation)
         {
             var args = _eventManager.OnEntityAttaching(detached, parentNavigation);
 
@@ -136,7 +162,7 @@ namespace EntityFrameworkCore.Detached.Services
             Delete(persisted, null, new HashSet<object>());
         }
 
-        public virtual void Delete(object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
+        protected virtual void Delete(object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
         {
             var args = _eventManager.OnEntityDeleting(persisted, parentNavigation);
 
@@ -174,7 +200,7 @@ namespace EntityFrameworkCore.Detached.Services
             return Merge(detached, persisted, null, new HashSet<object>());
         }
 
-        public virtual EntityEntry Merge(object detached, object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
+        protected virtual EntityEntry Merge(object detached, object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
         {
             var args = _eventManager.OnEntityMerging(detached, persisted, parentNavigation);
 
@@ -214,9 +240,10 @@ namespace EntityFrameworkCore.Detached.Services
                                 if (dbTable.TryGetValue(entityKey, out persistedItem))
                                 {
                                     if (owned)
-                                        Merge(detachedItem, persistedItem, navigationEntry, visited);
+                                        mergedList.Add(Merge(detachedItem, persistedItem, navigationEntry, visited).Entity);
+                                    else
+                                        mergedList.Add(persistedItem);
 
-                                    mergedList.Add(persistedItem);
                                     dbTable.Remove(entityKey); // remove it from the table, to avoid deletion.
                                 }
                                 else
@@ -272,7 +299,7 @@ namespace EntityFrameworkCore.Detached.Services
             return _eventManager.OnEntityMerged(detached, persistedEntry, modified, parentNavigation).EntityEntry;
         }
 
-        public virtual EntityEntry GetEntry(object entity)
+        protected virtual EntityEntry GetEntry(object entity)
         {
             EntityEntry entry = _entryServices.FindEntry(entity);
             if (entry == null)
@@ -281,6 +308,17 @@ namespace EntityFrameworkCore.Detached.Services
                 Copy(entity, entry);
             }
             return entry;
+        }
+
+        protected void ClearKey(EntityEntry entityEntry)
+        {
+            foreach (PropertyEntry prop in entityEntry.Properties)
+            {
+                if (prop.Metadata.IsKey())
+                {
+                    prop.CurrentValue = Activator.CreateInstance(prop.Metadata.ClrType);
+                }
+            }
         }
     }
 }

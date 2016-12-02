@@ -23,13 +23,13 @@ namespace EntityFrameworkCore.Detached.Plugins
                 plugin.Initialize();
         }
 
-        public void EnableAll()
+        public void Enable()
         {
             foreach (IDetachedPlugin plugin in _plugins)
                 plugin.IsEnabled = true;
         }
 
-        public void DisableAll()
+        public void Disable()
         {
             foreach (IDetachedPlugin plugin in _plugins)
                 plugin.IsEnabled = false;
@@ -47,18 +47,17 @@ namespace EntityFrameworkCore.Detached.Plugins
                 return null;
             }
         }
-
-        public IDetachedPlugin this[Type type]
+  
+        public TPlugin Get<TPlugin>() 
+            where TPlugin : class
         {
-            get
+            Type type = typeof(TPlugin);
+            foreach (IDetachedPlugin plugin in _plugins)
             {
-                foreach (IDetachedPlugin plugin in _plugins)
-                {
-                    if (plugin.GetType() == type)
-                        return plugin;
-                }
-                return null;
+                if (plugin.GetType() == type)
+                    return (TPlugin)plugin;
             }
+            return null;
         }
 
         public void Dispose()

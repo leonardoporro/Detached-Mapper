@@ -8,7 +8,6 @@ namespace EntityFrameworkCore.Detached.Plugins.Auditing
 {
     public class AuditingPlugin : DetachedPlugin
     {
-        IDetachedContext _detachedContext;
         ISessionInfoProvider _sessionInfoProvider;
         IEventManager _eventManager;
 

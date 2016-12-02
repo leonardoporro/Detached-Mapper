@@ -1,20 +1,16 @@
 ﻿using EntityFrameworkCore.Detached.Events;
+using EntityFrameworkCore.Detached.Exceptions;
 using EntityFrameworkCore.Detached.Plugins;
 using EntityFrameworkCore.Detached.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached
@@ -26,10 +22,11 @@ namespace EntityFrameworkCore.Detached
 
         TDbContext _dbContext;
         IServiceProvider _serviceProvider;
-        IDbContextOptions _dbContextOptions;
-        DetachedOptionsExtension _detachedOptions;
-        IDetachedServices _detachedServices;
+        IDetachedContextServices _detachedServices;
 
+        ConcurrentDictionary<Type, IDetachedSet> _setCache = new ConcurrentDictionary<Type, IDetachedSet>();
+        ConcurrentDictionary<string, Type> _setNameCache = new ConcurrentDictionary<string, Type>();
+        
         #endregion
 
         #region Ctor.
@@ -44,21 +41,16 @@ namespace EntityFrameworkCore.Detached
             _dbContext = dbContext;
             _serviceProvider = ((IInfrastructure<IServiceProvider>)_dbContext).Instance;
 
-            // create a scope for services and plugins.
-            IServiceProvider scopedProvider = _serviceProvider.GetRequiredService<IServiceScopeFactory>()
-                                                              .CreateScope()
-                                                              .ServiceProvider;
-
             // get update and load services and event manager.
-            _detachedServices = scopedProvider.GetService<IDetachedServices>();
-            _detachedServices.Initialize(this, scopedProvider);
+            _detachedServices = _serviceProvider.GetService<IDetachedContextServices>();
+            if (_detachedServices == null)
+                throw new DetachedSetupException(_dbContext.GetType());
 
-            // get ef options.
-            _dbContextOptions = _serviceProvider.GetService<IDbContextOptions>();
-            _detachedOptions = _dbContextOptions.FindExtension<DetachedOptionsExtension>();
+            // set THIS as the current detached context.
+            _detachedServices.SetDetachedContext(this);
 
             // load plugins.
-            _detachedServices.PluginManager.Initialize();
+            Plugins.Initialize();
         }
 
         #endregion
@@ -97,66 +89,62 @@ namespace EntityFrameworkCore.Detached
             }
         }
 
+        public DetachedOptionsExtension Options
+        {
+            get
+            {
+                return _detachedServices.DetachedOptions;
+            }
+        }
+
         #endregion
 
-        public IQueryable<TEntity> GetBaseQuery<TEntity>() where TEntity : class
+        public IDetachedSet<TEntity> Set<TEntity>() where TEntity : class
         {
-            return _detachedServices.LoadServices.GetBaseQuery<TEntity>();
+            return (IDetachedSet<TEntity>)Set(typeof(TEntity));
         }
 
-        public async Task<TEntity> LoadAsync<TEntity>(params object[] key) where TEntity : class
+        public IDetachedSet Set(Type entityType)
         {
-            return await _detachedServices.LoadServices.LoadAsync<TEntity>(key);
-        }
-
-        public async Task<List<TEntity>> LoadAsync<TEntity>(Func<IQueryable<TEntity>, IQueryable<TEntity>> queryConfig) where TEntity : class
-        {
-            return await _detachedServices.LoadServices.LoadAsync<TEntity>(queryConfig);
-        }
-
-        public async Task<List<TResult>> LoadAsync<TEntity, TResult>(Func<IQueryable<TEntity>, IQueryable<TResult>> queryConfig)
-            where TEntity : class
-            where TResult : class
-        {
-            return await _detachedServices.LoadServices.LoadAsync<TEntity, TResult>(queryConfig);
-        }
-
-        public virtual async Task<TEntity> UpdateAsync<TEntity>(TEntity root)
-            where TEntity : class
-        {
-            // temporally disabled autodetect changes
-            bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
-
-            TEntity persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(root);
-            if (persisted == null) // add new entity.
+            return _setCache.GetOrAdd(entityType, t =>
             {
-                persisted = (TEntity)_detachedServices.UpdateServices.Add(root).Entity;
-            }
-            else
-            {
-                persisted = (TEntity)Events.OnRootLoaded(persisted, _dbContext).Root; // entity to merge has been loaded.
-                _detachedServices.UpdateServices.Merge(root, persisted); // merge existing entity.
-            }
-            // re-enable autodetect changes.
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-            return persisted;
+                Type setType = typeof(IDetachedSet<>).MakeGenericType(entityType);
+                IDetachedSet detachedSet = (IDetachedSet)_detachedServices.ServiceProvider.GetRequiredService(setType);
+                return detachedSet;
+            });
         }
 
-        public virtual async Task DeleteAsync<TEntity>(params object[] keyValues)
-           where TEntity : class
+        public IDetachedSet Set(string propertyName, bool throwIfNotFound = true)
         {
-            // temporally disable autodetect changes.
-            bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+            Type setType = _setNameCache.GetOrAdd(propertyName, n =>
+            {
+                PropertyInfo propInfo = _dbContext.GetType()
+                                                  .GetRuntimeProperties()
+                                                  .Where(p => string.Equals(p.Name, n, StringComparison.CurrentCultureIgnoreCase))
+                                                  .FirstOrDefault();
+                                
+                if (propInfo == null)
+                {
+                    if (throwIfNotFound)
+                        throw new ArgumentException($"Property {propertyName} does not exist in {_dbContext.GetType().Name}.");
+                    else
+                        return null;
+                }
 
-            TEntity persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(keyValues);
-            if (persisted != null)
-                _detachedServices.UpdateServices.Delete(persisted);
+                TypeInfo propTypeInfo = propInfo.PropertyType.GetTypeInfo();
+                if (!(propTypeInfo.IsGenericType && propTypeInfo.GetGenericTypeDefinition() == typeof(DbSet<>)))
+                {
+                    if (throwIfNotFound)
+                        throw new ArgumentException($"Property {propertyName} of DbContext {_dbContext.GetType().Name} is not of DbSet<> type.");
+                    else
+                        return null;
+                }
 
-            // re-enable autodetect changes.
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                Type entityType = propTypeInfo.GetGenericArguments().First();
+                return entityType;
+            });
+
+            return Set(setType);
         }
 
         public virtual async Task<int> SaveChangesAsync()

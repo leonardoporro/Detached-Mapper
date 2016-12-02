@@ -1,5 +1,4 @@
 ﻿using EntityFrameworkCore.Detached.Plugins.Pagination;
-using EntityFrameworkCore.Detached.Tests.Model;
 using EntityFrameworkCore.Detached.Tools;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,12 +11,12 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
         [Fact]
         public async Task when_a_page_is_requested__the_page_is_loaded()
         {
-            using (TestDbContext dbContext = new TestDbContext())
+            using (PaginationContext dbContext = new PaginationContext())
             {
                 // GIVEN a list of entities:
                 for (int i = 1; i <= 50; i++)
                 {
-                    dbContext.Entities.Add(new Entity
+                    dbContext.Entities.Add(new PaginationEntity
                     {
                         Name = "Entity " + i.ToString("D2")
                     });
@@ -25,13 +24,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
                 await dbContext.SaveChangesAsync();
 
                 // WHEN a page of size 10 is loaded:
-                DetachedContext<TestDbContext> detached = new DetachedContext<Model.TestDbContext>(dbContext);
-
-                IPaginatedResult<Entity> result = await detached.LoadPageAsync(new PaginatedRequest<Entity>
-                {
-                    PageIndex = 1,
-                    PageSize = 10
-                });
+                DetachedContext<PaginationContext> detached = new DetachedContext<PaginationContext>(dbContext);
+                IPagedData<PaginationEntity> result = await detached.Set<PaginationEntity>().LoadPageAsync(1, 10, e => e.OrderBy(i => i.Id));
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
@@ -45,12 +39,12 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
         [Fact]
         public async Task when_an_ordered_page_is_requested__the_page_is_loaded()
         {
-            using (TestDbContext dbContext = new TestDbContext())
+            using (PaginationContext dbContext = new PaginationContext())
             {
                 // GIVEN a list of entities:
                 for (int i = 1; i <= 50; i++)
                 {
-                    dbContext.Entities.Add(new Entity
+                    dbContext.Entities.Add(new PaginationEntity
                     {
                         Name = "Entity " + i.ToString("D2")
                     });
@@ -58,14 +52,9 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
                 await dbContext.SaveChangesAsync();
 
                 // WHEN a page of size 10 is loaded:
-                DetachedContext<TestDbContext> detached = new DetachedContext<Model.TestDbContext>(dbContext);
+                DetachedContext<PaginationContext> detached = new DetachedContext<PaginationContext>(dbContext);
 
-                IPaginatedResult<Entity> result = await detached.LoadPageAsync(new PaginatedRequest<Entity>
-                {
-                    PageIndex = 1,
-                    PageSize = 10,
-                    Sorter = new Sorter<Entity>().OrderByDescending(e => e.Name)
-                });
+                IPagedData<PaginationEntity> result = await detached.Set<PaginationEntity>().LoadPageAsync(1, 10, q => q.OrderByDescending(e => e.Name));
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
@@ -80,12 +69,12 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
         [Fact]
         public async Task when_an_filtered_page_is_requested__the_page_is_loaded()
         {
-            using (TestDbContext dbContext = new TestDbContext())
+            using (PaginationContext dbContext = new PaginationContext())
             {
                 // GIVEN a list of entities:
                 for (int i = 1; i <= 50; i++)
                 {
-                    dbContext.Entities.Add(new Entity
+                    dbContext.Entities.Add(new PaginationEntity
                     {
                         Name = "Entity " + i.ToString("D2")
                     });
@@ -93,14 +82,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
                 await dbContext.SaveChangesAsync();
 
                 // WHEN a page of size 10 is loaded:
-                DetachedContext<TestDbContext> detached = new DetachedContext<Model.TestDbContext>(dbContext);
-
-                IPaginatedResult<Entity> result = await detached.LoadPageAsync<Entity>(new PaginatedRequest<Entity>
-                {
-                    PageIndex = 1,
-                    PageSize = 10,
-                    Filter = e => string.Compare(e.Name, "Entity 20") > 0
-                });
+                DetachedContext<PaginationContext> detached = new DetachedContext<PaginationContext>(dbContext);
+                IPagedData<PaginationEntity> result = await detached.Set<PaginationEntity>().LoadPageAsync(1, 10, q => q.Where(e => string.Compare(e.Name, "Entity 20") > 0));
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
@@ -115,12 +98,12 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
         [Fact]
         public async Task when_a_transformed_page_is_requested__the_page_is_loaded()
         {
-            using (TestDbContext dbContext = new TestDbContext())
+            using (PaginationContext dbContext = new PaginationContext())
             {
                 // GIVEN a list of entities:
                 for (int i = 1; i <= 50; i++)
                 {
-                    dbContext.Entities.Add(new Entity
+                    dbContext.Entities.Add(new PaginationEntity
                     {
                         Name = "Entity " + i.ToString("D2")
                     });
@@ -128,14 +111,9 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
                 await dbContext.SaveChangesAsync();
 
                 // WHEN a page of size 10 is loaded:
-                DetachedContext<TestDbContext> detached = new DetachedContext<Model.TestDbContext>(dbContext);
-
-                IPaginatedResult<Item> result = await detached.LoadPageAsync(new PaginatedRequest<Entity>
-                {
-                    PageIndex = 1,
-                    PageSize = 10,
-                    Filter = e => string.Compare(e.Name, "Entity 20") > 0
-                }, e => new Item { Id = e.Id, Description = e.Name });
+                DetachedContext<PaginationContext> detached = new DetachedContext<PaginationContext>(dbContext);
+                IPagedData<Item> result = await detached.Set<PaginationEntity>().LoadPageAsync(1, 10, q => q.Where(e => string.Compare(e.Name, "Entity 20") > 0)
+                                                                                                            .Select(e => new Item { Id = e.Id, Description = e.Name }));
 
                 // THEN page contains 10 transformed items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);

@@ -1,0 +1,19 @@
+﻿<h1>Users</h1>
+<div class="container">
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let user of users.items">
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td><a href="user/edit/{{user.id}}">Edit</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
