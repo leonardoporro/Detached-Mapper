@@ -1,19 +1,34 @@
 ﻿<h1>Users</h1>
-<div class="container">
-    <table class='table'>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let user of users.items">
-                <td>{{ user.id }}</td>
-                <td>{{ user.name }}</td>
-                <td><a href="user/edit/{{user.id}}">Edit</a></td>
-            </tr>
-        </tbody>
-    </table>
+<div class="col-xs-12">
+    <div>
+        <label>
+            Search by Text:
+            <input type="text" name="text" [(ngModel)]="query.name" />
+        </label>
+        <button (click)="loadPage()">Search</button>
+    </div>
+    <div class="row">
+        <table class="table table-hover">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of items; let i = index;" [ngClass]="{ 'active': i === selectedIndex}" (click)="selectedId = user.id">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <page-selector [(pageIndex)]="pageIndex" [pageCount]="pageCount" (pageIndexChange)="loadPage()"></page-selector>
+    </div>
+    <div>
+        <a class="btn btn-primary pull-right" href="/user/edit/{{selectedId}}">Edit</a>
+    </div>
+
 
 </div>

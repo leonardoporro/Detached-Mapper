@@ -27,13 +27,13 @@ namespace EntityFrameworkCore.Detached.Plugins.ManyToMany.Conventions
 
         static ManyToManyCollectionMetadata BuildCollectionMetadata(EntityType parentEntityType, string name)
         {
-            PropertyInfo propInfo = parentEntityType.ClrType.GetTypeInfo().GetProperty(name);
+            PropertyInfo propInfo = parentEntityType.ClrType.GetRuntimeProperty(name);
             if (propInfo == null)
                 throw new Exception($"Navigation property '{name}' couldn't be found.");
 
             Type[] genericArgs;
             if (!propInfo.PropertyType.GetTypeInfo().IsGenericType ||
-                 (genericArgs = propInfo.PropertyType.GetTypeInfo().GetGenericArguments()).Length != 1)
+                 (genericArgs = propInfo.PropertyType.GetTypeInfo().GenericTypeArguments).Length != 1)
             {
                 throw new Exception($"Type '{propInfo.PropertyType.FullName}' is not a valid collection type.");
             }

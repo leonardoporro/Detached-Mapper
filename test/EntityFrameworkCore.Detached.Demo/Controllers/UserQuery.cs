@@ -1,20 +1,18 @@
 ﻿using EntityFrameworkCore.Detached.Demo.Model;
 using EntityFrameworkCore.Detached.Tools;
 using System.Linq;
+using System;
 
 namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
-    public class UserQuery : IQuery<User>
+    public class UserQuery : QueryBase<User>
     {
-        public string FullText { get; set; }
+        public string Name { get; set; }
 
-        public string OrderBy { get; set; } = nameof(User.Name);
-
-        public string FilterBy { get; set; }
-
-        public IQueryable<User> Apply(IQueryable<User> query)
+        protected override IQueryable<User> ApplyCustom(IQueryable<User> query)
         {
-            query.Where(u => u.Name.Contains(FullText));
+            if (!string.IsNullOrEmpty(Name))
+                query = query.Where(n => n.Name.Contains(this.Name));
 
             return query;
         }

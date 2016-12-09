@@ -1,29 +1,38 @@
 ﻿import { Component, OnInit, OnDestroy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { Http } from "@angular/http";
-import { User, Role } from "./user.model";
-import { Model } from "../../fwk/data";
+
+import { User, UserQuery, UserService, Role, RoleService } from "./user.model";
+
+
 
 @Component({
     selector: "user-edit",
-    template: require("./user.edit.component.html")
+    template: require("./user.edit.component.html"),
+    providers: [UserService]
 })
 export class UserEditComponent {
 
-    public u: Model<User>
+    public model: User = <User>{};
+    public errors: any = {};
+    public id: any;
 
-    constructor(private route: ActivatedRoute, private http: Http) {
-        this.u = new Model<User>("api/user", http);
+    constructor(private route: ActivatedRoute, private service: UserService) {
+        this.id = route.snapshot.params["id"];
+        this.load();
+
+        this.errors.name = "the field is sarlanga.";
     }
 
-    ngOnInit() {
-        let id = this.route.snapshot.params["id"];
-        if (id) {
-            this.u.load(id);
-        }  
+    load() {
+        this.service.findById(this.id)
+            .subscribe(r => this.model = r,
+            e => { });
     }
 
     save() {
-        this.u.save();
+        this.service.save(this.model)
+            .subscribe(r => this.model = r,
+            e => { });
     }
 }

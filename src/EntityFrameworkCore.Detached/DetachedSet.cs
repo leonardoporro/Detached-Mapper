@@ -73,7 +73,9 @@ namespace EntityFrameworkCore.Detached
             else
             {
                 persisted = (TEntity)_eventManager.OnRootLoaded(persisted, _dbContext).Root; // entity to merge has been loaded.
-                _detachedServices.UpdateServices.Merge(root, persisted); // merge existing entity.
+                persisted = (TEntity)_detachedServices.UpdateServices.Merge(root, persisted).Entity; // merge existing entity.
+                // call root loaded again for the modified entity.
+                persisted = (TEntity)_eventManager.OnRootLoaded(persisted, _dbContext).Root;
             }
             // re-enable autodetect changes.
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;

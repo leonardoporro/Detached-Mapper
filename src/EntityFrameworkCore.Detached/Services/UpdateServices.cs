@@ -75,6 +75,21 @@ namespace EntityFrameworkCore.Detached.Services
             return Add(detached, null, new HashSet<object>());
         }
 
+        public EntityEntry Attach(object detached)
+        {
+            return Attach(detached, null);
+        }
+
+        public void Delete(object persisted)
+        {
+            Delete(persisted, null, new HashSet<object>());
+        }
+
+        public EntityEntry Merge(object detached, object persisted)
+        {
+            return Merge(detached, persisted, null, new HashSet<object>());
+        }
+
         protected virtual EntityEntry Add(object detached, NavigationEntry parentNavigation, HashSet<object> visited)
         {
             var args = _eventManager.OnEntityAdding(detached, parentNavigation);
@@ -141,11 +156,6 @@ namespace EntityFrameworkCore.Detached.Services
             return _eventManager.OnEntityAdded(persisted, parentNavigation).EntityEntry;
         }
 
-        public EntityEntry Attach(object detached)
-        {
-            return Attach(detached, null);
-        }
-
         protected virtual EntityEntry Attach(object detached, NavigationEntry parentNavigation)
         {
             var args = _eventManager.OnEntityAttaching(detached, parentNavigation);
@@ -155,11 +165,6 @@ namespace EntityFrameworkCore.Detached.Services
                 persisted.State = EntityState.Unchanged;
 
             return _eventManager.OnEntityAttached(persisted, parentNavigation).EntityEntry;
-        }
-
-        public void Delete(object persisted)
-        {
-            Delete(persisted, null, new HashSet<object>());
         }
 
         protected virtual void Delete(object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
@@ -195,101 +200,98 @@ namespace EntityFrameworkCore.Detached.Services
             _eventManager.OnEntityDeleted(entry, parentNavigation);
         }
 
-        public EntityEntry Merge(object detached, object persisted)
-        {
-            return Merge(detached, persisted, null, new HashSet<object>());
-        }
-
         protected virtual EntityEntry Merge(object detached, object persisted, NavigationEntry parentNavigation, HashSet<object> visited)
         {
             var args = _eventManager.OnEntityMerging(detached, persisted, parentNavigation);
 
-            EntityEntry persistedEntry = GetEntry(args.Entity);
+            EntityEntry persistedEntry = _entryServices.FindEntry(persisted);
+            if (persistedEntry == null)
+                persistedEntry = _dbContext.Entry(persisted);
+
+            visited.Add(persistedEntry.Entity);
+
             bool modified = Copy(detached, persistedEntry);
 
-            if (!visited.Contains(persisted))
+            foreach (NavigationEntry navigationEntry in persistedEntry.Navigations)
             {
-                foreach (NavigationEntry navigationEntry in persistedEntry.Navigations)
+                bool owned = navigationEntry.Metadata.IsOwned();
+                bool associated = navigationEntry.Metadata.IsAssociated();
+
+                if (!(associated || owned))
+                    continue;
+
+                IEntityType navType = navigationEntry.Metadata.GetTargetType();
+                IClrPropertyGetter getter = navigationEntry.Metadata.GetGetter();
+                object detachedValue = getter.GetClrValue(detached);
+
+                IKeyServices keyServices = _keyServicesFactory.GetKeyServices(navType);
+
+                if (navigationEntry.Metadata.IsCollection())
                 {
-                    bool owned = navigationEntry.Metadata.IsOwned();
-                    bool associated = navigationEntry.Metadata.IsAssociated();
+                    // a mutable list to store the result.
+                    IList mergedList = Activator.CreateInstance(typeof(List<>).MakeGenericType(navType.ClrType)) as IList;
 
-                    if (!(associated || owned))
-                        continue;
+                    // create hash table for O(N) merge.
+                    Dictionary<object[], object> dbTable = keyServices.CreateTable((IEnumerable)navigationEntry.CurrentValue);
 
-                    IEntityType navType = navigationEntry.Metadata.GetTargetType();
-                    IClrPropertyGetter getter = navigationEntry.Metadata.GetGetter();
-                    object detachedValue = getter.GetClrValue(detached);
-
-                    IKeyServices keyServices = _keyServicesFactory.GetKeyServices(navType);
-
-                    if (navigationEntry.Metadata.IsCollection())
+                    if (detachedValue != null)
                     {
-                        // a mutable list to store the result.
-                        IList mergedList = Activator.CreateInstance(typeof(List<>).MakeGenericType(navType.ClrType)) as IList;
-
-                        // create hash table for O(N) merge.
-                        Dictionary<object[], object> dbTable = keyServices.CreateTable((IEnumerable)navigationEntry.CurrentValue);
-
-                        if (detachedValue != null)
+                        foreach (object detachedItem in (IEnumerable)detachedValue)
                         {
-                            foreach (object detachedItem in (IEnumerable)detachedValue)
+                            object persistedItem;
+                            object[] entityKey = keyServices.GetValues(detachedItem);
+                            if (dbTable.TryGetValue(entityKey, out persistedItem))
                             {
-                                object persistedItem;
-                                object[] entityKey = keyServices.GetValues(detachedItem);
-                                if (dbTable.TryGetValue(entityKey, out persistedItem))
-                                {
-                                    if (owned)
-                                        mergedList.Add(Merge(detachedItem, persistedItem, navigationEntry, visited).Entity);
-                                    else
-                                        mergedList.Add(persistedItem);
-
-                                    dbTable.Remove(entityKey); // remove it from the table, to avoid deletion.
-                                }
-                                else
-                                {
-                                    mergedList.Add(owned ? Add(detachedItem, navigationEntry, visited).Entity
-                                                         : Attach(detachedItem, navigationEntry).Entity);
-                                }
-                            }
-                        }
-
-                        // the rest of the items in the dbTable should be removed.
-                        foreach (var dbItem in dbTable)
-                            Delete(dbItem.Value, navigationEntry, visited);
-
-                        // let EF do the rest of the work.
-                        navigationEntry.CurrentValue = mergedList;
-                    }
-                    else
-                    {
-                        if (!visited.Contains(navigationEntry.CurrentValue))
-                        {
-                            if (keyServices.Equal(detachedValue, navigationEntry.CurrentValue))
-                            {
-                                // merge owned references and do nothing for associated references.
                                 if (owned)
-                                    navigationEntry.CurrentValue = Merge(detachedValue, navigationEntry.CurrentValue, navigationEntry, visited).Entity;
+                                    mergedList.Add(Merge(detachedItem, persistedItem, navigationEntry, visited).Entity);
+                                else
+                                    mergedList.Add(persistedItem);
+
+                                dbTable.Remove(entityKey); // remove it from the table, to avoid deletion.
                             }
                             else
                             {
-                                if (navigationEntry.CurrentValue != null)
-                                {
-                                    if (owned)
-                                        Delete(navigationEntry.CurrentValue, navigationEntry, visited);
-                                }
+                                mergedList.Add(owned ? Add(detachedItem, navigationEntry, visited).Entity
+                                                     : Attach(detachedItem, navigationEntry).Entity);
+                            }
+                        }
+                    }
 
-                                if (detachedValue != null)
-                                {
-                                    if (owned)
-                                        navigationEntry.CurrentValue = Add(detachedValue, navigationEntry, visited).Entity;
-                                    else
-                                        navigationEntry.CurrentValue = Attach(detachedValue, navigationEntry).Entity;
-                                }
+                    // the rest of the items in the dbTable should be removed.
+                    foreach (var dbItem in dbTable)
+                        Delete(dbItem.Value, navigationEntry, visited);
+
+                    // let EF do the rest of the work.
+                    navigationEntry.CurrentValue = mergedList;
+                }
+                else
+                {
+                    if (!visited.Contains(navigationEntry.CurrentValue)) // avoid stack overflow! (this might be also done checking if the property is dependent to parent)
+                    {
+                        if (keyServices.Equal(detachedValue, navigationEntry.CurrentValue))
+                        {
+                            // merge owned references and do nothing for associated references.
+                            if (owned)
+                                navigationEntry.CurrentValue = Merge(detachedValue, navigationEntry.CurrentValue, navigationEntry, visited).Entity;
+                        }
+                        else
+                        {
+                            if (navigationEntry.CurrentValue != null)
+                            {
+                                if (owned)
+                                    Delete(navigationEntry.CurrentValue, navigationEntry, visited);
+                            }
+
+                            if (detachedValue != null)
+                            {
+                                if (owned)
+                                    navigationEntry.CurrentValue = Add(detachedValue, navigationEntry, visited).Entity;
                                 else
-                                {
-                                    navigationEntry.CurrentValue = null;
-                                }
+                                    navigationEntry.CurrentValue = Attach(detachedValue, navigationEntry).Entity;
+                            }
+                            else
+                            {
+                                navigationEntry.CurrentValue = null;
                             }
                         }
                     }
@@ -299,7 +301,7 @@ namespace EntityFrameworkCore.Detached.Services
             return _eventManager.OnEntityMerged(detached, persistedEntry, modified, parentNavigation).EntityEntry;
         }
 
-        protected virtual EntityEntry GetEntry(object entity)
+        EntityEntry GetEntry(object entity)
         {
             EntityEntry entry = _entryServices.FindEntry(entity);
             if (entry == null)
@@ -308,17 +310,6 @@ namespace EntityFrameworkCore.Detached.Services
                 Copy(entity, entry);
             }
             return entry;
-        }
-
-        protected void ClearKey(EntityEntry entityEntry)
-        {
-            foreach (PropertyEntry prop in entityEntry.Properties)
-            {
-                if (prop.Metadata.IsKey())
-                {
-                    prop.CurrentValue = Activator.CreateInstance(prop.Metadata.ClrType);
-                }
-            }
         }
     }
 }

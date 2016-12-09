@@ -9,17 +9,17 @@ namespace EntityFrameworkCore.Detached.Plugins.Pagination
     /// Represents a result of a paginated query.
     /// </summary>
     /// <typeparam name="TEntity">Clr type of the entity being queried.</typeparam>
-    public interface IPagedData<TEntity>
+    public interface IPage<TEntity>
     {
         /// <summary>
-        /// Gets or sets the total row count of the query.
+        /// Gets the current page index.
         /// </summary>
-        int RowCount { get; set; }
+        int Index { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the page.
         /// </summary>
-        int PageSize { get; set; }
+        int Size { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of pages.
@@ -27,9 +27,9 @@ namespace EntityFrameworkCore.Detached.Plugins.Pagination
         int PageCount { get; set; }
 
         /// <summary>
-        /// Gets the current page index.
+        /// Gets or sets the total row count of the query.
         /// </summary>
-        int PageIndex { get; set; }
+        int RowCount { get; set; }
 
         /// <summary>
         /// Gets the items for the current page.

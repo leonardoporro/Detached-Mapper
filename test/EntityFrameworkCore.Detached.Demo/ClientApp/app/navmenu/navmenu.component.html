@@ -1,28 +1,41 @@
-<div class='main-nav'>
-    <div class='navbar navbar-inverse'>
-        <div class='navbar-header'>
-            <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='.navbar-collapse'>
-                <span class='sr-only'>Toggle navigation</span>
-                <span class='icon-bar'></span>
-                <span class='icon-bar'></span>
-                <span class='icon-bar'></span>
+
+
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Detached</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a [routerLink]="['/home']">Home</a></li>
+            <li><a [routerLink]="['/user']">Users</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<!--<nav>
+    <div class="navbar navbar-inverse">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
             </button>
-            <a class='navbar-brand' [routerLink]="['/home']">EntityFrameworkCore.Detached.Demo</a>
+            <a class="navbar-brand" [routerLink]="['/home']">EntityFrameworkCore.Detached.Demo</a>
         </div>
-        <div class='clearfix'></div>
-        <div class='navbar-collapse collapse'>
-            <ul class='nav navbar-nav'>
+        <div class="clearfix"></div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
                 <li [routerLinkActive]="['link-active']">
                     <a [routerLink]="['/home']">
-                        <span class='glyphicon glyphicon-home'></span> Home
+                        <span class="glyphicon glyphicon-home"></span> Home
                     </a>
                 </li>
                 <li [routerLinkActive]="['link-active']">
                     <a [routerLink]="['/user']">
-                        <span class='glyphicon glyphicon-th-list'></span> Users
+                        <span class="glyphicon glyphicon-th-list"></span> Users
                     </a>
                 </li>
             </ul>
         </div>
     </div>
-</div>
+</nav>-->

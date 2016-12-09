@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
-    public class UserController : ControllerBase<DemoContext, User, UserQuery>
+    public class RoleController : ControllerBase<DemoContext, Role, RoleQuery>
     {
-        public UserController(IDetachedContext<DemoContext> detachedContext) 
+        public RoleController(IDetachedContext<DemoContext> detachedContext)
             : base(detachedContext)
         {
+
         }
     }
 }

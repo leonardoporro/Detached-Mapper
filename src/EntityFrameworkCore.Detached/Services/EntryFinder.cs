@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace EntityFrameworkCore.Detached.Services
@@ -31,8 +32,7 @@ namespace EntityFrameworkCore.Detached.Services
 
             // HACK:
             MethodInfo findMapMethod = stateManager.GetType()
-                                .GetTypeInfo()
-                                .GetMethod("FindIdentityMap", BindingFlags.NonPublic | BindingFlags.Instance);
+                                .GetTypeInfo().DeclaredMethods.Where(m => m.Name == "FindIdentityMap").FirstOrDefault();
 
             _findIdentityMap = (Func<IKey, IIdentityMap>)findMapMethod.CreateDelegate(typeof(Func<IKey, IIdentityMap>), stateManager);
         }

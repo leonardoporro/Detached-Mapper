@@ -101,7 +101,7 @@ namespace EntityFrameworkCore.Detached.Services
                 object[] keyB = GetValues(entityB);
                 for (int i = 0; i < _keySize; i++)
                 {
-                    if (keyA[i] != keyB[i])
+                    if (!Equals(keyA[i], keyB[i]))
                         return false;
                 }
                 return true;

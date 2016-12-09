@@ -54,26 +54,28 @@ namespace EntityFrameworkCore.Detached.Tools
         {
             Sorter<TEntity> sorter = new Tools.Sorter<TEntity>();
 
-            Type entityType = typeof(TEntity);
-
-            Dictionary<string, PropertyInfo> entityProps = entityType.GetRuntimeProperties().ToDictionary(r => r.Name.ToLower(), r => r);
-
-            string[] orderByProps = orderBy.Split(';', ',');
-            foreach (string orderByProp in orderByProps)
+            if (!string.IsNullOrEmpty(orderBy))
             {
-                string[] orderByPart = orderByProp.Split(' ');
+                Type entityType = typeof(TEntity);
+                Dictionary<string, PropertyInfo> entityProps = entityType.GetRuntimeProperties().ToDictionary(r => r.Name.ToLower(), r => r);
 
-                string propertyName = orderByPart[0];
-                string order = orderByPart.Length > 1 ? orderByPart[1].Trim().ToLower() : "asc";
+                string[] orderByProps = orderBy.Split(';', ',');
+                foreach (string orderByProp in orderByProps)
+                {
+                    string[] orderByPart = orderByProp.Split(' ');
 
-                PropertyInfo propInfo;
-                if (!entityProps.TryGetValue(propertyName, out propInfo))
-                    throw new ArgumentException($"Error applying OrderBy. Property {propertyName} was not found in object {entityType.Name}.");
+                    string propertyName = orderByPart[0];
+                    string order = orderByPart.Length > 1 ? orderByPart[1].Trim().ToLower() : "asc";
 
-                Type entryType = typeof(SortEntry<,>).MakeGenericType(entityType, propInfo.PropertyType);
-                ISortEntry<TEntity> sortEntry = (ISortEntry<TEntity>)Activator.CreateInstance(entryType, propInfo, order == "asc");
+                    PropertyInfo propInfo;
+                    if (!entityProps.TryGetValue(propertyName, out propInfo))
+                        throw new ArgumentException($"Error applying OrderBy. Property {propertyName} was not found in object {entityType.Name}.");
 
-                sorter.entries.Add(sortEntry);
+                    Type entryType = typeof(SortEntry<,>).MakeGenericType(entityType, propInfo.PropertyType);
+                    ISortEntry<TEntity> sortEntry = (ISortEntry<TEntity>)Activator.CreateInstance(entryType, propInfo, order == "asc");
+
+                    sorter.entries.Add(sortEntry);
+                }
             }
 
             return sorter;
