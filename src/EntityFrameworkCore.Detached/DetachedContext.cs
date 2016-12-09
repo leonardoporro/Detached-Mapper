@@ -140,7 +140,7 @@ namespace EntityFrameworkCore.Detached
                         return null;
                 }
 
-                Type entityType = propTypeInfo.GenericTypeParameters.First();
+                Type entityType = propTypeInfo.GenericTypeArguments.First();
                 return entityType;
             });
 
