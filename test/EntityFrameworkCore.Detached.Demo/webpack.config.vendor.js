@@ -1,53 +1,35 @@
-var isDevBuild = process.argv.indexOf('--env.prod') < 0;
-var path = require('path');
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var extractCSS = new ExtractTextPlugin('vendor.css');
+﻿let webpack = require("webpack");
+var path = require("path");
+
+var isDevBuild = process.argv.indexOf("--env.prod") < 0;
+let ExtractTextPlugin = require("extract-text-webpack-plugin");
+let extractCss = new ExtractTextPlugin("../css/[name].css");
 
 module.exports = {
-    resolve: {
-        extensions: [ '', '.js' ]
-    },
-    module: {
-        loaders: [
-            { test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/, loader: 'url-loader?limit=100000' },
-            { test: /\.css(\?|$)/, loader: extractCSS.extract(['css']) }
-        ]
-    },
+    cache: true,
     entry: {
-        vendor: [
-            '@angular/common',
-            '@angular/compiler',
-            '@angular/core',
-            '@angular/http',
-            '@angular/platform-browser',
-            '@angular/platform-browser-dynamic',
-            '@angular/router',
-            '@angular/platform-server',
-            'angular2-universal',
-            'angular2-universal-polyfills',
-            'materialize-css/dist/js/materialize.js',
-            'materialize-css/dist/css/materialize.css',
-            'es6-shim',
-            'es6-promise',
-            'jquery',
-            'zone.js',
-        ]
+        vendor: ["./client/vendor"]
     },
     output: {
-        path: path.join(__dirname, 'wwwroot', 'dist'),
-        filename: '[name].js',
-        library: '[name]_[hash]',
+        filename: "[name].js",
+        path: __dirname + "/wwwroot/js",
+        library: "[name]_[hash]"
     },
     plugins: [
-        extractCSS,
-        new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery' }), // Maps these identifiers to the jQuery package (because Bootstrap expects it to be a global variable)
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.DllPlugin({
-            path: path.join(__dirname, 'wwwroot', 'dist', '[name]-manifest.json'),
-            name: '[name]_[hash]'
-        })
-    ].concat(isDevBuild ? [] : [
-        new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } })
-    ])
+       extractCss,
+       new webpack.DllPlugin({
+           path: "./wwwroot/js/[name]-manifest.json",
+           name: "[name]_[hash]"
+       })
+    ],
+    module: {
+        loaders: [
+            { test: /\.ts$/, loader: "ts" },
+            { test: /\.html$/, loader: "raw" },
+            { test: /\.scss$/, loader: extractCss.extract(["css", "sass"]) },
+            { test: /\.css$/, loader: extractCss.extract(["css"]) },
+            { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: "url", query: { limit: 25000, name: "../images/[name].[ext]" } },
+            { test: /\.(ttf|eot|svg|woff|woff2)$/, loader: "url", query: { limit: 25000, name: "../fonts/[name].[ext]" } }
+        ]
+    }
 };

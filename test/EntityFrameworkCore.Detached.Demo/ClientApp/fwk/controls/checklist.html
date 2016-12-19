@@ -1,6 +1,0 @@
-﻿<div class="row" *ngFor="let item of items; let i = index;">
-    <label>
-        <input type="checkbox" [(ngModel)]="item.checked" (ngModelChange)="syncItem(i)" />
-        {{item.model[displayProperty]}}
-    </label>
-</div>

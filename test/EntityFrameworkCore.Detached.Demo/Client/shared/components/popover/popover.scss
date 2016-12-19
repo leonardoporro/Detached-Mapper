@@ -1,0 +1,18 @@
+.mdl-popover {
+  background: #fff;
+  border: none;
+  display: none;
+  margin: 0;
+  overflow: visible;
+  padding: 0;
+  position: absolute;
+
+  &.is-visible,
+  &.is-animating {
+    display: block;
+    z-index: 999;
+  }
+  &.direction-up {
+    bottom: 22px;
+  }
+}

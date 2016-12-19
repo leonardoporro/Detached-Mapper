@@ -14,7 +14,7 @@ namespace EntityFrameworkCore.Detached.Services
     {
         #region Fields
 
-        IKeyServicesFactory _keyServicesFactory;
+        IEntityServicesFactory _keyServicesFactory;
         DbContext _dbContext;
         Func<IKey, IIdentityMap> _findIdentityMap;
        
@@ -23,7 +23,7 @@ namespace EntityFrameworkCore.Detached.Services
         #region Ctor.
 
         public EntryFinder(DbContext dbContext,
-                           IKeyServicesFactory keyServicesFactory)
+                           IEntityServicesFactory keyServicesFactory)
         {
             _keyServicesFactory = keyServicesFactory;
             _dbContext = dbContext;
@@ -41,8 +41,8 @@ namespace EntityFrameworkCore.Detached.Services
 
         public virtual EntityEntry FindEntry(object entity)
         {
-            IKeyServices keyServices = _keyServicesFactory.GetKeyServices(entity.GetType());
-            object[] keyValues = keyServices.GetValues(entity);
+            IEntityServices keyServices = _keyServicesFactory.GetEntityServices(entity.GetType());
+            object[] keyValues = keyServices.GetKeyValues(entity);
 
             IIdentityMap map = _findIdentityMap(keyServices.GetKey());
             if (map != null)

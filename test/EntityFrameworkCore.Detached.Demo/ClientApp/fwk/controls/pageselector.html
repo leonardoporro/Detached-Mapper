@@ -1,5 +1,0 @@
-﻿<ul class="pagination" *ngIf="pageCount > 1">
-    <li [ngClass]="{ active: item == pageIndex }" *ngFor="let item of pageItems();" (click)="pageIndex = item">
-        <a>{{item}}</a>
-    </li>
-</ul>

@@ -25,12 +25,11 @@ namespace EntityFrameworkCore.Detached
         public static IServiceCollection AddDetachedEntityFramework(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton<ICoreConventionSetBuilder, CustomCoreConventionSetBuilder>()
-                             .AddSingleton<IKeyServicesCache, KeyServicesCache>()
                              .AddScoped<IDbContextServices, DetachedContextServices>()
                              .AddScoped<IDetachedContextServices>(s => (IDetachedContextServices)s.GetService<IDbContextServices>())
                              .AddScoped<IEventManager, EventManager>()
                              .AddScoped<IPluginManager, PluginManager>()
-                             .AddScoped<IKeyServicesFactory, KeyServicesFactory>()
+                             .AddScoped<IEntityServicesFactory, EntityServicesFactory>()
                              .AddScoped(typeof(IDetachedSet<>), typeof(DetachedSet<>))
                              .AddScoped<IEntryFinder, EntryFinder>()
                              .AddScoped<ILoadServices, LoadServices>()

@@ -19,7 +19,7 @@ namespace EntityFrameworkCore.Detached.Services
 
         IEventManager _eventManager;
         IEntryFinder _entryServices;
-        IKeyServicesFactory _keyServicesFactory;
+        IEntityServicesFactory _keyServicesFactory;
         DbContext _dbContext;
         DetachedOptionsExtension _options;
 
@@ -29,7 +29,7 @@ namespace EntityFrameworkCore.Detached.Services
 
         public UpdateServices(DbContext dbContext,
                               IEntryFinder entryServices,
-                              IKeyServicesFactory keyServicesFactory,
+                              IEntityServicesFactory keyServicesFactory,
                               IEventManager eventManager,
                               DetachedOptionsExtension options)
         {
@@ -224,7 +224,7 @@ namespace EntityFrameworkCore.Detached.Services
                 IClrPropertyGetter getter = navigationEntry.Metadata.GetGetter();
                 object detachedValue = getter.GetClrValue(detached);
 
-                IKeyServices keyServices = _keyServicesFactory.GetKeyServices(navType);
+                IEntityServices keyServices = _keyServicesFactory.GetEntityServices(navType);
 
                 if (navigationEntry.Metadata.IsCollection())
                 {
@@ -239,7 +239,7 @@ namespace EntityFrameworkCore.Detached.Services
                         foreach (object detachedItem in (IEnumerable)detachedValue)
                         {
                             object persistedItem;
-                            object[] entityKey = keyServices.GetValues(detachedItem);
+                            object[] entityKey = keyServices.GetKeyValues(detachedItem);
                             if (dbTable.TryGetValue(entityKey, out persistedItem))
                             {
                                 if (owned)

@@ -1,15 +1,15 @@
-using EntityFrameworkCore.Detached.Demo.Model;
-using EntityFrameworkCore.Detached.Plugins.ManyToMany;
-using EntityFrameworkCore.Detached.Plugins.Seeding;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.Webpack;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 
-namespace EntityFrameworkCore.Detached.Demo
+namespace PrimeNgTest
 {
     public class Startup
     {
@@ -20,6 +20,10 @@ namespace EntityFrameworkCore.Detached.Demo
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+            {
+            }
             Configuration = builder.Build();
         }
 
@@ -28,18 +32,12 @@ namespace EntityFrameworkCore.Detached.Demo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
+
             services.AddMvc();
-            services.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
-            services.AddDbContext<DemoContext>(opts =>
-            {
-                opts.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
-                    .UseDetached(dopts => dopts.UseManyToManyHelper());
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IDetachedContext<DemoContext> detached)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -49,7 +47,8 @@ namespace EntityFrameworkCore.Detached.Demo
                 app.UseDeveloperExceptionPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
-                    HotModuleReplacement = true
+                    HotModuleReplacement = true,
+                    ConfigFile = "webpack.config.js"
                 });
             }
             else
@@ -63,15 +62,12 @@ namespace EntityFrameworkCore.Detached.Demo
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Main}/{action=Index}/{id?}");
 
                 routes.MapSpaFallbackRoute(
                     name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
+                    defaults: new { controller = "Main", action = "Index" });
             });
-
-            detached.DbContext.Database.EnsureCreated();
-            detached.SeedFromJsonFileAsync("seed.json").GetAwaiter().GetResult();
         }
     }
 }

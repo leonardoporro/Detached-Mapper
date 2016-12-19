@@ -14,7 +14,7 @@ namespace EntityFrameworkCore.Detached.Services
         #region Fields
 
         IEventManager _eventManager;
-        IKeyServicesFactory _keyServicesFactory;
+        IEntityServicesFactory _keyServicesFactory;
         DbContext _dbContext;
 
         #endregion
@@ -23,7 +23,7 @@ namespace EntityFrameworkCore.Detached.Services
 
         public LoadServices(DbContext dbContext,
                             IEventManager eventManager,
-                            IKeyServicesFactory keyServicesFactory)
+                            IEntityServicesFactory keyServicesFactory)
         {
             _eventManager = eventManager;
             _keyServicesFactory = keyServicesFactory;
@@ -91,7 +91,7 @@ namespace EntityFrameworkCore.Detached.Services
         public virtual async Task<TEntity> LoadAsync<TEntity>(params object[] keyValues)
             where TEntity : class
         {
-            IKeyServices<TEntity> keyServices = _keyServicesFactory.GetKeyServices<TEntity>();
+            IEntityServices<TEntity> keyServices = _keyServicesFactory.GetEntityServices<TEntity>();
             Expression<Func<TEntity, bool>> keyFilter = keyServices.CreateEqualityExpression(keyValues);
 
             IQueryable<TEntity> query = GetBaseQuery<TEntity>().AsNoTracking();
@@ -129,14 +129,14 @@ namespace EntityFrameworkCore.Detached.Services
         public async Task<TEntity> LoadPersisted<TEntity>(TEntity entity)
             where TEntity : class
         {
-            IKeyServices<TEntity> keyServices = _keyServicesFactory.GetKeyServices<TEntity>();
-            return await LoadPersisted<TEntity>(keyServices.GetValues(entity));
+            IEntityServices<TEntity> keyServices = _keyServicesFactory.GetEntityServices<TEntity>();
+            return await LoadPersisted<TEntity>(keyServices.GetKeyValues(entity));
         }
 
         public async Task<TEntity> LoadPersisted<TEntity>(object[] keyValues)
             where TEntity : class
         {
-            IKeyServices<TEntity> keyServices = _keyServicesFactory.GetKeyServices<TEntity>();
+            IEntityServices<TEntity> keyServices = _keyServicesFactory.GetEntityServices<TEntity>();
             Expression<Func<TEntity, bool>> keyFilter = keyServices.CreateEqualityExpression(keyValues);
 
             IQueryable<TEntity> query = GetBaseQuery<TEntity>().AsTracking().Where(keyFilter);

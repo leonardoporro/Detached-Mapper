@@ -1,54 +1,40 @@
-var isDevBuild = process.argv.indexOf('--env.prod') < 0;
-var path = require('path');
-var webpack = require('webpack');
-var nodeExternals = require('webpack-node-externals');
-var merge = require('webpack-merge');
-var allFilenamesExceptJavaScript = /\.(?!js(\?|$))([^.]+(\?|$))/;
+﻿let webpack = require("webpack");
+var path = require("path");
 
-// Configuration in common to both client-side and server-side bundles
-var sharedConfig = {
-    resolve: { extensions: [ '', '.js', '.ts' ] },
-    output: {
-        filename: '[name].js',
-        publicPath: '/dist/' // Webpack dev middleware, if enabled, handles requests for this URL prefix
+var isDevBuild = process.argv.indexOf("--env.prod") < 0;
+let ExtractTextPlugin = require("extract-text-webpack-plugin");
+let extractCss = new ExtractTextPlugin("./css/[name].css");
+
+module.exports = {
+    cache: true,
+    entry: {
+        app: ["./client/index.ts"]
     },
-    module: {
-        loaders: [
-            { test: /\.ts$/, include: /ClientApp/, loader: 'ts', query: { silent: true } },
-            { test: /\.html$/, loader: 'raw' },
-            { test: /\.css$/, loader: 'to-string!css' },
-            { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: 'url', query: { limit: 25000 } }
-        ]
-    }
-};
-
-// Configuration for client-side bundle suitable for running in browsers
-var clientBundleConfig = merge(sharedConfig, {
-    entry: { 'main-client': './ClientApp/boot-client.ts' },
-    output: { path: path.join(__dirname, './wwwroot/dist') },
-    devtool: isDevBuild ? 'inline-source-map' : null,
+    output: {
+        filename: "./js/[name].js",
+        path: __dirname + "/wwwroot",
+        publicPath: "/"
+    },
     plugins: [
+        extractCss,
         new webpack.DllReferencePlugin({
             context: __dirname,
-            manifest: require('./wwwroot/dist/vendor-manifest.json')
-        })
-    ].concat(isDevBuild ? [] : [
-        // Plugins that apply in production builds only
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin()
-    ])
-});
-
-// Configuration for server-side (prerendering) bundle suitable for running in Node
-var serverBundleConfig = merge(sharedConfig, {
-    entry: { 'main-server': './ClientApp/boot-server.ts' },
-    output: {
-        libraryTarget: 'commonjs',
-        path: path.join(__dirname, './ClientApp/dist')
+            manifest: require("./wwwroot/js/vendor-manifest.json")
+        }),
+    ],
+    module: {
+        loaders: [
+            { test: /\.ts$/, loader: "ts" },
+            { test: /\.html$/, loader: "raw" },
+            { test: /\.scss$/, loader: extractCss.extract(["css", "sass"]) },
+            { test: /\.css$/, loader: extractCss.extract(["css"]) },
+            { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: "url", query: { limit: 25000, name: "./images/[name].[ext]" } },
+            { test: /\.(ttf|eot|svg|woff|woff2)$/, loader: "url", query: { limit: 25000, name: "./fonts/[name].[ext]" } }
+        ]
     },
-    target: 'node',
-    devtool: 'inline-source-map',
-    externals: [nodeExternals({ whitelist: [allFilenamesExceptJavaScript] })] // Don't bundle .js files from node_modules
-});
-
-module.exports = [clientBundleConfig, serverBundleConfig];
+    resolve: {
+        extensions: ["", ".ts", ".js", ".jsx"],
+        root: path.resolve(__dirname, "client"),
+        modulesDirectories: ["node_modules"]
+    }
+};
