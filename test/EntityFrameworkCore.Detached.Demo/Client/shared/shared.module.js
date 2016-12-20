@@ -10,30 +10,34 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
-var popover_1 = require("./components/popover/popover");
-var select_1 = require("./components/select/select");
-var option_1 = require("./components/select/option");
-var MdlSharedModule = (function () {
-    function MdlSharedModule() {
+var popover_component_1 = require("./components/popover/popover.component");
+var select_component_1 = require("./components/select/select.component");
+var option_component_1 = require("./components/select/option.component");
+var SharedModule = (function () {
+    function SharedModule() {
     }
-    MdlSharedModule.forRoot = function () {
+    SharedModule.forRoot = function () {
         return {
-            ngModule: MdlSharedModule,
+            ngModule: SharedModule,
             providers: []
         };
     };
-    MdlSharedModule = __decorate([
+    SharedModule = __decorate([
         core_1.NgModule({
             imports: [common_1.CommonModule],
-            exports: [popover_1.MdlPopoverComponent, select_1.MdlSelectComponent, option_1.MdlOptionComponent],
-            declarations: [popover_1.MdlPopoverComponent, select_1.MdlSelectComponent, option_1.MdlOptionComponent],
+            exports: [
+                popover_component_1.PopoverComponent,
+                select_component_1.SelectComponent,
+                option_component_1.OptionComponent
+            ],
+            declarations: [popover_component_1.PopoverComponent, select_component_1.SelectComponent, option_component_1.OptionComponent],
             providers: [
-                select_1.MDL_SELECT_VALUE_ACCESSOR
+                select_component_1.MDL_SELECT_VALUE_ACCESSOR
             ]
         }), 
         __metadata('design:paramtypes', [])
-    ], MdlSharedModule);
-    return MdlSharedModule;
+    ], SharedModule);
+    return SharedModule;
 }());
-exports.MdlSharedModule = MdlSharedModule;
+exports.SharedModule = SharedModule;
 //# sourceMappingURL=shared.module.js.map

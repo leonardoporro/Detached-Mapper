@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "75e7f024227ebdc0fca9"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "a44593039b0c4187246f"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -1914,39 +1914,38 @@
 	    core_1.enableProdMode();
 	}
 	platform.bootstrapModule(app_module_1.AppModule);
-	__webpack_require__(31);
-
+	//# sourceMappingURL=main.js.map
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module)))
 
 /***/ },
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(275);
+	module.exports = (__webpack_require__(17))(273);
 
 /***/ },
 /* 17 */
 /***/ function(module, exports) {
 
-	module.exports = vendor_108f40ccc62e7e762549;
+	module.exports = dll_61a8a7be6b05db2109af;
 
 /***/ },
 /* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(273);
+	module.exports = (__webpack_require__(17))(275);
 
 /***/ },
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(296);
+	module.exports = (__webpack_require__(17))(297);
 
 /***/ },
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(278);
+	module.exports = (__webpack_require__(17))(279);
 
 /***/ },
 /* 21 */
@@ -1968,52 +1967,53 @@
 	var forms_1 = __webpack_require__(23);
 	var angular2_mdl_1 = __webpack_require__(24);
 	// app modules.
-	//import { MdlSharedModule } from "../shared/shared.module";
-	var app_component_1 = __webpack_require__(25);
-	var app_routing_module_1 = __webpack_require__(27);
-	var home_component_1 = __webpack_require__(29);
+	var shared_module_1 = __webpack_require__(25);
+	var app_component_1 = __webpack_require__(38);
+	var app_routing_module_1 = __webpack_require__(40);
+	var home_component_1 = __webpack_require__(42);
+	__webpack_require__(44);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
+	    AppModule = __decorate([
+	        core_1.NgModule({
+	            imports: [
+	                platform_browser_1.BrowserModule,
+	                forms_1.FormsModule,
+	                angular2_mdl_1.MdlModule,
+	                shared_module_1.SharedModule,
+	                app_routing_module_1.AppRoutingModule,
+	            ],
+	            declarations: [
+	                app_component_1.AppComponent,
+	                home_component_1.HomeComponent
+	            ],
+	            bootstrap: [app_component_1.AppComponent]
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], AppModule);
 	    return AppModule;
 	}());
-	AppModule = __decorate([
-	    core_1.NgModule({
-	        imports: [
-	            platform_browser_1.BrowserModule,
-	            forms_1.FormsModule,
-	            angular2_mdl_1.MdlModule,
-	            // MdlSharedModule,
-	            app_routing_module_1.AppRoutingModule,
-	        ],
-	        declarations: [
-	            app_component_1.AppComponent,
-	            home_component_1.HomeComponent
-	        ],
-	        bootstrap: [app_component_1.AppComponent]
-	    }),
-	    __metadata("design:paramtypes", [])
-	], AppModule);
 	exports.AppModule = AppModule;
-
+	//# sourceMappingURL=app.module.js.map
 
 /***/ },
 /* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(276);
+	module.exports = (__webpack_require__(17))(277);
 
 /***/ },
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(298);
+	module.exports = (__webpack_require__(17))(299);
 
 /***/ },
 /* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(626);
+	module.exports = (__webpack_require__(17))(627);
 
 /***/ },
 /* 25 */
@@ -2030,26 +2030,44 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(20);
-	var AppComponent = (function () {
-	    function AppComponent() {
+	var common_1 = __webpack_require__(26);
+	var popover_component_1 = __webpack_require__(27);
+	var select_component_1 = __webpack_require__(32);
+	var option_component_1 = __webpack_require__(33);
+	var SharedModule = (function () {
+	    function SharedModule() {
 	    }
-	    return AppComponent;
+	    SharedModule.forRoot = function () {
+	        return {
+	            ngModule: SharedModule,
+	            providers: []
+	        };
+	    };
+	    SharedModule = __decorate([
+	        core_1.NgModule({
+	            imports: [common_1.CommonModule],
+	            exports: [
+	                popover_component_1.PopoverComponent,
+	                select_component_1.SelectComponent,
+	                option_component_1.OptionComponent
+	            ],
+	            declarations: [popover_component_1.PopoverComponent, select_component_1.SelectComponent, option_component_1.OptionComponent],
+	            providers: [
+	                select_component_1.MDL_SELECT_VALUE_ACCESSOR
+	            ]
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], SharedModule);
+	    return SharedModule;
 	}());
-	AppComponent = __decorate([
-	    core_1.Component({
-	        selector: "app",
-	        template: __webpack_require__(26)
-	    }),
-	    __metadata("design:paramtypes", [])
-	], AppComponent);
-	exports.AppComponent = AppComponent;
-
+	exports.SharedModule = SharedModule;
+	//# sourceMappingURL=shared.module.js.map
 
 /***/ },
 /* 26 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<mdl-layout mdl-layout-fixed-header mdl-layout-header-seamed>\r\n    <mdl-layout-header>\r\n        <mdl-layout-header-row>\r\n            <mdl-layout-title><strong>Detached</strong> for EF Core</mdl-layout-title>\r\n            <mdl-layout-spacer></mdl-layout-spacer>\r\n\r\n            <!--<nav class=\"mdl-navigation mdl-layout--large-screen-only\">\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n            </nav>-->\r\n        </mdl-layout-header-row>\r\n    </mdl-layout-header>\r\n    <mdl-layout-drawer>\r\n        <mdl-layout-title>Title</mdl-layout-title>\r\n        <nav class=\"mdl-navigation\">\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n        </nav>\r\n    </mdl-layout-drawer>\r\n    <mdl-layout-content>\r\n        <router-outlet></router-outlet>\r\n    </mdl-layout-content>\r\n</mdl-layout>"
+	module.exports = (__webpack_require__(17))(278);
 
 /***/ },
 /* 27 */
@@ -2066,8 +2084,669 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(20);
-	var router_1 = __webpack_require__(28);
-	var home_component_1 = __webpack_require__(29);
+	var PopoverComponent = (function () {
+	    function PopoverComponent(changeDetectionRef, elementRef) {
+	        this.changeDetectionRef = changeDetectionRef;
+	        this.elementRef = elementRef;
+	        this.hideOnClick = false;
+	        this.isVisible = false;
+	        this.directionUp = false;
+	    }
+	    PopoverComponent.prototype.ngAfterViewInit = function () {
+	        // Add a hide listener to native element
+	        this.elementRef.nativeElement.addEventListener("hide", this.hide.bind(this));
+	    };
+	    PopoverComponent.prototype.onDocumentClick = function (event) {
+	        if (this.isVisible &&
+	            (this.hideOnClick || !this.elementRef.nativeElement.contains(event.target))) {
+	            this.hide();
+	        }
+	    };
+	    PopoverComponent.prototype.ngOnDestroy = function () {
+	        this.elementRef.nativeElement.removeEventListener("hide");
+	    };
+	    PopoverComponent.prototype.toggle = function (event) {
+	        if (this.isVisible) {
+	            this.hide();
+	        }
+	        else {
+	            this.hideAllPopovers();
+	            this.show(event);
+	        }
+	    };
+	    PopoverComponent.prototype.hide = function () {
+	        this.isVisible = false;
+	        this.changeDetectionRef.markForCheck();
+	    };
+	    PopoverComponent.prototype.hideAllPopovers = function () {
+	        var nodeList = document.querySelectorAll(".mdl-popover.is-visible");
+	        for (var i = 0; i < nodeList.length; ++i) {
+	            nodeList[i].dispatchEvent(new Event("hide"));
+	        }
+	    };
+	    PopoverComponent.prototype.show = function (event) {
+	        event.stopPropagation();
+	        this.isVisible = true;
+	        this.updateDirection(event);
+	    };
+	    PopoverComponent.prototype.updateDirection = function (event) {
+	        var _this = this;
+	        var nativeEl = this.elementRef.nativeElement;
+	        var targetRect = event.target.getBoundingClientRect();
+	        var viewHeight = window.innerHeight;
+	        setTimeout(function () {
+	            var height = nativeEl.offsetHeight;
+	            if (height) {
+	                var spaceAvailable = {
+	                    top: targetRect.top,
+	                    bottom: viewHeight - targetRect.bottom
+	                };
+	                _this.directionUp = spaceAvailable.bottom < height;
+	                _this.changeDetectionRef.markForCheck();
+	            }
+	        });
+	    };
+	    __decorate([
+	        core_1.Input("hide-on-click"), 
+	        __metadata('design:type', Boolean)
+	    ], PopoverComponent.prototype, "hideOnClick", void 0);
+	    __decorate([
+	        core_1.HostBinding("class.is-visible"), 
+	        __metadata('design:type', Object)
+	    ], PopoverComponent.prototype, "isVisible", void 0);
+	    __decorate([
+	        core_1.HostBinding("class.direction-up"), 
+	        __metadata('design:type', Object)
+	    ], PopoverComponent.prototype, "directionUp", void 0);
+	    __decorate([
+	        core_1.HostListener("document:click", ["$event"]), 
+	        __metadata('design:type', Function), 
+	        __metadata('design:paramtypes', [Event]), 
+	        __metadata('design:returntype', void 0)
+	    ], PopoverComponent.prototype, "onDocumentClick", null);
+	    PopoverComponent = __decorate([
+	        core_1.Component({
+	            selector: "mdl-popover",
+	            host: {
+	                "[class.mdl-popover]": "true"
+	            },
+	            template: __webpack_require__(28),
+	            styles: [__webpack_require__(29)],
+	            encapsulation: core_1.ViewEncapsulation.None,
+	        }), 
+	        __metadata('design:paramtypes', [core_1.ChangeDetectorRef, core_1.ElementRef])
+	    ], PopoverComponent);
+	    return PopoverComponent;
+	}());
+	exports.PopoverComponent = PopoverComponent;
+	//# sourceMappingURL=popover.component.js.map
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	module.exports = "<ng-content></ng-content>\n"
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	        var result = __webpack_require__(30);
+
+	        if (typeof result === "string") {
+	            module.exports = result;
+	        } else {
+	            module.exports = result.toString();
+	        }
+	    
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(31)();
+	exports.push([module.id, ".mdl-popover {\n  background: #fff;\n  border: none;\n  display: none;\n  margin: 0;\n  overflow: visible;\n  padding: 0;\n  position: absolute; }\n  .mdl-popover.is-visible, .mdl-popover.is-animating {\n    display: block;\n    z-index: 999; }\n  .mdl-popover.direction-up {\n    bottom: 22px; }\n", ""]);
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(20);
+	var forms_1 = __webpack_require__(23);
+	var popover_component_1 = __webpack_require__(27);
+	var option_component_1 = __webpack_require__(33);
+	var uniq = function (array) { return Array.from(new Set(array)); };
+	function randomId() {
+	    var S4 = function () { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); };
+	    return (S4() + S4());
+	}
+	exports.MDL_SELECT_VALUE_ACCESSOR = {
+	    provide: forms_1.NG_VALUE_ACCESSOR,
+	    useExisting: core_1.forwardRef(function () { return SelectComponent; }),
+	    multi: true
+	};
+	var SearchableComponent = (function () {
+	    function SearchableComponent(searchTimeout) {
+	        if (searchTimeout === void 0) { searchTimeout = 300; }
+	        this.clearTimeout = null;
+	        this.query = "";
+	        this.searchTimeout = searchTimeout;
+	    }
+	    SearchableComponent.prototype.updateSearchQuery = function (event) {
+	        var _this = this;
+	        if (this.clearTimeout) {
+	            clearTimeout(this.clearTimeout);
+	        }
+	        this.clearTimeout = setTimeout(function () {
+	            _this.query = "";
+	        }, this.searchTimeout);
+	        this.query += String.fromCharCode(event.keyCode).toLowerCase();
+	    };
+	    SearchableComponent.prototype.getSearchQuery = function () {
+	        return this.query;
+	    };
+	    return SearchableComponent;
+	}());
+	exports.SearchableComponent = SearchableComponent;
+	var SelectComponent = (function (_super) {
+	    __extends(SelectComponent, _super);
+	    function SelectComponent(changeDetectionRef) {
+	        _super.call(this);
+	        this.changeDetectionRef = changeDetectionRef;
+	        this.disabled = false;
+	        this.placeholder = "";
+	        this.multiple = false;
+	        this.change = new core_1.EventEmitter(true);
+	        this.text = "";
+	        this.textByValue = {};
+	        this.onChange = Function.prototype;
+	        this.onTouched = Function.prototype;
+	        this.focused = false;
+	        this.textfieldId = "mdl-textfield-" + randomId();
+	    }
+	    SelectComponent.prototype.ngAfterViewInit = function () {
+	        var _this = this;
+	        this.bindOptions();
+	        this.renderValue(this.ngModel);
+	        this.optionComponents.changes.subscribe(function () { return _this.bindOptions(); });
+	    };
+	    SelectComponent.prototype.onKeydown = function ($event) {
+	        if (!this.disabled && this.popoverComponent.isVisible) {
+	            var closeKeys = ["Escape", "Tab", "Enter"];
+	            var closeKeyCodes = [13, 27, 9];
+	            if (closeKeyCodes.indexOf($event.keyCode) != -1 || ($event.key && closeKeys.indexOf($event.key) != -1)) {
+	                this.popoverComponent.hide();
+	            }
+	            else if (!this.multiple) {
+	                if ($event.keyCode == 38 || ($event.key && $event.key == "ArrowUp")) {
+	                    this.onArrowUp($event);
+	                }
+	                else if ($event.keyCode == 40 || ($event.key && $event.key == "ArrowDown")) {
+	                    this.onArrowDown($event);
+	                }
+	                else if ($event.keyCode >= 31 && $event.keyCode <= 90) {
+	                    this.onCharacterKeydown($event);
+	                }
+	            }
+	        }
+	    };
+	    SelectComponent.prototype.onCharacterKeydown = function ($event) {
+	        var _this = this;
+	        this.updateSearchQuery($event);
+	        var optionsList = this.optionComponents.toArray();
+	        var filteredOptions = optionsList.filter(function (option) {
+	            return option.text.toLowerCase().startsWith(_this.getSearchQuery());
+	        });
+	        var selectedOption = optionsList.find(function (option) { return option.selected; });
+	        if (filteredOptions.length > 0) {
+	            var selectedOptionInFiltered = filteredOptions.indexOf(selectedOption) != -1;
+	            if (!selectedOptionInFiltered && !filteredOptions[0].selected) {
+	                this.onSelect($event, filteredOptions[0].value);
+	            }
+	        }
+	        $event.preventDefault();
+	    };
+	    SelectComponent.prototype.onArrowUp = function ($event) {
+	        var arr = this.optionComponents.toArray();
+	        for (var i = 0; i < arr.length; i++) {
+	            if (arr[i].selected) {
+	                if (i - 1 >= 0) {
+	                    this.onSelect($event, arr[i - 1].value);
+	                }
+	                break;
+	            }
+	        }
+	        $event.preventDefault();
+	    };
+	    SelectComponent.prototype.onArrowDown = function ($event) {
+	        var arr = this.optionComponents.toArray();
+	        var selectedOption = arr.find(function (option) { return option.selected; });
+	        if (selectedOption) {
+	            var selectedOptionIndex = arr.indexOf(selectedOption);
+	            if (selectedOptionIndex + 1 < arr.length) {
+	                this.onSelect($event, arr[selectedOptionIndex + 1].value);
+	            }
+	        }
+	        else {
+	            this.onSelect($event, arr[0].value);
+	        }
+	        $event.preventDefault();
+	    };
+	    SelectComponent.prototype.addFocus = function () {
+	        this.focused = true;
+	    };
+	    SelectComponent.prototype.removeFocus = function () {
+	        this.focused = false;
+	    };
+	    SelectComponent.prototype.isEmpty = function () {
+	        return this.multiple ? !this.ngModel.length : !this.ngModel;
+	    };
+	    // rebind options and reset value in connected select
+	    SelectComponent.prototype.reset = function (resetValue) {
+	        if (resetValue === void 0) { resetValue = true; }
+	        if (resetValue && !this.isEmpty()) {
+	            this.ngModel = this.multiple ? [] : "";
+	            this.onChange(this.ngModel);
+	            this.change.emit(this.ngModel);
+	            this.renderValue(this.ngModel);
+	        }
+	    };
+	    SelectComponent.prototype.bindOptions = function () {
+	        var _this = this;
+	        this.optionComponents.forEach(function (selectOptionComponent) {
+	            selectOptionComponent.setMultiple(_this.multiple);
+	            selectOptionComponent.onSelect = _this.onSelect.bind(_this);
+	            if (selectOptionComponent.value != null) {
+	                _this.textByValue[_this.stringifyValue(selectOptionComponent.value)] = selectOptionComponent.text;
+	            }
+	        });
+	    };
+	    SelectComponent.prototype.renderValue = function (value) {
+	        var _this = this;
+	        if (this.multiple) {
+	            this.text = value.map(function (value) { return _this.textByValue[_this.stringifyValue(value)]; }).join(", ");
+	        }
+	        else {
+	            this.text = this.textByValue[this.stringifyValue(value)] || "";
+	        }
+	        this.changeDetectionRef.detectChanges();
+	        if (this.optionComponents) {
+	            this.optionComponents.forEach(function (selectOptionComponent) {
+	                selectOptionComponent.updateSelected(value);
+	            });
+	        }
+	    };
+	    SelectComponent.prototype.stringifyValue = function (value) {
+	        switch (typeof value) {
+	            case "number": return String(value);
+	            case "object": return JSON.stringify(value);
+	            default: return (!!value) ? String(value) : "";
+	        }
+	    };
+	    SelectComponent.prototype.toggle = function ($event) {
+	        if (!this.disabled) {
+	            this.popoverComponent.toggle($event);
+	            $event.stopPropagation();
+	        }
+	    };
+	    SelectComponent.prototype.open = function ($event) {
+	        if (!this.disabled && !this.popoverComponent.isVisible) {
+	            this.popoverComponent.show($event);
+	        }
+	    };
+	    SelectComponent.prototype.close = function ($event) {
+	        if (!this.disabled && this.popoverComponent.isVisible) {
+	            this.popoverComponent.hide();
+	        }
+	    };
+	    SelectComponent.prototype.onSelect = function ($event, value) {
+	        if (this.multiple) {
+	            // prevent popup close on click inside popover when selecting multiple
+	            $event.stopPropagation();
+	        }
+	        else {
+	            var popover = this.popoverComponent.elementRef.nativeElement;
+	            var list = popover.querySelector(".mdl-list");
+	            var option_1 = null;
+	            this.optionComponents.forEach(function (o) {
+	                // not great for long lists because break is not available
+	                if (o.value == value) {
+	                    option_1 = o.contentWrapper.nativeElement;
+	                }
+	            });
+	            if (option_1) {
+	                if (option_1.offsetTop > popover.clientHeight) {
+	                    list.scrollTop += option_1.parentElement.clientHeight;
+	                }
+	                else if (option_1.offsetTop < list.scrollTop) {
+	                    list.scrollTop -= option_1.parentElement.clientHeight;
+	                }
+	            }
+	        }
+	        this.writeValue(value);
+	        this.change.emit(this.ngModel);
+	    };
+	    SelectComponent.prototype.writeValue = function (value) {
+	        if (this.multiple) {
+	            this.ngModel = this.ngModel || [];
+	            if (!value || this.ngModel === value) {
+	            }
+	            else if (Array.isArray(value)) {
+	                this.ngModel = uniq(this.ngModel.concat(value));
+	            }
+	            else if (this.ngModel.indexOf(value) != -1) {
+	                this.ngModel = this.ngModel.filter(function (v) { return v !== value; }).slice();
+	            }
+	            else if (!!value) {
+	                this.ngModel = this.ngModel.concat([value]);
+	            }
+	        }
+	        else {
+	            this.ngModel = value;
+	        }
+	        this.onChange(this.ngModel);
+	        this.renderValue(this.ngModel);
+	    };
+	    SelectComponent.prototype.registerOnChange = function (fn) {
+	        this.onChange = fn;
+	    };
+	    SelectComponent.prototype.registerOnTouched = function (fn) {
+	        this.onTouched = fn;
+	    };
+	    SelectComponent.prototype.getLabelVisibility = function () {
+	        return this.isFloatingLabel == null || (this.isFloatingLabel != null && this.text != null && this.text.length > 0) ? "block" : "none";
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Object)
+	    ], SelectComponent.prototype, "ngModel", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean)
+	    ], SelectComponent.prototype, "disabled", void 0);
+	    __decorate([
+	        core_1.Input("floating-label"), 
+	        __metadata('design:type', Object)
+	    ], SelectComponent.prototype, "isFloatingLabel", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], SelectComponent.prototype, "placeholder", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean)
+	    ], SelectComponent.prototype, "multiple", void 0);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', core_1.EventEmitter)
+	    ], SelectComponent.prototype, "change", void 0);
+	    __decorate([
+	        core_1.ViewChild(popover_component_1.PopoverComponent), 
+	        __metadata('design:type', popover_component_1.PopoverComponent)
+	    ], SelectComponent.prototype, "popoverComponent", void 0);
+	    __decorate([
+	        core_1.ContentChildren(option_component_1.OptionComponent), 
+	        __metadata('design:type', core_1.QueryList)
+	    ], SelectComponent.prototype, "optionComponents", void 0);
+	    __decorate([
+	        core_1.HostListener("document:keydown", ["$event"]), 
+	        __metadata('design:type', Function), 
+	        __metadata('design:paramtypes', [KeyboardEvent]), 
+	        __metadata('design:returntype', void 0)
+	    ], SelectComponent.prototype, "onKeydown", null);
+	    SelectComponent = __decorate([
+	        core_1.Component({
+	            selector: "mdl-select",
+	            host: {
+	                "[class.mdl-select]": "true",
+	                "[class.mdl-select--floating-label]": "isFloatingLabel != null"
+	            },
+	            template: __webpack_require__(35),
+	            styles: [__webpack_require__(36)],
+	            encapsulation: core_1.ViewEncapsulation.None,
+	            providers: [exports.MDL_SELECT_VALUE_ACCESSOR]
+	        }), 
+	        __metadata('design:paramtypes', [core_1.ChangeDetectorRef])
+	    ], SelectComponent);
+	    return SelectComponent;
+	}(SearchableComponent));
+	exports.SelectComponent = SelectComponent;
+	//# sourceMappingURL=select.component.js.map
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(20);
+	var OptionComponent = (function () {
+	    function OptionComponent(changeDetectionRef) {
+	        this.changeDetectionRef = changeDetectionRef;
+	        this.multiple = false;
+	        this.selected = false;
+	        this.onSelect = Function.prototype;
+	    }
+	    OptionComponent.prototype.setMultiple = function (multiple) {
+	        this.multiple = multiple;
+	        this.changeDetectionRef.detectChanges();
+	    };
+	    OptionComponent.prototype.updateSelected = function (value) {
+	        var _this = this;
+	        if (this.multiple) {
+	            this.selected = (value.map(function (v) { return _this.stringifyValue(v); }).indexOf(this.stringValue) != -1);
+	        }
+	        else {
+	            this.selected = this.value == value;
+	        }
+	        this.changeDetectionRef.detectChanges();
+	    };
+	    OptionComponent.prototype.ngAfterViewInit = function () {
+	        this.text = this.contentWrapper.nativeElement.textContent.trim();
+	    };
+	    Object.defineProperty(OptionComponent.prototype, "stringValue", {
+	        get: function () {
+	            return this.stringifyValue(this.value);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    OptionComponent.prototype.stringifyValue = function (value) {
+	        switch (typeof value) {
+	            case "number": return String(value);
+	            case "object": return JSON.stringify(value);
+	            default: return (!!value) ? String(value) : "";
+	        }
+	    };
+	    __decorate([
+	        core_1.Input("value"), 
+	        __metadata('design:type', Object)
+	    ], OptionComponent.prototype, "value", void 0);
+	    __decorate([
+	        core_1.ViewChild("contentWrapper"), 
+	        __metadata('design:type', core_1.ElementRef)
+	    ], OptionComponent.prototype, "contentWrapper", void 0);
+	    OptionComponent = __decorate([
+	        core_1.Component({
+	            selector: "mdl-option",
+	            host: {
+	                "[class.mdl-option__container]": "true"
+	            },
+	            template: __webpack_require__(34)
+	        }), 
+	        __metadata('design:paramtypes', [core_1.ChangeDetectorRef])
+	    ], OptionComponent);
+	    return OptionComponent;
+	}());
+	exports.OptionComponent = OptionComponent;
+	//# sourceMappingURL=option.component.js.map
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+	module.exports = "<div\n    class=\"mdl-list__item\"\n    (click)=\"onSelect($event, value)\"\n    [class.is-active]=\"selected\">\n\n  <div *ngIf=\"multiple\" class=\"mdl-list__item-secondary-action\">\n    <div\n        class=\"mdl-checkbox is-upgraded\"\n        [class.is-checked]=\"selected\"\n        (click)=\"onSelect($event, value)\">\n      <input type=\"checkbox\" class=\"mdl-checkbox__input\">\n      <span class=\"mdl-checkbox__label\"></span>\n      <span class=\"mdl-checkbox__focus-helper\"></span>\n      <span class=\"mdl-checkbox__box-outline\">\n        <span class=\"mdl-checkbox__tick-outline\"></span>\n      </span>\n    </div>\n  </div>\n\n  <div #contentWrapper class=\"mdl-list__item-primary-content\">\n    <ng-content></ng-content>\n  </div>\n\n</div>\n"
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+	module.exports = "<div\n  class=\"mdl-textfield is-upgraded has-placeholder\"\n  [class.is-focused]=\"this.popoverComponent.isVisible || this.focused\"\n  [class.is-disabled]=\"this.disabled\"\n  [class.is-dirty]=\"text != null && text.length > 0\">\n  <span\n      [attr.tabindex]=\"!this.disabled ? 0 : null\"\n      (focus)=\"open($event);addFocus();\"\n      (blur)=\"removeFocus()\">\n    <!-- don't want click to also trigger focus -->\n  </span>\n  <input readonly tabindex=\"-1\"\n      [placeholder]=\"placeholder\"\n      class=\"mdl-textfield__input\"\n      (click)=\"toggle($event)\"\n      [attr.id]=\"textfieldId\"\n      [value]=\"text\">\n  <span\n      class=\"mdl-select__toggle material-icons\"\n      (click)=\"toggle($event)\">\n    keyboard_arrow_down\n  </span>\n  <label class=\"mdl-textfield__label\" [attr.for]=\"textfieldId\">{{ placeholder }}</label>\n  <span class=\"mdl-textfield__error\"></span>\n  <mdl-popover hide-on-click=\"!multiple\" [style.width.%]=\"100\">\n    <div class=\"mdl-list mdl-shadow--6dp\">\n      <ng-content></ng-content>\n    </div>\n  </mdl-popover>\n</div>\n"
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	        var result = __webpack_require__(37);
+
+	        if (typeof result === "string") {
+	            module.exports = result;
+	        } else {
+	            module.exports = result.toString();
+	        }
+	    
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(31)();
+	exports.push([module.id, "/**\n * Copyright 2015 Google Inc. All Rights Reserved.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n/*------------------------------------*    $CONTENTS\n\\*------------------------------------*/\n/**\n * STYLE GUIDE VARIABLES------------------Declarations of Sass variables\n * -----Typography\n * -----Colors\n * -----Textfield\n * -----Switch\n * -----Spinner\n * -----Radio\n * -----Menu\n * -----List\n * -----Layout\n * -----Icon toggles\n * -----Footer\n * -----Column\n * -----Checkbox\n * -----Card\n * -----Button\n * -----Animation\n * -----Progress\n * -----Badge\n * -----Shadows\n * -----Grid\n * -----Data table\n * -----Dialog\n * -----Snackbar\n * -----Tooltip\n * -----Chip\n *\n * Even though all variables have the `!default` directive, most of them\n * should not be changed as they are dependent one another. This can cause\n * visual distortions (like alignment issues) that are hard to track down\n * and fix.\n */\n/* ==========  TYPOGRAPHY  ========== */\n/* We're splitting fonts into \"preferred\" and \"performance\" in order to optimize\n   page loading. For important text, such as the body, we want it to load\n   immediately and not wait for the web font load, whereas for other sections,\n   such as headers and titles, we're OK with things taking a bit longer to load.\n   We do have some optional classes and parameters in the mixins, in case you\n   definitely want to make sure you're using the preferred font and don't mind\n   the performance hit.\n   We should be able to improve on this once CSS Font Loading L3 becomes more\n   widely available.\n*/\n/* ==========  COLORS  ========== */\n/**\n*\n* Material design color palettes.\n* @see http://www.google.com/design/spec/style/color.html\n*\n**/\n/**\n * Copyright 2015 Google Inc. All Rights Reserved.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n/* ==========  Color Palettes  ========== */\n/* colors.scss */\n/**\n * Copyright 2015 Google Inc. All Rights Reserved.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n/* ==========  IMAGES  ========== */\n/* ==========  Color & Themes  ========== */\n/* ==========  Typography  ========== */\n/* ==========  Components  ========== */\n/* ==========  Standard Buttons  ========== */\n/* ==========  Icon Toggles  ========== */\n/* ==========  Radio Buttons  ========== */\n/* ==========  Ripple effect  ========== */\n/* ==========  Layout  ========== */\n/* ==========  Content Tabs  ========== */\n/* ==========  Checkboxes  ========== */\n/* ==========  Switches  ========== */\n/* ==========  Spinner  ========== */\n/* ==========  Text fields  ========== */\n/* ==========  Card  ========== */\n/* ==========  Sliders ========== */\n/* ========== Progress ========== */\n/* ==========  List ========== */\n/* ==========  Item ========== */\n/* ==========  Dropdown menu ========== */\n/* ==========  Tooltips  ========== */\n/* ==========  Footer  ========== */\n/* TEXTFIELD */\n/* SWITCH */\n/* SPINNER */\n/* RADIO */\n/* MENU */\n/* LIST */\n/* LAYOUT */\n/* ICON TOGGLE */\n/* FOOTER */\n/*mega-footer*/\n/*mini-footer*/\n/* CHECKBOX */\n/* CARD */\n/* Card dimensions */\n/* Cover image */\n/* BUTTON */\n/**\n *\n * Dimensions\n *\n */\n/* ANIMATION */\n/* PROGRESS */\n/* BADGE */\n/* SHADOWS */\n/* GRID */\n/* DATA TABLE */\n/* DIALOG */\n/* SNACKBAR */\n/* TOOLTIP */\n/* CHIP */\n.mdl-select--floating-label {\n  padding: 0; }\n\n.mdl-select__toggle {\n  cursor: pointer;\n  float: right;\n  margin-top: -1.75rem; }\n\n.mdl-select .mdl-textfield__input {\n  box-sizing: border-box;\n  cursor: pointer;\n  overflow: hidden;\n  padding-right: 1.5rem;\n  text-overflow: ellipsis;\n  white-space: nowrap; }\n\n.mdl-select .mdl-textfield.is-focused .mdl-select__toggle {\n  color: rgb(63,81,181); }\n\n.mdl-select .mdl-textfield.is-invalid .mdl-select__toggle {\n  color: rgb(213,0,0); }\n\n.mdl-select .mdl-textfield.is-disabled .mdl-select__toggle {\n  color: rgba(0,0,0, 0.26); }\n\n.mdl-select .mdl-list {\n  max-height: 280px;\n  overflow-y: auto;\n  padding: 0; }\n  .mdl-select .mdl-list__item {\n    cursor: pointer; }\n    .mdl-select .mdl-list__item:hover {\n      background-color: rgb(238,238,238); }\n    .mdl-select .mdl-list__item.is-active {\n      color: rgb(63,81,181);\n      background-color: rgb(224,224,224); }\n", ""]);
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(20);
+	var AppComponent = (function () {
+	    function AppComponent() {
+	    }
+	    AppComponent = __decorate([
+	        core_1.Component({
+	            selector: "app",
+	            template: __webpack_require__(39)
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], AppComponent);
+	    return AppComponent;
+	}());
+	exports.AppComponent = AppComponent;
+	//# sourceMappingURL=app.component.js.map
+
+/***/ },
+/* 39 */
+/***/ function(module, exports) {
+
+	module.exports = "<mdl-layout mdl-layout-fixed-header mdl-layout-header-seamed>\r\n    <mdl-layout-header>\r\n        <mdl-layout-header-row>\r\n            <mdl-layout-title><strong>Detached</strong> for EF Core</mdl-layout-title>\r\n            <mdl-layout-spacer></mdl-layout-spacer>\r\n\r\n            <!--<nav class=\"mdl-navigation mdl-layout--large-screen-only\">\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n                <a class=\"mdl-navigation__link\">Link</a>\r\n            </nav>-->\r\n        </mdl-layout-header-row>\r\n    </mdl-layout-header>\r\n    <mdl-layout-drawer>\r\n        <mdl-layout-title>Title</mdl-layout-title>\r\n        <nav class=\"mdl-navigation\">\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n            <a class=\"mdl-navigation__link\">Link</a>\r\n        </nav>\r\n    </mdl-layout-drawer>\r\n    <mdl-layout-content>\r\n        <router-outlet></router-outlet>\r\n    </mdl-layout-content>\r\n</mdl-layout>"
+
+/***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(20);
+	var router_1 = __webpack_require__(41);
+	var home_component_1 = __webpack_require__(42);
 	var appRoutes = [
 	    { path: "", redirectTo: "home", pathMatch: "full" },
 	    { path: "home", component: home_component_1.HomeComponent },
@@ -2075,30 +2754,30 @@
 	var AppRoutingModule = (function () {
 	    function AppRoutingModule() {
 	    }
+	    AppRoutingModule = __decorate([
+	        core_1.NgModule({
+	            imports: [
+	                router_1.RouterModule.forRoot(appRoutes)
+	            ],
+	            exports: [
+	                router_1.RouterModule
+	            ]
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], AppRoutingModule);
 	    return AppRoutingModule;
 	}());
-	AppRoutingModule = __decorate([
-	    core_1.NgModule({
-	        imports: [
-	            router_1.RouterModule.forRoot(appRoutes)
-	        ],
-	        exports: [
-	            router_1.RouterModule
-	        ]
-	    }),
-	    __metadata("design:paramtypes", [])
-	], AppRoutingModule);
 	exports.AppRoutingModule = AppRoutingModule;
-
+	//# sourceMappingURL=app-routing.module.js.map
 
 /***/ },
-/* 28 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(303);
+	module.exports = (__webpack_require__(17))(304);
 
 /***/ },
-/* 29 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2114,27 +2793,28 @@
 	var core_1 = __webpack_require__(20);
 	var HomeComponent = (function () {
 	    function HomeComponent() {
+	        this.selection = [];
 	    }
+	    HomeComponent = __decorate([
+	        core_1.Component({
+	            selector: "app-home",
+	            template: __webpack_require__(43)
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], HomeComponent);
 	    return HomeComponent;
 	}());
-	HomeComponent = __decorate([
-	    core_1.Component({
-	        selector: "app-home",
-	        template: __webpack_require__(30)
-	    }),
-	    __metadata("design:paramtypes", [])
-	], HomeComponent);
 	exports.HomeComponent = HomeComponent;
-
+	//# sourceMappingURL=home.component.js.map
 
 /***/ },
-/* 30 */
+/* 43 */
 /***/ function(module, exports) {
 
-	module.exports = "\r\n<!--<mdl-select>\r\n    <mdl-option [value]=\"1\">\r\n        Item 1\r\n    </mdl-option>\r\n    <mdl-option [value]=\"2\">\r\n        Item 2\r\n    </mdl-option>\r\n    <mdl-option [value]=\"3\">\r\n        Item 3\r\n    </mdl-option>\r\n</mdl-select>-->\r\n\r\n<!--<button mdl-button\r\n        (click)=\"myPopover.toggle($event)\"\r\n        mdl-button-type=\"icon\"\r\n        mdl-ripple>\r\n    <mdl-icon>more_vert</mdl-icon>\r\n</button>\r\n\r\n<mdl-popover #myPopover [hide-on-click]=\"false\" [style.width.px]=\"300\">\r\n    <div mdl-shadow=\"6\" style=\"padding: 1rem;\">\r\n        <b>This is example popover</b> you can put any HTML content here.\r\n\r\n        <mdl-radio value=\"Continental\" mdl-ripple>Continental</mdl-radio>\r\n    </div>\r\n</mdl-popover>-->"
+	module.exports = "\r\n<mdl-select [(ngModel)]=\"food\" multiple=\"true\" placeholder=\"Select food\" >\r\n    <mdl-option [value]=\"1\">\r\n        Item 1\r\n    </mdl-option>\r\n    <mdl-option [value]=\"2\">\r\n        Item 2\r\n    </mdl-option>\r\n    <mdl-option [value]=\"3\">\r\n        Item 3\r\n    </mdl-option>\r\n</mdl-select>\r\n{{selection}}"
 
 /***/ },
-/* 31 */
+/* 44 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

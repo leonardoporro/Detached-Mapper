@@ -1,25 +1,22 @@
 ﻿let webpack = require("webpack");
-var path = require("path");
-
-var isDevBuild = process.argv.indexOf("--env.prod") < 0;
 let ExtractTextPlugin = require("extract-text-webpack-plugin");
 let extractCss = new ExtractTextPlugin("../css/[name].css");
 
 module.exports = {
     cache: true,
     entry: {
-        vendor: ["./client/vendor"]
+        vendor: ["./client/dll/polyfills", "./client/dll/vendor"]
     },
     output: {
         filename: "[name].js",
         path: __dirname + "/wwwroot/js",
-        library: "[name]_[hash]"
+        library: "dll_[hash]"
     },
     plugins: [
        extractCss,
        new webpack.DllPlugin({
-           path: "./wwwroot/js/[name]-manifest.json",
-           name: "[name]_[hash]"
+           path: "./wwwroot/js/dll-manifest.json",
+           name: "dll_[hash]"
        })
     ],
     module: {

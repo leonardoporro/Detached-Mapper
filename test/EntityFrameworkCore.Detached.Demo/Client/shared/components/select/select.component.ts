@@ -5,8 +5,6 @@ import {
     EventEmitter,
     forwardRef,
     Input,
-    ModuleWithProviders,
-    NgModule,
     Output,
     QueryList,
     ViewChild,
@@ -15,8 +13,8 @@ import {
 } from "@angular/core";
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { MdlPopoverComponent } from "../popover/popover";
-import { MdlOptionComponent } from "./option";
+import { PopoverComponent } from "../popover/popover.component";
+import { OptionComponent } from "./option.component";
 
 const uniq = (array: any[]) => Array.from(new Set(array));
 
@@ -27,7 +25,7 @@ function randomId() {
 
 export const MDL_SELECT_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => MdlSelectComponent),
+    useExisting: forwardRef(() => SelectComponent),
     multi: true
 };
 
@@ -63,20 +61,20 @@ export class SearchableComponent {
         "[class.mdl-select]": "true",
         "[class.mdl-select--floating-label]": "isFloatingLabel != null"
     },
-    templateUrl: "select.html",
-    //styleUrls: ["select.scss"],
+    template: require("./select.component.html"),
+    styles: [require("./select.component.scss")],
     encapsulation: ViewEncapsulation.None,
     providers: [MDL_SELECT_VALUE_ACCESSOR]
 })
-export class MdlSelectComponent extends SearchableComponent implements ControlValueAccessor {
+export class SelectComponent extends SearchableComponent implements ControlValueAccessor {
     @Input() ngModel: any;
     @Input() disabled: boolean = false;
     @Input("floating-label") public isFloatingLabel: any;
     @Input() placeholder: string = "";
     @Input() multiple: boolean = false;
     @Output() private change: EventEmitter<any> = new EventEmitter(true);
-    @ViewChild(MdlPopoverComponent) public popoverComponent: MdlPopoverComponent;
-    @ContentChildren(MdlOptionComponent) public optionComponents: QueryList<MdlOptionComponent>;
+    @ViewChild(PopoverComponent) public popoverComponent: PopoverComponent;
+    @ContentChildren(OptionComponent) public optionComponents: QueryList<OptionComponent>;
     private textfieldId: string;
     private text: string = "";
     private textByValue: any = {};
@@ -190,7 +188,7 @@ export class MdlSelectComponent extends SearchableComponent implements ControlVa
     }
 
     private bindOptions() {
-        this.optionComponents.forEach((selectOptionComponent: MdlOptionComponent) => {
+        this.optionComponents.forEach((selectOptionComponent: OptionComponent) => {
             selectOptionComponent.setMultiple(this.multiple);
             selectOptionComponent.onSelect = this.onSelect.bind(this);
 

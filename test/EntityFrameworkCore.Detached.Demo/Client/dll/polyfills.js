@@ -20,16 +20,4 @@ require("core-js/es6/reflect");
 require("core-js/es7/reflect");
 require("zone.js");
 require("reflect-metadata");
-// packages.
-require("@angular/platform-browser");
-require("@angular/platform-browser-dynamic");
-require("@angular/core");
-require("@angular/common");
-require("@angular/forms");
-require("@angular/http");
-require("@angular/router");
-require("rxjs/Rx");
-require("angular2-mdl");
-require("./vendor.scss");
-require("webpack-material-design-icons");
-//# sourceMappingURL=vendor.js.map
+//# sourceMappingURL=polyfills.js.map

@@ -1,40 +1,37 @@
 ﻿let webpack = require("webpack");
-var path = require("path");
-
-var isDevBuild = process.argv.indexOf("--env.prod") < 0;
 let ExtractTextPlugin = require("extract-text-webpack-plugin");
-let extractCss = new ExtractTextPlugin("./css/[name].css");
+let extractCss = new ExtractTextPlugin("../css/[name].css");
 
 module.exports = {
-    cache: true,
     entry: {
-        app: ["./client/index.ts"]
+        app: ["./client/main"]
     },
     output: {
-        filename: "./js/[name].js",
-        path: __dirname + "/wwwroot",
+        filename: "[name].js",
+        path: __dirname + "/wwwroot/js",
         publicPath: "/"
     },
-    plugins: [
-        extractCss,
-        new webpack.DllReferencePlugin({
-            context: __dirname,
-            manifest: require("./wwwroot/js/vendor-manifest.json")
-        }),
-    ],
     module: {
         loaders: [
+            // all typescript.
             { test: /\.ts$/, loader: "ts" },
-            { test: /\.html$/, loader: "raw" },
-            { test: /\.scss$/, loader: extractCss.extract(["css", "sass"]) },
-            { test: /\.css$/, loader: extractCss.extract(["css"]) },
-            { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: "url", query: { limit: 25000, name: "./images/[name].[ext]" } },
-            { test: /\.(ttf|eot|svg|woff|woff2)$/, loader: "url", query: { limit: 25000, name: "./fonts/[name].[ext]" } }
+            // component embedded styles and templates.
+            { test: /\.component\.html$/, loader: "raw" },
+            { test: /\.component\.css$/, loaders: ["to-string", "css"] },
+            { test: /\.component\.scss$/, loaders: ["to-string", "css", "sass"] },
+            // other styles.
+            { test: /^((?!component).)*\.scss$/, loader: extractCss.extract(["css", "sass"]) },
+            { test: /^((?!component).)*\.css$/, loader: extractCss.extract(["css"]) },
+            // images and fonts.
+            { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: "url", query: { limit: 25000, name: "../images/[name].[ext]" } },
+            { test: /\.(ttf|eot|svg|woff|woff2)$/, loader: "url", query: { limit: 25000, name: "../fonts/[name].[ext]" } }
         ]
     },
-    resolve: {
-        extensions: ["", ".ts", ".js", ".jsx"],
-        root: path.resolve(__dirname, "client"),
-        modulesDirectories: ["node_modules"]
-    }
+    plugins: [
+       extractCss,
+       new webpack.DllReferencePlugin({
+           context: __dirname,
+           manifest: require("./wwwroot/js/dll-manifest.json")
+       })
+    ]
 };

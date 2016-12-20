@@ -1081,9 +1081,9 @@ blockquote {
   blockquote:before {
     position: absolute;
     left: -0.5em;
-    content: '\201C'; }
+    content: '“'; }
   blockquote:after {
-    content: '\201D';
+    content: '”';
     margin-left: -0.05em; }
 
 mark {
@@ -5219,7 +5219,7 @@ input.mdl-button[type="submit"] {
         -webkit-font-feature-settings: 'liga';
         -webkit-font-smoothing: antialiased;
         font-size: 16px;
-        content: "\E5D8";
+        content: "\e5d8";
         margin-right: 5px;
         vertical-align: sub; }
       .mdl-data-table th.mdl-data-table__header--sorted-ascending:hover, .mdl-data-table th.mdl-data-table__header--sorted-descending:hover {
@@ -5227,7 +5227,7 @@ input.mdl-button[type="submit"] {
         .mdl-data-table th.mdl-data-table__header--sorted-ascending:hover:before, .mdl-data-table th.mdl-data-table__header--sorted-descending:hover:before {
           color: rgba(0, 0, 0, 0.26); }
     .mdl-data-table th.mdl-data-table__header--sorted-descending:before {
-      content: "\E5DB"; }
+      content: "\e5db"; }
 
 .mdl-data-table__select {
   width: 16px; }

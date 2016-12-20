@@ -11,9 +11,9 @@ import {
   host: {
     "[class.mdl-option__container]": "true"
   },
-  template: require("./option.html")
+  template: require("./option.component.html")
 })
-export class MdlOptionComponent {
+export class OptionComponent {
   @Input("value") public value: any;
   @ViewChild("contentWrapper") contentWrapper: ElementRef;
   public text: any;

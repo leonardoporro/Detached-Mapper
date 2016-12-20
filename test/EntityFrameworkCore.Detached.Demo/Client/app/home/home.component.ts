@@ -6,5 +6,5 @@
 })
 export class HomeComponent {
 
-    public v: number;
+    public selection: Array<any> = [];
 }

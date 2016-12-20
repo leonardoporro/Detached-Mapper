@@ -1,10 +1,8 @@
-﻿import 'reflect-metadata';
-import "zone.js";
-
+﻿import "zone.js";
+import "reflect-metadata";
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
 import { AppModule } from './app/app.module';
-
 
 const platform = platformBrowserDynamic();
 
@@ -15,7 +13,4 @@ if (module['hot']) {
     enableProdMode();
 }
 
-platform.bootstrapModule(AppModule);
-
-require("./index.scss");
-
+platform.bootstrapModule(AppModule); 

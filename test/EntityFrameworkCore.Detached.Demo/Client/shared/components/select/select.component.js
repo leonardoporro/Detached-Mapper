@@ -15,8 +15,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require("@angular/core");
 var forms_1 = require("@angular/forms");
-var popover_1 = require("../popover/popover");
-var option_1 = require("./option");
+var popover_component_1 = require("../popover/popover.component");
+var option_component_1 = require("./option.component");
 var uniq = function (array) { return Array.from(new Set(array)); };
 function randomId() {
     var S4 = function () { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); };
@@ -24,7 +24,7 @@ function randomId() {
 }
 exports.MDL_SELECT_VALUE_ACCESSOR = {
     provide: forms_1.NG_VALUE_ACCESSOR,
-    useExisting: core_1.forwardRef(function () { return MdlSelectComponent; }),
+    useExisting: core_1.forwardRef(function () { return SelectComponent; }),
     multi: true
 };
 var SearchableComponent = (function () {
@@ -50,9 +50,9 @@ var SearchableComponent = (function () {
     return SearchableComponent;
 }());
 exports.SearchableComponent = SearchableComponent;
-var MdlSelectComponent = (function (_super) {
-    __extends(MdlSelectComponent, _super);
-    function MdlSelectComponent(changeDetectionRef) {
+var SelectComponent = (function (_super) {
+    __extends(SelectComponent, _super);
+    function SelectComponent(changeDetectionRef) {
         _super.call(this);
         this.changeDetectionRef = changeDetectionRef;
         this.disabled = false;
@@ -66,13 +66,13 @@ var MdlSelectComponent = (function (_super) {
         this.focused = false;
         this.textfieldId = "mdl-textfield-" + randomId();
     }
-    MdlSelectComponent.prototype.ngAfterViewInit = function () {
+    SelectComponent.prototype.ngAfterViewInit = function () {
         var _this = this;
         this.bindOptions();
         this.renderValue(this.ngModel);
         this.optionComponents.changes.subscribe(function () { return _this.bindOptions(); });
     };
-    MdlSelectComponent.prototype.onKeydown = function ($event) {
+    SelectComponent.prototype.onKeydown = function ($event) {
         if (!this.disabled && this.popoverComponent.isVisible) {
             var closeKeys = ["Escape", "Tab", "Enter"];
             var closeKeyCodes = [13, 27, 9];
@@ -92,7 +92,7 @@ var MdlSelectComponent = (function (_super) {
             }
         }
     };
-    MdlSelectComponent.prototype.onCharacterKeydown = function ($event) {
+    SelectComponent.prototype.onCharacterKeydown = function ($event) {
         var _this = this;
         this.updateSearchQuery($event);
         var optionsList = this.optionComponents.toArray();
@@ -108,7 +108,7 @@ var MdlSelectComponent = (function (_super) {
         }
         $event.preventDefault();
     };
-    MdlSelectComponent.prototype.onArrowUp = function ($event) {
+    SelectComponent.prototype.onArrowUp = function ($event) {
         var arr = this.optionComponents.toArray();
         for (var i = 0; i < arr.length; i++) {
             if (arr[i].selected) {
@@ -120,7 +120,7 @@ var MdlSelectComponent = (function (_super) {
         }
         $event.preventDefault();
     };
-    MdlSelectComponent.prototype.onArrowDown = function ($event) {
+    SelectComponent.prototype.onArrowDown = function ($event) {
         var arr = this.optionComponents.toArray();
         var selectedOption = arr.find(function (option) { return option.selected; });
         if (selectedOption) {
@@ -134,17 +134,17 @@ var MdlSelectComponent = (function (_super) {
         }
         $event.preventDefault();
     };
-    MdlSelectComponent.prototype.addFocus = function () {
+    SelectComponent.prototype.addFocus = function () {
         this.focused = true;
     };
-    MdlSelectComponent.prototype.removeFocus = function () {
+    SelectComponent.prototype.removeFocus = function () {
         this.focused = false;
     };
-    MdlSelectComponent.prototype.isEmpty = function () {
+    SelectComponent.prototype.isEmpty = function () {
         return this.multiple ? !this.ngModel.length : !this.ngModel;
     };
     // rebind options and reset value in connected select
-    MdlSelectComponent.prototype.reset = function (resetValue) {
+    SelectComponent.prototype.reset = function (resetValue) {
         if (resetValue === void 0) { resetValue = true; }
         if (resetValue && !this.isEmpty()) {
             this.ngModel = this.multiple ? [] : "";
@@ -153,7 +153,7 @@ var MdlSelectComponent = (function (_super) {
             this.renderValue(this.ngModel);
         }
     };
-    MdlSelectComponent.prototype.bindOptions = function () {
+    SelectComponent.prototype.bindOptions = function () {
         var _this = this;
         this.optionComponents.forEach(function (selectOptionComponent) {
             selectOptionComponent.setMultiple(_this.multiple);
@@ -163,7 +163,7 @@ var MdlSelectComponent = (function (_super) {
             }
         });
     };
-    MdlSelectComponent.prototype.renderValue = function (value) {
+    SelectComponent.prototype.renderValue = function (value) {
         var _this = this;
         if (this.multiple) {
             this.text = value.map(function (value) { return _this.textByValue[_this.stringifyValue(value)]; }).join(", ");
@@ -178,30 +178,30 @@ var MdlSelectComponent = (function (_super) {
             });
         }
     };
-    MdlSelectComponent.prototype.stringifyValue = function (value) {
+    SelectComponent.prototype.stringifyValue = function (value) {
         switch (typeof value) {
             case "number": return String(value);
             case "object": return JSON.stringify(value);
             default: return (!!value) ? String(value) : "";
         }
     };
-    MdlSelectComponent.prototype.toggle = function ($event) {
+    SelectComponent.prototype.toggle = function ($event) {
         if (!this.disabled) {
             this.popoverComponent.toggle($event);
             $event.stopPropagation();
         }
     };
-    MdlSelectComponent.prototype.open = function ($event) {
+    SelectComponent.prototype.open = function ($event) {
         if (!this.disabled && !this.popoverComponent.isVisible) {
             this.popoverComponent.show($event);
         }
     };
-    MdlSelectComponent.prototype.close = function ($event) {
+    SelectComponent.prototype.close = function ($event) {
         if (!this.disabled && this.popoverComponent.isVisible) {
             this.popoverComponent.hide();
         }
     };
-    MdlSelectComponent.prototype.onSelect = function ($event, value) {
+    SelectComponent.prototype.onSelect = function ($event, value) {
         if (this.multiple) {
             // prevent popup close on click inside popover when selecting multiple
             $event.stopPropagation();
@@ -209,26 +209,26 @@ var MdlSelectComponent = (function (_super) {
         else {
             var popover = this.popoverComponent.elementRef.nativeElement;
             var list = popover.querySelector(".mdl-list");
-            var option_2 = null;
+            var option_1 = null;
             this.optionComponents.forEach(function (o) {
                 // not great for long lists because break is not available
                 if (o.value == value) {
-                    option_2 = o.contentWrapper.nativeElement;
+                    option_1 = o.contentWrapper.nativeElement;
                 }
             });
-            if (option_2) {
-                if (option_2.offsetTop > popover.clientHeight) {
-                    list.scrollTop += option_2.parentElement.clientHeight;
+            if (option_1) {
+                if (option_1.offsetTop > popover.clientHeight) {
+                    list.scrollTop += option_1.parentElement.clientHeight;
                 }
-                else if (option_2.offsetTop < list.scrollTop) {
-                    list.scrollTop -= option_2.parentElement.clientHeight;
+                else if (option_1.offsetTop < list.scrollTop) {
+                    list.scrollTop -= option_1.parentElement.clientHeight;
                 }
             }
         }
         this.writeValue(value);
         this.change.emit(this.ngModel);
     };
-    MdlSelectComponent.prototype.writeValue = function (value) {
+    SelectComponent.prototype.writeValue = function (value) {
         if (this.multiple) {
             this.ngModel = this.ngModel || [];
             if (!value || this.ngModel === value) {
@@ -249,68 +249,68 @@ var MdlSelectComponent = (function (_super) {
         this.onChange(this.ngModel);
         this.renderValue(this.ngModel);
     };
-    MdlSelectComponent.prototype.registerOnChange = function (fn) {
+    SelectComponent.prototype.registerOnChange = function (fn) {
         this.onChange = fn;
     };
-    MdlSelectComponent.prototype.registerOnTouched = function (fn) {
+    SelectComponent.prototype.registerOnTouched = function (fn) {
         this.onTouched = fn;
     };
-    MdlSelectComponent.prototype.getLabelVisibility = function () {
+    SelectComponent.prototype.getLabelVisibility = function () {
         return this.isFloatingLabel == null || (this.isFloatingLabel != null && this.text != null && this.text.length > 0) ? "block" : "none";
     };
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
-    ], MdlSelectComponent.prototype, "ngModel", void 0);
+    ], SelectComponent.prototype, "ngModel", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)
-    ], MdlSelectComponent.prototype, "disabled", void 0);
+    ], SelectComponent.prototype, "disabled", void 0);
     __decorate([
         core_1.Input("floating-label"), 
         __metadata('design:type', Object)
-    ], MdlSelectComponent.prototype, "isFloatingLabel", void 0);
+    ], SelectComponent.prototype, "isFloatingLabel", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], MdlSelectComponent.prototype, "placeholder", void 0);
+    ], SelectComponent.prototype, "placeholder", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)
-    ], MdlSelectComponent.prototype, "multiple", void 0);
+    ], SelectComponent.prototype, "multiple", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], MdlSelectComponent.prototype, "change", void 0);
+    ], SelectComponent.prototype, "change", void 0);
     __decorate([
-        core_1.ViewChild(popover_1.MdlPopoverComponent), 
-        __metadata('design:type', popover_1.MdlPopoverComponent)
-    ], MdlSelectComponent.prototype, "popoverComponent", void 0);
+        core_1.ViewChild(popover_component_1.PopoverComponent), 
+        __metadata('design:type', popover_component_1.PopoverComponent)
+    ], SelectComponent.prototype, "popoverComponent", void 0);
     __decorate([
-        core_1.ContentChildren(option_1.MdlOptionComponent), 
+        core_1.ContentChildren(option_component_1.OptionComponent), 
         __metadata('design:type', core_1.QueryList)
-    ], MdlSelectComponent.prototype, "optionComponents", void 0);
+    ], SelectComponent.prototype, "optionComponents", void 0);
     __decorate([
         core_1.HostListener("document:keydown", ["$event"]), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [KeyboardEvent]), 
         __metadata('design:returntype', void 0)
-    ], MdlSelectComponent.prototype, "onKeydown", null);
-    MdlSelectComponent = __decorate([
+    ], SelectComponent.prototype, "onKeydown", null);
+    SelectComponent = __decorate([
         core_1.Component({
             selector: "mdl-select",
             host: {
                 "[class.mdl-select]": "true",
                 "[class.mdl-select--floating-label]": "isFloatingLabel != null"
             },
-            templateUrl: "select.html",
-            //styleUrls: ["select.scss"],
+            template: require("./select.component.html"),
+            styles: [require("./select.component.scss")],
             encapsulation: core_1.ViewEncapsulation.None,
             providers: [exports.MDL_SELECT_VALUE_ACCESSOR]
         }), 
         __metadata('design:paramtypes', [core_1.ChangeDetectorRef])
-    ], MdlSelectComponent);
-    return MdlSelectComponent;
+    ], SelectComponent);
+    return SelectComponent;
 }(SearchableComponent));
-exports.MdlSelectComponent = MdlSelectComponent;
-//# sourceMappingURL=select.js.map
+exports.SelectComponent = SelectComponent;
+//# sourceMappingURL=select.component.js.map

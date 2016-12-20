@@ -1,21 +1,25 @@
 ﻿import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MdlPopoverComponent } from "./components/popover/popover";
-import { MdlSelectComponent, MDL_SELECT_VALUE_ACCESSOR } from "./components/select/select";
-import { MdlOptionComponent } from "./components/select/option";
+import { PopoverComponent } from "./components/popover/popover.component";
+import { SelectComponent, MDL_SELECT_VALUE_ACCESSOR } from "./components/select/select.component";
+import { OptionComponent } from "./components/select/option.component";
 
 @NgModule({
     imports: [CommonModule],
-    exports: [MdlPopoverComponent, MdlSelectComponent, MdlOptionComponent],
-    declarations: [MdlPopoverComponent, MdlSelectComponent, MdlOptionComponent],
+    exports: [
+        PopoverComponent,
+        SelectComponent,
+        OptionComponent
+    ],
+    declarations: [PopoverComponent, SelectComponent, OptionComponent],
     providers: [
         MDL_SELECT_VALUE_ACCESSOR
     ]
 })
-export class MdlSharedModule {
+export class SharedModule {
     static forRoot(): ModuleWithProviders {
         return {
-            ngModule: MdlSharedModule,
+            ngModule: SharedModule,
             providers: []
         };
     }

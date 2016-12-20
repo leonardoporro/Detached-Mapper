@@ -18,17 +18,4 @@ import "core-js/es6/typed";
 import "core-js/es6/reflect";
 import "core-js/es7/reflect";
 import "zone.js";
-import "reflect-metadata";
-// packages.
-import "@angular/platform-browser";
-import "@angular/platform-browser-dynamic";
-import "@angular/core";
-import "@angular/common";
-import "@angular/forms";
-import "@angular/http";
-import "@angular/router";
-import "rxjs/Rx";
-import "angular2-mdl";
-
-require("./vendor.scss");
-require("webpack-material-design-icons");
+import "reflect-metadata"; 
