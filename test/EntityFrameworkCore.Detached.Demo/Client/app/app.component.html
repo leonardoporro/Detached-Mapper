@@ -1,9 +1,8 @@
-﻿<mdl-layout mdl-layout-fixed-header mdl-layout-header-seamed>
+﻿<mdl-layout mdl-layout-fixed-header #appLayout="mdlLayout">
     <mdl-layout-header>
         <mdl-layout-header-row>
             <mdl-layout-title><strong>Detached</strong> for EF Core</mdl-layout-title>
             <mdl-layout-spacer></mdl-layout-spacer>
-
             <!--<nav class="mdl-navigation mdl-layout--large-screen-only">
                 <a class="mdl-navigation__link">Link</a>
                 <a class="mdl-navigation__link">Link</a>
@@ -12,11 +11,10 @@
         </mdl-layout-header-row>
     </mdl-layout-header>
     <mdl-layout-drawer>
-        <mdl-layout-title>Title</mdl-layout-title>
+        <mdl-layout-title>Detached</mdl-layout-title>
         <nav class="mdl-navigation">
-            <a class="mdl-navigation__link">Link</a>
-            <a class="mdl-navigation__link">Link</a>
-            <a class="mdl-navigation__link">Link</a>
+            <a class="mdl-navigation__link" [routerLink]="['/home']" (click)="appLayout.closeDrawer()">Home</a>
+            <a class="mdl-navigation__link" [routerLink]="['/security/users']" (click)="appLayout.closeDrawer()">Users example</a>
         </nav>
     </mdl-layout-drawer>
     <mdl-layout-content>

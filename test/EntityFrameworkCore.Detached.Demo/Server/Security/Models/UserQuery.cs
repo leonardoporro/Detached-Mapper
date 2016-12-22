@@ -1,9 +1,8 @@
-﻿using EntityFrameworkCore.Detached.Demo.Model;
-using EntityFrameworkCore.Detached.Tools;
+﻿using EntityFrameworkCore.Detached.Demo.Controllers;
+using EntityFrameworkCore.Detached.Demo.Security.Models;
 using System.Linq;
-using System;
 
-namespace EntityFrameworkCore.Detached.Demo.Controllers
+namespace EntityFrameworkCore.Detached.Demo.Server.Security.Controllers
 {
     public class UserQuery : QueryBase<User>
     {

@@ -1,0 +1,18 @@
+﻿<table class="mdl-data-table" style="width:100%">
+    <thead>
+        <tr>
+            <th><mdl-checkbox mdl-ripple [(ngModel)]="allSelected" (ngModelChange)="selectAll()"></mdl-checkbox></th>
+            <th *ngFor="let column of columns" class="mdl-data-table__cell--non-numeric">
+                {{column.title}}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of items; let index = index;" (click)="item.selected = !item.selected">
+            <td><mdl-checkbox mdl-ripple [(ngModel)]="item.selected"></mdl-checkbox></td>
+            <td *ngFor="let column of columns" class="mdl-data-table__cell--non-numeric">
+                <presenter [template]="column.template" [item]="item.model"></presenter>
+            </td>
+        </tr>
+    </tbody>
+</table>

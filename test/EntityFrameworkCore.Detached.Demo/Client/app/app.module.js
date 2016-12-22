@@ -12,12 +12,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var platform_browser_1 = require("@angular/platform-browser");
 var forms_1 = require("@angular/forms");
+var http_1 = require("@angular/http");
 var angular2_mdl_1 = require("angular2-mdl");
 // app modules.
 var shared_module_1 = require("../shared/shared.module");
 var app_component_1 = require("./app.component");
 var app_routing_module_1 = require("./app-routing.module");
 var home_component_1 = require("./home/home.component");
+var user_list_component_1 = require("./security/user-list.component");
+var user_edit_component_1 = require("./security/user-edit.component");
 require("./styles.scss");
 var AppModule = (function () {
     function AppModule() {
@@ -27,13 +30,16 @@ var AppModule = (function () {
             imports: [
                 platform_browser_1.BrowserModule,
                 forms_1.FormsModule,
+                http_1.HttpModule,
                 angular2_mdl_1.MdlModule,
                 shared_module_1.SharedModule,
                 app_routing_module_1.AppRoutingModule,
             ],
             declarations: [
                 app_component_1.AppComponent,
-                home_component_1.HomeComponent
+                home_component_1.HomeComponent,
+                user_list_component_1.UserListComponent,
+                user_edit_component_1.UserEditComponent
             ],
             bootstrap: [app_component_1.AppComponent]
         }), 

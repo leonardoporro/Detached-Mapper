@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached.Demo.Model
+namespace EntityFrameworkCore.Detached.Demo.Security.Models
 {
     public class Role
     {

@@ -1,0 +1,13 @@
+﻿
+<mdl-datatable [itemsSource]="items" [(selection)]="selection" #table>
+    <mdl-column title="Id">
+        <template let-item="item">
+            {{item.id}}
+        </template>
+    </mdl-column>
+    <mdl-column title="Name">
+        <template let-item="item">
+            {{item.name}}
+        </template>
+    </mdl-column>
+</mdl-datatable>

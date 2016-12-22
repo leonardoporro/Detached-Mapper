@@ -34,7 +34,7 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<IList<TEntity>> Get(TQuery query)
+        public virtual async Task<IList<TEntity>> Get(TQuery query = default(TQuery))
         {
             return await _detachedContext.Set<TEntity>().LoadAsync(q => query?.Apply(q));
         }

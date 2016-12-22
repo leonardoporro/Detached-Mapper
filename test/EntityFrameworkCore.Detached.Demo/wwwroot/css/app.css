@@ -2,3 +2,8 @@
   .mdl-layout__drawer-button {
     margin: 4px;
     color: white; } }
+
+.mdl-grid.center-items {
+  justify-content: center; }
+
+/*# sourceMappingURL=app.css.map*/

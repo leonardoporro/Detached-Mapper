@@ -8,6 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using EntityFrameworkCore.Detached;
+using EntityFrameworkCore.Detached.Demo.Model;
+using EntityFrameworkCore.Detached.Plugins.Seeding;
+using Microsoft.EntityFrameworkCore;
+using EntityFrameworkCore.Detached.Plugins.ManyToMany;
 
 namespace PrimeNgTest
 {
@@ -32,12 +37,15 @@ namespace PrimeNgTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddMvc();
+            services.AddDbContext<DefaultContext>(ctx =>
+                ctx.UseSqlServer(Configuration.GetConnectionString("Default"))
+                   .UseDetached(dconf => dconf.UseManyToManyHelper()));
+            services.AddScoped(typeof(IDetachedContext<>), typeof(DetachedContext<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IDetachedContext<DefaultContext> detached)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -62,12 +70,15 @@ namespace PrimeNgTest
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Main}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapSpaFallbackRoute(
                     name: "spa-fallback",
-                    defaults: new { controller = "Main", action = "Index" });
+                    defaults: new { controller = "Home", action = "Index" });
             });
+
+            detached.DbContext.Database.EnsureCreated();
+            detached.SeedFromJsonFileAsync("./Server/Seed.json").GetAwaiter().GetResult();
         }
     }
 }

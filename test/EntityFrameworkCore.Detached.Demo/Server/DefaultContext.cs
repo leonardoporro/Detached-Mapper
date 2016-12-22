@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EntityFrameworkCore.Detached.Demo.Security.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntityFrameworkCore.Detached.Demo.Model

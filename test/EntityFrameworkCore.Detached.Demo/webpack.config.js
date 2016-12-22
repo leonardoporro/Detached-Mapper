@@ -6,15 +6,19 @@ module.exports = {
     entry: {
         app: ["./client/main"]
     },
+    devtool: "source-map",
     output: {
         filename: "[name].js",
         path: __dirname + "/wwwroot/js",
         publicPath: "/"
     },
     module: {
+        preLoaders: [
+            { test:   /\.js$/, loader: "source-map-loader" }
+        ],
         loaders: [
             // all typescript.
-            { test: /\.ts$/, loader: "ts" },
+            //{ test: /\.ts$/, loader: "ts" },
             // component embedded styles and templates.
             { test: /\.component\.html$/, loader: "raw" },
             { test: /\.component\.css$/, loaders: ["to-string", "css"] },

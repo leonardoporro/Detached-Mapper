@@ -4,18 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Angular2Application2.Controllers
+namespace EntityFrameworkCore.Detached.Demo.Server.Home
 {
-    public class MainController : Controller
+    public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return View("Server/Main/Index.cshtml");
+            return View("./Server/Home/Views/Index.cshtml");
         }
 
         public IActionResult Error()
         {
-            return View();
+            return View("./Server/Home/Views/Error.cshtml");
         }
     }
 }
