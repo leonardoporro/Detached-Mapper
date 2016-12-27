@@ -35,7 +35,7 @@ module.exports = {
        extractCss,
        new webpack.DllReferencePlugin({
            context: __dirname,
-           manifest: require("./wwwroot/js/dll-manifest.json")
+           manifest: require("./wwwroot/js/vendor-manifest.json")
        })
     ]
 };

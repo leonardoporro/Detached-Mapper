@@ -6,16 +6,18 @@
     "@angular/common": "2.3.0",
     "@angular/compiler": "2.3.0",
     "@angular/core": "2.3.0",
+    "@angular/flex-layout": "2.0.0-beta.1",
     "@angular/forms": "2.3.0",
     "@angular/http": "2.3.0",
+    "@angular/material": "2.0.0-beta.1",
     "@angular/platform-browser": "2.3.0",
     "@angular/platform-browser-dynamic": "2.3.0",
     "@angular/router": "3.4.0",
-    "angular2-mdl": "2.9.0",
+    "core-js": "2.4.1",
+    "hammerjs": "2.0.8",
     "reflect-metadata": "0.1.8",
     "rxjs": "5.0.0-rc.4",
-    "zone.js": "0.7.4",
-    "core-js": "2.4.1"
+    "zone.js": "0.7.4"
   },
   "devDependencies": {
     "@types/node": "6.0.46",
@@ -27,15 +29,10 @@
     "raw-loader": "0.5.1",
     "sass-loader": "4.1.0",
     "style-loader": "0.13.1",
-    "ts-loader": "1.3.2",
-    "typescript": "2.1.4",
     "url-loader": "0.5.7",
     "webpack": "1.14.0",
     "webpack-hot-middleware": "2.13.2",
     "webpack-material-design-icons": "0.0.2",
-    "awesome-typescript-loader": "3.0.0-beta.17",
-    "angular2-template-loader": "0.6.0",
-    "html-loader": "0.4.4",
     "to-string-loader": "1.1.5",
     "source-map-loader": "0.1.5"
   }

@@ -8,17 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-// angular 2 modules.
+// angular 2
 var core_1 = require("@angular/core");
 var platform_browser_1 = require("@angular/platform-browser");
 var forms_1 = require("@angular/forms");
 var http_1 = require("@angular/http");
-var angular2_mdl_1 = require("angular2-mdl");
-// app modules.
+var material_1 = require("@angular/material");
+var flex_layout_1 = require("@angular/flex-layout");
+// app
 var shared_module_1 = require("../shared/shared.module");
-var app_component_1 = require("./app.component");
 var app_routing_module_1 = require("./app-routing.module");
+var app_nav_component_1 = require("./app-nav.component");
+var app_component_1 = require("./app.component");
+// home
 var home_component_1 = require("./home/home.component");
+// user
 var user_list_component_1 = require("./security/user-list.component");
 var user_edit_component_1 = require("./security/user-edit.component");
 require("./styles.scss");
@@ -31,12 +35,14 @@ var AppModule = (function () {
                 platform_browser_1.BrowserModule,
                 forms_1.FormsModule,
                 http_1.HttpModule,
-                angular2_mdl_1.MdlModule,
+                flex_layout_1.FlexLayoutModule.forRoot(),
+                material_1.MaterialModule.forRoot(),
                 shared_module_1.SharedModule,
                 app_routing_module_1.AppRoutingModule,
             ],
             declarations: [
                 app_component_1.AppComponent,
+                app_nav_component_1.AppNavComponent,
                 home_component_1.HomeComponent,
                 user_list_component_1.UserListComponent,
                 user_edit_component_1.UserEditComponent

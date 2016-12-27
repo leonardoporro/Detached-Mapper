@@ -1,11 +1,9 @@
-﻿@media screen and (max-width: 1024px)
-{
-    .mdl-layout__drawer-button {
-        margin: 4px;
-        color: rgb(255,255,255);
-    }
+﻿html, body, app, md-sidenav-container, .my-content {
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.mdl-grid.center-items {
-  justify-content: center;
+md-sidenav {
+  width: 280px;
 }

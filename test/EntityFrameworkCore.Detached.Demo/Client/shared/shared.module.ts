@@ -1,14 +1,15 @@
-﻿import { ModuleWithProviders, NgModule } from "@angular/core";
+﻿import { NgModule, ModuleWithProviders } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { MdlModule } from "angular2-mdl";
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MaterialModule } from "@angular/material";
 
 import { PopoverComponent } from "./components/popover/popover.component";
 import { SelectComponent, MDL_SELECT_VALUE_ACCESSOR } from "./components/select/select.component";
 import { OptionComponent } from "./components/select/option.component";
 
-import { DataTableComponent } from "./components/datatable/datatable.component";
-import { ColumnComponent } from "./components/datatable/column.component";
+import { DataTableComponent } from "./components/data-table/data-table.component";
+import { DataColumnComponent } from "./components/data-table/data-column.component";
 
 import { PresenterDirective } from "./directives/presenter/presenter.directive";
 
@@ -16,7 +17,8 @@ import { PresenterDirective } from "./directives/presenter/presenter.directive";
     imports: [
         CommonModule,
         FormsModule,
-        MdlModule
+        FlexLayoutModule,
+        MaterialModule
     ],
     exports: [
         PresenterDirective,
@@ -24,7 +26,7 @@ import { PresenterDirective } from "./directives/presenter/presenter.directive";
         SelectComponent,
         OptionComponent,
         DataTableComponent,
-        ColumnComponent
+        DataColumnComponent
     ],
     declarations: [
         PresenterDirective,
@@ -32,7 +34,8 @@ import { PresenterDirective } from "./directives/presenter/presenter.directive";
         SelectComponent,
         OptionComponent,
         DataTableComponent,
-        ColumnComponent],
+        DataColumnComponent
+    ],
     providers: [
         MDL_SELECT_VALUE_ACCESSOR
     ]

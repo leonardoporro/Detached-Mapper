@@ -1,13 +1,27 @@
-﻿
-<mdl-datatable [itemsSource]="items" [(selection)]="selection" #table>
-    <mdl-column title="Id">
-        <template let-item="item">
-            {{item.id}}
-        </template>
-    </mdl-column>
-    <mdl-column title="Name">
-        <template let-item="item">
-            {{item.name}}
-        </template>
-    </mdl-column>
-</mdl-datatable>
+﻿<md-toolbar color="primary">
+    <button md-button (click)="sidenav.open()"><span class="material-icons">menu</span></button>
+    <span>Users</span>
+    <div fxFlex></div>
+    <button md-button align="end">New</button>
+    <button md-button align="end">Delete</button>
+</md-toolbar>
+
+<md-sidenav-container>
+    <md-sidenav #sidenav>
+        <app-nav></app-nav>
+    </md-sidenav>
+
+    <md-data-table [itemsSource]="items" [(selection)]="selection" #table>
+        <md-data-column title="Id">
+            <template let-item="item">
+                {{item.id}}
+            </template>
+        </md-data-column>
+        <md-data-column title="Name">
+            <template let-item="item">
+                {{item.name}}
+            </template>
+        </md-data-column>
+    </md-data-table>
+
+</md-sidenav-container>

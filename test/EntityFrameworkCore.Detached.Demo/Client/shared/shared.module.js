@@ -11,12 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var common_1 = require("@angular/common");
 var forms_1 = require("@angular/forms");
-var angular2_mdl_1 = require("angular2-mdl");
+var flex_layout_1 = require("@angular/flex-layout");
+var material_1 = require("@angular/material");
 var popover_component_1 = require("./components/popover/popover.component");
 var select_component_1 = require("./components/select/select.component");
 var option_component_1 = require("./components/select/option.component");
-var datatable_component_1 = require("./components/datatable/datatable.component");
-var column_component_1 = require("./components/datatable/column.component");
+var data_table_component_1 = require("./components/data-table/data-table.component");
+var data_column_component_1 = require("./components/data-table/data-column.component");
 var presenter_directive_1 = require("./directives/presenter/presenter.directive");
 var SharedModule = (function () {
     function SharedModule() {
@@ -32,23 +33,25 @@ var SharedModule = (function () {
             imports: [
                 common_1.CommonModule,
                 forms_1.FormsModule,
-                angular2_mdl_1.MdlModule
+                flex_layout_1.FlexLayoutModule,
+                material_1.MaterialModule
             ],
             exports: [
                 presenter_directive_1.PresenterDirective,
                 popover_component_1.PopoverComponent,
                 select_component_1.SelectComponent,
                 option_component_1.OptionComponent,
-                datatable_component_1.DataTableComponent,
-                column_component_1.ColumnComponent
+                data_table_component_1.DataTableComponent,
+                data_column_component_1.DataColumnComponent
             ],
             declarations: [
                 presenter_directive_1.PresenterDirective,
                 popover_component_1.PopoverComponent,
                 select_component_1.SelectComponent,
                 option_component_1.OptionComponent,
-                datatable_component_1.DataTableComponent,
-                column_component_1.ColumnComponent],
+                data_table_component_1.DataTableComponent,
+                data_column_component_1.DataColumnComponent
+            ],
             providers: [
                 select_component_1.MDL_SELECT_VALUE_ACCESSOR
             ]

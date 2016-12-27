@@ -20,6 +20,9 @@ var UserListComponent = (function () {
         this.userService.get(null)
             .subscribe(function (r) { return _this.items = r; });
     };
+    UserListComponent.prototype.anda = function () {
+        alert("anda");
+    };
     UserListComponent = __decorate([
         core_1.Component({
             selector: "user-list",

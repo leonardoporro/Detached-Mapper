@@ -1,18 +1,20 @@
-﻿// angular 2 modules.
+﻿// angular 2
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { HttpModule } from "@angular/http";
-import { MdlModule } from "angular2-mdl";
+import { MaterialModule } from "@angular/material";
+import { FlexLayoutModule } from "@angular/flex-layout"; 
 
-// app modules.
+// app
 import { SharedModule } from "../shared/shared.module";
-import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
-
+import { AppNavComponent } from "./app-nav.component";
+import { AppComponent } from "./app.component";
+// home
 import { HomeComponent } from "./home/home.component";
-
+// user
 import { UserListComponent } from "./security/user-list.component";
 import { UserEditComponent } from "./security/user-edit.component";
 
@@ -23,12 +25,14 @@ require("./styles.scss");
         BrowserModule,
         FormsModule,
         HttpModule,
-        MdlModule,
+        FlexLayoutModule.forRoot(),
+        MaterialModule.forRoot(),
         SharedModule, 
         AppRoutingModule,
     ],
     declarations: [
         AppComponent,
+        AppNavComponent,
         HomeComponent,
         UserListComponent,
         UserEditComponent

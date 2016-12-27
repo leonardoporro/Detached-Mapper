@@ -17,4 +17,8 @@ export class UserListComponent implements OnInit {
         this.userService.get(null)
             .subscribe(r => this.items = r);
     }
+
+    anda() {
+        alert("anda");
+    }
 }
