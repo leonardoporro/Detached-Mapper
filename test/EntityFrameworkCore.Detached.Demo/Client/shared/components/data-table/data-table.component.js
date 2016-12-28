@@ -83,6 +83,7 @@ var DataTableComponent = (function (_super) {
             selector: 'md-data-table',
             template: require("./data-table.component.html"),
             encapsulation: core_1.ViewEncapsulation.None,
+            styles: [require("./data-table.component.scss")],
             inputs: ["itemsSource", "selection"]
         }), 
         __metadata('design:paramtypes', [])

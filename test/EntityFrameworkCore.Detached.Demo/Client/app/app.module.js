@@ -25,6 +25,7 @@ var home_component_1 = require("./home/home.component");
 // user
 var user_list_component_1 = require("./security/user-list.component");
 var user_edit_component_1 = require("./security/user-edit.component");
+require("./material.scss");
 require("./styles.scss");
 var AppModule = (function () {
     function AppModule() {

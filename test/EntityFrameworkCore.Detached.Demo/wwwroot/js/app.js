@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "4f8a0db0714b5f86a9ee"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "168805486589cdfa0049"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -1928,7 +1928,7 @@
 /* 17 */
 /***/ function(module, exports) {
 
-	module.exports = vendor_01804953c6d4628de352;
+	module.exports = vendor_cfb8dfb02e66867e8ddc;
 
 /***/ },
 /* 18 */
@@ -1977,15 +1977,16 @@
 	var flex_layout_1 = __webpack_require__(27);
 	// app
 	var shared_module_1 = __webpack_require__(31);
-	var app_routing_module_1 = __webpack_require__(48);
-	var app_nav_component_1 = __webpack_require__(58);
-	var app_component_1 = __webpack_require__(60);
+	var app_routing_module_1 = __webpack_require__(50);
+	var app_nav_component_1 = __webpack_require__(60);
+	var app_component_1 = __webpack_require__(62);
 	// home
-	var home_component_1 = __webpack_require__(50);
+	var home_component_1 = __webpack_require__(52);
 	// user
-	var user_list_component_1 = __webpack_require__(52);
-	var user_edit_component_1 = __webpack_require__(56);
-	__webpack_require__(62);
+	var user_list_component_1 = __webpack_require__(54);
+	var user_edit_component_1 = __webpack_require__(58);
+	__webpack_require__(64);
+	__webpack_require__(65);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
@@ -5324,7 +5325,7 @@
 	var option_component_1 = __webpack_require__(39);
 	var data_table_component_1 = __webpack_require__(44);
 	var data_column_component_1 = __webpack_require__(45);
-	var presenter_directive_1 = __webpack_require__(47);
+	var presenter_directive_1 = __webpack_require__(49);
 	var SharedModule = (function () {
 	    function SharedModule() {
 	    }
@@ -6089,6 +6090,7 @@
 	            selector: 'md-data-table',
 	            template: __webpack_require__(46),
 	            encapsulation: core_1.ViewEncapsulation.None,
+	            styles: [__webpack_require__(47)],
 	            inputs: ["itemsSource", "selection"]
 	        }), 
 	        __metadata('design:paramtypes', [])
@@ -6142,10 +6144,31 @@
 /* 46 */
 /***/ function(module, exports) {
 
-	module.exports = "<table class=\"md-table\">\r\n    <thead>\r\n        <tr>\r\n            <th><md-checkbox [(ngModel)]=\"allSelected\" (ngModelChange)=\"selectAll()\"></md-checkbox></th>\r\n            <th *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                {{column.title}}\r\n            </th>\r\n            <th></th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\">\r\n            <td><md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox></td>\r\n            <td *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                <presenter [template]=\"column.template\" [item]=\"item.model\"></presenter>\r\n            </td>\r\n            <td style=\"width:100%\"></td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
+	module.exports = "<!--<ng-content select=\"md-table-card-header\"></ng-content>-->\r\n<table>\r\n    <thead>\r\n        <tr>\r\n            <th><md-checkbox [(ngModel)]=\"allSelected\" (ngModelChange)=\"selectAll()\"></md-checkbox></th>\r\n            <th *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                {{column.title}}\r\n            </th>\r\n            <th></th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\">\r\n            <td><md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox></td>\r\n            <td *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                <presenter [template]=\"column.template\" [item]=\"item.model\"></presenter>\r\n            </td>\r\n            <td style=\"width:100%\"></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<!--<ng-content select=\"md-table-card-footer\"></ng-content>-->"
 
 /***/ },
 /* 47 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	        var result = __webpack_require__(48);
+	
+	        if (typeof result === "string") {
+	            module.exports = result;
+	        } else {
+	            module.exports = result.toString();
+	        }
+	    
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(37)();
+	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/*header*/\n/*body*/\nmd-data-table {\n  position: relative; }\n  md-data-table table {\n    position: relative;\n    white-space: nowrap;\n    border-collapse: collapse;\n    background-color: white;\n    font-size: 13px;\n    font-family: Roboto, \"Helvetica Neue\", sans-serif; }\n    md-data-table table thead tr th {\n      position: relative;\n      padding: 0 18px 12px 18px;\n      text-align: right;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      height: 48px;\n      font-size: 12px;\n      color: rgba(0, 0, 0, 0.54);\n      padding-bottom: 8px;\n      box-sizing: border-box; }\n      md-data-table table thead tr th:first-of-type {\n        padding-left: 24px; }\n      md-data-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    md-data-table table tbody tr {\n      position: relative;\n      height: 48px;\n      transition-property: background-color;\n      border-bottom: 1px solid rgba(0, 0, 0, 0.12); }\n      md-data-table table tbody tr.is-selected {\n        background-color: #eeeeee; }\n      md-data-table table tbody tr:hover {\n        background-color: #e5e5e5; }\n      md-data-table table tbody tr td {\n        position: relative;\n        padding: 0 18px 12px 18px;\n        vertical-align: middle;\n        height: 48px;\n        border-top: 1px solid rgba(0, 0, 0, 0.12);\n        border-bottom: 1px solid rgba(0, 0, 0, 0.12);\n        padding-top: 12px;\n        box-sizing: border-box; }\n        md-data-table table tbody tr td:first-of-type {\n          padding-left: 24px; }\n        md-data-table table tbody tr td:last-of-type {\n          padding-right: 24px; }\n", ""]);
+
+/***/ },
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6193,7 +6216,7 @@
 
 
 /***/ },
-/* 48 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6207,10 +6230,10 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(49);
-	var home_component_1 = __webpack_require__(50);
-	var user_list_component_1 = __webpack_require__(52);
-	var user_edit_component_1 = __webpack_require__(56);
+	var router_1 = __webpack_require__(51);
+	var home_component_1 = __webpack_require__(52);
+	var user_list_component_1 = __webpack_require__(54);
+	var user_edit_component_1 = __webpack_require__(58);
 	var appRoutes = [
 	    { path: "", redirectTo: "home", pathMatch: "full" },
 	    { path: "home", component: home_component_1.HomeComponent },
@@ -6243,13 +6266,13 @@
 
 
 /***/ },
-/* 49 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(304);
 
 /***/ },
-/* 50 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6270,7 +6293,7 @@
 	    HomeComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-home",
-	            template: __webpack_require__(51)
+	            template: __webpack_require__(53)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], HomeComponent);
@@ -6280,13 +6303,13 @@
 
 
 /***/ },
-/* 51 */
+/* 53 */
 /***/ function(module, exports) {
 
 	module.exports = "<h1></h1>\r\n<h3>Choose an option from the left panel.</h3>"
 
 /***/ },
-/* 52 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6300,7 +6323,7 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var user_service_1 = __webpack_require__(53);
+	var user_service_1 = __webpack_require__(55);
 	var UserListComponent = (function () {
 	    function UserListComponent(userService) {
 	        this.userService = userService;
@@ -6317,7 +6340,7 @@
 	    UserListComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-list",
-	            template: __webpack_require__(55),
+	            template: __webpack_require__(57),
 	            providers: [user_service_1.UserService]
 	        }), 
 	        __metadata('design:paramtypes', [user_service_1.UserService])
@@ -6328,7 +6351,7 @@
 
 
 /***/ },
-/* 53 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6343,7 +6366,7 @@
 	};
 	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	__webpack_require__(54);
+	__webpack_require__(56);
 	var UserService = (function () {
 	    function UserService(http) {
 	        this.http = http;
@@ -6388,19 +6411,19 @@
 
 
 /***/ },
-/* 54 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(354);
 
 /***/ },
-/* 55 */
+/* 57 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button align=\"end\">New</button>\r\n    <button md-button align=\"end\">Delete</button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n\r\n    <md-data-table [itemsSource]=\"items\" [(selection)]=\"selection\" #table>\r\n        <md-data-column title=\"Id\">\r\n            <template let-item=\"item\">\r\n                {{item.id}}\r\n            </template>\r\n        </md-data-column>\r\n        <md-data-column title=\"Name\">\r\n            <template let-item=\"item\">\r\n                {{item.name}}\r\n            </template>\r\n        </md-data-column>\r\n    </md-data-table>\r\n\r\n</md-sidenav-container>"
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button align=\"end\">New</button>\r\n    <button md-button align=\"end\">Delete</button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    <div class=\"flex-container\" fxLayout=\"row\">\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n\r\n        <div class=\"flex-item\" fxFlex>\r\n\r\n            <md-data-table [itemsSource]=\"items\" [(selection)]=\"selection\" #table>\r\n                <md-data-column title=\"Id\">\r\n                    <template let-item=\"item\">\r\n                        {{item.id}}\r\n                    </template>\r\n                </md-data-column>\r\n                <md-data-column title=\"Name\">\r\n                    <template let-item=\"item\">\r\n                        {{item.name}}\r\n                    </template>\r\n                </md-data-column>\r\n            </md-data-table>\r\n        </div>\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n    </div>\r\n\r\n\r\n</md-sidenav-container>"
 
 /***/ },
-/* 56 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6420,7 +6443,7 @@
 	    UserEditComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-edit",
-	            template: __webpack_require__(57)
+	            template: __webpack_require__(59)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], UserEditComponent);
@@ -6430,13 +6453,13 @@
 
 
 /***/ },
-/* 57 */
+/* 59 */
 /***/ function(module, exports) {
 
 	module.exports = "user edit!"
 
 /***/ },
-/* 58 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6456,7 +6479,7 @@
 	    AppNavComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-nav",
-	            template: __webpack_require__(59)
+	            template: __webpack_require__(61)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppNavComponent);
@@ -6466,13 +6489,13 @@
 
 
 /***/ },
-/* 59 */
+/* 61 */
 /***/ function(module, exports) {
 
 	module.exports = "<ul>\r\n    <li>\r\n        <a [routerLink]=\"['/home']\">Home</a>\r\n    </li>\r\n    <li>\r\n        <a [routerLink]=\"['/security/users']\">Users example</a>\r\n    </li>\r\n</ul>"
 
 /***/ },
-/* 60 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6492,7 +6515,7 @@
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: "app",
-	            template: __webpack_require__(61)
+	            template: __webpack_require__(63)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppComponent);
@@ -6502,13 +6525,19 @@
 
 
 /***/ },
-/* 61 */
+/* 63 */
 /***/ function(module, exports) {
 
 	module.exports = "<router-outlet></router-outlet>\r\n"
 
 /***/ },
-/* 62 */
+/* 64 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 65 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

@@ -1,7 +1,7 @@
 {
-  "name": "vendor_01804953c6d4628de352",
+  "name": "vendor_cfb8dfb02e66867e8ddc",
   "content": {
-    "./client/vendor/polyfills.js": 1,
+    "./client/polyfills.js": 1,
     "./node_modules/core-js/es6/symbol.js": 2,
     "./node_modules/core-js/modules/es6.symbol.js": 3,
     "./node_modules/core-js/modules/_global.js": 4,
@@ -276,7 +276,7 @@
     "./node_modules/zone.js/dist/zone.js": 273,
     "./node_modules/process/browser.js": 274,
     "./node_modules/reflect-metadata/Reflect.js": 275,
-    "./client/vendor/vendor.js": 276,
+    "./client/vendor.js": 276,
     "./node_modules/@angular/platform-browser/bundles/platform-browser.umd.js": 277,
     "./node_modules/@angular/common/bundles/common.umd.js": 278,
     "./node_modules/@angular/core/bundles/core.umd.js": 279,
@@ -630,7 +630,6 @@
     "./node_modules/rxjs/scheduler/AnimationFrameScheduler.js": 627,
     "./node_modules/hammerjs/hammer.js": 628,
     "./node_modules/webpack-material-design-icons/index.js": 629,
-    "./node_modules/webpack-material-design-icons/material-design-icons.css": 630,
-    "./client/vendor/material-theme.scss": 636
+    "./node_modules/webpack-material-design-icons/material-design-icons.css": 630
   }
 }

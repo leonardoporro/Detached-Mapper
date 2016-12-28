@@ -18,6 +18,7 @@ import { HomeComponent } from "./home/home.component";
 import { UserListComponent } from "./security/user-list.component";
 import { UserEditComponent } from "./security/user-edit.component";
 
+require("./material.scss");
 require("./styles.scss");
 
 @NgModule({

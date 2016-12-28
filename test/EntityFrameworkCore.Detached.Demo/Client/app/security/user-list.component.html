@@ -10,18 +10,29 @@
     <md-sidenav #sidenav>
         <app-nav></app-nav>
     </md-sidenav>
+    <p></p>
+    <div class="flex-container" fxLayout="row">
 
-    <md-data-table [itemsSource]="items" [(selection)]="selection" #table>
-        <md-data-column title="Id">
-            <template let-item="item">
-                {{item.id}}
-            </template>
-        </md-data-column>
-        <md-data-column title="Name">
-            <template let-item="item">
-                {{item.name}}
-            </template>
-        </md-data-column>
-    </md-data-table>
+        <div class="flex-item" fxFlex="20%"></div>
+
+        <div class="flex-item" fxFlex>
+
+            <md-data-table [itemsSource]="items" [(selection)]="selection" #table>
+                <md-data-column title="Id">
+                    <template let-item="item">
+                        {{item.id}}
+                    </template>
+                </md-data-column>
+                <md-data-column title="Name">
+                    <template let-item="item">
+                        {{item.name}}
+                    </template>
+                </md-data-column>
+            </md-data-table>
+        </div>
+
+        <div class="flex-item" fxFlex="20%"></div>
+    </div>
+
 
 </md-sidenav-container>

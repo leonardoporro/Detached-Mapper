@@ -1,12 +1,12 @@
 import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ViewEncapsulation,
-  ContentChild,
-  ContentChildren,
-  TemplateRef,
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ViewEncapsulation,
+    ContentChild,
+    ContentChildren,
+    TemplateRef,
 } from '@angular/core';
 import { DataColumnComponent } from "./data-column.component";
 
@@ -67,9 +67,10 @@ class ItemsComponent {
     selector: 'md-data-table',
     template: require("./data-table.component.html"),
     encapsulation: ViewEncapsulation.None,
+    styles: [require("./data-table.component.scss")],
     inputs: ["itemsSource", "selection"]
 })
-export class DataTableComponent extends ItemsComponent{
+export class DataTableComponent extends ItemsComponent {
 
     @ContentChildren(DataColumnComponent)
     columns: Array<DataColumnComponent>;

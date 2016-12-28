@@ -5,7 +5,7 @@ let extractCss = new ExtractTextPlugin("../css/[name].css");
 module.exports = {
     cache: true,
     entry: {
-        vendor: ["./client/vendor/polyfills", "./client/vendor/vendor"]
+        vendor: ["./client/polyfills", "./client/vendor"]
     },
     output: {
         filename: "[name].js",
