@@ -14,14 +14,16 @@ var UserListComponent = (function () {
     function UserListComponent(userService) {
         this.userService = userService;
         this.items = [];
+        this.sel = [];
     }
     UserListComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.userService.get(null)
             .subscribe(function (r) { return _this.items = r; });
-    };
-    UserListComponent.prototype.anda = function () {
-        alert("anda");
+        this.sel.push({
+            id: 2,
+            name: "User 2"
+        });
     };
     UserListComponent = __decorate([
         core_1.Component({

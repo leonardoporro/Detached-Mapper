@@ -1,22 +1,28 @@
-﻿<!--<ng-content select="md-table-card-header"></ng-content>-->
-<table>
+﻿<table>
     <thead>
         <tr>
-            <th><md-checkbox [(ngModel)]="allSelected" (ngModelChange)="selectAll()"></md-checkbox></th>
-            <th *ngFor="let column of columns" class="mdl-data-table__cell--non-numeric">
-                {{column.title}}
+            <th>
+                <md-checkbox [(ngModel)]="allSelected"></md-checkbox>
             </th>
-            <th></th>
+            <th *ngFor="let column of columns" (click)="column.toggleOrder()" [ngClass]="column.type + ' ' + (column.order ? 'sorted' : '')">
+                <span>{{column.title}}</span>
+                <span *ngIf="column.order" class="material-icons">
+                    {{ column.order == 1 ? 'arrow_upward' : (column.order == 2 ? 'arrow_downward' : ' ')  }}
+                </span>
+            </th>
+            <th style="width:100%"></th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let item of items; let index = index;">
-            <td><md-checkbox [(ngModel)]="item.selected"></md-checkbox></td>
-            <td *ngFor="let column of columns" class="mdl-data-table__cell--non-numeric">
-                <presenter [template]="column.template" [item]="item.model"></presenter>
+        <tr *ngFor="let item of items; let index = index;" [ngClass]="{'selected': item.selected}">
+            <td>
+                <md-checkbox [(ngModel)]="item.selected"></md-checkbox>
+            </td>
+            <td *ngFor="let column of columns" [ngClass]="column.type">
+                <item-content *ngIf="column.template" [template]="column.template" [item]="item" [index]="index"></item-content>
+                <span *ngIf="!column.template">{{item.model[column.property]}}</span>
             </td>
             <td style="width:100%"></td>
         </tr>
     </tbody>
 </table>
-<!--<ng-content select="md-table-card-footer"></ng-content>-->

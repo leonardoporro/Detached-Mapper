@@ -9,35 +9,42 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var PresenterDirective = (function () {
-    function PresenterDirective(viewContainer, cdr) {
+var items_component_1 = require("./items.component");
+var ItemContentDirective = (function () {
+    function ItemContentDirective(viewContainer, cdr) {
         this.viewContainer = viewContainer;
         this.cdr = cdr;
     }
-    PresenterDirective.prototype.ngOnInit = function () {
+    ItemContentDirective.prototype.ngOnInit = function () {
         this.cdr.detach();
     };
-    PresenterDirective.prototype.ngAfterViewInit = function () {
+    ItemContentDirective.prototype.ngAfterViewInit = function () {
         var _this = this;
         var view = this.viewContainer.createEmbeddedView(this.template);
         view.context.item = this.item;
+        view.context.model = this.item.model;
+        view.context.index = this.index;
         setTimeout(function () { return _this.cdr.reattach(); });
     };
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', Object)
-    ], PresenterDirective.prototype, "item", void 0);
+        __metadata('design:type', items_component_1.Item)
+    ], ItemContentDirective.prototype, "item", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Number)
+    ], ItemContentDirective.prototype, "index", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', core_1.TemplateRef)
-    ], PresenterDirective.prototype, "template", void 0);
-    PresenterDirective = __decorate([
+    ], ItemContentDirective.prototype, "template", void 0);
+    ItemContentDirective = __decorate([
         core_1.Directive({
-            selector: "presenter"
+            selector: "item-content"
         }), 
         __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.ChangeDetectorRef])
-    ], PresenterDirective);
-    return PresenterDirective;
+    ], ItemContentDirective);
+    return ItemContentDirective;
 }());
-exports.PresenterDirective = PresenterDirective;
-//# sourceMappingURL=presenter.directive.js.map
+exports.ItemContentDirective = ItemContentDirective;
+//# sourceMappingURL=item-content.directive.js.map

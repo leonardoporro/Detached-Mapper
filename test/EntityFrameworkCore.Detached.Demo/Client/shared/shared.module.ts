@@ -5,13 +5,13 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MaterialModule } from "@angular/material";
 
 import { PopoverComponent } from "./components/popover/popover.component";
-import { SelectComponent, MDL_SELECT_VALUE_ACCESSOR } from "./components/select/select.component";
-import { OptionComponent } from "./components/select/option.component";
+import { SelectComponent, MDL_SELECT_VALUE_ACCESSOR } from "./components/data-select/select.component";
+import { OptionComponent } from "./components/data-select/option.component";
 
 import { DataTableComponent } from "./components/data-table/data-table.component";
-import { DataColumnComponent } from "./components/data-table/data-column.component";
 
-import { PresenterDirective } from "./directives/presenter/presenter.directive";
+import { ItemContentDirective } from "./components/core/item-content.directive";
+import { ColumnDirective } from "./components/core/column.directive";
 
 @NgModule({
     imports: [
@@ -21,20 +21,20 @@ import { PresenterDirective } from "./directives/presenter/presenter.directive";
         MaterialModule
     ],
     exports: [
-        PresenterDirective,
+        ItemContentDirective,
+        ColumnDirective,
         PopoverComponent,
         SelectComponent,
         OptionComponent,
-        DataTableComponent,
-        DataColumnComponent
+        DataTableComponent
     ],
     declarations: [
-        PresenterDirective,
+        ItemContentDirective,
+        ColumnDirective,
         PopoverComponent,
         SelectComponent,
         OptionComponent,
-        DataTableComponent,
-        DataColumnComponent
+        DataTableComponent
     ],
     providers: [
         MDL_SELECT_VALUE_ACCESSOR

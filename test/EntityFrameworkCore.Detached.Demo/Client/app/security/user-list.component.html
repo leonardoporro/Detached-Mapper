@@ -17,18 +17,11 @@
 
         <div class="flex-item" fxFlex>
 
-            <md-data-table [itemsSource]="items" [(selection)]="selection" #table>
-                <md-data-column title="Id">
-                    <template let-item="item">
-                        {{item.id}}
-                    </template>
-                </md-data-column>
-                <md-data-column title="Name">
-                    <template let-item="item">
-                        {{item.name}}
-                    </template>
-                </md-data-column>
+            <md-data-table [itemsSource]="items" [(selection)]="sel" valueProperty="id" orderBy="-name">
+                <column property="id" type="number" title="Key"></column>
+                <column property="name" title="Name" type="text"></column>
             </md-data-table>
+            {{ sel | json }}
         </div>
 
         <div class="flex-item" fxFlex="20%"></div>

@@ -14,81 +14,110 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var data_column_component_1 = require("./data-column.component");
-var Item = (function () {
-    function Item(model, parent) {
-        this.model = model;
-        this.parent = parent;
-        this._selected = false;
-    }
-    Object.defineProperty(Item.prototype, "selected", {
-        get: function () {
-            return this._selected;
-        },
-        set: function (value) {
-            this._selected = value;
-            this.parent.updateSelection(this);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return Item;
-}());
-var ItemsComponent = (function () {
-    function ItemsComponent() {
-        this.items = [];
-        this.selection = [];
-        this.selectionChanged = new core_1.EventEmitter();
-    }
-    Object.defineProperty(ItemsComponent.prototype, "itemsSource", {
-        set: function (values) {
-            var _this = this;
-            this.items = values.map(function (v) { return new Item(v, _this); });
-        },
-        enumerable: true,
-        configurable: true
-    });
-    ItemsComponent.prototype.updateSelection = function (item) {
-        if (!this.selection) {
-            this.selection = [];
-        }
-        var existing = this.selection.findIndex(function (v) { return v === item.model; });
-        if (item.selected && existing < 0)
-            this.selection.push(item.model);
-        else if (!item.selected && existing >= 0)
-            this.selection.splice(existing, 1);
-        this.selectionChanged.emit(this.selection);
-        this.allSelected = this.items.length == this.selection.length;
-    };
-    ItemsComponent.prototype.selectAll = function () {
-        var sel = this.allSelected;
-        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
-            var item = _a[_i];
-            item.selected = sel;
-        }
-    };
-    return ItemsComponent;
-}());
+var column_directive_1 = require("../core/column.directive");
+var items_component_1 = require("../core/items.component");
 var DataTableComponent = (function (_super) {
     __extends(DataTableComponent, _super);
     function DataTableComponent() {
         _super.apply(this, arguments);
+        this._columns = [];
+        this.orderByChanged = new core_1.EventEmitter();
     }
+    Object.defineProperty(DataTableComponent.prototype, "columns", {
+        get: function () {
+            return this._columns;
+        },
+        set: function (value) {
+            if (this._columns) {
+                for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+                    var column = _a[_i];
+                    column.orderChanged.unsubscribe();
+                }
+            }
+            this._columns = value;
+            if (this._columns) {
+                for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
+                    var column = _c[_b];
+                    column.orderChanged.subscribe(this.columnOrderChanged.bind(this));
+                }
+            }
+            this.syncOrderBy();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DataTableComponent.prototype, "orderBy", {
+        get: function () {
+            return this._orderBy;
+        },
+        set: function (value) {
+            if (this._orderBy !== value) {
+                this._orderBy = value;
+                this.syncOrderBy();
+                this.orderByChanged.emit(value);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    DataTableComponent.prototype.ngAfterContentInit = function () {
+        if (this._columnQuery)
+            this.columns = this._columnQuery.toArray();
+    };
+    DataTableComponent.prototype.columnOrderChanged = function (sortedColumn) {
+        if (sortedColumn.order !== column_directive_1.ColumnOrder.None) {
+            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+                var column = _a[_i];
+                if (sortedColumn !== column) {
+                    column.order = column_directive_1.ColumnOrder.None;
+                }
+            }
+            this._orderBy = (sortedColumn.order == column_directive_1.ColumnOrder.Asc ? "+" : "-") + sortedColumn.property;
+            this.orderByChanged.emit(this.orderBy);
+        }
+    };
+    DataTableComponent.prototype.syncOrderBy = function () {
+        if (this._columns && this._orderBy) {
+            var order = this._orderBy.substr(0, 1);
+            var property = this._orderBy.substr(1);
+            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+                var column = _a[_i];
+                if (column.property == property) {
+                    if (order == "+")
+                        column.order = column_directive_1.ColumnOrder.Asc;
+                    else
+                        column.order = column_directive_1.ColumnOrder.Desc;
+                    return;
+                }
+            }
+        }
+    };
     __decorate([
-        core_1.ContentChildren(data_column_component_1.DataColumnComponent), 
+        core_1.ContentChildren(column_directive_1.ColumnDirective), 
+        __metadata('design:type', core_1.QueryList)
+    ], DataTableComponent.prototype, "_columnQuery", void 0);
+    __decorate([
+        core_1.Input(), 
         __metadata('design:type', Array)
-    ], DataTableComponent.prototype, "columns", void 0);
+    ], DataTableComponent.prototype, "columns", null);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', String)
+    ], DataTableComponent.prototype, "orderBy", null);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], DataTableComponent.prototype, "orderByChanged", void 0);
     DataTableComponent = __decorate([
         core_1.Component({
             selector: 'md-data-table',
             template: require("./data-table.component.html"),
             encapsulation: core_1.ViewEncapsulation.None,
             styles: [require("./data-table.component.scss")],
-            inputs: ["itemsSource", "selection"]
         }), 
         __metadata('design:paramtypes', [])
     ], DataTableComponent);
     return DataTableComponent;
-}(ItemsComponent));
+}(items_component_1.ItemsComponent));
 exports.DataTableComponent = DataTableComponent;
 //# sourceMappingURL=data-table.component.js.map

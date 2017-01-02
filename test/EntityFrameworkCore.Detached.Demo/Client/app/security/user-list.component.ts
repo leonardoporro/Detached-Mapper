@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from "@angular/core";
+﻿import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { User, UserService } from "./user.service";
 
 @Component({
@@ -13,12 +13,15 @@ export class UserListComponent implements OnInit {
 
     public items: Array<User> = [];
 
+    public sel: Array<any> = [];
+
     ngOnInit() {
         this.userService.get(null)
             .subscribe(r => this.items = r);
-    }
 
-    anda() {
-        alert("anda");
+        this.sel.push({
+            id: 2,
+            name: "User 2"
+        });
     }
 }

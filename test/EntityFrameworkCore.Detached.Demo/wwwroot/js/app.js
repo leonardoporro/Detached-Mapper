@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "168805486589cdfa0049"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d7cd94433eefc0cb2b1c"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -1977,16 +1977,16 @@
 	var flex_layout_1 = __webpack_require__(27);
 	// app
 	var shared_module_1 = __webpack_require__(31);
-	var app_routing_module_1 = __webpack_require__(50);
-	var app_nav_component_1 = __webpack_require__(60);
-	var app_component_1 = __webpack_require__(62);
+	var app_routing_module_1 = __webpack_require__(51);
+	var app_nav_component_1 = __webpack_require__(61);
+	var app_component_1 = __webpack_require__(63);
 	// home
-	var home_component_1 = __webpack_require__(52);
+	var home_component_1 = __webpack_require__(53);
 	// user
-	var user_list_component_1 = __webpack_require__(54);
-	var user_edit_component_1 = __webpack_require__(58);
-	__webpack_require__(64);
+	var user_list_component_1 = __webpack_require__(55);
+	var user_edit_component_1 = __webpack_require__(59);
 	__webpack_require__(65);
+	__webpack_require__(66);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
@@ -5324,8 +5324,8 @@
 	var select_component_1 = __webpack_require__(38);
 	var option_component_1 = __webpack_require__(39);
 	var data_table_component_1 = __webpack_require__(44);
-	var data_column_component_1 = __webpack_require__(45);
-	var presenter_directive_1 = __webpack_require__(49);
+	var item_content_directive_1 = __webpack_require__(50);
+	var column_directive_1 = __webpack_require__(45);
 	var SharedModule = (function () {
 	    function SharedModule() {
 	    }
@@ -5344,20 +5344,20 @@
 	                material_1.MaterialModule
 	            ],
 	            exports: [
-	                presenter_directive_1.PresenterDirective,
+	                item_content_directive_1.ItemContentDirective,
+	                column_directive_1.ColumnDirective,
 	                popover_component_1.PopoverComponent,
 	                select_component_1.SelectComponent,
 	                option_component_1.OptionComponent,
-	                data_table_component_1.DataTableComponent,
-	                data_column_component_1.DataColumnComponent
+	                data_table_component_1.DataTableComponent
 	            ],
 	            declarations: [
-	                presenter_directive_1.PresenterDirective,
+	                item_content_directive_1.ItemContentDirective,
+	                column_directive_1.ColumnDirective,
 	                popover_component_1.PopoverComponent,
 	                select_component_1.SelectComponent,
 	                option_component_1.OptionComponent,
-	                data_table_component_1.DataTableComponent,
-	                data_column_component_1.DataColumnComponent
+	                data_table_component_1.DataTableComponent
 	            ],
 	            providers: [
 	                select_component_1.MDL_SELECT_VALUE_ACCESSOR
@@ -6021,82 +6021,111 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var data_column_component_1 = __webpack_require__(45);
-	var Item = (function () {
-	    function Item(model, parent) {
-	        this.model = model;
-	        this.parent = parent;
-	        this._selected = false;
-	    }
-	    Object.defineProperty(Item.prototype, "selected", {
-	        get: function () {
-	            return this._selected;
-	        },
-	        set: function (value) {
-	            this._selected = value;
-	            this.parent.updateSelection(this);
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    return Item;
-	}());
-	var ItemsComponent = (function () {
-	    function ItemsComponent() {
-	        this.items = [];
-	        this.selection = [];
-	        this.selectionChanged = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(ItemsComponent.prototype, "itemsSource", {
-	        set: function (values) {
-	            var _this = this;
-	            this.items = values.map(function (v) { return new Item(v, _this); });
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    ItemsComponent.prototype.updateSelection = function (item) {
-	        if (!this.selection) {
-	            this.selection = [];
-	        }
-	        var existing = this.selection.findIndex(function (v) { return v === item.model; });
-	        if (item.selected && existing < 0)
-	            this.selection.push(item.model);
-	        else if (!item.selected && existing >= 0)
-	            this.selection.splice(existing, 1);
-	        this.selectionChanged.emit(this.selection);
-	        this.allSelected = this.items.length == this.selection.length;
-	    };
-	    ItemsComponent.prototype.selectAll = function () {
-	        var sel = this.allSelected;
-	        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
-	            var item = _a[_i];
-	            item.selected = sel;
-	        }
-	    };
-	    return ItemsComponent;
-	}());
+	var column_directive_1 = __webpack_require__(45);
+	var items_component_1 = __webpack_require__(46);
 	var DataTableComponent = (function (_super) {
 	    __extends(DataTableComponent, _super);
 	    function DataTableComponent() {
 	        _super.apply(this, arguments);
+	        this._columns = [];
+	        this.orderByChanged = new core_1.EventEmitter();
 	    }
+	    Object.defineProperty(DataTableComponent.prototype, "columns", {
+	        get: function () {
+	            return this._columns;
+	        },
+	        set: function (value) {
+	            if (this._columns) {
+	                for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	                    var column = _a[_i];
+	                    column.orderChanged.unsubscribe();
+	                }
+	            }
+	            this._columns = value;
+	            if (this._columns) {
+	                for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
+	                    var column = _c[_b];
+	                    column.orderChanged.subscribe(this.columnOrderChanged.bind(this));
+	                }
+	            }
+	            this.syncOrderBy();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(DataTableComponent.prototype, "orderBy", {
+	        get: function () {
+	            return this._orderBy;
+	        },
+	        set: function (value) {
+	            if (this._orderBy !== value) {
+	                this._orderBy = value;
+	                this.syncOrderBy();
+	                this.orderByChanged.emit(value);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    DataTableComponent.prototype.ngAfterContentInit = function () {
+	        if (this._columnQuery)
+	            this.columns = this._columnQuery.toArray();
+	    };
+	    DataTableComponent.prototype.columnOrderChanged = function (sortedColumn) {
+	        if (sortedColumn.order !== column_directive_1.ColumnOrder.None) {
+	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	                var column = _a[_i];
+	                if (sortedColumn !== column) {
+	                    column.order = column_directive_1.ColumnOrder.None;
+	                }
+	            }
+	            this._orderBy = (sortedColumn.order == column_directive_1.ColumnOrder.Asc ? "+" : "-") + sortedColumn.property;
+	            this.orderByChanged.emit(this.orderBy);
+	        }
+	    };
+	    DataTableComponent.prototype.syncOrderBy = function () {
+	        if (this._columns && this._orderBy) {
+	            var order = this._orderBy.substr(0, 1);
+	            var property = this._orderBy.substr(1);
+	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	                var column = _a[_i];
+	                if (column.property == property) {
+	                    if (order == "+")
+	                        column.order = column_directive_1.ColumnOrder.Asc;
+	                    else
+	                        column.order = column_directive_1.ColumnOrder.Desc;
+	                    return;
+	                }
+	            }
+	        }
+	    };
 	    __decorate([
-	        core_1.ContentChildren(data_column_component_1.DataColumnComponent), 
+	        core_1.ContentChildren(column_directive_1.ColumnDirective), 
+	        __metadata('design:type', core_1.QueryList)
+	    ], DataTableComponent.prototype, "_columnQuery", void 0);
+	    __decorate([
+	        core_1.Input(), 
 	        __metadata('design:type', Array)
-	    ], DataTableComponent.prototype, "columns", void 0);
+	    ], DataTableComponent.prototype, "columns", null);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], DataTableComponent.prototype, "orderBy", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], DataTableComponent.prototype, "orderByChanged", void 0);
 	    DataTableComponent = __decorate([
 	        core_1.Component({
 	            selector: 'md-data-table',
-	            template: __webpack_require__(46),
+	            template: __webpack_require__(47),
 	            encapsulation: core_1.ViewEncapsulation.None,
-	            styles: [__webpack_require__(47)],
-	            inputs: ["itemsSource", "selection"]
+	            styles: [__webpack_require__(48)],
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], DataTableComponent);
 	    return DataTableComponent;
-	}(ItemsComponent));
+	}(items_component_1.ItemsComponent));
 	exports.DataTableComponent = DataTableComponent;
 
 
@@ -6115,60 +6144,80 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var DataColumnComponent = (function () {
-	    function DataColumnComponent(viewContainer) {
+	(function (ColumnOrder) {
+	    ColumnOrder[ColumnOrder["None"] = 0] = "None";
+	    ColumnOrder[ColumnOrder["Asc"] = 1] = "Asc";
+	    ColumnOrder[ColumnOrder["Desc"] = 2] = "Desc";
+	})(exports.ColumnOrder || (exports.ColumnOrder = {}));
+	var ColumnOrder = exports.ColumnOrder;
+	var ColumnDirective = (function () {
+	    function ColumnDirective(viewContainer) {
 	        this.viewContainer = viewContainer;
+	        this.type = "text";
+	        this._order = ColumnOrder.None;
+	        this.orderChanged = new core_1.EventEmitter();
 	    }
+	    Object.defineProperty(ColumnDirective.prototype, "order", {
+	        get: function () {
+	            return this._order;
+	        },
+	        set: function (value) {
+	            this._order = value;
+	            this.orderChanged.emit(this);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ColumnDirective.prototype.toggleOrder = function () {
+	        switch (this._order) {
+	            case ColumnOrder.None:
+	                this.order = ColumnOrder.Asc;
+	                break;
+	            case ColumnOrder.Asc:
+	                this.order = ColumnOrder.Desc;
+	                break;
+	            case ColumnOrder.Desc:
+	                this.order = ColumnOrder.Asc;
+	                break;
+	        }
+	    };
 	    __decorate([
 	        core_1.Input(), 
 	        __metadata('design:type', String)
-	    ], DataColumnComponent.prototype, "title", void 0);
+	    ], ColumnDirective.prototype, "title", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnDirective.prototype, "type", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnDirective.prototype, "property", void 0);
 	    __decorate([
 	        core_1.ContentChild(core_1.TemplateRef), 
 	        __metadata('design:type', core_1.TemplateRef)
-	    ], DataColumnComponent.prototype, "template", void 0);
-	    DataColumnComponent = __decorate([
-	        core_1.Component({
-	            selector: "md-data-column",
-	            template: "<span></span>",
-	            encapsulation: core_1.ViewEncapsulation.None,
+	    ], ColumnDirective.prototype, "template", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Number)
+	    ], ColumnDirective.prototype, "order", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', core_1.EventEmitter)
+	    ], ColumnDirective.prototype, "orderChanged", void 0);
+	    ColumnDirective = __decorate([
+	        core_1.Directive({
+	            selector: "column"
 	        }), 
 	        __metadata('design:paramtypes', [core_1.ViewContainerRef])
-	    ], DataColumnComponent);
-	    return DataColumnComponent;
+	    ], ColumnDirective);
+	    return ColumnDirective;
 	}());
-	exports.DataColumnComponent = DataColumnComponent;
+	exports.ColumnDirective = ColumnDirective;
 
 
 /***/ },
 /* 46 */
-/***/ function(module, exports) {
-
-	module.exports = "<!--<ng-content select=\"md-table-card-header\"></ng-content>-->\r\n<table>\r\n    <thead>\r\n        <tr>\r\n            <th><md-checkbox [(ngModel)]=\"allSelected\" (ngModelChange)=\"selectAll()\"></md-checkbox></th>\r\n            <th *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                {{column.title}}\r\n            </th>\r\n            <th></th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\">\r\n            <td><md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox></td>\r\n            <td *ngFor=\"let column of columns\" class=\"mdl-data-table__cell--non-numeric\">\r\n                <presenter [template]=\"column.template\" [item]=\"item.model\"></presenter>\r\n            </td>\r\n            <td style=\"width:100%\"></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<!--<ng-content select=\"md-table-card-footer\"></ng-content>-->"
-
-/***/ },
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	        var result = __webpack_require__(48);
-	
-	        if (typeof result === "string") {
-	            module.exports = result;
-	        } else {
-	            module.exports = result.toString();
-	        }
-	    
-
-/***/ },
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(37)();
-	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/*header*/\n/*body*/\nmd-data-table {\n  position: relative; }\n  md-data-table table {\n    position: relative;\n    white-space: nowrap;\n    border-collapse: collapse;\n    background-color: white;\n    font-size: 13px;\n    font-family: Roboto, \"Helvetica Neue\", sans-serif; }\n    md-data-table table thead tr th {\n      position: relative;\n      padding: 0 18px 12px 18px;\n      text-align: right;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      height: 48px;\n      font-size: 12px;\n      color: rgba(0, 0, 0, 0.54);\n      padding-bottom: 8px;\n      box-sizing: border-box; }\n      md-data-table table thead tr th:first-of-type {\n        padding-left: 24px; }\n      md-data-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    md-data-table table tbody tr {\n      position: relative;\n      height: 48px;\n      transition-property: background-color;\n      border-bottom: 1px solid rgba(0, 0, 0, 0.12); }\n      md-data-table table tbody tr.is-selected {\n        background-color: #eeeeee; }\n      md-data-table table tbody tr:hover {\n        background-color: #e5e5e5; }\n      md-data-table table tbody tr td {\n        position: relative;\n        padding: 0 18px 12px 18px;\n        vertical-align: middle;\n        height: 48px;\n        border-top: 1px solid rgba(0, 0, 0, 0.12);\n        border-bottom: 1px solid rgba(0, 0, 0, 0.12);\n        padding-top: 12px;\n        box-sizing: border-box; }\n        md-data-table table tbody tr td:first-of-type {\n          padding-left: 24px; }\n        md-data-table table tbody tr td:last-of-type {\n          padding-right: 24px; }\n", ""]);
-
-/***/ },
-/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6182,38 +6231,228 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var PresenterDirective = (function () {
-	    function PresenterDirective(viewContainer, cdr) {
-	        this.viewContainer = viewContainer;
-	        this.cdr = cdr;
+	var Item = (function () {
+	    function Item(model) {
+	        this.model = model;
+	        this._selected = false;
+	        this.selectedChange = new core_1.EventEmitter();
 	    }
-	    PresenterDirective.prototype.ngOnInit = function () {
-	        this.cdr.detach();
+	    Object.defineProperty(Item.prototype, "selected", {
+	        get: function () {
+	            return this._selected;
+	        },
+	        set: function (value) {
+	            if (this._selected !== value) {
+	                this._selected = value;
+	                this.selectedChange.emit(this);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Item.prototype.updateSelected = function (value) {
+	        this._selected = value;
 	    };
-	    PresenterDirective.prototype.ngAfterViewInit = function () {
-	        var _this = this;
-	        var view = this.viewContainer.createEmbeddedView(this.template);
-	        view.context.item = this.item;
-	        setTimeout(function () { return _this.cdr.reattach(); });
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Object)
-	    ], PresenterDirective.prototype, "item", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], PresenterDirective.prototype, "template", void 0);
-	    PresenterDirective = __decorate([
-	        core_1.Directive({
-	            selector: "presenter"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.ChangeDetectorRef])
-	    ], PresenterDirective);
-	    return PresenterDirective;
+	    return Item;
 	}());
-	exports.PresenterDirective = PresenterDirective;
+	exports.Item = Item;
+	var ItemsComponent = (function () {
+	    function ItemsComponent() {
+	        this._items = [];
+	        this._selection = [];
+	        this._suspendFlag = false;
+	        this.itemsChange = new core_1.EventEmitter();
+	        this.selectionChange = new core_1.EventEmitter();
+	        this.allSelectedChange = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(ItemsComponent.prototype, "items", {
+	        get: function () {
+	            return this._items;
+	        },
+	        set: function (value) {
+	            if (this._items !== value) {
+	                if (this._items) {
+	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                        var item = _a[_i];
+	                        item.selectedChange.unsubscribe();
+	                    }
+	                }
+	                this._items = value;
+	                if (this._items) {
+	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
+	                        var item = _c[_b];
+	                        item.selectedChange.subscribe(this.itemSelectedChanged.bind(this));
+	                    }
+	                }
+	                this.syncSelection();
+	                this.itemsChange.emit(this._items);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsComponent.prototype, "itemsSource", {
+	        get: function () {
+	            return this._items;
+	        },
+	        set: function (values) {
+	            if (this._itemsSource !== values) {
+	                this._itemsSource = values;
+	                this.items = values.map(function (v) { return new Item(v); });
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsComponent.prototype, "selection", {
+	        get: function () {
+	            return this._selection;
+	        },
+	        set: function (value) {
+	            if (this._selection !== value) {
+	                this._selection = value;
+	                this.syncSelection();
+	                this.selectionChange.emit(this._selection);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsComponent.prototype, "allSelected", {
+	        get: function () {
+	            return this._allSelected;
+	        },
+	        set: function (value) {
+	            if (this._allSelected !== value) {
+	                this._allSelected = value;
+	                this._suspendFlag = true;
+	                this._selection = [];
+	                if (value) {
+	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                        var item = _a[_i];
+	                        item.selected = true;
+	                        this._selection.push(item.model);
+	                    }
+	                }
+	                else {
+	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
+	                        var item = _c[_b];
+	                        item.selected = false;
+	                    }
+	                }
+	                this.selectionChange.emit(this._selection);
+	                this.allSelectedChange.emit(this._allSelected);
+	                this._suspendFlag = false;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ItemsComponent.prototype.itemSelectedChanged = function (item) {
+	        var _this = this;
+	        if (!this._suspendFlag) {
+	            if (!this._selection) {
+	                this._selection = [];
+	            }
+	            var existing = this._selection.findIndex(function (s) { return s[_this.valueProperty] == item.model[_this.valueProperty]; });
+	            if (item.selected && existing < 0)
+	                this._selection.push(item.model);
+	            else if (!item.selected && existing >= 0)
+	                this._selection.splice(existing, 1);
+	            this.selectionChange.emit(this._selection);
+	            this.syncAllSelected();
+	        }
+	    };
+	    ItemsComponent.prototype.syncSelection = function () {
+	        var _this = this;
+	        this._suspendFlag = true;
+	        if (this._items && this._selection) {
+	            var _loop_1 = function(item) {
+	                item.selected = this_1._selection.find(function (s) { return item.model[_this.valueProperty] == s[_this.valueProperty]; }) !== undefined;
+	            };
+	            var this_1 = this;
+	            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                var item = _a[_i];
+	                _loop_1(item);
+	            }
+	            this.syncAllSelected();
+	        }
+	        this._suspendFlag = false;
+	    };
+	    ItemsComponent.prototype.syncAllSelected = function () {
+	        var allSelected = this._items.length == this._selection.length;
+	        if (this._allSelected !== allSelected) {
+	            this._allSelected = allSelected;
+	            this.allSelectedChange.emit(allSelected);
+	        }
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ItemsComponent.prototype, "valueProperty", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ItemsComponent.prototype, "displayProperty", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], ItemsComponent.prototype, "items", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], ItemsComponent.prototype, "itemsChange", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], ItemsComponent.prototype, "itemsSource", null);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], ItemsComponent.prototype, "selection", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], ItemsComponent.prototype, "selectionChange", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean)
+	    ], ItemsComponent.prototype, "allSelected", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', core_1.EventEmitter)
+	    ], ItemsComponent.prototype, "allSelectedChange", void 0);
+	    return ItemsComponent;
+	}());
+	exports.ItemsComponent = ItemsComponent;
 
+
+/***/ },
+/* 47 */
+/***/ function(module, exports) {
+
+	module.exports = "<table>\r\n    <thead>\r\n        <tr>\r\n            <th>\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </th>\r\n            <th *ngFor=\"let column of columns\" (click)=\"column.toggleOrder()\" [ngClass]=\"column.type + ' ' + (column.order ? 'sorted' : '')\">\r\n                <span>{{column.title}}</span>\r\n                <span *ngIf=\"column.order\" class=\"material-icons\">\r\n                    {{ column.order == 1 ? 'arrow_upward' : (column.order == 2 ? 'arrow_downward' : ' ')  }}\r\n                </span>\r\n            </th>\r\n            <th style=\"width:100%\"></th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\" [ngClass]=\"{'selected': item.selected}\">\r\n            <td>\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </td>\r\n            <td *ngFor=\"let column of columns\" [ngClass]=\"column.type\">\r\n                <item-content *ngIf=\"column.template\" [template]=\"column.template\" [item]=\"item\" [index]=\"index\"></item-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </td>\r\n            <td style=\"width:100%\"></td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	        var result = __webpack_require__(49);
+	
+	        if (typeof result === "string") {
+	            module.exports = result;
+	        } else {
+	            module.exports = result.toString();
+	        }
+	    
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(37)();
+	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/*header*/\n/*body*/\nmd-data-table table {\n  position: relative;\n  white-space: nowrap;\n  border-collapse: collapse;\n  background-color: #ffffff;\n  font-family: Roboto, \"Helvetica Neue\", sans-serif; }\n  md-data-table table thead tr {\n    height: 56px;\n    font-size: 12px;\n    color: rgba(0, 0, 0, 0.54); }\n    md-data-table table thead tr th {\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      box-sizing: border-box; }\n      md-data-table table thead tr th:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      md-data-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    md-data-table table thead tr th.number {\n      text-align: right; }\n    md-data-table table thead tr th.text {\n      text-align: left; }\n    md-data-table table thead tr th.sorted {\n      color: rgba(0, 0, 0, 0.87); }\n  md-data-table table thead .material-icons {\n    font-size: 16px;\n    display: inline;\n    vertical-align: text-bottom; }\n  md-data-table table tbody tr {\n    height: 48px;\n    font-size: 13px;\n    color: rgba(0, 0, 0, 0.87); }\n    md-data-table table tbody tr.is-selected {\n      background-color: #f5f5f5; }\n    md-data-table table tbody tr:hover {\n      background-color: #eeeeee; }\n    md-data-table table tbody tr td {\n      border-top: 1px solid rgba(0, 0, 0, 0.12);\n      border-bottom: 1px solid rgba(0, 0, 0, 0.12);\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      box-sizing: border-box; }\n      md-data-table table tbody tr td:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      md-data-table table tbody tr td:last-of-type {\n        padding-right: 24px; }\n    md-data-table table tbody tr td.number {\n      text-align: right; }\n    md-data-table table tbody tr td.text {\n      text-align: left; }\n  md-data-table table tbody tr.selected {\n    background-color: #f5f5f5; }\n\nmd-data-table .md-checkbox-inner-container {\n  width: 18px;\n  height: 18px;\n  color: rgba(0, 0, 0, 0.54); }\n", ""]);
 
 /***/ },
 /* 50 */
@@ -6230,10 +6469,65 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(51);
-	var home_component_1 = __webpack_require__(52);
-	var user_list_component_1 = __webpack_require__(54);
-	var user_edit_component_1 = __webpack_require__(58);
+	var items_component_1 = __webpack_require__(46);
+	var ItemContentDirective = (function () {
+	    function ItemContentDirective(viewContainer, cdr) {
+	        this.viewContainer = viewContainer;
+	        this.cdr = cdr;
+	    }
+	    ItemContentDirective.prototype.ngOnInit = function () {
+	        this.cdr.detach();
+	    };
+	    ItemContentDirective.prototype.ngAfterViewInit = function () {
+	        var _this = this;
+	        var view = this.viewContainer.createEmbeddedView(this.template);
+	        view.context.item = this.item;
+	        view.context.model = this.item.model;
+	        view.context.index = this.index;
+	        setTimeout(function () { return _this.cdr.reattach(); });
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', items_component_1.Item)
+	    ], ItemContentDirective.prototype, "item", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Number)
+	    ], ItemContentDirective.prototype, "index", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', core_1.TemplateRef)
+	    ], ItemContentDirective.prototype, "template", void 0);
+	    ItemContentDirective = __decorate([
+	        core_1.Directive({
+	            selector: "item-content"
+	        }), 
+	        __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.ChangeDetectorRef])
+	    ], ItemContentDirective);
+	    return ItemContentDirective;
+	}());
+	exports.ItemContentDirective = ItemContentDirective;
+
+
+/***/ },
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var router_1 = __webpack_require__(52);
+	var home_component_1 = __webpack_require__(53);
+	var user_list_component_1 = __webpack_require__(55);
+	var user_edit_component_1 = __webpack_require__(59);
 	var appRoutes = [
 	    { path: "", redirectTo: "home", pathMatch: "full" },
 	    { path: "home", component: home_component_1.HomeComponent },
@@ -6266,13 +6560,13 @@
 
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(304);
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6293,7 +6587,7 @@
 	    HomeComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-home",
-	            template: __webpack_require__(53)
+	            template: __webpack_require__(54)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], HomeComponent);
@@ -6303,52 +6597,10 @@
 
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports) {
 
 	module.exports = "<h1></h1>\r\n<h3>Choose an option from the left panel.</h3>"
-
-/***/ },
-/* 54 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var user_service_1 = __webpack_require__(55);
-	var UserListComponent = (function () {
-	    function UserListComponent(userService) {
-	        this.userService = userService;
-	        this.items = [];
-	    }
-	    UserListComponent.prototype.ngOnInit = function () {
-	        var _this = this;
-	        this.userService.get(null)
-	            .subscribe(function (r) { return _this.items = r; });
-	    };
-	    UserListComponent.prototype.anda = function () {
-	        alert("anda");
-	    };
-	    UserListComponent = __decorate([
-	        core_1.Component({
-	            selector: "user-list",
-	            template: __webpack_require__(57),
-	            providers: [user_service_1.UserService]
-	        }), 
-	        __metadata('design:paramtypes', [user_service_1.UserService])
-	    ], UserListComponent);
-	    return UserListComponent;
-	}());
-	exports.UserListComponent = UserListComponent;
-
 
 /***/ },
 /* 55 */
@@ -6365,8 +6617,52 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
+	var user_service_1 = __webpack_require__(56);
+	var UserListComponent = (function () {
+	    function UserListComponent(userService) {
+	        this.userService = userService;
+	        this.items = [];
+	        this.sel = [];
+	    }
+	    UserListComponent.prototype.ngOnInit = function () {
+	        var _this = this;
+	        this.userService.get(null)
+	            .subscribe(function (r) { return _this.items = r; });
+	        this.sel.push({
+	            id: 2,
+	            name: "User 2"
+	        });
+	    };
+	    UserListComponent = __decorate([
+	        core_1.Component({
+	            selector: "user-list",
+	            template: __webpack_require__(58),
+	            providers: [user_service_1.UserService]
+	        }), 
+	        __metadata('design:paramtypes', [user_service_1.UserService])
+	    ], UserListComponent);
+	    return UserListComponent;
+	}());
+	exports.UserListComponent = UserListComponent;
+
+
+/***/ },
+/* 56 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	__webpack_require__(56);
+	__webpack_require__(57);
 	var UserService = (function () {
 	    function UserService(http) {
 	        this.http = http;
@@ -6411,19 +6707,19 @@
 
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(354);
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button align=\"end\">New</button>\r\n    <button md-button align=\"end\">Delete</button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    <div class=\"flex-container\" fxLayout=\"row\">\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n\r\n        <div class=\"flex-item\" fxFlex>\r\n\r\n            <md-data-table [itemsSource]=\"items\" [(selection)]=\"selection\" #table>\r\n                <md-data-column title=\"Id\">\r\n                    <template let-item=\"item\">\r\n                        {{item.id}}\r\n                    </template>\r\n                </md-data-column>\r\n                <md-data-column title=\"Name\">\r\n                    <template let-item=\"item\">\r\n                        {{item.name}}\r\n                    </template>\r\n                </md-data-column>\r\n            </md-data-table>\r\n        </div>\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n    </div>\r\n\r\n\r\n</md-sidenav-container>"
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button align=\"end\">New</button>\r\n    <button md-button align=\"end\">Delete</button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    <div class=\"flex-container\" fxLayout=\"row\">\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n\r\n        <div class=\"flex-item\" fxFlex>\r\n\r\n            <md-data-table [itemsSource]=\"items\" [(selection)]=\"sel\" valueProperty=\"id\" orderBy=\"-name\">\r\n                <column property=\"id\" type=\"number\" title=\"Key\"></column>\r\n                <column property=\"name\" title=\"Name\" type=\"text\"></column>\r\n            </md-data-table>\r\n            {{ sel | json }}\r\n        </div>\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n    </div>\r\n\r\n\r\n</md-sidenav-container>"
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6443,7 +6739,7 @@
 	    UserEditComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-edit",
-	            template: __webpack_require__(59)
+	            template: __webpack_require__(60)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], UserEditComponent);
@@ -6453,13 +6749,13 @@
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports) {
 
 	module.exports = "user edit!"
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6479,7 +6775,7 @@
 	    AppNavComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-nav",
-	            template: __webpack_require__(61)
+	            template: __webpack_require__(62)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppNavComponent);
@@ -6489,13 +6785,13 @@
 
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports) {
 
 	module.exports = "<ul>\r\n    <li>\r\n        <a [routerLink]=\"['/home']\">Home</a>\r\n    </li>\r\n    <li>\r\n        <a [routerLink]=\"['/security/users']\">Users example</a>\r\n    </li>\r\n</ul>"
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6515,7 +6811,7 @@
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: "app",
-	            template: __webpack_require__(63)
+	            template: __webpack_require__(64)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppComponent);
@@ -6525,19 +6821,19 @@
 
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports) {
 
 	module.exports = "<router-outlet></router-outlet>\r\n"
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
