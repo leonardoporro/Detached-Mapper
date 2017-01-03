@@ -16,16 +16,17 @@
         <div class="flex-item" fxFlex="20%"></div>
 
         <div class="flex-item" fxFlex>
-
-            <md-data-table [itemsSource]="items" [(selection)]="sel" valueProperty="id" orderBy="-name">
+            <!--<md-data-table [itemsSource]="items" [(selection)]="sel" valueProperty="id" orderBy="-name">
                 <column property="id" type="number" title="Key"></column>
                 <column property="name" title="Name" type="text"></column>
-            </md-data-table>
-            {{ sel | json }}
+            </md-data-table>-->
+
+            <md-data-select [itemsSource]="items" placeholder="Sarlanga" displayProperty="name" valueProperty="id">
+
+            </md-data-select>
         </div>
 
         <div class="flex-item" fxFlex="20%"></div>
     </div>
-
 
 </md-sidenav-container>

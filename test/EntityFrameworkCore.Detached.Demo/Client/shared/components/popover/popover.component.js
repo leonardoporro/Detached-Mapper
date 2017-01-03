@@ -77,11 +77,11 @@ var PopoverComponent = (function () {
     ], PopoverComponent.prototype, "hideOnClick", void 0);
     __decorate([
         core_1.HostBinding("class.is-visible"), 
-        __metadata('design:type', Object)
+        __metadata('design:type', Boolean)
     ], PopoverComponent.prototype, "isVisible", void 0);
     __decorate([
         core_1.HostBinding("class.direction-up"), 
-        __metadata('design:type', Object)
+        __metadata('design:type', Boolean)
     ], PopoverComponent.prototype, "directionUp", void 0);
     __decorate([
         core_1.HostListener("document:click", ["$event"]), 
@@ -91,9 +91,9 @@ var PopoverComponent = (function () {
     ], PopoverComponent.prototype, "onDocumentClick", null);
     PopoverComponent = __decorate([
         core_1.Component({
-            selector: "mdl-popover",
+            selector: "md-popover",
             host: {
-                "[class.mdl-popover]": "true"
+                "[class.md-popover]": "true"
             },
             template: require("./popover.component.html"),
             styles: [require("./popover.component.scss")],

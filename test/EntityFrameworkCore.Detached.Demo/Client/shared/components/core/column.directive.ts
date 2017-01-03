@@ -1,10 +1,8 @@
 ﻿import {
-    Component,
     Directive,
     Input,
     Output,
     EventEmitter,
-    ViewEncapsulation,
     ContentChild,
     TemplateRef,
     ViewContainerRef

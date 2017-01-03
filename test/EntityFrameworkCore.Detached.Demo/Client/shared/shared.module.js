@@ -14,11 +14,10 @@ var forms_1 = require("@angular/forms");
 var flex_layout_1 = require("@angular/flex-layout");
 var material_1 = require("@angular/material");
 var popover_component_1 = require("./components/popover/popover.component");
-var select_component_1 = require("./components/data-select/select.component");
-var option_component_1 = require("./components/data-select/option.component");
-var data_table_component_1 = require("./components/data-table/data-table.component");
 var item_content_directive_1 = require("./components/core/item-content.directive");
 var column_directive_1 = require("./components/core/column.directive");
+var data_select_component_1 = require("./components/data-select/data-select.component");
+var data_table_component_1 = require("./components/data-table/data-table.component");
 var SharedModule = (function () {
     function SharedModule() {
     }
@@ -40,21 +39,17 @@ var SharedModule = (function () {
                 item_content_directive_1.ItemContentDirective,
                 column_directive_1.ColumnDirective,
                 popover_component_1.PopoverComponent,
-                select_component_1.SelectComponent,
-                option_component_1.OptionComponent,
+                data_select_component_1.DataSelectComponent,
                 data_table_component_1.DataTableComponent
             ],
             declarations: [
                 item_content_directive_1.ItemContentDirective,
                 column_directive_1.ColumnDirective,
                 popover_component_1.PopoverComponent,
-                select_component_1.SelectComponent,
-                option_component_1.OptionComponent,
+                data_select_component_1.DataSelectComponent,
                 data_table_component_1.DataTableComponent
             ],
-            providers: [
-                select_component_1.MDL_SELECT_VALUE_ACCESSOR
-            ]
+            providers: []
         }), 
         __metadata('design:paramtypes', [])
     ], SharedModule);
