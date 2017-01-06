@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "24bc1156bea120c04ed6"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "df525702a6992b554517"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -1928,7 +1928,7 @@
 /* 17 */
 /***/ function(module, exports) {
 
-	module.exports = vendor_cfb8dfb02e66867e8ddc;
+	module.exports = vendor_9e700feb04dac246e30b;
 
 /***/ },
 /* 18 */
@@ -1977,15 +1977,14 @@
 	var flex_layout_1 = __webpack_require__(27);
 	// app
 	var shared_module_1 = __webpack_require__(31);
-	var app_routing_module_1 = __webpack_require__(49);
-	var app_nav_component_1 = __webpack_require__(59);
-	var app_component_1 = __webpack_require__(61);
+	var app_routing_module_1 = __webpack_require__(47);
+	var app_nav_component_1 = __webpack_require__(60);
+	var app_component_1 = __webpack_require__(62);
 	// home
-	var home_component_1 = __webpack_require__(51);
+	var home_component_1 = __webpack_require__(49);
 	// user
-	var user_list_component_1 = __webpack_require__(53);
-	var user_edit_component_1 = __webpack_require__(57);
-	__webpack_require__(63);
+	var user_list_component_1 = __webpack_require__(51);
+	var user_edit_component_1 = __webpack_require__(58);
 	__webpack_require__(64);
 	var AppModule = (function () {
 	    function AppModule() {
@@ -5320,11 +5319,11 @@
 	var forms_1 = __webpack_require__(24);
 	var flex_layout_1 = __webpack_require__(27);
 	var material_1 = __webpack_require__(26);
-	var popover_component_1 = __webpack_require__(33);
-	var item_content_directive_1 = __webpack_require__(38);
-	var column_directive_1 = __webpack_require__(40);
-	var data_select_component_1 = __webpack_require__(41);
-	var data_table_component_1 = __webpack_require__(45);
+	var content_directive_1 = __webpack_require__(33);
+	var column_component_1 = __webpack_require__(34);
+	var table_component_1 = __webpack_require__(35);
+	__webpack_require__(45);
+	__webpack_require__(46);
 	var SharedModule = (function () {
 	    function SharedModule() {
 	    }
@@ -5343,18 +5342,14 @@
 	                material_1.MaterialModule
 	            ],
 	            exports: [
-	                item_content_directive_1.ItemContentDirective,
-	                column_directive_1.ColumnDirective,
-	                popover_component_1.PopoverComponent,
-	                data_select_component_1.DataSelectComponent,
-	                data_table_component_1.DataTableComponent
+	                content_directive_1.ContentDirective,
+	                column_component_1.ColumnComponent,
+	                table_component_1.TableComponent
 	            ],
 	            declarations: [
-	                item_content_directive_1.ItemContentDirective,
-	                column_directive_1.ColumnDirective,
-	                popover_component_1.PopoverComponent,
-	                data_select_component_1.DataSelectComponent,
-	                data_table_component_1.DataTableComponent
+	                content_directive_1.ContentDirective,
+	                column_component_1.ColumnComponent,
+	                table_component_1.TableComponent
 	            ],
 	            providers: []
 	        }), 
@@ -5386,115 +5381,413 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var PopoverComponent = (function () {
-	    function PopoverComponent(changeDetectionRef, elementRef) {
-	        this.changeDetectionRef = changeDetectionRef;
-	        this.elementRef = elementRef;
-	        this.hideOnClick = false;
-	        this.isVisible = false;
-	        this.directionUp = false;
+	var ContentDirective = (function () {
+	    function ContentDirective(_viewContainer) {
+	        this._viewContainer = _viewContainer;
+	        this._hasView = false;
 	    }
-	    PopoverComponent.prototype.ngAfterViewInit = function () {
-	        // Add a hide listener to native element
-	        this.elementRef.nativeElement.addEventListener("hide", this.hide.bind(this));
-	    };
-	    PopoverComponent.prototype.onDocumentClick = function (event) {
-	        if (this.isVisible &&
-	            (this.hideOnClick || !this.elementRef.nativeElement.contains(event.target))) {
-	            this.hide();
+	    Object.defineProperty(ContentDirective.prototype, "condition", {
+	        set: function (value) {
+	            if (value)
+	                this.show();
+	            else
+	                this.hide();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ContentDirective.prototype.show = function () {
+	        if (!this._hasView) {
+	            this._hasView = true;
+	            var view = this._viewContainer.createEmbeddedView(this.template);
+	            view.context.model = this.model;
+	            view.context.index = this.index;
 	        }
 	    };
-	    PopoverComponent.prototype.ngOnDestroy = function () {
-	        this.elementRef.nativeElement.removeEventListener("hide");
-	    };
-	    PopoverComponent.prototype.toggle = function (event) {
-	        if (this.isVisible) {
-	            this.hide();
-	        }
-	        else {
-	            this.hideAllPopovers();
-	            this.show(event);
+	    ContentDirective.prototype.hide = function () {
+	        if (this._hasView) {
+	            this._hasView = false;
+	            this._viewContainer.clear();
 	        }
 	    };
-	    PopoverComponent.prototype.hide = function () {
-	        this.isVisible = false;
-	        this.changeDetectionRef.markForCheck();
-	    };
-	    PopoverComponent.prototype.hideAllPopovers = function () {
-	        var nodeList = document.querySelectorAll(".mdl-popover.is-visible");
-	        for (var i = 0; i < nodeList.length; ++i) {
-	            nodeList[i].dispatchEvent(new Event("hide"));
-	        }
-	    };
-	    PopoverComponent.prototype.show = function (event) {
-	        event.stopPropagation();
-	        this.isVisible = true;
-	        this.updateDirection(event);
-	    };
-	    PopoverComponent.prototype.updateDirection = function (event) {
-	        var _this = this;
-	        var nativeEl = this.elementRef.nativeElement;
-	        var targetRect = event.target.getBoundingClientRect();
-	        var viewHeight = window.innerHeight;
-	        setTimeout(function () {
-	            var height = nativeEl.offsetHeight;
-	            if (height) {
-	                var spaceAvailable = {
-	                    top: targetRect.top,
-	                    bottom: viewHeight - targetRect.bottom
-	                };
-	                _this.directionUp = spaceAvailable.bottom < height;
-	                _this.changeDetectionRef.markForCheck();
-	            }
-	        });
-	    };
 	    __decorate([
-	        core_1.Input("hide-on-click"), 
-	        __metadata('design:type', Boolean)
-	    ], PopoverComponent.prototype, "hideOnClick", void 0);
+	        core_1.Input(), 
+	        __metadata('design:type', Object)
+	    ], ContentDirective.prototype, "model", void 0);
 	    __decorate([
-	        core_1.HostBinding("class.is-visible"), 
-	        __metadata('design:type', Boolean)
-	    ], PopoverComponent.prototype, "isVisible", void 0);
+	        core_1.Input(), 
+	        __metadata('design:type', Number)
+	    ], ContentDirective.prototype, "index", void 0);
 	    __decorate([
-	        core_1.HostBinding("class.direction-up"), 
-	        __metadata('design:type', Boolean)
-	    ], PopoverComponent.prototype, "directionUp", void 0);
+	        core_1.Input(), 
+	        __metadata('design:type', core_1.TemplateRef)
+	    ], ContentDirective.prototype, "template", void 0);
 	    __decorate([
-	        core_1.HostListener("document:click", ["$event"]), 
-	        __metadata('design:type', Function), 
-	        __metadata('design:paramtypes', [Event]), 
-	        __metadata('design:returntype', void 0)
-	    ], PopoverComponent.prototype, "onDocumentClick", null);
-	    PopoverComponent = __decorate([
-	        core_1.Component({
-	            selector: "md-popover",
-	            host: {
-	                "[class.md-popover]": "true"
-	            },
-	            template: __webpack_require__(34),
-	            styles: [__webpack_require__(35)],
-	            encapsulation: core_1.ViewEncapsulation.None,
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean), 
+	        __metadata('design:paramtypes', [Boolean])
+	    ], ContentDirective.prototype, "condition", null);
+	    ContentDirective = __decorate([
+	        core_1.Directive({
+	            selector: "d-content"
 	        }), 
-	        __metadata('design:paramtypes', [core_1.ChangeDetectorRef, core_1.ElementRef])
-	    ], PopoverComponent);
-	    return PopoverComponent;
+	        __metadata('design:paramtypes', [core_1.ViewContainerRef])
+	    ], ContentDirective);
+	    return ContentDirective;
 	}());
-	exports.PopoverComponent = PopoverComponent;
+	exports.ContentDirective = ContentDirective;
 
 
 /***/ },
 /* 34 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<ng-content></ng-content>\r\n"
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var ColumnComponent = (function () {
+	    function ColumnComponent(viewContainer) {
+	        this.viewContainer = viewContainer;
+	        this.type = "text";
+	        this.canSort = false;
+	    }
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnComponent.prototype, "title", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnComponent.prototype, "type", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnComponent.prototype, "property", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean)
+	    ], ColumnComponent.prototype, "canSort", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], ColumnComponent.prototype, "width", void 0);
+	    __decorate([
+	        core_1.ContentChild(core_1.TemplateRef), 
+	        __metadata('design:type', core_1.TemplateRef)
+	    ], ColumnComponent.prototype, "template", void 0);
+	    ColumnComponent = __decorate([
+	        core_1.Directive({
+	            selector: "d-column"
+	        }), 
+	        __metadata('design:paramtypes', [core_1.ViewContainerRef])
+	    ], ColumnComponent);
+	    return ColumnComponent;
+	}());
+	exports.ColumnComponent = ColumnComponent;
+
 
 /***/ },
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var column_component_1 = __webpack_require__(34);
+	var collection_component_1 = __webpack_require__(36);
+	var TableComponent = (function (_super) {
+	    __extends(TableComponent, _super);
+	    function TableComponent() {
+	        _super.apply(this, arguments);
+	        this.columns = [];
+	    }
+	    TableComponent.prototype.toggleSort = function (canSort, propertyName) {
+	        if (canSort) {
+	            this.dataSource.toggleSort(propertyName);
+	        }
+	    };
+	    __decorate([
+	        core_1.ContentChildren(column_component_1.ColumnComponent), 
+	        __metadata('design:type', Array)
+	    ], TableComponent.prototype, "columns", void 0);
+	    TableComponent = __decorate([
+	        core_1.Component({
+	            selector: 'd-table',
+	            template: __webpack_require__(37),
+	            encapsulation: core_1.ViewEncapsulation.None,
+	            styles: [__webpack_require__(38)],
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], TableComponent);
+	    return TableComponent;
+	}(collection_component_1.CollectionComponent));
+	exports.TableComponent = TableComponent;
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var CollectionItem = (function () {
+	    function CollectionItem(model) {
+	        this.model = model;
+	        this._selected = false;
+	        this.selectedChange = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(CollectionItem.prototype, "selected", {
+	        get: function () {
+	            return this._selected;
+	        },
+	        set: function (value) {
+	            if (this._selected !== value) {
+	                this._selected = value;
+	                this.selectedChange.emit(this);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return CollectionItem;
+	}());
+	exports.CollectionItem = CollectionItem;
+	var CollectionComponent = (function () {
+	    function CollectionComponent() {
+	        this._suspendFlag = false;
+	        this._items = [];
+	        this._selection = [];
+	        this.keyProperty = "id";
+	        this.displayProperty = "name";
+	        this.itemsChange = new core_1.EventEmitter();
+	        this.dataSourceChanged = new core_1.EventEmitter();
+	        this.selectionChange = new core_1.EventEmitter();
+	        this.allSelectedChange = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(CollectionComponent.prototype, "items", {
+	        //items.
+	        get: function () {
+	            return this._items;
+	        },
+	        set: function (value) {
+	            if (this._items !== value) {
+	                if (this._items) {
+	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                        var item = _a[_i];
+	                        item.selectedChange.unsubscribe();
+	                    }
+	                }
+	                this._items = value;
+	                if (this._items) {
+	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
+	                        var item = _c[_b];
+	                        item.selectedChange.subscribe(this.onItemSelectedChange.bind(this));
+	                    }
+	                }
+	                this.syncSelection();
+	                this.itemsChange.emit(this._items);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(CollectionComponent.prototype, "dataSource", {
+	        //item source.
+	        get: function () {
+	            return this._dataSource;
+	        },
+	        set: function (value) {
+	            if (this._dataSource != value) {
+	                if (this._dataSource) {
+	                    this._dataSource.itemsChange.unsubscribe();
+	                }
+	                this._dataSource = value;
+	                if (this._dataSource) {
+	                    this._dataSource.itemsChange.subscribe(this.onDataSourceItemsChange.bind(this));
+	                    this.onDataSourceItemsChange();
+	                }
+	                this.dataSourceChanged.emit(this.dataSource);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    CollectionComponent.prototype.onDataSourceItemsChange = function () {
+	        if (this._dataSource && this._dataSource.items) {
+	            this.items = this._dataSource.items.map(function (i) { return new CollectionItem(i); });
+	        }
+	    };
+	    Object.defineProperty(CollectionComponent.prototype, "selection", {
+	        // selection.
+	        get: function () {
+	            return this._selection;
+	        },
+	        set: function (value) {
+	            if (this._selection !== value) {
+	                this._selection = value;
+	                this.syncSelection();
+	                this.selectionChange.emit(this._selection);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    CollectionComponent.prototype.syncSelection = function () {
+	        var _this = this;
+	        this._suspendFlag = true;
+	        if (this._items && this._selection) {
+	            var _loop_1 = function(item) {
+	                item.selected = this_1._selection.find(function (s) { return item.model[_this.keyProperty] == s[_this.keyProperty]; }) !== undefined;
+	            };
+	            var this_1 = this;
+	            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                var item = _a[_i];
+	                _loop_1(item);
+	            }
+	            this.syncAllSelected();
+	        }
+	        this._suspendFlag = false;
+	    };
+	    CollectionComponent.prototype.onItemSelectedChange = function (item) {
+	        var _this = this;
+	        if (!this._suspendFlag) {
+	            if (!this._selection) {
+	                this._selection = [];
+	            }
+	            var existing = this._selection.findIndex(function (s) { return s[_this.keyProperty] == item.model[_this.keyProperty]; });
+	            if (item.selected && existing < 0)
+	                this._selection.push(item.model);
+	            else if (!item.selected && existing >= 0)
+	                this._selection.splice(existing, 1);
+	            this.selectionChange.emit(this._selection);
+	            this.syncAllSelected();
+	        }
+	    };
+	    Object.defineProperty(CollectionComponent.prototype, "allSelected", {
+	        // all selected.
+	        get: function () {
+	            return this._allSelected;
+	        },
+	        set: function (value) {
+	            if (this._allSelected !== value) {
+	                this._allSelected = value;
+	                this._suspendFlag = true;
+	                this._selection = [];
+	                if (value) {
+	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+	                        var item = _a[_i];
+	                        item.selected = true;
+	                        this._selection.push(item.model);
+	                    }
+	                }
+	                else {
+	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
+	                        var item = _c[_b];
+	                        item.selected = false;
+	                    }
+	                }
+	                this.selectionChange.emit(this._selection);
+	                this.allSelectedChange.emit(this._allSelected);
+	                this._suspendFlag = false;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    CollectionComponent.prototype.syncAllSelected = function () {
+	        var allSelected = this._items.length == this._selection.length && this._items.length > 0;
+	        if (this._allSelected !== allSelected) {
+	            this._allSelected = allSelected;
+	            this.allSelectedChange.emit(allSelected);
+	        }
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], CollectionComponent.prototype, "keyProperty", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], CollectionComponent.prototype, "displayProperty", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], CollectionComponent.prototype, "items", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], CollectionComponent.prototype, "itemsChange", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Object)
+	    ], CollectionComponent.prototype, "dataSource", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], CollectionComponent.prototype, "dataSourceChanged", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], CollectionComponent.prototype, "selection", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], CollectionComponent.prototype, "selectionChange", void 0);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Boolean)
+	    ], CollectionComponent.prototype, "allSelected", null);
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', core_1.EventEmitter)
+	    ], CollectionComponent.prototype, "allSelectedChange", void 0);
+	    return CollectionComponent;
+	}());
+	exports.CollectionComponent = CollectionComponent;
+
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = "<table>\r\n    <thead>\r\n        <tr>\r\n            <th class=\"d-selector\">\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </th>\r\n            <th *ngFor=\"let column of columns\" (click)=\"toggleSort(column.canSort, column.property)\"\r\n                [ngClass]=\"{ 'd-sortable': column.canSort,\r\n                             'd-sorted': dataSource.sortBy==column.property,\r\n                             'd-sorted-asc': dataSource.sortBy==column.property && dataSource.sortDirection == 1,\r\n                             'd-type-number': column.type == 'number',\r\n                             'd-type-text': column.type == 'text' }\">\r\n                <span>{{column.title}}</span>\r\n            </th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\" [ngClass]=\"{'d-selected': item.selected }\">\r\n            <td class=\"d-selector\">\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </td>\r\n            <td *ngFor=\"let column of columns\" [ngClass]=\"{ 'd-type-number': column.type == 'number', 'd-type-text': column.type == 'text' }\" [ngStyle]=\"{ 'width' : column.width }\">\r\n                <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item.model\" [index]=\"index\"></d-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
 	
-	        var result = __webpack_require__(36);
+	        var result = __webpack_require__(39);
 	
 	        if (typeof result === "string") {
 	            module.exports = result;
@@ -5504,14 +5797,14 @@
 	    
 
 /***/ },
-/* 36 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(37)();
-	exports.push([module.id, ".md-popover {\n  background: #fff;\n  border: none;\n  display: none;\n  margin: 0;\n  overflow: visible;\n  padding: 0;\n  position: absolute; }\n  .md-popover.is-visible, .md-popover.is-animating {\n    display: block;\n    z-index: 999; }\n  .md-popover.direction-up {\n    bottom: 22px; }\n", ""]);
+	exports = module.exports = __webpack_require__(40)();
+	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/* fallback */\n@font-face {\n  font-family: 'Material Icons';\n  font-style: normal;\n  font-weight: 400;\n  src: url("+__webpack_require__(41)+");\n  /* For IE6-8 */\n  src: local(\"Material Icons\"), local(\"MaterialIcons-Regular\"), url("+__webpack_require__(42)+") format(\"woff2\"), url("+__webpack_require__(43)+") format(\"woff\"), url("+__webpack_require__(44)+") format(\"truetype\"); }\n\n.material-icons, d-table table thead tr th.d-sorted:after {\n  font-family: 'Material Icons';\n  font-weight: normal;\n  font-style: normal;\n  font-size: 24px;\n  line-height: 1;\n  letter-spacing: normal;\n  text-transform: none;\n  display: inline-block;\n  white-space: nowrap;\n  word-wrap: normal;\n  direction: ltr;\n  -webkit-font-feature-settings: 'liga';\n  -webkit-font-smoothing: antialiased; }\n\n/*header*/\n/*body*/\n/*checkbox*/\nd-table table {\n  position: relative;\n  white-space: nowrap;\n  border-collapse: collapse;\n  background-color: #ffffff;\n  font-family: Roboto, \"Helvetica Neue\", sans-serif;\n  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12); }\n  d-table table thead tr {\n    height: 56px;\n    font-size: 12px;\n    color: rgba(0, 0, 0, 0.54); }\n    d-table table thead tr th {\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      box-sizing: border-box; }\n      d-table table thead tr th:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    d-table table thead tr th.d-sorted {\n      color: rgba(0, 0, 0, 0.87); }\n      d-table table thead tr th.d-sorted:after {\n        content: 'arrow_downward';\n        font-size: 16px;\n        display: inline;\n        vertical-align: text-bottom; }\n    d-table table thead tr th.d-sorted-asc:after {\n      content: 'arrow_upward'; }\n    d-table table thead tr th.d-sortable {\n      cursor: pointer; }\n    d-table table thead tr th.d-type-number {\n      text-align: right; }\n    d-table table thead tr th.d-type-text {\n      text-align: left; }\n    d-table table thead tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr {\n    height: 48px;\n    font-size: 13px;\n    color: rgba(0, 0, 0, 0.87); }\n    d-table table tbody tr.is-selected {\n      background-color: #f5f5f5; }\n    d-table table tbody tr:hover {\n      background-color: #eeeeee; }\n    d-table table tbody tr td {\n      border-top: 1px solid rgba(0, 0, 0, 0.12);\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      box-sizing: border-box; }\n      d-table table tbody tr td:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table tbody tr td:last-of-type {\n        padding-right: 24px; }\n    d-table table tbody tr td.d-type-number {\n      text-align: right; }\n    d-table table tbody tr td.d-type-text {\n      text-align: left; }\n    d-table table tbody tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr.d-selected {\n    background-color: #f5f5f5; }\n\nd-table .md-checkbox-inner-container {\n  width: 18px;\n  height: 18px;\n  color: rgba(0, 0, 0, 0.54); }\n", ""]);
 
 /***/ },
-/* 37 */
+/* 40 */
 /***/ function(module, exports) {
 
 	/*
@@ -5567,611 +5860,43 @@
 
 
 /***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var items_component_1 = __webpack_require__(39);
-	var ItemContentDirective = (function () {
-	    function ItemContentDirective(viewContainer, cdr) {
-	        this.viewContainer = viewContainer;
-	        this.cdr = cdr;
-	    }
-	    ItemContentDirective.prototype.ngOnInit = function () {
-	        this.cdr.detach();
-	    };
-	    ItemContentDirective.prototype.ngAfterViewInit = function () {
-	        var _this = this;
-	        var view = this.viewContainer.createEmbeddedView(this.template);
-	        view.context.item = this.item;
-	        view.context.model = this.item.model;
-	        view.context.index = this.index;
-	        setTimeout(function () { return _this.cdr.reattach(); });
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', items_component_1.Item)
-	    ], ItemContentDirective.prototype, "item", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ItemContentDirective.prototype, "index", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], ItemContentDirective.prototype, "template", void 0);
-	    ItemContentDirective = __decorate([
-	        core_1.Directive({
-	            selector: "item-content"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.ChangeDetectorRef])
-	    ], ItemContentDirective);
-	    return ItemContentDirective;
-	}());
-	exports.ItemContentDirective = ItemContentDirective;
-
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var Item = (function () {
-	    function Item(model) {
-	        this.model = model;
-	        this._selected = false;
-	        this.selectedChange = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(Item.prototype, "selected", {
-	        get: function () {
-	            return this._selected;
-	        },
-	        set: function (value) {
-	            if (this._selected !== value) {
-	                this._selected = value;
-	                this.selectedChange.emit(this);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Item.prototype.updateSelected = function (value) {
-	        this._selected = value;
-	    };
-	    return Item;
-	}());
-	exports.Item = Item;
-	var ItemsComponent = (function () {
-	    function ItemsComponent() {
-	        this._items = [];
-	        this._selection = [];
-	        this._suspendFlag = false;
-	        this.itemsChange = new core_1.EventEmitter();
-	        this.selectionChange = new core_1.EventEmitter();
-	        this.allSelectedChange = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(ItemsComponent.prototype, "items", {
-	        get: function () {
-	            return this._items;
-	        },
-	        set: function (value) {
-	            if (this._items !== value) {
-	                if (this._items) {
-	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                        var item = _a[_i];
-	                        item.selectedChange.unsubscribe();
-	                    }
-	                }
-	                this._items = value;
-	                if (this._items) {
-	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
-	                        var item = _c[_b];
-	                        item.selectedChange.subscribe(this.itemSelectedChanged.bind(this));
-	                    }
-	                }
-	                this.syncSelection();
-	                this.itemsChange.emit(this._items);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(ItemsComponent.prototype, "itemsSource", {
-	        get: function () {
-	            return this._items;
-	        },
-	        set: function (values) {
-	            if (this._itemsSource !== values) {
-	                this._itemsSource = values;
-	                this.items = values.map(function (v) { return new Item(v); });
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(ItemsComponent.prototype, "selection", {
-	        get: function () {
-	            return this._selection;
-	        },
-	        set: function (value) {
-	            if (this._selection !== value) {
-	                this._selection = value;
-	                this.syncSelection();
-	                this.selectionChange.emit(this._selection);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(ItemsComponent.prototype, "allSelected", {
-	        get: function () {
-	            return this._allSelected;
-	        },
-	        set: function (value) {
-	            if (this._allSelected !== value) {
-	                this._allSelected = value;
-	                this._suspendFlag = true;
-	                this._selection = [];
-	                if (value) {
-	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                        var item = _a[_i];
-	                        item.selected = true;
-	                        this._selection.push(item.model);
-	                    }
-	                }
-	                else {
-	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
-	                        var item = _c[_b];
-	                        item.selected = false;
-	                    }
-	                }
-	                this.selectionChange.emit(this._selection);
-	                this.allSelectedChange.emit(this._allSelected);
-	                this._suspendFlag = false;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    ItemsComponent.prototype.itemSelectedChanged = function (item) {
-	        var _this = this;
-	        if (!this._suspendFlag) {
-	            if (!this._selection) {
-	                this._selection = [];
-	            }
-	            var existing = this._selection.findIndex(function (s) { return s[_this.valueProperty] == item.model[_this.valueProperty]; });
-	            if (item.selected && existing < 0)
-	                this._selection.push(item.model);
-	            else if (!item.selected && existing >= 0)
-	                this._selection.splice(existing, 1);
-	            this.selectionChange.emit(this._selection);
-	            this.syncAllSelected();
-	        }
-	    };
-	    ItemsComponent.prototype.syncSelection = function () {
-	        var _this = this;
-	        this._suspendFlag = true;
-	        if (this._items && this._selection) {
-	            var _loop_1 = function(item) {
-	                item.selected = this_1._selection.find(function (s) { return item.model[_this.valueProperty] == s[_this.valueProperty]; }) !== undefined;
-	            };
-	            var this_1 = this;
-	            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                var item = _a[_i];
-	                _loop_1(item);
-	            }
-	            this.syncAllSelected();
-	        }
-	        this._suspendFlag = false;
-	    };
-	    ItemsComponent.prototype.syncAllSelected = function () {
-	        var allSelected = this._items.length == this._selection.length;
-	        if (this._allSelected !== allSelected) {
-	            this._allSelected = allSelected;
-	            this.allSelectedChange.emit(allSelected);
-	        }
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ItemsComponent.prototype, "valueProperty", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ItemsComponent.prototype, "displayProperty", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], ItemsComponent.prototype, "items", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], ItemsComponent.prototype, "itemsChange", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], ItemsComponent.prototype, "itemsSource", null);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], ItemsComponent.prototype, "selection", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], ItemsComponent.prototype, "selectionChange", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean)
-	    ], ItemsComponent.prototype, "allSelected", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', core_1.EventEmitter)
-	    ], ItemsComponent.prototype, "allSelectedChange", void 0);
-	    return ItemsComponent;
-	}());
-	exports.ItemsComponent = ItemsComponent;
-
-
-/***/ },
-/* 40 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	(function (ColumnOrder) {
-	    ColumnOrder[ColumnOrder["None"] = 0] = "None";
-	    ColumnOrder[ColumnOrder["Asc"] = 1] = "Asc";
-	    ColumnOrder[ColumnOrder["Desc"] = 2] = "Desc";
-	})(exports.ColumnOrder || (exports.ColumnOrder = {}));
-	var ColumnOrder = exports.ColumnOrder;
-	var ColumnDirective = (function () {
-	    function ColumnDirective(viewContainer) {
-	        this.viewContainer = viewContainer;
-	        this.type = "text";
-	        this._order = ColumnOrder.None;
-	        this.orderChanged = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(ColumnDirective.prototype, "order", {
-	        get: function () {
-	            return this._order;
-	        },
-	        set: function (value) {
-	            this._order = value;
-	            this.orderChanged.emit(this);
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    ColumnDirective.prototype.toggleOrder = function () {
-	        switch (this._order) {
-	            case ColumnOrder.None:
-	                this.order = ColumnOrder.Asc;
-	                break;
-	            case ColumnOrder.Asc:
-	                this.order = ColumnOrder.Desc;
-	                break;
-	            case ColumnOrder.Desc:
-	                this.order = ColumnOrder.Asc;
-	                break;
-	        }
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnDirective.prototype, "title", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnDirective.prototype, "type", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnDirective.prototype, "property", void 0);
-	    __decorate([
-	        core_1.ContentChild(core_1.TemplateRef), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], ColumnDirective.prototype, "template", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ColumnDirective.prototype, "order", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', core_1.EventEmitter)
-	    ], ColumnDirective.prototype, "orderChanged", void 0);
-	    ColumnDirective = __decorate([
-	        core_1.Directive({
-	            selector: "column"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ViewContainerRef])
-	    ], ColumnDirective);
-	    return ColumnDirective;
-	}());
-	exports.ColumnDirective = ColumnDirective;
-
-
-/***/ },
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var items_component_1 = __webpack_require__(39);
-	var DataSelectComponent = (function (_super) {
-	    __extends(DataSelectComponent, _super);
-	    function DataSelectComponent(elementRef) {
-	        _super.call(this);
-	        this.elementRef = elementRef;
-	        this.textChange = new core_1.EventEmitter();
-	    }
-	    DataSelectComponent.prototype.ngOnInit = function () {
-	        this.selectionChange.subscribe(this.onSelectionChange.bind(this));
-	        var input = this.elementRef.nativeElement.querySelector("input");
-	        input.readOnly = true;
-	    };
-	    DataSelectComponent.prototype.onSelectionChange = function () {
-	        this.text = "";
-	        for (var _i = 0, _a = this._selection; _i < _a.length; _i++) {
-	            var selected = _a[_i];
-	            if (this.text !== "")
-	                this.text += ", ";
-	            this.text += selected[this.displayProperty];
-	        }
-	        this.textChange.emit(this.text);
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], DataSelectComponent.prototype, "placeholder", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], DataSelectComponent.prototype, "text", void 0);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], DataSelectComponent.prototype, "textChange", void 0);
-	    DataSelectComponent = __decorate([
-	        core_1.Component({
-	            selector: 'md-data-select',
-	            template: __webpack_require__(42),
-	            encapsulation: core_1.ViewEncapsulation.None,
-	            styles: [__webpack_require__(43)],
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ElementRef])
-	    ], DataSelectComponent);
-	    return DataSelectComponent;
-	}(items_component_1.ItemsComponent));
-	exports.DataSelectComponent = DataSelectComponent;
-
+	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.eot";
 
 /***/ },
 /* 42 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<md-input-container (click)=\"popover.show($event)\">\r\n    <input md-input [(ngModel)]=\"text\" [placeholder]=\"placeholder\">\r\n    <span md-suffix class=\"material-icons\">arrow_drop_down</span>\r\n</md-input-container>\r\n<md-popover [hide-on-click]=\"false\" #popover>\r\n    <div class=\"list\">\r\n        <div class=\"item\" *ngFor=\"let item of items\">\r\n            <md-checkbox [(ngModel)]=\"item.selected\">{{item.model[displayProperty]}}</md-checkbox>\r\n        </div>\r\n    </div>\r\n</md-popover>"
+	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.woff2";
 
 /***/ },
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
-	        var result = __webpack_require__(44);
-	
-	        if (typeof result === "string") {
-	            module.exports = result;
-	        } else {
-	            module.exports = result.toString();
-	        }
-	    
+	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.woff";
 
 /***/ },
 /* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(37)();
-	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\nmd-data-select {\n  font-family: Roboto, \"Helvetica Neue\", sans-serif; }\n  md-data-select div.list {\n    box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);\n    margin-top: -10px;\n    background-color: white;\n    padding: 10px; }\n  md-data-select div.item {\n    width: 100%;\n    padding-top: 5px;\n    padding-bottom: 5px;\n    vertical-align: middle;\n    min-width: 195px; }\n", ""]);
+	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.ttf";
 
 /***/ },
 /* 45 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var column_directive_1 = __webpack_require__(40);
-	var items_component_1 = __webpack_require__(39);
-	var DataTableComponent = (function (_super) {
-	    __extends(DataTableComponent, _super);
-	    function DataTableComponent() {
-	        _super.apply(this, arguments);
-	        this._columns = [];
-	        this.orderByChanged = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(DataTableComponent.prototype, "columns", {
-	        get: function () {
-	            return this._columns;
-	        },
-	        set: function (value) {
-	            if (this._columns) {
-	                for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                    var column = _a[_i];
-	                    column.orderChanged.unsubscribe();
-	                }
-	            }
-	            this._columns = value;
-	            if (this._columns) {
-	                for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
-	                    var column = _c[_b];
-	                    column.orderChanged.subscribe(this.columnOrderChanged.bind(this));
-	                }
-	            }
-	            this.syncOrderBy();
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(DataTableComponent.prototype, "orderBy", {
-	        get: function () {
-	            return this._orderBy;
-	        },
-	        set: function (value) {
-	            if (this._orderBy !== value) {
-	                this._orderBy = value;
-	                this.syncOrderBy();
-	                this.orderByChanged.emit(value);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    DataTableComponent.prototype.ngAfterContentInit = function () {
-	        if (this._columnQuery)
-	            this.columns = this._columnQuery.toArray();
-	    };
-	    DataTableComponent.prototype.columnOrderChanged = function (sortedColumn) {
-	        if (sortedColumn.order !== column_directive_1.ColumnOrder.None) {
-	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                var column = _a[_i];
-	                if (sortedColumn !== column) {
-	                    column.order = column_directive_1.ColumnOrder.None;
-	                }
-	            }
-	            this._orderBy = (sortedColumn.order == column_directive_1.ColumnOrder.Asc ? "+" : "-") + sortedColumn.property;
-	            this.orderByChanged.emit(this.orderBy);
-	        }
-	    };
-	    DataTableComponent.prototype.syncOrderBy = function () {
-	        if (this._columns && this._orderBy) {
-	            var order = this._orderBy.substr(0, 1);
-	            var property = this._orderBy.substr(1);
-	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                var column = _a[_i];
-	                if (column.property == property) {
-	                    if (order == "+")
-	                        column.order = column_directive_1.ColumnOrder.Asc;
-	                    else
-	                        column.order = column_directive_1.ColumnOrder.Desc;
-	                    return;
-	                }
-	            }
-	        }
-	    };
-	    __decorate([
-	        core_1.ContentChildren(column_directive_1.ColumnDirective), 
-	        __metadata('design:type', core_1.QueryList)
-	    ], DataTableComponent.prototype, "_columnQuery", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], DataTableComponent.prototype, "columns", null);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], DataTableComponent.prototype, "orderBy", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], DataTableComponent.prototype, "orderByChanged", void 0);
-	    DataTableComponent = __decorate([
-	        core_1.Component({
-	            selector: 'md-data-table',
-	            template: __webpack_require__(46),
-	            encapsulation: core_1.ViewEncapsulation.None,
-	            styles: [__webpack_require__(47)],
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], DataTableComponent);
-	    return DataTableComponent;
-	}(items_component_1.ItemsComponent));
-	exports.DataTableComponent = DataTableComponent;
-
+	// removed by extract-text-webpack-plugin
 
 /***/ },
 /* 46 */
 /***/ function(module, exports) {
 
-	module.exports = "<table>\r\n    <thead>\r\n        <tr>\r\n            <th>\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </th>\r\n            <th *ngFor=\"let column of columns\" (click)=\"column.toggleOrder()\" [ngClass]=\"column.type + ' ' + (column.order ? 'sorted' : '')\">\r\n                <span>{{column.title}}</span>\r\n                <span *ngIf=\"column.order\" class=\"material-icons\">\r\n                    {{ column.order == 1 ? 'arrow_upward' : (column.order == 2 ? 'arrow_downward' : ' ')  }}\r\n                </span>\r\n            </th>\r\n            <th style=\"width:100%\"></th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\" [ngClass]=\"{'selected': item.selected}\">\r\n            <td>\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </td>\r\n            <td *ngFor=\"let column of columns\" [ngClass]=\"column.type\">\r\n                <item-content *ngIf=\"column.template\" [template]=\"column.template\" [item]=\"item\" [index]=\"index\"></item-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </td>\r\n            <td style=\"width:100%\"></td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
+	// removed by extract-text-webpack-plugin
 
 /***/ },
 /* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	        var result = __webpack_require__(48);
-	
-	        if (typeof result === "string") {
-	            module.exports = result;
-	        } else {
-	            module.exports = result.toString();
-	        }
-	    
-
-/***/ },
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(37)();
-	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/*header*/\n/*body*/\nmd-data-table table {\n  position: relative;\n  white-space: nowrap;\n  border-collapse: collapse;\n  background-color: #ffffff;\n  font-family: Roboto, \"Helvetica Neue\", sans-serif; }\n  md-data-table table thead tr {\n    height: 56px;\n    font-size: 12px;\n    color: rgba(0, 0, 0, 0.54); }\n    md-data-table table thead tr th {\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      box-sizing: border-box; }\n      md-data-table table thead tr th:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      md-data-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    md-data-table table thead tr th.number {\n      text-align: right; }\n    md-data-table table thead tr th.text {\n      text-align: left; }\n    md-data-table table thead tr th.sorted {\n      color: rgba(0, 0, 0, 0.87); }\n  md-data-table table thead .material-icons {\n    font-size: 16px;\n    display: inline;\n    vertical-align: text-bottom; }\n  md-data-table table tbody tr {\n    height: 48px;\n    font-size: 13px;\n    color: rgba(0, 0, 0, 0.87); }\n    md-data-table table tbody tr.is-selected {\n      background-color: #f5f5f5; }\n    md-data-table table tbody tr:hover {\n      background-color: #eeeeee; }\n    md-data-table table tbody tr td {\n      border-top: 1px solid rgba(0, 0, 0, 0.12);\n      border-bottom: 1px solid rgba(0, 0, 0, 0.12);\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      box-sizing: border-box; }\n      md-data-table table tbody tr td:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      md-data-table table tbody tr td:last-of-type {\n        padding-right: 24px; }\n    md-data-table table tbody tr td.number {\n      text-align: right; }\n    md-data-table table tbody tr td.text {\n      text-align: left; }\n  md-data-table table tbody tr.selected {\n    background-color: #f5f5f5; }\n\nmd-data-table .md-checkbox-inner-container {\n  width: 18px;\n  height: 18px;\n  color: rgba(0, 0, 0, 0.54); }\n", ""]);
-
-/***/ },
-/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6185,19 +5910,18 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(50);
-	var home_component_1 = __webpack_require__(51);
-	var user_list_component_1 = __webpack_require__(53);
-	var user_edit_component_1 = __webpack_require__(57);
+	var router_1 = __webpack_require__(48);
+	var home_component_1 = __webpack_require__(49);
+	var user_list_component_1 = __webpack_require__(51);
+	var user_edit_component_1 = __webpack_require__(58);
 	var appRoutes = [
 	    { path: "", redirectTo: "home", pathMatch: "full" },
 	    { path: "home", component: home_component_1.HomeComponent },
-	    {
-	        path: "security/users",
+	    { path: "security/users",
 	        children: [
-	            { path: "", pathMatch: "full", redirectTo: "list" },
-	            { path: "list", component: user_list_component_1.UserListComponent },
-	            { path: "edit/:id", component: user_edit_component_1.UserEditComponent }
+	            { path: "", component: user_list_component_1.UserListComponent },
+	            { path: ":id", component: user_edit_component_1.UserEditComponent },
+	            { path: "new", component: user_edit_component_1.UserEditComponent }
 	        ]
 	    }
 	];
@@ -6221,10 +5945,46 @@
 
 
 /***/ },
-/* 50 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(304);
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var HomeComponent = (function () {
+	    function HomeComponent() {
+	    }
+	    HomeComponent = __decorate([
+	        core_1.Component({
+	            selector: "app-home",
+	            template: __webpack_require__(50)
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], HomeComponent);
+	    return HomeComponent;
+	}());
+	exports.HomeComponent = HomeComponent;
+
+
+/***/ },
+/* 50 */
+/***/ function(module, exports) {
+
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Home</span>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    \r\n    Home!\r\n    Select an option from the left panel...\r\n\r\n</md-sidenav-container>"
 
 /***/ },
 /* 51 */
@@ -6241,66 +6001,21 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var HomeComponent = (function () {
-	    function HomeComponent() {
-	        this.selection = [];
-	    }
-	    HomeComponent = __decorate([
-	        core_1.Component({
-	            selector: "app-home",
-	            template: __webpack_require__(52)
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], HomeComponent);
-	    return HomeComponent;
-	}());
-	exports.HomeComponent = HomeComponent;
-
-
-/***/ },
-/* 52 */
-/***/ function(module, exports) {
-
-	module.exports = "<h1></h1>\r\n<h3>Choose an option from the left panel.</h3>"
-
-/***/ },
-/* 53 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var user_service_1 = __webpack_require__(54);
+	var user_service_1 = __webpack_require__(52);
 	var UserListComponent = (function () {
-	    function UserListComponent(userService) {
-	        this.userService = userService;
-	        this.items = [];
-	        this.sel = [];
+	    function UserListComponent(users) {
+	        this.users = users;
 	    }
 	    UserListComponent.prototype.ngOnInit = function () {
-	        var _this = this;
-	        this.userService.get(null)
-	            .subscribe(function (r) { return _this.items = r; });
-	        this.sel.push({
-	            id: 2,
-	            name: "User 2"
-	        });
+	        this.users.load();
 	    };
 	    UserListComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-list",
-	            template: __webpack_require__(56),
-	            providers: [user_service_1.UserService]
+	            template: __webpack_require__(57),
+	            providers: [user_service_1.UserCollectionDataSource]
 	        }), 
-	        __metadata('design:paramtypes', [user_service_1.UserService])
+	        __metadata('design:paramtypes', [user_service_1.UserCollectionDataSource])
 	    ], UserListComponent);
 	    return UserListComponent;
 	}());
@@ -6308,10 +6023,15 @@
 
 
 /***/ },
-/* 54 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -6323,64 +6043,290 @@
 	};
 	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	__webpack_require__(55);
-	var UserService = (function () {
-	    function UserService(http) {
-	        this.http = http;
-	        this.baseUrl = "/api/users";
+	var collection_datasource_1 = __webpack_require__(53);
+	var model_datasource_1 = __webpack_require__(55);
+	var UserQuery = (function () {
+	    function UserQuery() {
 	    }
-	    UserService.prototype.findById = function (id) {
-	        return this.http.get(this.baseUrl + "/" + id).map(function (r) { return r.json(); });
-	    };
-	    UserService.prototype.get = function (query) {
-	        var params = new http_1.URLSearchParams();
-	        if (query) {
-	            for (var _i = 0, query_1 = query; _i < query_1.length; _i++) {
-	                var prop = query_1[_i];
-	                params.append(prop, query[prop]);
-	            }
-	        }
-	        return this.http.get(this.baseUrl, { search: params }).map(function (r) { return r.json(); });
-	    };
-	    UserService.prototype.getPage = function (pageIndex, pageSize, query) {
-	        var params = new http_1.URLSearchParams();
-	        params.append("pageIndex", pageIndex.toString());
-	        params.append("pageSize", pageSize.toString());
-	        for (var _i = 0, query_2 = query; _i < query_2.length; _i++) {
-	            var prop = query_2[_i];
-	            params.append(prop, query[prop]);
-	        }
-	        return this.http.get(this.baseUrl, { search: params }).map(function (r) { return r.json(); });
-	    };
-	    UserService.prototype.save = function (entity) {
-	        return this.http.post(this.baseUrl, entity).map(function (r) { return r.json(); });
-	    };
-	    UserService.prototype.delete = function (id) {
-	        return this.http.delete(this.baseUrl + "/" + id);
-	    };
-	    UserService = __decorate([
+	    return UserQuery;
+	}());
+	exports.UserQuery = UserQuery;
+	var UserCollectionDataSource = (function (_super) {
+	    __extends(UserCollectionDataSource, _super);
+	    function UserCollectionDataSource(http) {
+	        _super.call(this, http, "/api/users/pages/:pageIndex");
+	        this.sortBy = "name";
+	    }
+	    UserCollectionDataSource = __decorate([
 	        core_1.Injectable(), 
 	        __metadata('design:paramtypes', [http_1.Http])
-	    ], UserService);
-	    return UserService;
+	    ], UserCollectionDataSource);
+	    return UserCollectionDataSource;
+	}(collection_datasource_1.HttpRestCollectionDataSource));
+	exports.UserCollectionDataSource = UserCollectionDataSource;
+	var UserModelDataSource = (function (_super) {
+	    __extends(UserModelDataSource, _super);
+	    function UserModelDataSource(http) {
+	        _super.call(this, http, "api/users/:id");
+	    }
+	    UserModelDataSource = __decorate([
+	        core_1.Injectable(), 
+	        __metadata('design:paramtypes', [http_1.Http])
+	    ], UserModelDataSource);
+	    return UserModelDataSource;
+	}(model_datasource_1.HttpRestModelDataSource));
+	exports.UserModelDataSource = UserModelDataSource;
+
+
+/***/ },
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var core_1 = __webpack_require__(21);
+	var http_1 = __webpack_require__(25);
+	var base_datasource_1 = __webpack_require__(54);
+	(function (SortDirection) {
+	    SortDirection[SortDirection["Asc"] = 0] = "Asc";
+	    SortDirection[SortDirection["Desc"] = 1] = "Desc";
+	})(exports.SortDirection || (exports.SortDirection = {}));
+	var SortDirection = exports.SortDirection;
+	var DataPage = (function () {
+	    function DataPage() {
+	    }
+	    return DataPage;
 	}());
-	exports.UserService = UserService;
+	exports.DataPage = DataPage;
+	var HttpRestCollectionDataSource = (function (_super) {
+	    __extends(HttpRestCollectionDataSource, _super);
+	    function HttpRestCollectionDataSource(http, baseUrl) {
+	        _super.call(this);
+	        this.http = http;
+	        this.baseUrl = baseUrl;
+	        this.keyProperty = "id";
+	        this.searchParams = {};
+	        this.sortDirection = SortDirection.Asc;
+	        this.pageIndex = 1;
+	        this.items = [];
+	        this.itemsChange = new core_1.EventEmitter();
+	    }
+	    /** builds a URLSearchParams instance from searchParams and collection parameters. */
+	    HttpRestCollectionDataSource.prototype.buildParameters = function () {
+	        var searchParams = new http_1.URLSearchParams();
+	        for (var queryProp in this.searchParams) {
+	            var value = this.searchParams[queryProp];
+	            if (value) {
+	                searchParams.append(queryProp, value);
+	            }
+	        }
+	        if (this.searchText) {
+	            searchParams.append("searchText", this.searchText);
+	        }
+	        if (this.sortBy) {
+	            searchParams.append("orderBy", this.sortBy + (this.sortDirection == SortDirection.Asc ? "+asc" : "+desc"));
+	        }
+	        if (this.pageIndex) {
+	            searchParams.append("pageIndex", this.pageIndex.toString());
+	        }
+	        if (this.pageSize) {
+	            searchParams.append("pageSize", this.pageSize.toString());
+	        }
+	        if (this.noCount !== undefined) {
+	            searchParams.append("noCount", this.noCount ? "true" : "false");
+	        }
+	        return searchParams;
+	    };
+	    HttpRestCollectionDataSource.prototype.load = function () {
+	        var searchParams = this.buildParameters();
+	        var resolvedUrl = this.resolveUrl(this.baseUrl, searchParams);
+	        var result = this.http.get(resolvedUrl, { search: searchParams }).map(function (r) { return r.json(); });
+	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        return result;
+	    };
+	    HttpRestCollectionDataSource.prototype.handleResponse = function (result) {
+	        if (result instanceof Array) {
+	            this.handleArray(result);
+	        }
+	        else {
+	            this.handlePage(result);
+	        }
+	    };
+	    HttpRestCollectionDataSource.prototype.handleArray = function (array) {
+	        this.items = array;
+	        this.itemsChange.emit(this.items);
+	    };
+	    HttpRestCollectionDataSource.prototype.handlePage = function (page) {
+	        this.items = page.items;
+	        this.pageCount = page.pageCount;
+	        this.rowCount = page.rowCount;
+	        this.itemsChange.emit(this.items);
+	    };
+	    HttpRestCollectionDataSource.prototype.handleError = function (error) {
+	    };
+	    HttpRestCollectionDataSource.prototype.toggleSort = function (propertyName) {
+	        if (this.sortBy != propertyName) {
+	            this.sortDirection = SortDirection.Asc;
+	        }
+	        else {
+	            switch (this.sortDirection) {
+	                case SortDirection.Desc:
+	                    this.sortDirection = SortDirection.Asc;
+	                    break;
+	                case SortDirection.Asc:
+	                    this.sortDirection = SortDirection.Desc;
+	                    break;
+	            }
+	        }
+	        this.sortBy = propertyName;
+	        return this.load();
+	    };
+	    HttpRestCollectionDataSource.prototype.loadFirstPage = function () {
+	    };
+	    HttpRestCollectionDataSource.prototype.loadPreviousPage = function () {
+	    };
+	    HttpRestCollectionDataSource.prototype.loadNextPage = function () {
+	    };
+	    HttpRestCollectionDataSource.prototype.loadLastPage = function () {
+	    };
+	    return HttpRestCollectionDataSource;
+	}(base_datasource_1.HttpRestBaseDataSource));
+	exports.HttpRestCollectionDataSource = HttpRestCollectionDataSource;
+
+
+/***/ },
+/* 54 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var HttpRestBaseDataSource = (function () {
+	    function HttpRestBaseDataSource() {
+	    }
+	    /**@desc replaces url params with query values, e.g.: /api/users/:id -> /api/users/1
+	      *@param baseUrl - the template url.
+	      *@param params - the replacement values.
+	      */
+	    HttpRestBaseDataSource.prototype.resolveUrl = function (baseUrl, params) {
+	        return baseUrl.replace(/:[a-zA-z0-9]+/, function (match, args) {
+	            var paramName = match.substr(1);
+	            var value = params.get(paramName);
+	            if (!value)
+	                throw new URIError("parameter " + match + " in url '" + this.url + "' is not defined.");
+	            params.delete(paramName); //don't send duplicated parameters.
+	            return value;
+	        }.bind(this));
+	    };
+	    return HttpRestBaseDataSource;
+	}());
+	exports.HttpRestBaseDataSource = HttpRestBaseDataSource;
 
 
 /***/ },
 /* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(354);
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var core_1 = __webpack_require__(21);
+	var http_1 = __webpack_require__(25);
+	var Observable_1 = __webpack_require__(56);
+	var base_datasource_1 = __webpack_require__(54);
+	var HttpRestModelDataSource = (function (_super) {
+	    __extends(HttpRestModelDataSource, _super);
+	    function HttpRestModelDataSource(http, baseUrl) {
+	        _super.call(this);
+	        this.http = http;
+	        this.baseUrl = baseUrl;
+	        this.keyProperty = "id";
+	        this.model = {};
+	        this.modelChange = new core_1.EventEmitter();
+	        this.params = {};
+	        this.loadUrl = baseUrl;
+	        this.saveUrl = baseUrl.replace("/:" + this.keyProperty, "");
+	        this.deleteUrl = baseUrl;
+	    }
+	    Object.defineProperty(HttpRestModelDataSource.prototype, "isNew", {
+	        get: function () {
+	            return this.model && this.model[this.keyProperty];
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    HttpRestModelDataSource.prototype.buildParams = function () {
+	        var searchParams = new http_1.URLSearchParams();
+	        for (var paramProp in this.params) {
+	            searchParams.append(paramProp, this.params[paramProp]);
+	        }
+	        return searchParams;
+	    };
+	    HttpRestModelDataSource.prototype.load = function (key) {
+	        this.params[this.keyProperty] = key;
+	        var searchParams = this.buildParams();
+	        var resolvedUrl = this.resolveUrl(this.loadUrl, searchParams);
+	        searchParams.delete(this.keyProperty);
+	        var result = this.http.get(resolvedUrl, { search: searchParams })
+	            .map(function (r) { return r.json(); });
+	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        return result;
+	    };
+	    HttpRestModelDataSource.prototype.validate = function () {
+	        return true;
+	    };
+	    HttpRestModelDataSource.prototype.save = function () {
+	        if (!this.validate) {
+	            return Observable_1.Observable.throw("invalid.");
+	        }
+	        else {
+	            var searchParams = this.buildParams();
+	            var resolvedUrl = this.resolveUrl(this.saveUrl, searchParams);
+	            searchParams.delete(this.keyProperty);
+	            var result = this.http.post(resolvedUrl, this.model, { search: searchParams })
+	                .map(function (r) { return r.json(); });
+	            result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	            return result;
+	        }
+	    };
+	    HttpRestModelDataSource.prototype.delete = function () {
+	        var searchParams = this.buildParams();
+	        var resolvedUrl = this.resolveUrl(this.deleteUrl, searchParams);
+	        searchParams.delete(this.keyProperty);
+	        var result = this.http.delete(resolvedUrl, { search: searchParams });
+	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        return result;
+	    };
+	    HttpRestModelDataSource.prototype.handleResponse = function (response) {
+	        this.model = response;
+	        this.modelChange.emit(this.model);
+	    };
+	    HttpRestModelDataSource.prototype.handleError = function (error) {
+	    };
+	    return HttpRestModelDataSource;
+	}(base_datasource_1.HttpRestBaseDataSource));
+	exports.HttpRestModelDataSource = HttpRestModelDataSource;
+
 
 /***/ },
 /* 56 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button align=\"end\">New</button>\r\n    <button md-button align=\"end\">Delete</button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    <div class=\"flex-container\" fxLayout=\"row\">\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n\r\n        <div class=\"flex-item\" fxFlex>\r\n            <!--<md-data-table [itemsSource]=\"items\" [(selection)]=\"sel\" valueProperty=\"id\" orderBy=\"-name\">\r\n                <column property=\"id\" type=\"number\" title=\"Key\"></column>\r\n                <column property=\"name\" title=\"Name\" type=\"text\"></column>\r\n            </md-data-table>-->\r\n\r\n            <md-data-select [itemsSource]=\"items\" placeholder=\"Sarlanga\" displayProperty=\"name\" valueProperty=\"id\">\r\n\r\n            </md-data-select>\r\n        </div>\r\n\r\n        <div class=\"flex-item\" fxFlex=\"20%\"></div>\r\n    </div>\r\n\r\n</md-sidenav-container>"
+	module.exports = (__webpack_require__(17))(281);
 
 /***/ },
 /* 57 */
+/***/ function(module, exports) {
+
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button [routerLink]=\"['/security/users/new']\">\r\n        <md-icon>add</md-icon>\r\n        <span>New</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <div class=\"flex-container\" fxLayout=\"row\" fxLayoutAlign=\"center start\">\r\n        <div class=\"flex-item\">\r\n            <d-table [dataSource]=\"users\">\r\n                <d-column property=\"id\" type=\"number\" title=\"Key\" canSort=\"true\"></d-column>\r\n                <d-column property=\"name\" title=\"Name\" type=\"text\" canSort=\"true\"></d-column>\r\n                <d-column>\r\n                    <template let-model=\"model\">\r\n                        <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                    </template>\r\n                </d-column>\r\n            </d-table>\r\n        </div>\r\n    </div>\r\n</md-sidenav-container>"
+
+/***/ },
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6394,15 +6340,34 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
+	var router_1 = __webpack_require__(48);
+	var user_service_1 = __webpack_require__(52);
 	var UserEditComponent = (function () {
-	    function UserEditComponent() {
+	    function UserEditComponent(userSource, activatedRoute) {
+	        this.userSource = userSource;
+	        this.activatedRoute = activatedRoute;
 	    }
+	    UserEditComponent.prototype.ngOnInit = function () {
+	        var key = this.activatedRoute.snapshot.params["id"];
+	        this.userSource.load(key);
+	    };
+	    UserEditComponent.prototype.save = function () {
+	        this.userSource.save()
+	            .subscribe(function (e) { return window.history.back(); });
+	    };
+	    UserEditComponent.prototype.delete = function () {
+	        this.userSource.delete()
+	            .subscribe(function (e) { return window.history.back(); });
+	    };
+	    UserEditComponent.prototype.do = function (form) {
+	    };
 	    UserEditComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-edit",
-	            template: __webpack_require__(58)
+	            template: __webpack_require__(59),
+	            providers: [user_service_1.UserModelDataSource]
 	        }), 
-	        __metadata('design:paramtypes', [])
+	        __metadata('design:paramtypes', [user_service_1.UserModelDataSource, router_1.ActivatedRoute])
 	    ], UserEditComponent);
 	    return UserEditComponent;
 	}());
@@ -6410,13 +6375,13 @@
 
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports) {
 
-	module.exports = "user edit!"
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <!--<button md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>-->\r\n    <span>Edit User '{{userSource.model.name}}'</span>\r\n    <div fxFlex></div>\r\n    <button md-button type=\"submit\" form=\"userForm\">\r\n        <md-icon>save</md-icon>\r\n        <span>Save</span>\r\n    </button>\r\n    <button md-button (click)=\"delete()\">\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<form id=\"userForm\" (ngSubmit)=\"save()\">\r\n    <md-input-container>\r\n        <input md-input name=\"name\" [(ngModel)]=\"userSource.model.name\" placeholder=\"Name\" />\r\n    </md-input-container>\r\n</form>"
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6436,7 +6401,7 @@
 	    AppNavComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-nav",
-	            template: __webpack_require__(60)
+	            template: __webpack_require__(61)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppNavComponent);
@@ -6446,13 +6411,13 @@
 
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports) {
 
 	module.exports = "<ul>\r\n    <li>\r\n        <a [routerLink]=\"['/home']\">Home</a>\r\n    </li>\r\n    <li>\r\n        <a [routerLink]=\"['/security/users']\">Users example</a>\r\n    </li>\r\n</ul>"
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6472,7 +6437,7 @@
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: "app",
-	            template: __webpack_require__(62)
+	            template: __webpack_require__(63)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppComponent);
@@ -6482,16 +6447,10 @@
 
 
 /***/ },
-/* 62 */
-/***/ function(module, exports) {
-
-	module.exports = "<router-outlet></router-outlet>\r\n"
-
-/***/ },
 /* 63 */
 /***/ function(module, exports) {
 
-	// removed by extract-text-webpack-plugin
+	module.exports = "<router-outlet></router-outlet>\r\n"
 
 /***/ },
 /* 64 */

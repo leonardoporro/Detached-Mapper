@@ -1,4 +1,9 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,46 +15,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require("@angular/core");
 var http_1 = require("@angular/http");
-require('rxjs/Rx');
-var UserService = (function () {
-    function UserService(http) {
-        this.http = http;
-        this.baseUrl = "/api/users";
+var collection_datasource_1 = require("../../shared/datasources/collection.datasource");
+var model_datasource_1 = require("../../shared/datasources/model.datasource");
+var UserQuery = (function () {
+    function UserQuery() {
     }
-    UserService.prototype.findById = function (id) {
-        return this.http.get(this.baseUrl + "/" + id).map(function (r) { return r.json(); });
-    };
-    UserService.prototype.get = function (query) {
-        var params = new http_1.URLSearchParams();
-        if (query) {
-            for (var _i = 0, query_1 = query; _i < query_1.length; _i++) {
-                var prop = query_1[_i];
-                params.append(prop, query[prop]);
-            }
-        }
-        return this.http.get(this.baseUrl, { search: params }).map(function (r) { return r.json(); });
-    };
-    UserService.prototype.getPage = function (pageIndex, pageSize, query) {
-        var params = new http_1.URLSearchParams();
-        params.append("pageIndex", pageIndex.toString());
-        params.append("pageSize", pageSize.toString());
-        for (var _i = 0, query_2 = query; _i < query_2.length; _i++) {
-            var prop = query_2[_i];
-            params.append(prop, query[prop]);
-        }
-        return this.http.get(this.baseUrl, { search: params }).map(function (r) { return r.json(); });
-    };
-    UserService.prototype.save = function (entity) {
-        return this.http.post(this.baseUrl, entity).map(function (r) { return r.json(); });
-    };
-    UserService.prototype.delete = function (id) {
-        return this.http.delete(this.baseUrl + "/" + id);
-    };
-    UserService = __decorate([
+    return UserQuery;
+}());
+exports.UserQuery = UserQuery;
+var UserCollectionDataSource = (function (_super) {
+    __extends(UserCollectionDataSource, _super);
+    function UserCollectionDataSource(http) {
+        _super.call(this, http, "/api/users/pages/:pageIndex");
+        this.sortBy = "name";
+    }
+    UserCollectionDataSource = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [http_1.Http])
-    ], UserService);
-    return UserService;
-}());
-exports.UserService = UserService;
+    ], UserCollectionDataSource);
+    return UserCollectionDataSource;
+}(collection_datasource_1.HttpRestCollectionDataSource));
+exports.UserCollectionDataSource = UserCollectionDataSource;
+var UserModelDataSource = (function (_super) {
+    __extends(UserModelDataSource, _super);
+    function UserModelDataSource(http) {
+        _super.call(this, http, "api/users/:id");
+    }
+    UserModelDataSource = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [http_1.Http])
+    ], UserModelDataSource);
+    return UserModelDataSource;
+}(model_datasource_1.HttpRestModelDataSource));
+exports.UserModelDataSource = UserModelDataSource;
 //# sourceMappingURL=user.service.js.map

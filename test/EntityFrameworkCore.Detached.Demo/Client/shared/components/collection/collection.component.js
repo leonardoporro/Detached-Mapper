@@ -9,13 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var Item = (function () {
-    function Item(model) {
+var CollectionItem = (function () {
+    function CollectionItem(model) {
         this.model = model;
         this._selected = false;
         this.selectedChange = new core_1.EventEmitter();
     }
-    Object.defineProperty(Item.prototype, "selected", {
+    Object.defineProperty(CollectionItem.prototype, "selected", {
         get: function () {
             return this._selected;
         },
@@ -28,22 +28,23 @@ var Item = (function () {
         enumerable: true,
         configurable: true
     });
-    Item.prototype.updateSelected = function (value) {
-        this._selected = value;
-    };
-    return Item;
+    return CollectionItem;
 }());
-exports.Item = Item;
-var ItemsComponent = (function () {
-    function ItemsComponent() {
+exports.CollectionItem = CollectionItem;
+var CollectionComponent = (function () {
+    function CollectionComponent() {
+        this._suspendFlag = false;
         this._items = [];
         this._selection = [];
-        this._suspendFlag = false;
+        this.keyProperty = "id";
+        this.displayProperty = "name";
         this.itemsChange = new core_1.EventEmitter();
+        this.dataSourceChanged = new core_1.EventEmitter();
         this.selectionChange = new core_1.EventEmitter();
         this.allSelectedChange = new core_1.EventEmitter();
     }
-    Object.defineProperty(ItemsComponent.prototype, "items", {
+    Object.defineProperty(CollectionComponent.prototype, "items", {
+        //items.
         get: function () {
             return this._items;
         },
@@ -59,7 +60,7 @@ var ItemsComponent = (function () {
                 if (this._items) {
                     for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
                         var item = _c[_b];
-                        item.selectedChange.subscribe(this.itemSelectedChanged.bind(this));
+                        item.selectedChange.subscribe(this.onItemSelectedChange.bind(this));
                     }
                 }
                 this.syncSelection();
@@ -69,20 +70,34 @@ var ItemsComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItemsComponent.prototype, "itemsSource", {
+    Object.defineProperty(CollectionComponent.prototype, "dataSource", {
+        //item source.
         get: function () {
-            return this._items;
+            return this._dataSource;
         },
-        set: function (values) {
-            if (this._itemsSource !== values) {
-                this._itemsSource = values;
-                this.items = values.map(function (v) { return new Item(v); });
+        set: function (value) {
+            if (this._dataSource != value) {
+                if (this._dataSource) {
+                    this._dataSource.itemsChange.unsubscribe();
+                }
+                this._dataSource = value;
+                if (this._dataSource) {
+                    this._dataSource.itemsChange.subscribe(this.onDataSourceItemsChange.bind(this));
+                    this.onDataSourceItemsChange();
+                }
+                this.dataSourceChanged.emit(this.dataSource);
             }
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItemsComponent.prototype, "selection", {
+    CollectionComponent.prototype.onDataSourceItemsChange = function () {
+        if (this._dataSource && this._dataSource.items) {
+            this.items = this._dataSource.items.map(function (i) { return new CollectionItem(i); });
+        }
+    };
+    Object.defineProperty(CollectionComponent.prototype, "selection", {
+        // selection.
         get: function () {
             return this._selection;
         },
@@ -96,7 +111,39 @@ var ItemsComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItemsComponent.prototype, "allSelected", {
+    CollectionComponent.prototype.syncSelection = function () {
+        var _this = this;
+        this._suspendFlag = true;
+        if (this._items && this._selection) {
+            var _loop_1 = function(item) {
+                item.selected = this_1._selection.find(function (s) { return item.model[_this.keyProperty] == s[_this.keyProperty]; }) !== undefined;
+            };
+            var this_1 = this;
+            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
+                var item = _a[_i];
+                _loop_1(item);
+            }
+            this.syncAllSelected();
+        }
+        this._suspendFlag = false;
+    };
+    CollectionComponent.prototype.onItemSelectedChange = function (item) {
+        var _this = this;
+        if (!this._suspendFlag) {
+            if (!this._selection) {
+                this._selection = [];
+            }
+            var existing = this._selection.findIndex(function (s) { return s[_this.keyProperty] == item.model[_this.keyProperty]; });
+            if (item.selected && existing < 0)
+                this._selection.push(item.model);
+            else if (!item.selected && existing >= 0)
+                this._selection.splice(existing, 1);
+            this.selectionChange.emit(this._selection);
+            this.syncAllSelected();
+        }
+    };
+    Object.defineProperty(CollectionComponent.prototype, "allSelected", {
+        // all selected.
         get: function () {
             return this._allSelected;
         },
@@ -126,39 +173,8 @@ var ItemsComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    ItemsComponent.prototype.itemSelectedChanged = function (item) {
-        var _this = this;
-        if (!this._suspendFlag) {
-            if (!this._selection) {
-                this._selection = [];
-            }
-            var existing = this._selection.findIndex(function (s) { return s[_this.valueProperty] == item.model[_this.valueProperty]; });
-            if (item.selected && existing < 0)
-                this._selection.push(item.model);
-            else if (!item.selected && existing >= 0)
-                this._selection.splice(existing, 1);
-            this.selectionChange.emit(this._selection);
-            this.syncAllSelected();
-        }
-    };
-    ItemsComponent.prototype.syncSelection = function () {
-        var _this = this;
-        this._suspendFlag = true;
-        if (this._items && this._selection) {
-            var _loop_1 = function(item) {
-                item.selected = this_1._selection.find(function (s) { return item.model[_this.valueProperty] == s[_this.valueProperty]; }) !== undefined;
-            };
-            var this_1 = this;
-            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-                var item = _a[_i];
-                _loop_1(item);
-            }
-            this.syncAllSelected();
-        }
-        this._suspendFlag = false;
-    };
-    ItemsComponent.prototype.syncAllSelected = function () {
-        var allSelected = this._items.length == this._selection.length;
+    CollectionComponent.prototype.syncAllSelected = function () {
+        var allSelected = this._items.length == this._selection.length && this._items.length > 0;
         if (this._allSelected !== allSelected) {
             this._allSelected = allSelected;
             this.allSelectedChange.emit(allSelected);
@@ -167,40 +183,44 @@ var ItemsComponent = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], ItemsComponent.prototype, "valueProperty", void 0);
+    ], CollectionComponent.prototype, "keyProperty", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], ItemsComponent.prototype, "displayProperty", void 0);
+    ], CollectionComponent.prototype, "displayProperty", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array)
-    ], ItemsComponent.prototype, "items", null);
+    ], CollectionComponent.prototype, "items", null);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
-    ], ItemsComponent.prototype, "itemsChange", void 0);
+    ], CollectionComponent.prototype, "itemsChange", void 0);
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', Array)
-    ], ItemsComponent.prototype, "itemsSource", null);
-    __decorate([
-        core_1.Input(), 
-        __metadata('design:type', Array)
-    ], ItemsComponent.prototype, "selection", null);
+        __metadata('design:type', Object)
+    ], CollectionComponent.prototype, "dataSource", null);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
-    ], ItemsComponent.prototype, "selectionChange", void 0);
+    ], CollectionComponent.prototype, "dataSourceChanged", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Array)
+    ], CollectionComponent.prototype, "selection", null);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], CollectionComponent.prototype, "selectionChange", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)
-    ], ItemsComponent.prototype, "allSelected", null);
+    ], CollectionComponent.prototype, "allSelected", null);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], ItemsComponent.prototype, "allSelectedChange", void 0);
-    return ItemsComponent;
+    ], CollectionComponent.prototype, "allSelectedChange", void 0);
+    return CollectionComponent;
 }());
-exports.ItemsComponent = ItemsComponent;
-//# sourceMappingURL=items.component.js.map
+exports.CollectionComponent = CollectionComponent;
+//# sourceMappingURL=collection.component.js.map

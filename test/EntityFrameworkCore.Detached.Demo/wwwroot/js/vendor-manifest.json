@@ -1,5 +1,5 @@
 {
-  "name": "vendor_cfb8dfb02e66867e8ddc",
+  "name": "vendor_9e700feb04dac246e30b",
   "content": {
     "./client/polyfills.js": 1,
     "./node_modules/core-js/es6/symbol.js": 2,
@@ -628,8 +628,6 @@
     "./node_modules/rxjs/scheduler/AnimationFrameAction.js": 625,
     "./node_modules/rxjs/util/AnimationFrame.js": 626,
     "./node_modules/rxjs/scheduler/AnimationFrameScheduler.js": 627,
-    "./node_modules/hammerjs/hammer.js": 628,
-    "./node_modules/webpack-material-design-icons/index.js": 629,
-    "./node_modules/webpack-material-design-icons/material-design-icons.css": 630
+    "./node_modules/hammerjs/hammer.js": 628
   }
 }

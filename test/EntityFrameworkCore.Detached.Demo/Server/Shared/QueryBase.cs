@@ -8,9 +8,9 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
 {
     public class QueryBase<TEntity> : IQuery<TEntity>
     {
-        public string FilterBy { get; set; }
-
         public string OrderBy { get; set; }
+
+        public string SearchText { get; set; }
 
         public virtual IQueryable<TEntity> Apply(IQueryable<TEntity> query)
         {

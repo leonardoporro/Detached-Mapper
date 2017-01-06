@@ -39,8 +39,8 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
             return await _detachedContext.Set<TEntity>().LoadAsync(q => query?.Apply(q));
         }
 
-        [HttpGet("page/{pageIndex:int}")]
-        public virtual async Task<IPage<TEntity>> GetPage(int pageIndex, int pageSize = 5, TQuery query = default(TQuery))
+        [HttpGet("pages/{pageIndex:int}")]
+        public virtual async Task<IPage<TEntity>> GetPage(int pageIndex, int pageSize = 5, bool noCount = false, TQuery query = default(TQuery))
         {
             return await _detachedContext.Set<TEntity>().LoadPageAsync(pageIndex, pageSize, q => query?.Apply(q));
         }

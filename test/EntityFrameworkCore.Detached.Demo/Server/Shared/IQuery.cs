@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.Detached.Demo.Controllers
     {
         string OrderBy { get; set; }
 
-        string FilterBy { get; set; }
+        string SearchText { get; set; }
 
         IQueryable<TEntity> Apply(IQueryable<TEntity> query);
     }

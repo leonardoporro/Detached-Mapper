@@ -29,8 +29,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
-                Assert.Equal(10, result.Size);
-                Assert.Equal(1, result.Index);
+                Assert.Equal(10, result.PageSize);
+                Assert.Equal(1, result.PageIndex);
                 Assert.Equal(50, result.RowCount);
                 Assert.Equal(5, result.PageCount);
             }
@@ -58,8 +58,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
-                Assert.Equal(10, result.Size);
-                Assert.Equal(1, result.Index);
+                Assert.Equal(10, result.PageSize);
+                Assert.Equal(1, result.PageIndex);
                 Assert.Equal(50, result.RowCount);
                 Assert.Equal(5, result.PageCount);
                 Assert.Equal("Entity 50", result.Items.First().Name);
@@ -87,8 +87,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
 
                 // THEN page contains 10 items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
-                Assert.Equal(10, result.Size);
-                Assert.Equal(1, result.Index);
+                Assert.Equal(10, result.PageSize);
+                Assert.Equal(1, result.PageIndex);
                 Assert.Equal(30, result.RowCount);
                 Assert.Equal(3, result.PageCount);
                 Assert.Equal("Entity 21", result.Items.First().Name);
@@ -117,8 +117,8 @@ namespace EntityFrameworkCore.Detached.Tests.Plugins.Pagination
 
                 // THEN page contains 10 transformed items and correct indexes and count values:
                 Assert.Equal(10, result.Items.Count);
-                Assert.Equal(10, result.Size);
-                Assert.Equal(1, result.Index);
+                Assert.Equal(10, result.PageSize);
+                Assert.Equal(1, result.PageIndex);
                 Assert.Equal(30, result.RowCount);
                 Assert.Equal(3, result.PageCount);
                 Assert.Equal("Entity 21", result.Items.First().Description);

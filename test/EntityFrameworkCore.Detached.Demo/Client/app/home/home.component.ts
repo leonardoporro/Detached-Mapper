@@ -6,5 +6,4 @@
 })
 export class HomeComponent {
 
-    public selection: Array<any> = [];
 }

@@ -8,9 +8,9 @@ namespace EntityFrameworkCore.Detached.Plugins.Pagination
 
         public int PageCount { get; set; }
 
-        public int Index { get; set; }
+        public int PageIndex { get; set; }
 
-        public int Size { get; set; }
+        public int PageSize { get; set; }
 
         public int RowCount { get; set; }
     }

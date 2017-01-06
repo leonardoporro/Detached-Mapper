@@ -1,27 +1,16 @@
 ﻿import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { User, UserService } from "./user.service";
+import { User, UserCollectionDataSource } from "./user.service";
 
 @Component({
     selector: "user-list",
     template: require("./user-list.component.html"),
-    providers: [UserService]
+    providers: [UserCollectionDataSource]
 })
 export class UserListComponent implements OnInit {
-    constructor(private userService: UserService) {
-
+    constructor(public users: UserCollectionDataSource) {
     }
 
-    public items: Array<User> = [];
-
-    public sel: Array<any> = [];
-
     ngOnInit() {
-        this.userService.get(null)
-            .subscribe(r => this.items = r);
-
-        this.sel.push({
-            id: 2,
-            name: "User 2"
-        });
+        this.users.load();
     }
 }

@@ -1,6 +1,7 @@
 ﻿@import '../../../../node_modules/@angular/material/core/style/variables';
 @import '../../../../node_modules/@angular/material/core/style/elevation';
 @import '../../../../node_modules/@angular/material/core/a11y/a11y';
+@import '../../material-icons';
 
 /*header*/
 $data-table-header-color: rgba(#000, 0.54) !default;
@@ -23,7 +24,10 @@ $data-table-dividers: 1px solid $data-table-divider-color !default;
 $data-table-column-spacing: 56px !default;
 $data-table-column-padding: 24px !default;
 
-md-data-table {
+/*checkbox*/
+$data-table-checkbox-size: 18px;
+
+d-table {
 
     table {
         position: relative;
@@ -31,6 +35,7 @@ md-data-table {
         border-collapse: collapse;
         background-color: $data-table-background-color;
         font-family: $md-font-family;
+        @include md-elevation(6);
 
         thead {
             tr {
@@ -55,21 +60,40 @@ md-data-table {
                     }
                 }
 
-                th.number {
+                th.d-sorted {
+                    color: $data-table-header-sorted-color;
+
+                    &:after {
+                        @extend .material-icons;
+                        content: 'arrow_downward';
+                        font-size: 16px;
+                        display: inline;
+                        vertical-align: text-bottom;
+                    }
+                }
+
+                th.d-sorted-asc {
+                    &:after {
+                        content: 'arrow_upward';
+                    }
+                }
+
+                th.d-sortable {
+                    cursor: pointer;
+                }
+
+                th.d-type-number {
                     text-align: right;
                 }
 
-                th.text {
+                th.d-type-text {
                     text-align: left;
                 }
-                th.sorted {
-                    color: $data-table-header-sorted-color;
+
+                th.d-selector {
+                    text-align: left;
+                    width: $data-table-checkbox-size + $data-table-column-padding;
                 }
-            }
-            .material-icons {
-                font-size: 16px;
-                display: inline;
-                vertical-align: text-bottom;
             }
         }
 
@@ -89,7 +113,6 @@ md-data-table {
 
                 td {
                     border-top: $data-table-dividers;
-                    border-bottom: $data-table-dividers;
                     padding-left: $data-table-column-padding / 2;
                     padding-right: $data-table-column-spacing - $data-table-column-padding / 2;
                     vertical-align: middle;
@@ -105,24 +128,29 @@ md-data-table {
                     }
                 }
 
-                td.number {
+                td.d-type-number {
                     text-align: right;
                 }
 
-                td.text {
+                td.d-type-text {
                     text-align: left;
+                }
+
+                th.d-selector {
+                    text-align: left;
+                    width: $data-table-checkbox-size + $data-table-column-padding;
                 }
             }
 
-            tr.selected {
+            tr.d-selected {
                 background-color: $data-table-selection-color;
             }
         }
     }
 
     .md-checkbox-inner-container {
-        width: 18px;
-        height: 18px;
+        width: $data-table-checkbox-size;
+        height: $data-table-checkbox-size;
         color: $data-table-header-color;
     }
 }

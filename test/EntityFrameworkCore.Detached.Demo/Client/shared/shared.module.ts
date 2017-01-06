@@ -4,14 +4,12 @@ import { FormsModule } from "@angular/forms";
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MaterialModule } from "@angular/material";
 
-import { PopoverComponent } from "./components/popover/popover.component";
-import { ItemContentDirective } from "./components/core/item-content.directive";
-import { ColumnDirective } from "./components/core/column.directive";
+import { ContentDirective } from "./directives/content.directive";
+import { ColumnComponent } from "./components/table/column.component";
+import { TableComponent } from "./components/table/table.component";
 
-import { DataSelectComponent/*, MDL_SELECT_VALUE_ACCESSOR*/ } from "./components/data-select/data-select.component";
-import { DataTableComponent } from "./components/data-table/data-table.component";
-
-
+require("./material-icons.scss");
+require("./material-theme.scss");
 
 @NgModule({
     imports: [
@@ -21,18 +19,14 @@ import { DataTableComponent } from "./components/data-table/data-table.component
         MaterialModule
     ],
     exports: [
-        ItemContentDirective,
-        ColumnDirective,
-        PopoverComponent,
-        DataSelectComponent,
-        DataTableComponent
+        ContentDirective,
+        ColumnComponent,
+        TableComponent
     ],
     declarations: [
-        ItemContentDirective,
-        ColumnDirective,
-        PopoverComponent,
-        DataSelectComponent,
-        DataTableComponent
+        ContentDirective,
+        ColumnComponent,
+        TableComponent
     ],
     providers: [
         /*MDL_SELECT_VALUE_ACCESSOR*/

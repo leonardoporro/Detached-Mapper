@@ -27,16 +27,16 @@ namespace EntityFrameworkCore.Detached.Plugins.Pagination
             where TProjection : class
         {
             IPage<TProjection> result = new Page<TProjection>();
-            result.Index = Math.Max(1, pageIndex);
-            result.Size = pageSize;
+            result.PageIndex = Math.Max(1, pageIndex);
+            result.PageSize = pageSize;
 
             IQueryable<TEntity> query = detachedSet.GetBaseQuery();
             IQueryable<TProjection> finalQuery = configureQuery?.Invoke(query);
 
             result.RowCount = await finalQuery.CountAsync();
-            result.PageCount = (int)Math.Ceiling((result.RowCount / Math.Max(result.Size, 1.0)));
+            result.PageCount = (int)Math.Ceiling((result.RowCount / Math.Max(result.PageSize, 1.0)));
 
-            if (result.Size > 1)
+            if (result.PageSize > 1)
             {
                 finalQuery = finalQuery.Skip((pageIndex - 1) * pageSize)
                                        .Take(pageSize);

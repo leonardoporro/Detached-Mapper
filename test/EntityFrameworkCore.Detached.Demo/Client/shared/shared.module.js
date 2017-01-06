@@ -13,11 +13,11 @@ var common_1 = require("@angular/common");
 var forms_1 = require("@angular/forms");
 var flex_layout_1 = require("@angular/flex-layout");
 var material_1 = require("@angular/material");
-var popover_component_1 = require("./components/popover/popover.component");
-var item_content_directive_1 = require("./components/core/item-content.directive");
-var column_directive_1 = require("./components/core/column.directive");
-var data_select_component_1 = require("./components/data-select/data-select.component");
-var data_table_component_1 = require("./components/data-table/data-table.component");
+var content_directive_1 = require("./directives/content.directive");
+var column_component_1 = require("./components/table/column.component");
+var table_component_1 = require("./components/table/table.component");
+require("./material-icons.scss");
+require("./material-theme.scss");
 var SharedModule = (function () {
     function SharedModule() {
     }
@@ -36,18 +36,14 @@ var SharedModule = (function () {
                 material_1.MaterialModule
             ],
             exports: [
-                item_content_directive_1.ItemContentDirective,
-                column_directive_1.ColumnDirective,
-                popover_component_1.PopoverComponent,
-                data_select_component_1.DataSelectComponent,
-                data_table_component_1.DataTableComponent
+                content_directive_1.ContentDirective,
+                column_component_1.ColumnComponent,
+                table_component_1.TableComponent
             ],
             declarations: [
-                item_content_directive_1.ItemContentDirective,
-                column_directive_1.ColumnDirective,
-                popover_component_1.PopoverComponent,
-                data_select_component_1.DataSelectComponent,
-                data_table_component_1.DataTableComponent
+                content_directive_1.ContentDirective,
+                column_component_1.ColumnComponent,
+                table_component_1.TableComponent
             ],
             providers: []
         }), 

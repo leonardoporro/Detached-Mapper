@@ -11,27 +11,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var user_service_1 = require("./user.service");
 var UserListComponent = (function () {
-    function UserListComponent(userService) {
-        this.userService = userService;
-        this.items = [];
-        this.sel = [];
+    function UserListComponent(users) {
+        this.users = users;
     }
     UserListComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        this.userService.get(null)
-            .subscribe(function (r) { return _this.items = r; });
-        this.sel.push({
-            id: 2,
-            name: "User 2"
-        });
+        this.users.load();
     };
     UserListComponent = __decorate([
         core_1.Component({
             selector: "user-list",
             template: require("./user-list.component.html"),
-            providers: [user_service_1.UserService]
+            providers: [user_service_1.UserCollectionDataSource]
         }), 
-        __metadata('design:paramtypes', [user_service_1.UserService])
+        __metadata('design:paramtypes', [user_service_1.UserCollectionDataSource])
     ], UserListComponent);
     return UserListComponent;
 }());

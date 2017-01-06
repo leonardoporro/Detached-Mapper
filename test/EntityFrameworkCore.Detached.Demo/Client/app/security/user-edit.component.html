@@ -1,1 +1,22 @@
-﻿user edit!
+﻿<md-toolbar color="primary">
+    <!--<button md-button (click)="sidenav.open()"><md-icon>menu</md-icon></button>-->
+    <span>Edit User '{{userSource.model.name}}'</span>
+    <div fxFlex></div>
+    <button md-button type="submit" form="userForm">
+        <md-icon>save</md-icon>
+        <span>Save</span>
+    </button>
+    <button md-button (click)="delete()">
+        <md-icon>delete</md-icon>
+        <span>Delete</span>
+    </button>
+    <button md-button>
+        <md-icon>more_vertical</md-icon>
+    </button>
+</md-toolbar>
+
+<form id="userForm" (ngSubmit)="save()">
+    <md-input-container>
+        <input md-input name="name" [(ngModel)]="userSource.model.name" placeholder="Name" />
+    </md-input-container>
+</form>

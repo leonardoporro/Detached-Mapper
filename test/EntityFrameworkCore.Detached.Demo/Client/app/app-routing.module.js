@@ -16,12 +16,11 @@ var user_edit_component_1 = require("./security/user-edit.component");
 var appRoutes = [
     { path: "", redirectTo: "home", pathMatch: "full" },
     { path: "home", component: home_component_1.HomeComponent },
-    {
-        path: "security/users",
+    { path: "security/users",
         children: [
-            { path: "", pathMatch: "full", redirectTo: "list" },
-            { path: "list", component: user_list_component_1.UserListComponent },
-            { path: "edit/:id", component: user_edit_component_1.UserEditComponent }
+            { path: "", component: user_list_component_1.UserListComponent },
+            { path: ":id", component: user_edit_component_1.UserEditComponent },
+            { path: "new", component: user_edit_component_1.UserEditComponent }
         ]
     }
 ];

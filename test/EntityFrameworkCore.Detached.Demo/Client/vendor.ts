@@ -8,4 +8,3 @@ import "@angular/router";
 import "@angular/material";
 import "rxjs/Rx";
 import "hammerjs";
-require("webpack-material-design-icons");

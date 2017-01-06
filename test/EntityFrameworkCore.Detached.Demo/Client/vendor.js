@@ -9,5 +9,4 @@ require("@angular/router");
 require("@angular/material");
 require("rxjs/Rx");
 require("hammerjs");
-require("webpack-material-design-icons");
 //# sourceMappingURL=vendor.js.map

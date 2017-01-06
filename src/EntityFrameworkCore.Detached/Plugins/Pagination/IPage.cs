@@ -14,12 +14,12 @@ namespace EntityFrameworkCore.Detached.Plugins.Pagination
         /// <summary>
         /// Gets the current page index.
         /// </summary>
-        int Index { get; set; }
+        int PageIndex { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the page.
         /// </summary>
-        int Size { get; set; }
+        int PageSize { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of pages.

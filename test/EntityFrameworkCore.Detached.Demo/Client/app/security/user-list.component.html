@@ -1,32 +1,35 @@
 ﻿<md-toolbar color="primary">
-    <button md-button (click)="sidenav.open()"><span class="material-icons">menu</span></button>
+    <button md-button (click)="sidenav.open()"><md-icon>menu</md-icon></button>
     <span>Users</span>
     <div fxFlex></div>
-    <button md-button align="end">New</button>
-    <button md-button align="end">Delete</button>
+    <button md-button [routerLink]="['/security/users/new']">
+        <md-icon>add</md-icon>
+        <span>New</span>
+    </button>
+    <button md-button>
+        <md-icon>delete</md-icon>
+        <span>Delete</span>
+    </button>
+    <button md-button>
+        <md-icon>more_vertical</md-icon>
+    </button>
 </md-toolbar>
 
 <md-sidenav-container>
     <md-sidenav #sidenav>
         <app-nav></app-nav>
     </md-sidenav>
-    <p></p>
-    <div class="flex-container" fxLayout="row">
-
-        <div class="flex-item" fxFlex="20%"></div>
-
-        <div class="flex-item" fxFlex>
-            <!--<md-data-table [itemsSource]="items" [(selection)]="sel" valueProperty="id" orderBy="-name">
-                <column property="id" type="number" title="Key"></column>
-                <column property="name" title="Name" type="text"></column>
-            </md-data-table>-->
-
-            <md-data-select [itemsSource]="items" placeholder="Sarlanga" displayProperty="name" valueProperty="id">
-
-            </md-data-select>
+    <div class="flex-container" fxLayout="row" fxLayoutAlign="center start">
+        <div class="flex-item">
+            <d-table [dataSource]="users">
+                <d-column property="id" type="number" title="Key" canSort="true"></d-column>
+                <d-column property="name" title="Name" type="text" canSort="true"></d-column>
+                <d-column>
+                    <template let-model="model">
+                        <button md-icon-button [routerLink]="['/security/users/' + model.id]"><md-icon>edit</md-icon></button>
+                    </template>
+                </d-column>
+            </d-table>
         </div>
-
-        <div class="flex-item" fxFlex="20%"></div>
     </div>
-
 </md-sidenav-container>

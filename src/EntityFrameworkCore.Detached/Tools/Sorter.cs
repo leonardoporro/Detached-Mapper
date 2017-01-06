@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Detached.Tools
 {
+    /// <summary>
+    /// Builds a sort expression to be used later as a paramenter in a service or query.
+    /// </summary>
+    /// <typeparam name="TEntity">Clr type of the entity being sorted.</typeparam>
     public class Sorter<TEntity> : ISorter<TEntity>, IOrderedSorter<TEntity>
     {
         List<ISortEntry<TEntity>> entries = new List<ISortEntry<TEntity>>();
@@ -50,6 +54,16 @@ namespace EntityFrameworkCore.Detached.Tools
             return query;
         }
 
+        /// <summary>
+        /// Creates a new sorter instance from the given string.
+        /// Accepted formats are:
+        /// +Column
+        /// -Column
+        /// Column ASC
+        /// Column DESC
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
         public static IOrderedSorter<TEntity> FromString(string orderBy)
         {
             Sorter<TEntity> sorter = new Tools.Sorter<TEntity>();
@@ -62,10 +76,21 @@ namespace EntityFrameworkCore.Detached.Tools
                 string[] orderByProps = orderBy.Split(';', ',');
                 foreach (string orderByProp in orderByProps)
                 {
-                    string[] orderByPart = orderByProp.Split(' ');
+                    string propertyName;
+                    string order;
+                    // accept +ColumnName and -ColumnName
+                    if (orderByProp.StartsWith("+") || orderByProp.StartsWith("-"))
+                    {
+                        propertyName = orderByProp.Substring(1);
+                        order = orderByProp.StartsWith("+") ? "asc" : "desc";
+                    }
+                    else //accept ColumnName ASC and ColumnName DESC
+                    {
+                        string[] orderByPart = orderByProp.Split(' ');
 
-                    string propertyName = orderByPart[0];
-                    string order = orderByPart.Length > 1 ? orderByPart[1].Trim().ToLower() : "asc";
+                        propertyName = orderByPart[0];
+                        order = orderByPart.Length > 1 ? orderByPart[1].Trim().ToLower() : "asc";
+                    }
 
                     PropertyInfo propInfo;
                     if (!entityProps.TryGetValue(propertyName, out propInfo))
@@ -73,7 +98,6 @@ namespace EntityFrameworkCore.Detached.Tools
 
                     Type entryType = typeof(SortEntry<,>).MakeGenericType(entityType, propInfo.PropertyType);
                     ISortEntry<TEntity> sortEntry = (ISortEntry<TEntity>)Activator.CreateInstance(entryType, propInfo, order == "asc");
-
                     sorter.entries.Add(sortEntry);
                 }
             }

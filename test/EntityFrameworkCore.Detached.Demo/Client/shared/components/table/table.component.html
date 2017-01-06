@@ -1,0 +1,28 @@
+﻿<table>
+    <thead>
+        <tr>
+            <th class="d-selector">
+                <md-checkbox [(ngModel)]="allSelected"></md-checkbox>
+            </th>
+            <th *ngFor="let column of columns" (click)="toggleSort(column.canSort, column.property)"
+                [ngClass]="{ 'd-sortable': column.canSort,
+                             'd-sorted': dataSource.sortBy==column.property,
+                             'd-sorted-asc': dataSource.sortBy==column.property && dataSource.sortDirection == 1,
+                             'd-type-number': column.type == 'number',
+                             'd-type-text': column.type == 'text' }">
+                <span>{{column.title}}</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of items; let index = index;" [ngClass]="{'d-selected': item.selected }">
+            <td class="d-selector">
+                <md-checkbox [(ngModel)]="item.selected"></md-checkbox>
+            </td>
+            <td *ngFor="let column of columns" [ngClass]="{ 'd-type-number': column.type == 'number', 'd-type-text': column.type == 'text' }" [ngStyle]="{ 'width' : column.width }">
+                <d-content [condition]="column.template" [template]="column.template" [model]="item.model" [index]="index"></d-content>
+                <span *ngIf="!column.template">{{item.model[column.property]}}</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
