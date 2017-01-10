@@ -1,5 +1,5 @@
-﻿using EntityFrameworkCore.Detached.Demo.Controllers;
-using EntityFrameworkCore.Detached.Demo.Security.Models;
+﻿using EntityFrameworkCore.Detached.Demo.Security.Models;
+using EntityFrameworkCore.Detached.Demo.Server.Core;
 using System.Linq;
 
 namespace EntityFrameworkCore.Detached.Demo.Server.Security.Controllers

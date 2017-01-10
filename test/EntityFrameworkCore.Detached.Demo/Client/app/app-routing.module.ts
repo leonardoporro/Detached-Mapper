@@ -1,8 +1,8 @@
 ﻿import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./home/home.component";
-import { UserListComponent } from "./security/user-list.component";
-import { UserEditComponent } from "./security/user-edit.component";
+import { UserListComponent } from "./security/users/user-list.component";
+import { UserEditComponent } from "./security/users/user-edit.component";
 
 const appRoutes: Routes = [
     { path: "", redirectTo: "home", pathMatch: "full" },

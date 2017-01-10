@@ -1,0 +1,1 @@
+{"security":{"user-edit":{"new":"New User","edit":"Edit User '{{user}}'"}},"core":{"validation":{"required":"The field is required","pattern":"The field {{field}} data is invalid"}}}

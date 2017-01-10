@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var router_1 = require("@angular/router");
 var home_component_1 = require("./home/home.component");
-var user_list_component_1 = require("./security/user-list.component");
-var user_edit_component_1 = require("./security/user-edit.component");
+var user_list_component_1 = require("./security/users/user-list.component");
+var user_edit_component_1 = require("./security/users/user-edit.component");
 var appRoutes = [
     { path: "", redirectTo: "home", pathMatch: "full" },
     { path: "home", component: home_component_1.HomeComponent },

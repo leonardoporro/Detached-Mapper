@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "df525702a6992b554517"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "0400ab95068e74a92ea2"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -600,7 +600,8 @@
 	  overlay: true,
 	  reload: false,
 	  log: true,
-	  warn: true
+	  warn: true,
+	  name: ''
 	};
 	if (true) {
 	  var querystring = __webpack_require__(3);
@@ -611,6 +612,9 @@
 	  if (overrides.reload) options.reload = overrides.reload !== 'false';
 	  if (overrides.noInfo && overrides.noInfo !== 'false') {
 	    options.log = false;
+	  }
+	  if (overrides.name) {
+	    options.name = overrides.name 
 	  }
 	  if (overrides.quiet && overrides.quiet !== 'false') {
 	    options.log = false;
@@ -692,13 +696,21 @@
 	    overlay = __webpack_require__(8);
 	  }
 	
+	
+	  var previousProblems = null;
+	
 	  return {
+	    cleanProblemsCache: function () {
+	      previousProblems = null;
+	    },
 	    problems: function(type, obj) {
 	      if (options.warn) {
-	        console.warn("[HMR] bundle has " + type + ":");
-	        obj[type].forEach(function(msg) {
-	          console.warn("[HMR] " + strip(msg));
-	        });
+	        var newProblems = obj[type].map(function(msg) { return strip(msg); }).join('\n');
+	
+	        if (previousProblems !== newProblems) {
+	          previousProblems = newProblems;
+	          console.warn("[HMR] bundle has " + type + ":\n" + newProblems);
+	        }
 	      }
 	      if (overlay && type !== 'warnings') overlay.showProblems(type, obj[type]);
 	    },
@@ -729,11 +741,18 @@
 	      }
 	      // fall through
 	    case "sync":
+	      if (obj.name && options.name && obj.name !== options.name) {
+	        return;
+	      }
 	      if (obj.errors.length > 0) {
 	        if (reporter) reporter.problems('errors', obj);
 	      } else {
 	        if (reporter) {
-	          if (obj.warnings.length > 0) reporter.problems('warnings', obj);
+	          if (obj.warnings.length > 0) {
+	            reporter.problems('warnings', obj);
+	          } else {
+	            reporter.cleanProblemsCache();
+	          }
 	          reporter.success();
 	        }
 	        processUpdate(obj.hash, obj.modules, options);
@@ -1975,17 +1994,18 @@
 	var http_1 = __webpack_require__(25);
 	var material_1 = __webpack_require__(26);
 	var flex_layout_1 = __webpack_require__(27);
+	var angular2localization_1 = __webpack_require__(31);
 	// app
-	var shared_module_1 = __webpack_require__(31);
-	var app_routing_module_1 = __webpack_require__(47);
-	var app_nav_component_1 = __webpack_require__(60);
-	var app_component_1 = __webpack_require__(62);
+	var core_module_1 = __webpack_require__(35);
+	var app_routing_module_1 = __webpack_require__(54);
+	var app_nav_component_1 = __webpack_require__(63);
+	var app_component_1 = __webpack_require__(65);
 	// home
-	var home_component_1 = __webpack_require__(49);
+	var home_component_1 = __webpack_require__(56);
 	// user
-	var user_list_component_1 = __webpack_require__(51);
-	var user_edit_component_1 = __webpack_require__(58);
-	__webpack_require__(64);
+	var user_list_component_1 = __webpack_require__(58);
+	var user_edit_component_1 = __webpack_require__(61);
+	__webpack_require__(67);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
@@ -1997,7 +2017,9 @@
 	                http_1.HttpModule,
 	                flex_layout_1.FlexLayoutModule.forRoot(),
 	                material_1.MaterialModule.forRoot(),
-	                shared_module_1.SharedModule,
+	                angular2localization_1.LocaleModule.forRoot(),
+	                angular2localization_1.LocalizationModule.forRoot(),
+	                core_module_1.CoreModule,
 	                app_routing_module_1.AppRoutingModule,
 	            ],
 	            declarations: [
@@ -5304,6 +5326,2574 @@
 /* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
+	(function (global, factory) {
+	     true ? factory(exports, __webpack_require__(21), __webpack_require__(25), __webpack_require__(32), __webpack_require__(28), __webpack_require__(33), __webpack_require__(34), __webpack_require__(24)) :
+	    typeof define === 'function' && define.amd ? define(['exports', '@angular/core', '@angular/http', 'rxjs/Observable', 'rxjs/add/operator/map', 'rxjs/add/observable/merge', '@angular/common', '@angular/forms'], factory) :
+	    (factory((global.ng = global.ng || {}, global.ng.angular2localization = global.ng.angular2localization || {}),global.ng.core,global.ng.http,global.Rx,global.Rx,null,global.ng.common,global.ng.forms));
+	}(this, (function (exports,_angular_core,_angular_http,rxjs_Observable,rxjs_add_operator_map,rxjs_add_observable_merge,_angular_common,_angular_forms) { 'use strict';
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * LocaleService class.
+	Defines language, default locale & currency.
+	
+	Instantiate this class only once in order to access the data of location from anywhere in the application.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleService = (function () {
+	    function LocaleService() {
+	        /**
+	         * Output for event default locale changed.
+	         */
+	        this.defaultLocaleChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event current language code changed.
+	         */
+	        this.languageCodeChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event current country code changed.
+	         */
+	        this.countryCodeChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event current currency code changed.
+	         */
+	        this.currencyCodeChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event script code changed.
+	         */
+	        this.scriptCodeChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event numbering system changed.
+	         */
+	        this.numberingSystemChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event calendar changed.
+	         */
+	        this.calendarChanged = new _angular_core.EventEmitter(true);
+	        /**
+	         * Output for event update Localization.
+	         */
+	        this.updateLocalization = new _angular_core.EventEmitter(true);
+	        this.enableCookie = false;
+	        this.enableLocalStorage = false;
+	        this.languageCodes = [];
+	        this.languageCode = "";
+	        this.countryCode = "";
+	        this.currencyCode = "";
+	        this.defaultLocale = "";
+	        this.scriptCode = "";
+	        this.numberingSystem = "";
+	        this.calendar = "";
+	        // Counts the reference to the service.
+	        LocaleService.referenceCounter++;
+	        // Enables the cookies for the first instance of the service (see issue #11).
+	        if (LocaleService.referenceCounter == 1) {
+	            this.enableCookie = true;
+	        }
+	    }
+	    /**
+	     * Adds a new language.
+	    
+	    \@param language The two-letter or three-letter code of the new language
+	     * @param {?} language
+	     * @return {?}
+	     */
+	    LocaleService.prototype.addLanguage = function (language) {
+	        this.languageCodes.push(language);
+	    };
+	    /**
+	     * Adds languages.
+	    
+	    \@param languages The array of the two-letter or three-letter code of the languages
+	     * @param {?} languages
+	     * @return {?}
+	     */
+	    LocaleService.prototype.addLanguages = function (languages) {
+	        for (var _i = 0, languages_1 = languages; _i < languages_1.length; _i++) {
+	            var language = languages_1[_i];
+	            this.languageCodes.push(language);
+	        }
+	    };
+	    /**
+	     * Gets all available languages.
+	    
+	    \@return An array with two-letter or three-letter codes for all available languages
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getAvailableLanguages = function () {
+	        return this.languageCodes;
+	    };
+	    /**
+	     * Sets Local Storage as default.
+	     * @return {?}
+	     */
+	    LocaleService.prototype.useLocalStorage = function () {
+	        this.enableLocalStorage = true;
+	    };
+	    /**
+	     * Defines the preferred language.
+	    Selects the current language of the browser if it has been added, else the default language.
+	    
+	    \@param defaultLanguage The two-letter or three-letter code of the default language
+	    \@param expiry Number of days on the expiry. If omitted, the cookie becomes a session cookie
+	     * @param {?} defaultLanguage
+	     * @param {?=} expiry
+	     * @return {?}
+	     */
+	    LocaleService.prototype.definePreferredLanguage = function (defaultLanguage, expiry) {
+	        this.expiry = expiry;
+	        // Parses the storage "locale" to extract the codes.
+	        this.parseStorage("locale");
+	        if (this.languageCode == "") {
+	            this.languageCode = defaultLanguage;
+	            // Verifies browser language.
+	            var /** @type {?} */ browserLanguage = "";
+	            if (typeof navigator.language != "undefined") {
+	                browserLanguage = navigator.language;
+	            }
+	            // Tries to gets the current language of browser.
+	            if (browserLanguage != "") {
+	                var /** @type {?} */ index = browserLanguage.indexOf("-");
+	                if (index != -1) {
+	                    browserLanguage = browserLanguage.substring(0, index); // Gets the language code.
+	                }
+	                if (this.languageCodes.length > 0 && this.languageCodes.indexOf(browserLanguage) != -1) {
+	                    this.languageCode = browserLanguage;
+	                }
+	            }
+	        }
+	        // Sets the default locale.
+	        this.setDefaultLocale();
+	    };
+	    /**
+	     * Defines preferred languange and country, regardless of the browser language.
+	    
+	    \@param defaultLanguage The two-letter or three-letter code of the default language
+	    \@param defaultCountry The two-letter, uppercase code of the default country
+	    \@param expiry Number of days on the expiry. If omitted, the cookie becomes a session cookie
+	    \@param script The optional four-letter script code
+	    \@param numberingSystem The optional numbering system to be used
+	    \@param calendar The optional calendar to be used
+	     * @param {?} defaultLanguage
+	     * @param {?} defaultCountry
+	     * @param {?=} expiry
+	     * @param {?=} script
+	     * @param {?=} numberingSystem
+	     * @param {?=} calendar
+	     * @return {?}
+	     */
+	    LocaleService.prototype.definePreferredLocale = function (defaultLanguage, defaultCountry, expiry, script, numberingSystem, calendar) {
+	        if (script === void 0) { script = ""; }
+	        if (numberingSystem === void 0) { numberingSystem = ""; }
+	        if (calendar === void 0) { calendar = ""; }
+	        this.expiry = expiry;
+	        // Parses the storage "locale" to extract the codes & the extension.
+	        this.parseStorage("locale");
+	        if (this.languageCode == "" || this.countryCode == "") {
+	            this.languageCode = defaultLanguage;
+	            this.countryCode = defaultCountry;
+	            this.scriptCode = script;
+	            this.numberingSystem = numberingSystem;
+	            this.calendar = calendar;
+	        }
+	        // Sets the default locale.
+	        this.setDefaultLocale();
+	    };
+	    /**
+	     * Defines the preferred currency.
+	    
+	    \@param defaultCurrency The three-letter code of the default currency
+	     * @param {?} defaultCurrency
+	     * @return {?}
+	     */
+	    LocaleService.prototype.definePreferredCurrency = function (defaultCurrency) {
+	        // Parses the storage "currency" to extract the code.
+	        this.parseStorage("currency");
+	        if (this.currencyCode == "") {
+	            this.currencyCode = defaultCurrency;
+	        }
+	        // Sets the storage "currency".
+	        this.setStorage("currency", this.currencyCode);
+	    };
+	    /**
+	     * Gets the current language.
+	    
+	    \@return The two-letter or three-letter code of the current language
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getCurrentLanguage = function () {
+	        return this.languageCode;
+	    };
+	    /**
+	     * Gets the current country.
+	    
+	    \@return The two-letter, uppercase code of the current country
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getCurrentCountry = function () {
+	        return this.countryCode;
+	    };
+	    /**
+	     * Gets the current currency.
+	    
+	    \@return The three-letter code of the current currency
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getCurrentCurrency = function () {
+	        return this.currencyCode;
+	    };
+	    /**
+	     * Gets the script.
+	    
+	    \@return The four-letter code of the script
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getScript = function () {
+	        return this.scriptCode;
+	    };
+	    /**
+	     * Gets the numbering system.
+	    
+	    \@return The numbering system
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getNumberingSystem = function () {
+	        return this.numberingSystem;
+	    };
+	    /**
+	     * Gets the calendar.
+	    
+	    \@return The calendar
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getCalendar = function () {
+	        return this.calendar;
+	    };
+	    /**
+	     * Sets the current language.
+	    
+	    \@param language The two-letter or three-letter code of the new language
+	     * @param {?} language
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setCurrentLanguage = function (language) {
+	        // Checks if the language has changed.
+	        if (this.languageCode != language) {
+	            // Assigns the value.
+	            this.languageCode = language;
+	            // Sets the default locale.
+	            this.setDefaultLocale();
+	            // Sends the events.
+	            this.updateLocalization.emit(null); // Event for LocalizationService.
+	            this.languageCodeChanged.emit(language);
+	        }
+	    };
+	    /**
+	     * Sets the current locale.
+	    
+	    \@param language The two-letter or three-letter code of the new language
+	    \@param country The two-letter, uppercase code of the new country
+	    \@param script The optional four-letter script code
+	    \@param numberingSystem The optional numbering system to be used
+	    \@param calendar The optional calendar to be used
+	     * @param {?} language
+	     * @param {?} country
+	     * @param {?=} script
+	     * @param {?=} numberingSystem
+	     * @param {?=} calendar
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setCurrentLocale = function (language, country, script, numberingSystem, calendar) {
+	        if (script === void 0) { script = ""; }
+	        if (numberingSystem === void 0) { numberingSystem = ""; }
+	        if (calendar === void 0) { calendar = ""; }
+	        // Checks if language, country, script or extension have changed.
+	        if (this.languageCode != language || this.countryCode != country || this.scriptCode != script || this.numberingSystem != numberingSystem || this.calendar != calendar) {
+	            // Stores the changes.
+	            var /** @type {?} */ changes = {};
+	            changes["languageCode"] = this.languageCode != language ? true : false;
+	            changes["countryCode"] = this.countryCode != country ? true : false;
+	            changes["scriptCode"] = this.scriptCode != script ? true : false;
+	            changes["numberingSystem"] = this.numberingSystem != numberingSystem ? true : false;
+	            changes["calendar"] = this.calendar != calendar ? true : false;
+	            // Assigns the values.
+	            this.languageCode = language;
+	            this.countryCode = country;
+	            this.scriptCode = script;
+	            this.numberingSystem = numberingSystem;
+	            this.calendar = calendar;
+	            // Sets the default locale.
+	            this.setDefaultLocale();
+	            // Sends the events.
+	            if (changes["languageCode"] || changes["countryCode"]) {
+	                this.updateLocalization.emit(null);
+	            } // Event for LocalizationService.
+	            if (changes["languageCode"]) {
+	                this.languageCodeChanged.emit(language);
+	            }
+	            if (changes["countryCode"]) {
+	                this.countryCodeChanged.emit(country);
+	            }
+	            if (changes["scriptCode"]) {
+	                this.scriptCodeChanged.emit(script);
+	            }
+	            if (changes["numberingSystem"]) {
+	                this.numberingSystemChanged.emit(numberingSystem);
+	            }
+	            if (changes["calendar"]) {
+	                this.calendarChanged.emit(calendar);
+	            }
+	        }
+	    };
+	    /**
+	     * Sets the current currency.
+	    
+	    \@param currency The three-letter code of the new currency
+	     * @param {?} currency
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setCurrentCurrency = function (currency) {
+	        // Checks if the currency has changed.
+	        if (this.currencyCode != currency) {
+	            // Assigns the value.
+	            this.currencyCode = currency;
+	            // Sets the storage "currency".
+	            this.setStorage("currency", this.currencyCode);
+	            // Sends an event.
+	            this.currencyCodeChanged.emit(currency);
+	        }
+	    };
+	    /**
+	     * Gets the default locale.
+	    
+	    \@return The default locale
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getDefaultLocale = function () {
+	        return this.defaultLocale;
+	    };
+	    /**
+	     * Builds the default locale.
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setDefaultLocale = function () {
+	        this.defaultLocale = this.languageCode;
+	        this.defaultLocale += this.scriptCode != "" ? "-" + this.scriptCode : "";
+	        this.defaultLocale += this.countryCode != "" ? "-" + this.countryCode : "";
+	        // Adds the 'u' (Unicode) extension.
+	        this.defaultLocale += this.numberingSystem != "" || this.calendar != "" ? "-u" : "";
+	        // Adds numbering system.
+	        this.defaultLocale += this.numberingSystem != "" ? "-nu-" + this.numberingSystem : "";
+	        // Adds calendar.
+	        this.defaultLocale += this.calendar != "" ? "-ca-" + this.calendar : "";
+	        // Sets the storage "locale".
+	        this.setStorage("locale", this.defaultLocale);
+	        // Sends an event.
+	        this.defaultLocaleChanged.emit(this.defaultLocale);
+	    };
+	    /**
+	     * Parses the storage to extract the codes & the extension.
+	    
+	    \@param name The name of the storage
+	     * @param {?} name
+	     * @return {?}
+	     */
+	    LocaleService.prototype.parseStorage = function (name) {
+	        var /** @type {?} */ storage = "";
+	        if (this.enableLocalStorage && this.verifyLocalStorage) {
+	            storage = this.getLocalStorage(name);
+	        }
+	        else if (this.enableCookie && this.languageCodes.length > 0 && this.verifyCookie) {
+	            storage = this.getCookie(name);
+	        }
+	        if (storage != "") {
+	            // Looks for the 'u' (Unicode) extension.
+	            var /** @type {?} */ index = storage.search("-u");
+	            if (index != -1) {
+	                var /** @type {?} */ extensions = storage.substring(index + 1).split("-");
+	                switch (extensions.length) {
+	                    case 3:
+	                        if (extensions[1] == "nu") {
+	                            this.numberingSystem = extensions[2];
+	                        }
+	                        else if (extensions[1] == "ca") {
+	                            this.calendar = extensions[2];
+	                        }
+	                        break;
+	                    case 5:
+	                        this.numberingSystem = extensions[2];
+	                        this.calendar = extensions[4];
+	                        break;
+	                }
+	                // Extracts the codes.
+	                storage = storage.substring(0, index);
+	            }
+	            // Splits the string to each hyphen.
+	            var /** @type {?} */ codes = storage.split("-");
+	            switch (codes.length) {
+	                case 1:
+	                    if (name == "locale") {
+	                        this.languageCode = codes[0];
+	                    }
+	                    else if (name == "currency") {
+	                        this.currencyCode = codes[0];
+	                    }
+	                    break;
+	                case 2:
+	                    this.languageCode = codes[0];
+	                    this.countryCode = codes[1];
+	                    break;
+	                case 3:
+	                    this.languageCode = codes[0];
+	                    this.scriptCode = codes[1];
+	                    this.countryCode = codes[2];
+	                    break;
+	            }
+	        }
+	    };
+	    /**
+	     * Checks browser support for Local Storage.
+	    
+	    \@return True if Web Storage is supported.
+	     * @return {?}
+	     */
+	    LocaleService.prototype.verifyLocalStorage = function () {
+	        return typeof Storage != "undefined";
+	    };
+	    /**
+	     * Checks browser support for cookies.
+	    
+	    \@return True if cookies are supported.
+	     * @return {?}
+	     */
+	    LocaleService.prototype.verifyCookie = function () {
+	        return typeof navigator.cookieEnabled != "undefined" && navigator.cookieEnabled;
+	    };
+	    /**
+	     * Sets the storage.
+	    
+	    \@param name The name of the storage
+	    \@param value The value of the storage
+	     * @param {?} name
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setStorage = function (name, value) {
+	        if (this.enableLocalStorage && this.verifyLocalStorage) {
+	            this.setLocalStorage(name, value);
+	        }
+	        else if (this.enableCookie == true && this.languageCodes.length > 0 && this.verifyCookie) {
+	            this.setCookie(name, value, this.expiry);
+	        }
+	    };
+	    /**
+	     * Saves Local Storage value.
+	    
+	    \@param name The name of the storage
+	    \@param value The value of the storage
+	     * @param {?} name
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setLocalStorage = function (name, value) {
+	        localStorage.setItem(name, value);
+	    };
+	    /**
+	     * Saves Local Storage value.
+	    
+	    \@param name The name of the storage
+	    \@return The value of the storage
+	     * @param {?} name
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getLocalStorage = function (name) {
+	        // If the storage is not found, returns an empty string.
+	        return localStorage.getItem(name) != null ? localStorage.getItem(name) : "";
+	    };
+	    /**
+	     * Sets the cookie.
+	    
+	    \@param name The name of the cookie
+	    \@param value The value of the cookie
+	    \@param days Number of days on the expiry
+	     * @param {?} name
+	     * @param {?} value
+	     * @param {?=} days
+	     * @return {?}
+	     */
+	    LocaleService.prototype.setCookie = function (name, value, days) {
+	        if (days != null) {
+	            // Adds the expiry date (in UTC time).
+	            var /** @type {?} */ expirationDate = new Date();
+	            expirationDate.setTime(expirationDate.getTime() + (days * 24 * 60 * 60 * 1000));
+	            var /** @type {?} */ expires = "; expires=" + expirationDate.toUTCString();
+	        }
+	        else {
+	            // By default, the cookie is deleted when the browser is closed.
+	            var /** @type {?} */ expires = "";
+	        }
+	        // Creates the cookie.
+	        document.cookie = name + "=" + value + expires + "; path=/";
+	    };
+	    /**
+	     * Gets the cookie.
+	    
+	    \@param name The name of the cookie
+	    \@return The value of the cookie
+	     * @param {?} name
+	     * @return {?}
+	     */
+	    LocaleService.prototype.getCookie = function (name) {
+	        // The text to search for.
+	        name += "=";
+	        // Splits document.cookie on semicolons into an array.
+	        var /** @type {?} */ ca = document.cookie.split(";");
+	        // Loops through the ca array, and reads out each value.
+	        for (var /** @type {?} */ i = 0; i < ca.length; i++) {
+	            var /** @type {?} */ c = ca[i];
+	            while (c.charAt(0) == " ") {
+	                c = c.substring(1);
+	            }
+	            // If the cookie is found, returns the value of the cookie.
+	            if (c.indexOf(name) == 0) {
+	                return c.substring(name.length, c.length);
+	            }
+	        }
+	        // If the cookie is not found, returns an empty string.
+	        return "";
+	    };
+	    LocaleService.referenceCounter = 0;
+	    LocaleService.decorators = [
+	        { type: _angular_core.Injectable },
+	    ];
+	    /** @nocollapse */
+	    LocaleService.ctorParameters = function () { return []; };
+	    LocaleService.propDecorators = {
+	        'defaultLocaleChanged': [{ type: _angular_core.Output },],
+	        'languageCodeChanged': [{ type: _angular_core.Output },],
+	        'countryCodeChanged': [{ type: _angular_core.Output },],
+	        'currencyCodeChanged': [{ type: _angular_core.Output },],
+	        'scriptCodeChanged': [{ type: _angular_core.Output },],
+	        'numberingSystemChanged': [{ type: _angular_core.Output },],
+	        'calendarChanged': [{ type: _angular_core.Output },],
+	        'updateLocalization': [{ type: _angular_core.Output },],
+	    };
+	    return LocaleService;
+	}());
+	
+	/**
+	 * IntlSupport class.
+	Provides the methods to check if Intl is supported.
+	
+	\@author Roberto Simonetti
+	 */
+	var IntlSupport = (function () {
+	    function IntlSupport() {
+	    }
+	    /**
+	     * Support for dates.
+	    
+	    \@param defaultLocale The default locale
+	    \@return True if the browser supports locales for dates, otherwise false.
+	     * @param {?} defaultLocale
+	     * @return {?}
+	     */
+	    IntlSupport.DateTimeFormat = function (defaultLocale) {
+	        // Checking for support.
+	        try {
+	            new Intl.DateTimeFormat(defaultLocale).format(new Date());
+	        }
+	        catch (e) {
+	            return false;
+	        }
+	        return true;
+	    };
+	    /**
+	     * Support for numbers.
+	    
+	    \@param defaultLocale The default locale
+	    \@return True if the browser supports locales for numbers, otherwise false.
+	     * @param {?} defaultLocale
+	     * @return {?}
+	     */
+	    IntlSupport.NumberFormat = function (defaultLocale) {
+	        // Checking for support.
+	        try {
+	            var /** @type {?} */ n = 0;
+	            new Intl.NumberFormat(defaultLocale).format(n);
+	        }
+	        catch (e) {
+	            return false;
+	        }
+	        return true;
+	    };
+	    /**
+	     * Support for Collator.
+	    
+	    \@param lang The current language code
+	    \@return True if the browser supports Collator, otherwise false.
+	     * @param {?} lang
+	     * @return {?}
+	     */
+	    IntlSupport.Collator = function (lang) {
+	        // Checking for support.
+	        try {
+	            var /** @type {?} */ value1 = "a";
+	            var /** @type {?} */ value2 = "b";
+	            new Intl.Collator(lang).compare(value1, value2);
+	        }
+	        catch (e) {
+	            return false;
+	        }
+	        return true;
+	    };
+	    return IntlSupport;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * LocalizationService class.
+	Gets the translation data and performs operations.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocalizationService = (function () {
+	    /**
+	     * @param {?} http
+	     * @param {?} locale
+	     */
+	    function LocalizationService(http, locale) {
+	        var _this = this;
+	        this.http = http;
+	        this.locale = locale;
+	        /**
+	         * Output for event translation changed.
+	         */
+	        this.translationChanged = new _angular_core.EventEmitter(true);
+	        this.enableLocale = false;
+	        this.providers = [];
+	        this.translationData = {};
+	        this.composedKey = true;
+	        this.keySeparator = ".";
+	        this.languageCode = "";
+	        // Initializes the loading mode.
+	        this.loadingMode = LoadingMode.Direct;
+	        // Initializes the service state.
+	        this.serviceState = ServiceState.isWaiting;
+	        // When the language changes, subscribes to the event & call updateTranslation method.
+	        this.locale.updateLocalization.subscribe(
+	        // Generator or next.
+	        function () { return _this.updateTranslation(); });
+	    }
+	    /**
+	     * Direct loading: adds new translation data.
+	    
+	    \@param language The two-letter code of the language for the translation data
+	    \@param translation The new translation data
+	     * @param {?} language
+	     * @param {?} translation
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.addTranslation = function (language, translation) {
+	        // Adds the new translation data.
+	        this.addData(translation, language);
+	    };
+	    /**
+	     * Asynchronous loading: defines the translation provider.
+	    
+	    \@param prefix The path prefix of the json files
+	    \@param dataFormat Data format: default value is 'json'.
+	    \@param webAPI True if the asynchronous loading uses a Web API to get the data.
+	     * @param {?} prefix
+	     * @param {?=} dataFormat
+	     * @param {?=} webAPI
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.translationProvider = function (prefix, dataFormat, webAPI) {
+	        if (dataFormat === void 0) { dataFormat = "json"; }
+	        if (webAPI === void 0) { webAPI = false; }
+	        this.addProvider(prefix, dataFormat, webAPI);
+	    };
+	    /**
+	     * Asynchronous loading: adds a translation provider.
+	    
+	    \@param prefix The path prefix of the json files
+	    \@param dataFormat Data format: default value is 'json'.
+	    \@param webAPI True if the asynchronous loading uses a Web API to get the data.
+	     * @param {?} prefix
+	     * @param {?=} dataFormat
+	     * @param {?=} webAPI
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.addProvider = function (prefix, dataFormat, webAPI) {
+	        if (dataFormat === void 0) { dataFormat = "json"; }
+	        if (webAPI === void 0) { webAPI = false; }
+	        this.providers.push({ prefix: prefix, dataFormat: dataFormat, webAPI: webAPI });
+	        // Updates the loading mode.
+	        if (this.providers.length == 1) {
+	            this.loadingMode = LoadingMode.Async;
+	        }
+	    };
+	    /**
+	     * Translates a key.
+	    
+	    \@param key The key to be translated
+	    \@param args Parameters
+	    \@param lang The current language
+	    \@return The value of translation
+	     * @param {?} key
+	     * @param {?=} args
+	     * @param {?=} lang
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.translate = function (key, args, lang) {
+	        if (lang === void 0) { lang = this.languageCode; }
+	        var /** @type {?} */ value;
+	        if (this.translationData[lang] != null) {
+	            // Gets the translation by language code. 
+	            var /** @type {?} */ translation = this.translationData[lang];
+	            // Checks for composed key (see issue #21).
+	            if (this.composedKey) {
+	                var /** @type {?} */ keys = key.split(this.keySeparator);
+	                do {
+	                    key = keys.shift();
+	                    if (translation[key] != null && (typeof translation[key] == "object")) {
+	                        translation = translation[key];
+	                    }
+	                } while (keys.length > 0);
+	            }
+	            // Gets the value of translation by key.   
+	            value = translation[key];
+	        }
+	        // Handles missing keys (see issues #1 & #31).
+	        if (value == null || value == "") {
+	            if (this.missingKey) {
+	                return this.translate(this.missingKey, args, lang);
+	            }
+	            else if (this.missingValue) {
+	                return this.missingValue;
+	            }
+	            return key; // The same key is returned.
+	        }
+	        else if (args != null) {
+	            var /** @type {?} */ TEMPLATE_REGEXP = /{{\s?([^{}\s]*)\s?}}/g;
+	            return value.replace(TEMPLATE_REGEXP, function (substring, parsedKey) {
+	                var /** @type {?} */ response = (args[parsedKey]);
+	                return (typeof response !== 'undefined') ? response : substring;
+	            });
+	        }
+	        return value;
+	    };
+	    /**
+	     * Translates a key.
+	    
+	    \@param key The key to be translated
+	    \@param args Parameters
+	    \@param lang The current language
+	    \@return An observable of the value of translation
+	     * @param {?} key
+	     * @param {?=} args
+	     * @param {?=} lang
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.translateAsync = function (key, args, lang) {
+	        var _this = this;
+	        if (lang === void 0) { lang = this.languageCode; }
+	        return rxjs_Observable.Observable.create(function (observer) {
+	            // Gets the value of translation for the key.
+	            var /** @type {?} */ value = _this.translate(key, args, lang);
+	            observer.next(value);
+	            observer.complete();
+	        });
+	    };
+	    /**
+	     * Sets the use of locale as language for the service (see issue #24).
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.useLocaleAsLanguage = function () {
+	        this.enableLocale = true;
+	    };
+	    /**
+	     * Gets language code and loads the translation data for the asynchronous loading.
+	    
+	    \@param language The language for the service
+	     * @param {?=} language
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.updateTranslation = function (language) {
+	        if (language === void 0) { language = !this.enableLocale
+	            ? this.locale.getCurrentLanguage()
+	            : this.locale.getCurrentLanguage()
+	                + "-"
+	                + this.locale.getCurrentCountry(); }
+	        if (language != "" && language != this.languageCode) {
+	            // Asynchronous loading.
+	            if (this.loadingMode == LoadingMode.Async) {
+	                // Updates the translation data.  
+	                this.getTranslation(language);
+	            }
+	            else {
+	                this.translationComplete(language);
+	            }
+	        }
+	    };
+	    /**
+	     * Sets the value to use for missing keys.
+	    
+	    \@param value The value to use for missing keys
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.setMissingValue = function (value) {
+	        this.missingValue = value;
+	    };
+	    /**
+	     * Sets the key to use for missing keys.
+	    
+	    \@param key The key to use for missing keys
+	     * @param {?} key
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.setMissingKey = function (key) {
+	        this.missingKey = key;
+	    };
+	    /**
+	     * Sets composed key option.
+	    
+	    \@param composedKey False to disable composed key. Default is true
+	    \@param keySeparator Composed key separator. Default is the point '.'
+	     * @param {?=} composedKey
+	     * @param {?=} keySeparator
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.setComposedKey = function (composedKey, keySeparator) {
+	        this.composedKey = composedKey;
+	        this.keySeparator = keySeparator;
+	    };
+	    /**
+	     * Compares two keys by the value of translation & the current language code.
+	    
+	    \@param key1, key2 The keys of the values to compare
+	    \@param extension
+	    \@param options
+	    \@return A negative value if the value of translation of key1 comes before the value of translation of key2; a positive value if key1 comes after key2; 0 if they are considered equal or Intl.Collator is not supported
+	    \@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+	     * @param {?} key1
+	     * @param {?} key2
+	     * @param {?=} extension
+	     * @param {?=} options
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.compare = function (key1, key2, extension, options) {
+	        // Checks for support for Intl.
+	        if (IntlSupport.Collator(this.locale.getCurrentLanguage()) == false) {
+	            return 0;
+	        }
+	        // Gets the value of translation for the keys.
+	        var /** @type {?} */ value1 = this.translate(key1);
+	        var /** @type {?} */ value2 = this.translate(key2);
+	        var /** @type {?} */ locale = this.addExtension(this.locale.getCurrentLanguage(), extension);
+	        return new Intl.Collator(locale).compare(value1, value2);
+	    };
+	    /**
+	     * Sorts an array of objects or an array of arrays by the current language code.
+	    
+	    \@param list The array to be sorted
+	    \@param keyName The column that contains the keys of the values to be ordered
+	    \@param order 'asc' or 'desc'. The default value is 'asc'.
+	    \@param extension
+	    \@param options
+	    \@return The same sorted list or the same list if Intl.Collator is not supported
+	    \@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+	     * @param {?} list
+	     * @param {?} keyName
+	     * @param {?=} order
+	     * @param {?=} extension
+	     * @param {?=} options
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.sort = function (list, keyName, order, extension, options) {
+	        if (list == null || keyName == null || IntlSupport.Collator(this.locale.getCurrentLanguage()) == false) {
+	            return list;
+	        }
+	        // Gets the value of translation for the keys.
+	        for (var _i = 0, list_1 = list; _i < list_1.length; _i++) {
+	            var item = list_1[_i];
+	            // Gets the value of translation for the key.
+	            var /** @type {?} */ value = this.translate(item[keyName]);
+	            // Adds a new column for translated values.
+	            var /** @type {?} */ translated = keyName.concat("Translated");
+	            // Updates the value in the list.
+	            item[translated] = value;
+	        }
+	        var /** @type {?} */ locale = this.addExtension(this.locale.getCurrentLanguage(), extension);
+	        // Intl.Collator.
+	        var /** @type {?} */ collator = new Intl.Collator(locale, options); // It can be passed directly to Array.prototype.sort.
+	        list.sort(function (a, b) {
+	            return collator.compare(a[translated], b[translated]);
+	        });
+	        // Removes the column of translated values.
+	        var /** @type {?} */ index = list.indexOf(translated, 0);
+	        if (index > -1) {
+	            list.splice(index, 1);
+	        }
+	        // Descending order.
+	        if (order != null && order == "desc") {
+	            list.reverse();
+	        }
+	        return list;
+	    };
+	    /**
+	     * Sorts an array of objects or an array of arrays by the current language code.
+	    
+	    \@param list The array to be sorted
+	    \@param keyName The column that contains the keys of the values to be ordered
+	    \@param order 'asc' or 'desc'. The default value is 'asc'.
+	    \@param extension
+	    \@param options
+	    \@return An observable of the sorted list or of the same list if Intl.Collator is not supported
+	    \@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+	     * @param {?} list
+	     * @param {?} keyName
+	     * @param {?=} order
+	     * @param {?=} extension
+	     * @param {?=} options
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.sortAsync = function (list, keyName, order, extension, options) {
+	        var _this = this;
+	        return rxjs_Observable.Observable.create(function (observer) {
+	            // Gets the sorted list.
+	            observer.next(_this.sort(list, keyName, order, extension, options));
+	            observer.complete();
+	        });
+	    };
+	    /**
+	     * Matches a string into an array of objects or an array of arrays.
+	    
+	    \@param s The string to search
+	    \@param list The array to look for
+	    \@param keyNames An array that contains the columns to look for
+	    \@param options
+	    \@return A filtered list or the same list if Intl.Collator is not supported
+	    \@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+	     * @param {?} s
+	     * @param {?} list
+	     * @param {?} keyNames
+	     * @param {?=} options
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.search = function (s, list, keyNames, options) {
+	        var _this = this;
+	        if (options === void 0) { options = { usage: 'search' }; }
+	        if (list == null || keyNames == null || s == "" || IntlSupport.Collator(this.locale.getCurrentLanguage()) == false) {
+	            return list;
+	        }
+	        // Gets the value of translation for the each column.
+	        var /** @type {?} */ translated = new Array();
+	        var /** @type {?} */ i = 0;
+	        for (var /** @type {?} */ i = 0; i < keyNames.length; i++) {
+	            // Adds a new column for translated values.
+	            translated.push(keyNames[i].concat("Translated"));
+	            for (var _i = 0, list_2 = list; _i < list_2.length; _i++) {
+	                var item = list_2[_i];
+	                // Gets the values of translation for the column.
+	                var /** @type {?} */ value = this.translate(item[keyNames[i]]);
+	                // Updates the value in the list.
+	                item[translated[i]] = value;
+	            }
+	        }
+	        var /** @type {?} */ locale = this.locale.getCurrentLanguage();
+	        // Intl.Collator.
+	        var /** @type {?} */ collator = new Intl.Collator(locale, options);
+	        var /** @type {?} */ matches = list.filter(function (v) {
+	            var /** @type {?} */ found = false;
+	            for (var /** @type {?} */ i = 0; i < translated.length; i++) {
+	                // Calls matching algorithm.
+	                if (_this.match(v[translated[i]], s, collator)) {
+	                    found = true;
+	                    break;
+	                }
+	            }
+	            return found;
+	        });
+	        // Removes the columns of translated values.
+	        for (var /** @type {?} */ i = 0; i < translated.length; i++) {
+	            var /** @type {?} */ index = matches.indexOf(translated[i], 0);
+	            if (index > -1) {
+	                matches.splice(index, 1);
+	            }
+	        }
+	        return matches;
+	    };
+	    /**
+	     * Matches a string into an array of objects or an array of arrays.
+	    
+	    \@param s The string to search
+	    \@param list The array to look for
+	    \@param keyNames An array that contains the columns to look for
+	    \@param options
+	    \@return An observable for each element of the filtered list or the same list if Intl.Collator is not supported
+	    \@see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+	     * @param {?} s
+	     * @param {?} list
+	     * @param {?} keyNames
+	     * @param {?=} options
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.searchAsync = function (s, list, keyNames, options) {
+	        var _this = this;
+	        if (options === void 0) { options = { usage: 'search' }; }
+	        if (list == null) {
+	            return null;
+	        }
+	        if (keyNames == null || s == "" || IntlSupport.Collator(this.locale.getCurrentLanguage()) == false) {
+	            return rxjs_Observable.Observable.create(function (observer) {
+	                for (var _i = 0, list_3 = list; _i < list_3.length; _i++) {
+	                    var item = list_3[_i];
+	                    observer.next(item);
+	                }
+	                observer.complete();
+	            });
+	        }
+	        return rxjs_Observable.Observable.create(function (observer) {
+	            // Gets the value of translation for the each column.
+	            var /** @type {?} */ translated = new Array();
+	            var /** @type {?} */ i = 0;
+	            for (var /** @type {?} */ i = 0; i < keyNames.length; i++) {
+	                // Adds a new column for translated values.
+	                translated.push(keyNames[i].concat("Translated"));
+	                for (var _i = 0, list_4 = list; _i < list_4.length; _i++) {
+	                    var item = list_4[_i];
+	                    // Gets the values of translation for the column.
+	                    var /** @type {?} */ value = _this.translate(item[keyNames[i]]);
+	                    // Updates the value in the list.
+	                    item[translated[i]] = value;
+	                }
+	            }
+	            var /** @type {?} */ locale = _this.locale.getCurrentLanguage();
+	            // Intl.Collator.
+	            var /** @type {?} */ collator = new Intl.Collator(locale, options);
+	            for (var _a = 0, list_5 = list; _a < list_5.length; _a++) {
+	                var v = list_5[_a];
+	                for (var /** @type {?} */ i = 0; i < translated.length; i++) {
+	                    // Calls matching algorithm.
+	                    if (_this.match(v[translated[i]], s, collator)) {
+	                        observer.next(v);
+	                        break;
+	                    }
+	                }
+	            }
+	            // Removes the columns of translated values.
+	            for (var /** @type {?} */ i = 0; i < translated.length; i++) {
+	                var /** @type {?} */ index = list.indexOf(translated[i], 0);
+	                if (index > -1) {
+	                    list.splice(index, 1);
+	                }
+	            }
+	            observer.complete();
+	        });
+	    };
+	    /**
+	     * @param {?} locale
+	     * @param {?=} extension
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.addExtension = function (locale, extension) {
+	        // Adds extension.
+	        if (extension != null && extension != "") {
+	            locale = locale + "-" + extension;
+	        }
+	        return locale;
+	    };
+	    /**
+	     * Matching algorithm.
+	    
+	    \@param v The value
+	    \@param s The string to search
+	    \@return True if match, otherwise false
+	     * @param {?} v
+	     * @param {?} s
+	     * @param {?} collator
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.match = function (v, s, collator) {
+	        var /** @type {?} */ vLength = v.length;
+	        var /** @type {?} */ sLength = s.length;
+	        if (sLength > vLength) {
+	            return false;
+	        } // The search string is longer than value.
+	        if (sLength == vLength) {
+	            return collator.compare(v, s) === 0;
+	        }
+	        // Tries to search the substring.
+	        var /** @type {?} */ found = false;
+	        for (var /** @type {?} */ i = 0; i < vLength - (sLength - 1); i++) {
+	            var /** @type {?} */ str = v.substr(i, sLength);
+	            if (collator.compare(str, s) === 0) {
+	                found = true;
+	                break;
+	            }
+	        }
+	        return found;
+	    };
+	    /**
+	     * Asynchronous loading: gets translation data.
+	     * @param {?} language
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.getTranslation = function (language) {
+	        var _this = this;
+	        // Initializes the translation data & the service state.
+	        this.translationData = {};
+	        this.serviceState = ServiceState.isLoading;
+	        var /** @type {?} */ observableSequencesOfTranslationData = [];
+	        for (var _i = 0, _a = this.providers; _i < _a.length; _i++) {
+	            var provider = _a[_i];
+	            // Builds the URL.
+	            var /** @type {?} */ url = provider.prefix;
+	            if (provider.webAPI == true) {
+	                // Absolute URL for Web API.
+	                url += language;
+	            }
+	            else {
+	                // Relative server path for 'json' files.
+	                url += language + "." + provider.dataFormat;
+	            }
+	            observableSequencesOfTranslationData.push(this.getTranslationByProvider(url));
+	        }
+	        // Merges all the observable sequences into a single observable sequence.
+	        rxjs_Observable.Observable.merge.apply(rxjs_Observable.Observable, observableSequencesOfTranslationData).subscribe(
+	        // Next.
+	        function (data) {
+	            // Adds response to the translation data.
+	            _this.addData(data, language);
+	        }, 
+	        // Error.
+	        function (error) {
+	            console.error("Localization service:", error);
+	        }, 
+	        // Complete.
+	        function () {
+	            _this.translationComplete(language);
+	        });
+	    };
+	    /**
+	     * @param {?} url
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.getTranslationByProvider = function (url) {
+	        return this.http.get(url)
+	            .map(function (res) { return res.json(); });
+	    };
+	    /**
+	     * Adds or extends translation data.
+	     * @param {?} data
+	     * @param {?} language
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.addData = function (data, language) {
+	        this.translationData[language] = (typeof this.translationData[language] != "undefined") ? this.extend(this.translationData[language], data) : data;
+	    };
+	    /**
+	     * Merges objects.
+	     * @param {...?} args
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.extend = function () {
+	        var args = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            args[_i - 0] = arguments[_i];
+	        }
+	        var /** @type {?} */ newObj = {};
+	        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
+	            var obj = args_1[_a];
+	            for (var key in obj) {
+	                // Copies all the fields.
+	                newObj[key] = obj[key];
+	            }
+	        }
+	        return newObj;
+	    };
+	    /**
+	     * @param {?} language
+	     * @return {?}
+	     */
+	    LocalizationService.prototype.translationComplete = function (language) {
+	        // Updates the service state.
+	        this.serviceState = ServiceState.isReady;
+	        // Updates the language code of the service: all the translate pipe will invoke the trasform method.
+	        this.languageCode = language;
+	        // Sends an event for the components.
+	        this.translationChanged.emit(language);
+	    };
+	    LocalizationService.decorators = [
+	        { type: _angular_core.Injectable },
+	    ];
+	    /** @nocollapse */
+	    LocalizationService.ctorParameters = function () { return [
+	        { type: _angular_http.Http, },
+	        { type: LocaleService, },
+	    ]; };
+	    LocalizationService.propDecorators = {
+	        'translationChanged': [{ type: _angular_core.Output },],
+	    };
+	    return LocalizationService;
+	}());
+	var ServiceState = {};
+	ServiceState.isReady = 0;
+	ServiceState.isLoading = 1;
+	ServiceState.isWaiting = 2;
+	ServiceState[ServiceState.isReady] = "isReady";
+	ServiceState[ServiceState.isLoading] = "isLoading";
+	ServiceState[ServiceState.isWaiting] = "isWaiting";
+	var LoadingMode = {};
+	LoadingMode.Direct = 0;
+	LoadingMode.Async = 1;
+	LoadingMode[LoadingMode.Direct] = "Direct";
+	LoadingMode[LoadingMode.Async] = "Async";
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * Locale superclass.
+	Provides the updates for localization.
+	
+	Extend this class in components to provide lang, defaultLocale & currency to the pipes.
+	
+	\@author Roberto Simonetti
+	 */
+	var Locale = (function () {
+	    /**
+	     * @param {?=} locale
+	     * @param {?=} localization
+	     */
+	    function Locale(locale, localization) {
+	        var _this = this;
+	        this.locale = locale;
+	        this.localization = localization;
+	        if (this.localization != null) {
+	            this.lang = this.localization.languageCode;
+	            // When the language changes, subscribes to the event & updates lang property.
+	            this.localization.translationChanged.subscribe(
+	            // Generator or next.
+	            function (language) { _this.lang = language; });
+	        }
+	        if (this.locale != null) {
+	            this.defaultLocale = this.locale.getDefaultLocale();
+	            // When the default locale changes, subscribes to the event & updates defaultLocale property.
+	            this.locale.defaultLocaleChanged.subscribe(
+	            // Generator or next.
+	            function (defaultLocale) { _this.defaultLocale = defaultLocale; });
+	            this.currency = this.locale.getCurrentCurrency();
+	            // When the currency changes, subscribes to the event & updates currency property.
+	            this.locale.currencyCodeChanged.subscribe(
+	            // Generator or next.
+	            function (currency) { _this.currency = currency; });
+	        }
+	    }
+	    return Locale;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	var __extends = (undefined && undefined.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	/**
+	 * @param {?} obj
+	 * @return {?}
+	 */
+	function isPresent(obj) {
+	    return obj !== undefined && obj !== null;
+	}
+	/**
+	 * LocaleParser class.
+	Parses a string and returns a number by default locale.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleParser = (function () {
+	    function LocaleParser() {
+	    }
+	    /**
+	     * Builds the regular expression for a number by default locale.
+	    
+	    \@param defaultLocale The default locale
+	    \@param digits The digit info: {minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}
+	    \@return A RegExp object
+	     * @param {?} defaultLocale
+	     * @param {?} digits
+	     * @return {?}
+	     */
+	    LocaleParser.NumberRegExpFactory = function (defaultLocale, digits) {
+	        // Gets digits.
+	        var /** @type {?} */ minInt = 1;
+	        var /** @type {?} */ minFraction = 0;
+	        var /** @type {?} */ maxFraction = 3;
+	        var /** @type {?} */ NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(\-(\d+))?)?$/;
+	        if (isPresent(digits)) {
+	            var /** @type {?} */ parts = digits.match(NUMBER_FORMAT_REGEXP);
+	            if (parts === null) {
+	                throw new Error(digits + " is not a valid digit info for number");
+	            }
+	            if (isPresent(parts[1])) {
+	                minInt = NumberWrapper.parseIntAutoRadix(parts[1]);
+	            }
+	            if (isPresent(parts[3])) {
+	                minFraction = NumberWrapper.parseIntAutoRadix(parts[3]);
+	            }
+	            if (isPresent(parts[5])) {
+	                maxFraction = NumberWrapper.parseIntAutoRadix(parts[5]);
+	            }
+	        }
+	        // Converts numbers & signs to Unicode by default locale.
+	        var /** @type {?} */ codes = new DecimalCode(defaultLocale);
+	        var /** @type {?} */ minusSign = codes.minusSign;
+	        var /** @type {?} */ zero = codes.numbers[0];
+	        var /** @type {?} */ decimalSeparator = codes.decimalSeparator;
+	        var /** @type {?} */ nine = codes.numbers[9];
+	        // Pattern for 1.2-2 digits: /^-?[0-9]{1,}\.[0-9]{2,2}$/
+	        // Unicode pattern = "^\u002d?[\u0030-\u0039]{1,}\\u002e[\u0030-\u0039]{2,2}$";
+	        var /** @type {?} */ pattern;
+	        if (minFraction > 0 && maxFraction > 0) {
+	            pattern = "^"
+	                + minusSign
+	                + "?[" + zero + "-" + nine
+	                + "]{" + minInt + ",}\\"
+	                + decimalSeparator
+	                + "[" + zero + "-" + nine
+	                + "]{" + minFraction + "," + maxFraction
+	                + "}$";
+	        }
+	        else if (minFraction == 0 && maxFraction > 0) {
+	            // Decimal separator is optional.
+	            pattern = "^"
+	                + minusSign
+	                + "?[" + zero + "-" + nine
+	                + "]{" + minInt + ",}\\"
+	                + decimalSeparator
+	                + "?[" + zero + "-" + nine
+	                + "]{" + minFraction + "," + maxFraction
+	                + "}$";
+	        }
+	        else {
+	            // Integer number.
+	            pattern = "^"
+	                + minusSign
+	                + "?[" + zero + "-" + nine
+	                + "]{" + minInt + ",}$";
+	        }
+	        pattern = codes.UnicodeToChar(pattern);
+	        var /** @type {?} */ regExp = new RegExp(pattern);
+	        return regExp;
+	        // Wonderful, it works!
+	    };
+	    /**
+	     * Parses a string and returns a number by default locale.
+	    
+	    \@param s The string to be parsed
+	    \@param defaultLocale The default locale
+	    \@return A number. If the string cannot be converted to a number, returns NaN
+	     * @param {?} s
+	     * @param {?} defaultLocale
+	     * @return {?}
+	     */
+	    LocaleParser.Number = function (s, defaultLocale) {
+	        if (s == "" || defaultLocale == "" || defaultLocale == null) {
+	            return null;
+	        }
+	        var /** @type {?} */ codes = new DecimalCode(defaultLocale);
+	        return codes.parse(s);
+	    };
+	    return LocaleParser;
+	}());
+	/**
+	 * NumberCode abstract superclass.
+	
+	Converts numbers to Unicode by locales.
+	
+	\@author Roberto Simonetti
+	 * @abstract
+	 */
+	var NumberCode = (function () {
+	    /**
+	     * @param {?} defaultLocale
+	     */
+	    function NumberCode(defaultLocale) {
+	        this.defaultLocale = defaultLocale;
+	        this.numbers = [];
+	        for (var i = 0; i <= 9; i++) {
+	            this.numbers.push(this.Unicode(i.toString()));
+	        }
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            // Updates Unicode for numbers by default locale.
+	            for (var i = 0; i <= 9; i++) {
+	                this.numbers[i] = this.Unicode(new Intl.NumberFormat(defaultLocale).format(i));
+	            }
+	        }
+	    }
+	    /**
+	     * Parses a string and returns a number by default locale.
+	    
+	    \@param s The string to be parsed
+	    \@return A number
+	     * @abstract
+	     * @param {?} s
+	     * @return {?}
+	     */
+	    NumberCode.prototype.parse = function (s) { };
+	    /**
+	     * @abstract
+	     * @param {?} pattern
+	     * @return {?}
+	     */
+	    NumberCode.prototype.UnicodeToChar = function (pattern) { };
+	    /**
+	     * @param {?} c
+	     * @return {?}
+	     */
+	    NumberCode.prototype.Unicode = function (c) {
+	        return "\\u" + this.HexEncode(c.charCodeAt(0));
+	    };
+	    /**
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    NumberCode.prototype.HexEncode = function (value) {
+	        var /** @type {?} */ hex = value.toString(16).toUpperCase();
+	        // With padding.
+	        hex = "0000".substr(0, 4 - hex.length) + hex;
+	        return hex;
+	    };
+	    return NumberCode;
+	}());
+	/**
+	 * DecimalCode class.
+	
+	Converts numbers & signs to Unicode by locales.
+	
+	\@author Roberto Simonetti
+	 */
+	var DecimalCode = (function (_super) {
+	    __extends(DecimalCode, _super);
+	    /**
+	     * @param {?} defaultLocale
+	     */
+	    function DecimalCode(defaultLocale) {
+	        _super.call(this, defaultLocale);
+	        this.defaultLocale = defaultLocale;
+	        this.minusSign = this.Unicode("-");
+	        this.decimalSeparator = this.Unicode(".");
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            // Updates Unicode for signs by default locale.
+	            var value = -0.9; // Reference value.
+	            var localeValue = new Intl.NumberFormat(defaultLocale).format(value);
+	            // Checks Unicode character 'RIGHT-TO-LEFT MARK' (U+200F).
+	            if (this.Unicode(localeValue.charAt(0)) == "\\u200F") {
+	                // Right to left.
+	                this.minusSign = this.Unicode(localeValue.charAt(1));
+	                this.decimalSeparator = this.Unicode(localeValue.charAt(3));
+	            }
+	            else if (this.Unicode(localeValue.charAt(0)) == this.Unicode(new Intl.NumberFormat(defaultLocale).format(0))) {
+	                // IE & Edge reverse the order.
+	                this.minusSign = this.Unicode(localeValue.charAt(3));
+	                this.decimalSeparator = this.Unicode(localeValue.charAt(1));
+	            }
+	            else {
+	                // Left to right.
+	                this.minusSign = this.Unicode(localeValue.charAt(0));
+	                this.decimalSeparator = this.Unicode(localeValue.charAt(2));
+	            }
+	        }
+	    }
+	    /**
+	     * @param {?} s
+	     * @return {?}
+	     */
+	    DecimalCode.prototype.parse = function (s) {
+	        // Splits the String object into an array of characters.
+	        var /** @type {?} */ characters = s.split("");
+	        // Builds the value.
+	        var /** @type {?} */ value = "";
+	        for (var _i = 0, characters_1 = characters; _i < characters_1.length; _i++) {
+	            var char = characters_1[_i];
+	            var /** @type {?} */ charCode = this.Unicode(char);
+	            // Tries to look for the char code in numbers and signs.
+	            var /** @type {?} */ index = this.numbers.indexOf(charCode);
+	            if (index != -1) {
+	                value += index;
+	            }
+	            else if (charCode == this.minusSign) {
+	                value += "-";
+	            }
+	            else if (charCode == this.decimalSeparator) {
+	                value += ".";
+	            }
+	            else {
+	                return NaN;
+	            }
+	        }
+	        return parseFloat(value);
+	    };
+	    /**
+	     * @param {?} pattern
+	     * @return {?}
+	     */
+	    DecimalCode.prototype.UnicodeToChar = function (pattern) {
+	        return pattern.replace(/\\u[\dA-F]{4}/gi, function (match) {
+	            return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+	        });
+	    };
+	    return DecimalCode;
+	}(NumberCode));
+	var NumberWrapper = (function () {
+	    function NumberWrapper() {
+	    }
+	    /**
+	     * @param {?} text
+	     * @return {?}
+	     */
+	    NumberWrapper.parseIntAutoRadix = function (text) {
+	        var /** @type {?} */ result = parseInt(text, null);
+	        if (isNaN(result)) {
+	            throw new Error('Invalid integer literal when parsing ' + text);
+	        }
+	        return result;
+	    };
+	    /**
+	     * @param {?} text
+	     * @param {?} radix
+	     * @return {?}
+	     */
+	    NumberWrapper.parseInt = function (text, radix) {
+	        if (radix == 10) {
+	            if (/^(\-|\+)?[0-9]+$/.test(text)) {
+	                return parseInt(text, radix);
+	            }
+	        }
+	        else if (radix == 16) {
+	            if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
+	                return parseInt(text, radix);
+	            }
+	        }
+	        else {
+	            var /** @type {?} */ result = parseInt(text, radix);
+	            if (!isNaN(result)) {
+	                return result;
+	            }
+	        }
+	        throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
+	    };
+	    return NumberWrapper;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * I18nPlural superclass.
+	
+	\@author Roberto Simonetti
+	 */
+	var I18nPlural = (function () {
+	    /**
+	     * @param {?} locale
+	     */
+	    function I18nPlural(locale) {
+	        this.locale = locale;
+	        this.REGEXP = /^\d+\b/;
+	    }
+	    /**
+	     * @param {?} key
+	     * @return {?}
+	     */
+	    I18nPlural.prototype.translateNumber = function (key) {
+	        this.keyStr = key;
+	        if (this.REGEXP.exec(key) != null) {
+	            // Tries to extract the number.
+	            var /** @type {?} */ keyNum = parseFloat(key);
+	            // Tries to extract the string. 
+	            this.keyStr = key.replace(this.REGEXP, "");
+	            this.keyStr = this.keyStr.trim();
+	            // Checks the number & support for Intl.
+	            if (!isNaN(keyNum) && IntlSupport.NumberFormat(this.locale.getDefaultLocale()) == true) {
+	                var /** @type {?} */ localeDecimal = new _angular_common.DecimalPipe(this.locale.getDefaultLocale());
+	                // Localizes the number.
+	                key = key.replace(/^\d+/, localeDecimal.transform(keyNum, '1.0-3'));
+	            }
+	        }
+	        return key;
+	    };
+	    return I18nPlural;
+	}());
+	/**
+	 * LocaleDirective superclass.
+	
+	\@author Roberto Simonetti
+	 * @abstract
+	 */
+	var LocaleDirective = (function () {
+	    /**
+	     * @param {?} locale
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function LocaleDirective(locale, el, renderer) {
+	        this.locale = locale;
+	        this.el = el;
+	        this.renderer = renderer;
+	    }
+	    /**
+	     * @return {?}
+	     */
+	    LocaleDirective.prototype.ngAfterViewInit = function () {
+	        var _this = this;
+	        var /** @type {?} */ renderNode = this.el.nativeElement.childNodes[0];
+	        var /** @type {?} */ value = (renderNode.nodeValue);
+	        this.localize(renderNode, value);
+	        this.locale.defaultLocaleChanged.subscribe(function () {
+	            _this.localize(renderNode, value);
+	        });
+	    };
+	    /**
+	     * @abstract
+	     * @param {?} renderNode
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleDirective.prototype.localize = function (renderNode, value) { };
+	    return LocaleDirective;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	var __extends$1 = (undefined && undefined.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	/**
+	 * TranslatePipe class.
+	Translates messages.
+	
+	\@author Roberto Simonetti
+	 */
+	var TranslatePipe = (function (_super) {
+	    __extends$1(TranslatePipe, _super);
+	    /**
+	     * @param {?} localization
+	     * @param {?} locale
+	     */
+	    function TranslatePipe(localization, locale) {
+	        _super.call(this, locale);
+	        this.localization = localization;
+	        this.locale = locale;
+	    }
+	    /**
+	     * TranslatePipe transform method.
+	    
+	    \@param key The key to be translated
+	    \@param lang The current language code for the LocalizationService
+	    \@param args Optional parameters
+	    \@return The value of translation
+	     * @param {?} key
+	     * @param {?} lang
+	     * @param {...?} args
+	     * @return {?}
+	     */
+	    TranslatePipe.prototype.transform = function (key, lang) {
+	        var args = [];
+	        for (var _i = 2; _i < arguments.length; _i++) {
+	            args[_i - 2] = arguments[_i];
+	        }
+	        // Checks the service state.
+	        if (this.localization.serviceState == ServiceState.isReady) {
+	            // Looks for a number at the beginning of the key. 
+	            key = this.translateNumber(key);
+	            // Gets the value of translation for the key string.
+	            var /** @type {?} */ value = this.localization.translate(this.keyStr, args[0], lang);
+	            return key.replace(this.keyStr, value);
+	        }
+	        // If the service is not ready, returns an empty string.
+	        return "";
+	    };
+	    TranslatePipe.decorators = [
+	        { type: _angular_core.Pipe, args: [{
+	                    name: 'translate',
+	                    pure: true
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    TranslatePipe.ctorParameters = function () { return [
+	        { type: LocalizationService, },
+	        { type: LocaleService, },
+	    ]; };
+	    return TranslatePipe;
+	}(I18nPlural));
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * LocaleDatePipe class.
+	Localizes dates.
+	
+	\@author Roberto Simonetti
+	\@see Angular 2 DatePipe for further information
+	 */
+	var LocaleDatePipe = (function () {
+	    function LocaleDatePipe() {
+	    }
+	    /**
+	     * LocaleDatePipe transform method.
+	    
+	    \@param value The date to be localized
+	    \@param defaultLocale The default locale
+	    \@param pattern The format of the date
+	    \@return The locale date
+	     * @param {?} value
+	     * @param {?} defaultLocale
+	     * @param {?=} pattern
+	     * @return {?}
+	     */
+	    LocaleDatePipe.prototype.transform = function (value, defaultLocale, pattern) {
+	        if (pattern === void 0) { pattern = 'mediumDate'; }
+	        // Checks for support for Intl.
+	        if (IntlSupport.DateTimeFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeDate = new _angular_common.DatePipe(defaultLocale);
+	            return localeDate.transform(value, pattern);
+	        }
+	        // Returns the date without localization.
+	        return value;
+	    };
+	    LocaleDatePipe.decorators = [
+	        { type: _angular_core.Pipe, args: [{
+	                    name: 'localeDate',
+	                    pure: true
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleDatePipe.ctorParameters = function () { return []; };
+	    return LocaleDatePipe;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * LocaleDecimalPipe class.
+	Localizes decimal numbers.
+	
+	\@author Roberto Simonetti
+	\@see Angular 2 DecimalPipe for further information
+	 */
+	var LocaleDecimalPipe = (function () {
+	    function LocaleDecimalPipe() {
+	    }
+	    /**
+	     * LocaleDecimalPipe transform method.
+	    
+	    \@param value The number to be localized
+	    \@param defaultLocale The default locale
+	    \@param digits The format of the number
+	    \@return The locale decimal
+	     * @param {?} value
+	     * @param {?} defaultLocale
+	     * @param {?=} digits
+	     * @return {?}
+	     */
+	    LocaleDecimalPipe.prototype.transform = function (value, defaultLocale, digits) {
+	        if (digits === void 0) { digits = null; }
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeDecimal = new _angular_common.DecimalPipe(defaultLocale);
+	            return localeDecimal.transform(value, digits);
+	        }
+	        // Returns the number without localization.
+	        return value;
+	    };
+	    LocaleDecimalPipe.decorators = [
+	        { type: _angular_core.Pipe, args: [{
+	                    name: 'localeDecimal',
+	                    pure: true
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleDecimalPipe.ctorParameters = function () { return []; };
+	    return LocaleDecimalPipe;
+	}());
+	/**
+	 * LocalePercentPipe class.
+	Localizes percent numbers.
+	
+	\@author Roberto Simonetti
+	\@see Angular 2 PercentPipe for further information
+	 */
+	var LocalePercentPipe = (function () {
+	    function LocalePercentPipe() {
+	    }
+	    /**
+	     * LocalePercentPipe transform method.
+	    
+	    \@param value The number to be localized
+	    \@param defaultLocale The default locale
+	    \@param digits The format of the number
+	    \@return The locale percent
+	     * @param {?} value
+	     * @param {?} defaultLocale
+	     * @param {?=} digits
+	     * @return {?}
+	     */
+	    LocalePercentPipe.prototype.transform = function (value, defaultLocale, digits) {
+	        if (digits === void 0) { digits = null; }
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localePercent = new _angular_common.PercentPipe(defaultLocale);
+	            return localePercent.transform(value, digits);
+	        }
+	        // Returns the number without localization.
+	        return value;
+	    };
+	    LocalePercentPipe.decorators = [
+	        { type: _angular_core.Pipe, args: [{
+	                    name: 'localePercent',
+	                    pure: true
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocalePercentPipe.ctorParameters = function () { return []; };
+	    return LocalePercentPipe;
+	}());
+	/**
+	 * LocaleCurrencyPipe class.
+	Localizes currencies.
+	
+	\@author Roberto Simonetti
+	\@see Angular 2 CurrencyPipe for further information
+	 */
+	var LocaleCurrencyPipe = (function () {
+	    function LocaleCurrencyPipe() {
+	    }
+	    /**
+	     * LocaleCurrencyPipe transform method.
+	    
+	    \@param value The number to be localized
+	    \@param defaultLocale The default locale
+	    \@param currency The current currency
+	    \@param symbolDisplay Indicates whether to use the currency symbol
+	    \@param digits The format of the number
+	    \@return The locale currency
+	     * @param {?} value
+	     * @param {?} defaultLocale
+	     * @param {?} currency
+	     * @param {?=} symbolDisplay
+	     * @param {?=} digits
+	     * @return {?}
+	     */
+	    LocaleCurrencyPipe.prototype.transform = function (value, defaultLocale, currency, symbolDisplay, digits) {
+	        if (symbolDisplay === void 0) { symbolDisplay = false; }
+	        if (digits === void 0) { digits = null; }
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeCurrency = new _angular_common.CurrencyPipe(defaultLocale);
+	            return localeCurrency.transform(value, currency, symbolDisplay, digits);
+	        }
+	        // Returns the number without localization & currency.
+	        return value + " " + currency;
+	    };
+	    LocaleCurrencyPipe.decorators = [
+	        { type: _angular_core.Pipe, args: [{
+	                    name: 'localeCurrency',
+	                    pure: true
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleCurrencyPipe.ctorParameters = function () { return []; };
+	    return LocaleCurrencyPipe;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * TranslateDirective class.
+	Translate by an attribute directive.
+	
+	\@author Roberto Simonetti
+	 */
+	var TranslateDirective = (function () {
+	    /**
+	     * @param {?} localization
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function TranslateDirective(localization, el, renderer) {
+	        this.localization = localization;
+	        this.el = el;
+	        this.renderer = renderer;
+	    }
+	    /**
+	     * @return {?}
+	     */
+	    TranslateDirective.prototype.ngAfterViewInit = function () {
+	        var _this = this;
+	        var /** @type {?} */ renderNode = this.el.nativeElement.childNodes[0];
+	        var /** @type {?} */ key = (renderNode.nodeValue);
+	        this.translate(renderNode, key);
+	        this.localization.translationChanged.subscribe(function () {
+	            _this.translate(renderNode, key);
+	        });
+	    };
+	    /**
+	     * @param {?} renderNode
+	     * @param {?} key
+	     * @return {?}
+	     */
+	    TranslateDirective.prototype.translate = function (renderNode, key) {
+	        var _this = this;
+	        this.localization.translateAsync(key, this.params).subscribe(function (value) {
+	            _this.renderer.setText(renderNode, value);
+	        });
+	    };
+	    TranslateDirective.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[translate]'
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    TranslateDirective.ctorParameters = function () { return [
+	        { type: LocalizationService, },
+	        { type: _angular_core.ElementRef, },
+	        { type: _angular_core.Renderer, },
+	    ]; };
+	    TranslateDirective.propDecorators = {
+	        'params': [{ type: _angular_core.Input, args: ['translate',] },],
+	    };
+	    return TranslateDirective;
+	}());
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	var __extends$2 = (undefined && undefined.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	/**
+	 * LocaleDateDirective class.
+	Localizes dates by an attribute directive.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleDateDirective = (function (_super) {
+	    __extends$2(LocaleDateDirective, _super);
+	    /**
+	     * @param {?} locale
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function LocaleDateDirective(locale, el, renderer) {
+	        _super.call(this, locale, el, renderer);
+	        this.locale = locale;
+	        this.defaultPattern = 'mediumDate';
+	    }
+	    /**
+	     * @param {?} renderNode
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleDateDirective.prototype.localize = function (renderNode, value) {
+	        var /** @type {?} */ defaultLocale = this.locale.getDefaultLocale();
+	        // Checks for support for Intl.
+	        if (IntlSupport.DateTimeFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeDate = new _angular_common.DatePipe(defaultLocale);
+	            this.renderer.setText(renderNode, localeDate.transform(value, this.pattern || this.defaultPattern));
+	        }
+	    };
+	    LocaleDateDirective.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[localeDate]'
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleDateDirective.ctorParameters = function () { return [
+	        { type: LocaleService, },
+	        { type: _angular_core.ElementRef, },
+	        { type: _angular_core.Renderer, },
+	    ]; };
+	    LocaleDateDirective.propDecorators = {
+	        'pattern': [{ type: _angular_core.Input, args: ['localeDate',] },],
+	    };
+	    return LocaleDateDirective;
+	}(LocaleDirective));
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	var __extends$3 = (undefined && undefined.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	/**
+	 * LocaleDecimalDirective class.
+	Localizes decimal numbers by an attribute directive.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleDecimalDirective = (function (_super) {
+	    __extends$3(LocaleDecimalDirective, _super);
+	    /**
+	     * @param {?} locale
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function LocaleDecimalDirective(locale, el, renderer) {
+	        _super.call(this, locale, el, renderer);
+	        this.locale = locale;
+	        this.defaultDigits = null;
+	    }
+	    /**
+	     * @param {?} renderNode
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleDecimalDirective.prototype.localize = function (renderNode, value) {
+	        var /** @type {?} */ defaultLocale = this.locale.getDefaultLocale();
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeDecimal = new _angular_common.DecimalPipe(defaultLocale);
+	            this.renderer.setText(renderNode, localeDecimal.transform(value, this.digits || this.defaultDigits));
+	        }
+	    };
+	    LocaleDecimalDirective.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[localeDecimal]'
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleDecimalDirective.ctorParameters = function () { return [
+	        { type: LocaleService, },
+	        { type: _angular_core.ElementRef, },
+	        { type: _angular_core.Renderer, },
+	    ]; };
+	    LocaleDecimalDirective.propDecorators = {
+	        'digits': [{ type: _angular_core.Input, args: ['localeDecimal',] },],
+	    };
+	    return LocaleDecimalDirective;
+	}(LocaleDirective));
+	/**
+	 * LocalePercentDirective class.
+	Localizes percent numbers by an attribute directive.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocalePercentDirective = (function (_super) {
+	    __extends$3(LocalePercentDirective, _super);
+	    /**
+	     * @param {?} locale
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function LocalePercentDirective(locale, el, renderer) {
+	        _super.call(this, locale, el, renderer);
+	        this.locale = locale;
+	        this.defaultDigits = null;
+	    }
+	    /**
+	     * @param {?} renderNode
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocalePercentDirective.prototype.localize = function (renderNode, value) {
+	        var /** @type {?} */ defaultLocale = this.locale.getDefaultLocale();
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localePercent = new _angular_common.PercentPipe(defaultLocale);
+	            this.renderer.setText(renderNode, localePercent.transform(value, this.digits || this.defaultDigits));
+	        }
+	    };
+	    LocalePercentDirective.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[localePercent]'
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocalePercentDirective.ctorParameters = function () { return [
+	        { type: LocaleService, },
+	        { type: _angular_core.ElementRef, },
+	        { type: _angular_core.Renderer, },
+	    ]; };
+	    LocalePercentDirective.propDecorators = {
+	        'digits': [{ type: _angular_core.Input, args: ['localePercent',] },],
+	    };
+	    return LocalePercentDirective;
+	}(LocaleDirective));
+	/**
+	 * LocaleCurrencyDirective class.
+	Localizes currencies by an attribute directive.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleCurrencyDirective = (function (_super) {
+	    __extends$3(LocaleCurrencyDirective, _super);
+	    /**
+	     * @param {?} locale
+	     * @param {?} el
+	     * @param {?} renderer
+	     */
+	    function LocaleCurrencyDirective(locale, el, renderer) {
+	        _super.call(this, locale, el, renderer);
+	        this.locale = locale;
+	        this.symbolDisplay = false;
+	        this.defaultDigits = null;
+	    }
+	    Object.defineProperty(LocaleCurrencyDirective.prototype, "symbol", {
+	        /**
+	         * @param {?} symbolDisplay
+	         * @return {?}
+	         */
+	        set: function (symbolDisplay) {
+	            this.symbolDisplay = symbolDisplay || this.symbolDisplay;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    /**
+	     * @param {?} renderNode
+	     * @param {?} value
+	     * @return {?}
+	     */
+	    LocaleCurrencyDirective.prototype.localize = function (renderNode, value) {
+	        var /** @type {?} */ defaultLocale = this.locale.getDefaultLocale();
+	        var /** @type {?} */ currency = this.locale.getCurrentCurrency();
+	        // Checks for support for Intl.
+	        if (IntlSupport.NumberFormat(defaultLocale) == true) {
+	            var /** @type {?} */ localeCurrency = new _angular_common.CurrencyPipe(defaultLocale);
+	            this.renderer.setText(renderNode, localeCurrency.transform(value, currency, this.symbolDisplay, this.digits || this.defaultDigits));
+	        }
+	    };
+	    LocaleCurrencyDirective.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[localeCurrency]'
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleCurrencyDirective.ctorParameters = function () { return [
+	        { type: LocaleService, },
+	        { type: _angular_core.ElementRef, },
+	        { type: _angular_core.Renderer, },
+	    ]; };
+	    LocaleCurrencyDirective.propDecorators = {
+	        'digits': [{ type: _angular_core.Input, args: ['localeCurrency',] },],
+	        'symbol': [{ type: _angular_core.Input },],
+	    };
+	    return LocaleCurrencyDirective;
+	}(LocaleDirective));
+	
+	/**
+	 * ANGULAR 2 LOCALIZATION
+	 * An Angular 2 library to translate messages, dates and numbers.
+	 * Written by Roberto Simonetti.
+	 * MIT license.
+	 * https://github.com/robisim74/angular2localization
+	 */
+	/**
+	 * Function that takes a Control and returns either null when it’s valid, or and error object if it’s not.
+	
+	\@param locale The reference to LocaleService
+	\@param digits The format of the number
+	\@param MIN_VALUE The minimum value for the number
+	\@param MAX_VALUE The maximum value for the number
+	\@return An error object: 'format', 'minValue' or 'maxValue'; null in case the value is valid
+	 * @param {?} locale
+	 * @param {?} digits
+	 * @param {?=} MIN_VALUE
+	 * @param {?=} MAX_VALUE
+	 * @return {?}
+	 */
+	function validateLocaleNumber(locale, digits, MIN_VALUE, MAX_VALUE) {
+	    if (MIN_VALUE === void 0) { MIN_VALUE = Number.MIN_VALUE; }
+	    if (MAX_VALUE === void 0) { MAX_VALUE = Number.MAX_VALUE; }
+	    var /** @type {?} */ defaultLocale;
+	    var /** @type {?} */ NUMBER_REGEXP;
+	    return function (c) {
+	        // Checks if the default locale has changed. 
+	        if (defaultLocale != locale.getDefaultLocale()) {
+	            NUMBER_REGEXP = LocaleParser.NumberRegExpFactory(locale.getDefaultLocale(), digits);
+	            defaultLocale = locale.getDefaultLocale();
+	        }
+	        // Checks the format.
+	        if (NUMBER_REGEXP.test(c.value)) {
+	            var /** @type {?} */ parsedValue;
+	            parsedValue = LocaleParser.Number(c.value, locale.getDefaultLocale());
+	            if (parsedValue < MIN_VALUE) {
+	                return {
+	                    minValue: {
+	                        valid: false
+	                    }
+	                };
+	            }
+	            else if (parsedValue > MAX_VALUE) {
+	                return {
+	                    maxValue: {
+	                        valid: false
+	                    }
+	                };
+	            }
+	            return null; // The number is valid.
+	        }
+	        else {
+	            return {
+	                format: {
+	                    valid: false
+	                }
+	            };
+	        }
+	    };
+	}
+	/**
+	 * LocaleNumberValidator class.
+	Validates a number by default locale.
+	
+	\@author Roberto Simonetti
+	 */
+	var LocaleNumberValidator = (function () {
+	    /**
+	     * @param {?} locale
+	     */
+	    function LocaleNumberValidator(locale) {
+	        this.locale = locale;
+	        this.MIN_VALUE = Number.MIN_VALUE;
+	        this.MAX_VALUE = Number.MAX_VALUE;
+	    }
+	    Object.defineProperty(LocaleNumberValidator.prototype, "minValue", {
+	        /**
+	         * @param {?} value
+	         * @return {?}
+	         */
+	        set: function (value) {
+	            this.MIN_VALUE = value || this.MIN_VALUE;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(LocaleNumberValidator.prototype, "maxValue", {
+	        /**
+	         * @param {?} value
+	         * @return {?}
+	         */
+	        set: function (value) {
+	            this.MAX_VALUE = value || this.MAX_VALUE;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    /**
+	     * @return {?}
+	     */
+	    LocaleNumberValidator.prototype.ngOnInit = function () {
+	        this.validator = validateLocaleNumber(this.locale, this.digits, this.MIN_VALUE, this.MAX_VALUE);
+	    };
+	    /**
+	     * @param {?} c
+	     * @return {?}
+	     */
+	    LocaleNumberValidator.prototype.validate = function (c) {
+	        return this.validator(c);
+	    };
+	    LocaleNumberValidator.decorators = [
+	        { type: _angular_core.Directive, args: [{
+	                    selector: '[validateLocaleNumber][ngModel],[validateLocaleNumber][formControl]',
+	                    providers: [
+	                        { provide: _angular_forms.NG_VALIDATORS, useExisting: _angular_core.forwardRef(function () { return LocaleNumberValidator; }), multi: true }
+	                    ]
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleNumberValidator.ctorParameters = function () { return [
+	        { type: LocaleService, },
+	    ]; };
+	    LocaleNumberValidator.propDecorators = {
+	        'digits': [{ type: _angular_core.Input, args: ['validateLocaleNumber',] },],
+	        'minValue': [{ type: _angular_core.Input },],
+	        'maxValue': [{ type: _angular_core.Input },],
+	    };
+	    return LocaleNumberValidator;
+	}());
+	
+	// Exports services, pipes & directives.
+	var LocaleModule = (function () {
+	    function LocaleModule() {
+	    }
+	    /**
+	     * @return {?}
+	     */
+	    LocaleModule.forRoot = function () {
+	        return {
+	            ngModule: LocaleModule,
+	            providers: [LocaleService]
+	        };
+	    };
+	    /**
+	     * @return {?}
+	     */
+	    LocaleModule.forChild = function () {
+	        return {
+	            ngModule: LocaleModule,
+	            providers: [LocaleService]
+	        };
+	    };
+	    LocaleModule.decorators = [
+	        { type: _angular_core.NgModule, args: [{
+	                    declarations: [
+	                        LocaleDatePipe,
+	                        LocaleDecimalPipe,
+	                        LocalePercentPipe,
+	                        LocaleCurrencyPipe,
+	                        LocaleDateDirective,
+	                        LocaleDecimalDirective,
+	                        LocalePercentDirective,
+	                        LocaleCurrencyDirective,
+	                        LocaleNumberValidator
+	                    ],
+	                    exports: [
+	                        LocaleDatePipe,
+	                        LocaleDecimalPipe,
+	                        LocalePercentPipe,
+	                        LocaleCurrencyPipe,
+	                        LocaleDateDirective,
+	                        LocaleDecimalDirective,
+	                        LocalePercentDirective,
+	                        LocaleCurrencyDirective,
+	                        LocaleNumberValidator
+	                    ]
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocaleModule.ctorParameters = function () { return []; };
+	    return LocaleModule;
+	}());
+	var LocalizationModule = (function () {
+	    function LocalizationModule() {
+	    }
+	    /**
+	     * @return {?}
+	     */
+	    LocalizationModule.forRoot = function () {
+	        return {
+	            ngModule: LocalizationModule,
+	            providers: [LocalizationService]
+	        };
+	    };
+	    /**
+	     * @return {?}
+	     */
+	    LocalizationModule.forChild = function () {
+	        return {
+	            ngModule: LocalizationModule,
+	            providers: [LocalizationService]
+	        };
+	    };
+	    LocalizationModule.decorators = [
+	        { type: _angular_core.NgModule, args: [{
+	                    declarations: [
+	                        TranslatePipe,
+	                        TranslateDirective
+	                    ],
+	                    exports: [
+	                        TranslatePipe,
+	                        TranslateDirective
+	                    ]
+	                },] },
+	    ];
+	    /** @nocollapse */
+	    LocalizationModule.ctorParameters = function () { return []; };
+	    return LocalizationModule;
+	}());
+	
+	exports.LocaleModule = LocaleModule;
+	exports.LocalizationModule = LocalizationModule;
+	exports.LocalizationService = LocalizationService;
+	exports.ServiceState = ServiceState;
+	exports.LoadingMode = LoadingMode;
+	exports.LocaleService = LocaleService;
+	exports.Locale = Locale;
+	exports.IntlSupport = IntlSupport;
+	exports.LocaleParser = LocaleParser;
+	exports.NumberCode = NumberCode;
+	exports.LocaleDirective = LocaleDirective;
+	exports.I18nPlural = I18nPlural;
+	exports.TranslatePipe = TranslatePipe;
+	exports.LocaleDatePipe = LocaleDatePipe;
+	exports.LocaleDecimalPipe = LocaleDecimalPipe;
+	exports.LocalePercentPipe = LocalePercentPipe;
+	exports.LocaleCurrencyPipe = LocaleCurrencyPipe;
+	exports.TranslateDirective = TranslateDirective;
+	exports.LocaleDateDirective = LocaleDateDirective;
+	exports.LocaleDecimalDirective = LocaleDecimalDirective;
+	exports.LocalePercentDirective = LocalePercentDirective;
+	exports.LocaleCurrencyDirective = LocaleCurrencyDirective;
+	exports.LocaleNumberValidator = LocaleNumberValidator;
+	exports.validateLocaleNumber = validateLocaleNumber;
+	
+	Object.defineProperty(exports, '__esModule', { value: true });
+	
+	})));
+
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(281);
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(392);
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(278);
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	// angular.
+	var core_1 = __webpack_require__(21);
+	var common_1 = __webpack_require__(34);
+	var forms_1 = __webpack_require__(24);
+	var flex_layout_1 = __webpack_require__(27);
+	var material_1 = __webpack_require__(26);
+	var angular2localization_1 = __webpack_require__(31);
+	// components.
+	var form_errormsg_directive_1 = __webpack_require__(36);
+	var content_directive_1 = __webpack_require__(37);
+	var column_component_1 = __webpack_require__(38);
+	var table_component_1 = __webpack_require__(39);
+	__webpack_require__(49);
+	var CoreModule = (function () {
+	    function CoreModule() {
+	    }
+	    CoreModule.forRoot = function () {
+	        return {
+	            ngModule: CoreModule,
+	            providers: []
+	        };
+	    };
+	    CoreModule = __decorate([
+	        core_1.NgModule({
+	            imports: [
+	                common_1.CommonModule,
+	                forms_1.FormsModule,
+	                flex_layout_1.FlexLayoutModule,
+	                material_1.MaterialModule,
+	                angular2localization_1.LocaleModule,
+	                angular2localization_1.LocalizationModule
+	            ],
+	            exports: [
+	                form_errormsg_directive_1.FormErrorMessageDirective,
+	                content_directive_1.ContentDirective,
+	                column_component_1.ColumnComponent,
+	                table_component_1.TableComponent
+	            ],
+	            declarations: [
+	                form_errormsg_directive_1.FormErrorMessageDirective,
+	                content_directive_1.ContentDirective,
+	                column_component_1.ColumnComponent,
+	                table_component_1.TableComponent
+	            ],
+	            providers: []
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], CoreModule);
+	    return CoreModule;
+	}());
+	exports.CoreModule = CoreModule;
+	__export(__webpack_require__(50));
+	__export(__webpack_require__(53));
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -5315,59 +7905,63 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var common_1 = __webpack_require__(32);
 	var forms_1 = __webpack_require__(24);
-	var flex_layout_1 = __webpack_require__(27);
-	var material_1 = __webpack_require__(26);
-	var content_directive_1 = __webpack_require__(33);
-	var column_component_1 = __webpack_require__(34);
-	var table_component_1 = __webpack_require__(35);
-	__webpack_require__(45);
-	__webpack_require__(46);
-	var SharedModule = (function () {
-	    function SharedModule() {
+	var angular2localization_1 = __webpack_require__(31);
+	var FormErrorMessageDirective = (function () {
+	    function FormErrorMessageDirective(element, localizationService) {
+	        this.element = element;
+	        this.localizationService = localizationService;
 	    }
-	    SharedModule.forRoot = function () {
-	        return {
-	            ngModule: SharedModule,
-	            providers: []
-	        };
+	    Object.defineProperty(FormErrorMessageDirective.prototype, "errormsg", {
+	        get: function () {
+	            return this._formControl;
+	        },
+	        set: function (value) {
+	            this._formControl = value;
+	            this._formControl.statusChanges.subscribe(this.onStatusChange.bind(this));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    FormErrorMessageDirective.prototype.onStatusChange = function () {
+	        if (!(this._formControl.pristine || this._formControl.valid)) {
+	            for (var errorName in this._formControl.errors) {
+	                var errorValue = this._formControl.errors[errorName];
+	                if (errorValue) {
+	                    var args = {
+	                        field: this.fieldName
+	                    };
+	                    var errorKey = "core.validation." + errorName;
+	                    var errorText = this.localizationService.translate(errorKey, args);
+	                    this.element.nativeElement.innerHTML = errorText;
+	                }
+	            }
+	        }
+	        else {
+	            this.element.nativeElement.innerHTML = null;
+	        }
 	    };
-	    SharedModule = __decorate([
-	        core_1.NgModule({
-	            imports: [
-	                common_1.CommonModule,
-	                forms_1.FormsModule,
-	                flex_layout_1.FlexLayoutModule,
-	                material_1.MaterialModule
-	            ],
-	            exports: [
-	                content_directive_1.ContentDirective,
-	                column_component_1.ColumnComponent,
-	                table_component_1.TableComponent
-	            ],
-	            declarations: [
-	                content_directive_1.ContentDirective,
-	                column_component_1.ColumnComponent,
-	                table_component_1.TableComponent
-	            ],
-	            providers: []
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', forms_1.FormControl)
+	    ], FormErrorMessageDirective.prototype, "errormsg", null);
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', String)
+	    ], FormErrorMessageDirective.prototype, "fieldName", void 0);
+	    FormErrorMessageDirective = __decorate([
+	        core_1.Directive({
+	            selector: "[errormsg]"
 	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], SharedModule);
-	    return SharedModule;
+	        __metadata('design:paramtypes', [core_1.ElementRef, angular2localization_1.LocalizationService])
+	    ], FormErrorMessageDirective);
+	    return FormErrorMessageDirective;
 	}());
-	exports.SharedModule = SharedModule;
+	exports.FormErrorMessageDirective = FormErrorMessageDirective;
 
 
 /***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = (__webpack_require__(17))(278);
-
-/***/ },
-/* 33 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5439,7 +8033,7 @@
 
 
 /***/ },
-/* 34 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5495,7 +8089,7 @@
 
 
 /***/ },
-/* 35 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5514,8 +8108,8 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var column_component_1 = __webpack_require__(34);
-	var collection_component_1 = __webpack_require__(36);
+	var column_component_1 = __webpack_require__(38);
+	var collection_component_1 = __webpack_require__(40);
 	var TableComponent = (function (_super) {
 	    __extends(TableComponent, _super);
 	    function TableComponent() {
@@ -5534,9 +8128,9 @@
 	    TableComponent = __decorate([
 	        core_1.Component({
 	            selector: 'd-table',
-	            template: __webpack_require__(37),
+	            template: __webpack_require__(41),
 	            encapsulation: core_1.ViewEncapsulation.None,
-	            styles: [__webpack_require__(38)],
+	            styles: [__webpack_require__(42)],
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], TableComponent);
@@ -5546,7 +8140,7 @@
 
 
 /***/ },
-/* 36 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5777,17 +8371,17 @@
 
 
 /***/ },
-/* 37 */
+/* 41 */
 /***/ function(module, exports) {
 
 	module.exports = "<table>\r\n    <thead>\r\n        <tr>\r\n            <th class=\"d-selector\">\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </th>\r\n            <th *ngFor=\"let column of columns\" (click)=\"toggleSort(column.canSort, column.property)\"\r\n                [ngClass]=\"{ 'd-sortable': column.canSort,\r\n                             'd-sorted': dataSource.sortBy==column.property,\r\n                             'd-sorted-asc': dataSource.sortBy==column.property && dataSource.sortDirection == 1,\r\n                             'd-type-number': column.type == 'number',\r\n                             'd-type-text': column.type == 'text' }\">\r\n                <span>{{column.title}}</span>\r\n            </th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let item of items; let index = index;\" [ngClass]=\"{'d-selected': item.selected }\">\r\n            <td class=\"d-selector\">\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </td>\r\n            <td *ngFor=\"let column of columns\" [ngClass]=\"{ 'd-type-number': column.type == 'number', 'd-type-text': column.type == 'text' }\" [ngStyle]=\"{ 'width' : column.width }\">\r\n                <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item.model\" [index]=\"index\"></d-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
 
 /***/ },
-/* 38 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	        var result = __webpack_require__(39);
+	        var result = __webpack_require__(43);
 	
 	        if (typeof result === "string") {
 	            module.exports = result;
@@ -5797,14 +8391,21 @@
 	    
 
 /***/ },
-/* 39 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(40)();
-	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/* fallback */\n@font-face {\n  font-family: 'Material Icons';\n  font-style: normal;\n  font-weight: 400;\n  src: url("+__webpack_require__(41)+");\n  /* For IE6-8 */\n  src: local(\"Material Icons\"), local(\"MaterialIcons-Regular\"), url("+__webpack_require__(42)+") format(\"woff2\"), url("+__webpack_require__(43)+") format(\"woff\"), url("+__webpack_require__(44)+") format(\"truetype\"); }\n\n.material-icons, d-table table thead tr th.d-sorted:after {\n  font-family: 'Material Icons';\n  font-weight: normal;\n  font-style: normal;\n  font-size: 24px;\n  line-height: 1;\n  letter-spacing: normal;\n  text-transform: none;\n  display: inline-block;\n  white-space: nowrap;\n  word-wrap: normal;\n  direction: ltr;\n  -webkit-font-feature-settings: 'liga';\n  -webkit-font-smoothing: antialiased; }\n\n/*header*/\n/*body*/\n/*checkbox*/\nd-table table {\n  position: relative;\n  white-space: nowrap;\n  border-collapse: collapse;\n  background-color: #ffffff;\n  font-family: Roboto, \"Helvetica Neue\", sans-serif;\n  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12); }\n  d-table table thead tr {\n    height: 56px;\n    font-size: 12px;\n    color: rgba(0, 0, 0, 0.54); }\n    d-table table thead tr th {\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      box-sizing: border-box; }\n      d-table table thead tr th:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    d-table table thead tr th.d-sorted {\n      color: rgba(0, 0, 0, 0.87); }\n      d-table table thead tr th.d-sorted:after {\n        content: 'arrow_downward';\n        font-size: 16px;\n        display: inline;\n        vertical-align: text-bottom; }\n    d-table table thead tr th.d-sorted-asc:after {\n      content: 'arrow_upward'; }\n    d-table table thead tr th.d-sortable {\n      cursor: pointer; }\n    d-table table thead tr th.d-type-number {\n      text-align: right; }\n    d-table table thead tr th.d-type-text {\n      text-align: left; }\n    d-table table thead tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr {\n    height: 48px;\n    font-size: 13px;\n    color: rgba(0, 0, 0, 0.87); }\n    d-table table tbody tr.is-selected {\n      background-color: #f5f5f5; }\n    d-table table tbody tr:hover {\n      background-color: #eeeeee; }\n    d-table table tbody tr td {\n      border-top: 1px solid rgba(0, 0, 0, 0.12);\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      box-sizing: border-box; }\n      d-table table tbody tr td:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table tbody tr td:last-of-type {\n        padding-right: 24px; }\n    d-table table tbody tr td.d-type-number {\n      text-align: right; }\n    d-table table tbody tr td.d-type-text {\n      text-align: left; }\n    d-table table tbody tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr.d-selected {\n    background-color: #f5f5f5; }\n\nd-table .md-checkbox-inner-container {\n  width: 18px;\n  height: 18px;\n  color: rgba(0, 0, 0, 0.54); }\n", ""]);
+	exports = module.exports = __webpack_require__(44)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/**\n * Applies styles for users in high contrast mode. Note that this only applies\n * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`\n * attribute, however Chrome handles high contrast differently.\n */\n/* fallback */\n@font-face {\n  font-family: 'Material Icons';\n  font-style: normal;\n  font-weight: 400;\n  src: url(" + __webpack_require__(45) + ");\n  /* For IE6-8 */\n  src: local(\"Material Icons\"), local(\"MaterialIcons-Regular\"), url(" + __webpack_require__(46) + ") format(\"woff2\"), url(" + __webpack_require__(47) + ") format(\"woff\"), url(" + __webpack_require__(48) + ") format(\"truetype\"); }\n\n.material-icons, d-table table thead tr th.d-sorted:after {\n  font-family: 'Material Icons';\n  font-weight: normal;\n  font-style: normal;\n  font-size: 24px;\n  line-height: 1;\n  letter-spacing: normal;\n  text-transform: none;\n  display: inline-block;\n  white-space: nowrap;\n  word-wrap: normal;\n  direction: ltr;\n  -webkit-font-feature-settings: 'liga';\n  -webkit-font-smoothing: antialiased; }\n\n/*header*/\n/*body*/\n/*checkbox*/\nd-table table {\n  position: relative;\n  white-space: nowrap;\n  border-collapse: collapse;\n  background-color: #ffffff;\n  font-family: Roboto, \"Helvetica Neue\", sans-serif;\n  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12); }\n  d-table table thead tr {\n    height: 56px;\n    font-size: 12px;\n    color: rgba(0, 0, 0, 0.54); }\n    d-table table thead tr th {\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      text-overflow: ellipsis;\n      box-sizing: border-box; }\n      d-table table thead tr th:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table thead tr th:last-of-type {\n        padding-right: 24px; }\n    d-table table thead tr th.d-sorted {\n      color: rgba(0, 0, 0, 0.87); }\n      d-table table thead tr th.d-sorted:after {\n        content: 'arrow_downward';\n        font-size: 16px;\n        display: inline;\n        vertical-align: text-bottom; }\n    d-table table thead tr th.d-sorted-asc:after {\n      content: 'arrow_upward'; }\n    d-table table thead tr th.d-sortable {\n      cursor: pointer; }\n    d-table table thead tr th.d-type-number {\n      text-align: right; }\n    d-table table thead tr th.d-type-text {\n      text-align: left; }\n    d-table table thead tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr {\n    height: 48px;\n    font-size: 13px;\n    color: rgba(0, 0, 0, 0.87); }\n    d-table table tbody tr.is-selected {\n      background-color: #f5f5f5; }\n    d-table table tbody tr:hover {\n      background-color: #eeeeee; }\n    d-table table tbody tr td {\n      border-top: 1px solid rgba(0, 0, 0, 0.12);\n      padding-left: 12px;\n      padding-right: 44px;\n      vertical-align: middle;\n      box-sizing: border-box; }\n      d-table table tbody tr td:first-of-type {\n        padding-left: 24px;\n        padding-right: 12px; }\n      d-table table tbody tr td:last-of-type {\n        padding-right: 24px; }\n    d-table table tbody tr td.d-type-number {\n      text-align: right; }\n    d-table table tbody tr td.d-type-text {\n      text-align: left; }\n    d-table table tbody tr th.d-selector {\n      text-align: left;\n      width: 42px; }\n  d-table table tbody tr.d-selected {\n    background-color: #f5f5f5; }\n\nd-table .md-checkbox-inner-container {\n  width: 18px;\n  height: 18px;\n  color: rgba(0, 0, 0, 0.54); }\n", ""]);
+	
+	// exports
+
 
 /***/ },
-/* 40 */
+/* 44 */
 /***/ function(module, exports) {
 
 	/*
@@ -5860,226 +8461,37 @@
 
 
 /***/ },
-/* 41 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.eot";
 
 /***/ },
-/* 42 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.woff2";
 
 /***/ },
-/* 43 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.woff";
 
 /***/ },
-/* 44 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "../fonts/MaterialIcons-Regular.ttf";
 
 /***/ },
-/* 45 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 46 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(48);
-	var home_component_1 = __webpack_require__(49);
-	var user_list_component_1 = __webpack_require__(51);
-	var user_edit_component_1 = __webpack_require__(58);
-	var appRoutes = [
-	    { path: "", redirectTo: "home", pathMatch: "full" },
-	    { path: "home", component: home_component_1.HomeComponent },
-	    { path: "security/users",
-	        children: [
-	            { path: "", component: user_list_component_1.UserListComponent },
-	            { path: ":id", component: user_edit_component_1.UserEditComponent },
-	            { path: "new", component: user_edit_component_1.UserEditComponent }
-	        ]
-	    }
-	];
-	var AppRoutingModule = (function () {
-	    function AppRoutingModule() {
-	    }
-	    AppRoutingModule = __decorate([
-	        core_1.NgModule({
-	            imports: [
-	                router_1.RouterModule.forRoot(appRoutes)
-	            ],
-	            exports: [
-	                router_1.RouterModule
-	            ]
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], AppRoutingModule);
-	    return AppRoutingModule;
-	}());
-	exports.AppRoutingModule = AppRoutingModule;
-
-
-/***/ },
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = (__webpack_require__(17))(304);
-
-/***/ },
 /* 49 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var HomeComponent = (function () {
-	    function HomeComponent() {
-	    }
-	    HomeComponent = __decorate([
-	        core_1.Component({
-	            selector: "app-home",
-	            template: __webpack_require__(50)
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], HomeComponent);
-	    return HomeComponent;
-	}());
-	exports.HomeComponent = HomeComponent;
-
+	// removed by extract-text-webpack-plugin
 
 /***/ },
 /* 50 */
-/***/ function(module, exports) {
-
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Home</span>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    \r\n    Home!\r\n    Select an option from the left panel...\r\n\r\n</md-sidenav-container>"
-
-/***/ },
-/* 51 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var user_service_1 = __webpack_require__(52);
-	var UserListComponent = (function () {
-	    function UserListComponent(users) {
-	        this.users = users;
-	    }
-	    UserListComponent.prototype.ngOnInit = function () {
-	        this.users.load();
-	    };
-	    UserListComponent = __decorate([
-	        core_1.Component({
-	            selector: "user-list",
-	            template: __webpack_require__(57),
-	            providers: [user_service_1.UserCollectionDataSource]
-	        }), 
-	        __metadata('design:paramtypes', [user_service_1.UserCollectionDataSource])
-	    ], UserListComponent);
-	    return UserListComponent;
-	}());
-	exports.UserListComponent = UserListComponent;
-
-
-/***/ },
-/* 52 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var http_1 = __webpack_require__(25);
-	var collection_datasource_1 = __webpack_require__(53);
-	var model_datasource_1 = __webpack_require__(55);
-	var UserQuery = (function () {
-	    function UserQuery() {
-	    }
-	    return UserQuery;
-	}());
-	exports.UserQuery = UserQuery;
-	var UserCollectionDataSource = (function (_super) {
-	    __extends(UserCollectionDataSource, _super);
-	    function UserCollectionDataSource(http) {
-	        _super.call(this, http, "/api/users/pages/:pageIndex");
-	        this.sortBy = "name";
-	    }
-	    UserCollectionDataSource = __decorate([
-	        core_1.Injectable(), 
-	        __metadata('design:paramtypes', [http_1.Http])
-	    ], UserCollectionDataSource);
-	    return UserCollectionDataSource;
-	}(collection_datasource_1.HttpRestCollectionDataSource));
-	exports.UserCollectionDataSource = UserCollectionDataSource;
-	var UserModelDataSource = (function (_super) {
-	    __extends(UserModelDataSource, _super);
-	    function UserModelDataSource(http) {
-	        _super.call(this, http, "api/users/:id");
-	    }
-	    UserModelDataSource = __decorate([
-	        core_1.Injectable(), 
-	        __metadata('design:paramtypes', [http_1.Http])
-	    ], UserModelDataSource);
-	    return UserModelDataSource;
-	}(model_datasource_1.HttpRestModelDataSource));
-	exports.UserModelDataSource = UserModelDataSource;
-
-
-/***/ },
-/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6090,7 +8502,8 @@
 	};
 	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	var base_datasource_1 = __webpack_require__(54);
+	var rxjs_1 = __webpack_require__(51);
+	var base_datasource_1 = __webpack_require__(52);
 	(function (SortDirection) {
 	    SortDirection[SortDirection["Asc"] = 0] = "Asc";
 	    SortDirection[SortDirection["Desc"] = 1] = "Desc";
@@ -6142,13 +8555,22 @@
 	        return searchParams;
 	    };
 	    HttpRestCollectionDataSource.prototype.load = function () {
+	        var _this = this;
+	        var result = new rxjs_1.ReplaySubject();
 	        var searchParams = this.buildParameters();
 	        var resolvedUrl = this.resolveUrl(this.baseUrl, searchParams);
-	        var result = this.http.get(resolvedUrl, { search: searchParams }).map(function (r) { return r.json(); });
-	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        this.http.get(resolvedUrl, { search: searchParams })
+	            .subscribe(function (response) {
+	            _this.handleResponse(response);
+	            result.next(_this.items);
+	        }, function (error) {
+	            _this.handleError(error);
+	            result.error(error);
+	        }, function () { return result.complete(); });
 	        return result;
 	    };
-	    HttpRestCollectionDataSource.prototype.handleResponse = function (result) {
+	    HttpRestCollectionDataSource.prototype.handleResponse = function (response) {
+	        var result = response.json();
 	        if (result instanceof Array) {
 	            this.handleArray(result);
 	        }
@@ -6199,17 +8621,20 @@
 
 
 /***/ },
-/* 54 */
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(354);
+
+/***/ },
+/* 52 */
 /***/ function(module, exports) {
 
 	"use strict";
 	var HttpRestBaseDataSource = (function () {
 	    function HttpRestBaseDataSource() {
 	    }
-	    /**@desc replaces url params with query values, e.g.: /api/users/:id -> /api/users/1
-	      *@param baseUrl - the template url.
-	      *@param params - the replacement values.
-	      */
+	    /**@desc replaces url params with query values, e.g.: /api/users/:id -> /api/users/1 */
 	    HttpRestBaseDataSource.prototype.resolveUrl = function (baseUrl, params) {
 	        return baseUrl.replace(/:[a-zA-z0-9]+/, function (match, args) {
 	            var paramName = match.substr(1);
@@ -6220,13 +8645,16 @@
 	            return value;
 	        }.bind(this));
 	    };
+	    /**@desc handles the server-side or connection errors. */
+	    HttpRestBaseDataSource.prototype.handleError = function (error) {
+	    };
 	    return HttpRestBaseDataSource;
 	}());
 	exports.HttpRestBaseDataSource = HttpRestBaseDataSource;
 
 
 /***/ },
-/* 55 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6237,8 +8665,8 @@
 	};
 	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	var Observable_1 = __webpack_require__(56);
-	var base_datasource_1 = __webpack_require__(54);
+	var rxjs_1 = __webpack_require__(51);
+	var base_datasource_1 = __webpack_require__(52);
 	var HttpRestModelDataSource = (function (_super) {
 	    __extends(HttpRestModelDataSource, _super);
 	    function HttpRestModelDataSource(http, baseUrl) {
@@ -6248,18 +8676,15 @@
 	        this.keyProperty = "id";
 	        this.model = {};
 	        this.modelChange = new core_1.EventEmitter();
+	        this.modelErrors = {};
+	        this.modelErrorsChange = new core_1.EventEmitter();
 	        this.params = {};
+	        this.isNew = true;
+	        this.isNewChange = new core_1.EventEmitter();
 	        this.loadUrl = baseUrl;
 	        this.saveUrl = baseUrl.replace("/:" + this.keyProperty, "");
 	        this.deleteUrl = baseUrl;
 	    }
-	    Object.defineProperty(HttpRestModelDataSource.prototype, "isNew", {
-	        get: function () {
-	            return this.model && this.model[this.keyProperty];
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
 	    HttpRestModelDataSource.prototype.buildParams = function () {
 	        var searchParams = new http_1.URLSearchParams();
 	        for (var paramProp in this.params) {
@@ -6268,45 +8693,69 @@
 	        return searchParams;
 	    };
 	    HttpRestModelDataSource.prototype.load = function (key) {
+	        var _this = this;
+	        var result = new rxjs_1.ReplaySubject();
 	        this.params[this.keyProperty] = key;
 	        var searchParams = this.buildParams();
 	        var resolvedUrl = this.resolveUrl(this.loadUrl, searchParams);
 	        searchParams.delete(this.keyProperty);
-	        var result = this.http.get(resolvedUrl, { search: searchParams })
-	            .map(function (r) { return r.json(); });
-	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        this.http.get(resolvedUrl, { search: searchParams })
+	            .subscribe(function (response) {
+	            _this.handleResponse(response);
+	            result.complete();
+	        }, function (error) {
+	            _this.handleError(error);
+	            result.error(error);
+	        });
 	        return result;
 	    };
 	    HttpRestModelDataSource.prototype.validate = function () {
 	        return true;
 	    };
 	    HttpRestModelDataSource.prototype.save = function () {
+	        var _this = this;
+	        var result = new rxjs_1.ReplaySubject();
 	        if (!this.validate) {
-	            return Observable_1.Observable.throw("invalid.");
+	            result.error("invalid.");
 	        }
 	        else {
 	            var searchParams = this.buildParams();
 	            var resolvedUrl = this.resolveUrl(this.saveUrl, searchParams);
 	            searchParams.delete(this.keyProperty);
-	            var result = this.http.post(resolvedUrl, this.model, { search: searchParams })
-	                .map(function (r) { return r.json(); });
-	            result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
-	            return result;
+	            this.http.post(resolvedUrl, this.model, { search: searchParams })
+	                .subscribe(function (response) {
+	                _this.handleResponse(response);
+	                result.next(_this.model);
+	            }, function (error) {
+	                _this.handleError(error);
+	                result.error(error);
+	            }, function () { return result.complete(); });
 	        }
+	        return result;
 	    };
 	    HttpRestModelDataSource.prototype.delete = function () {
+	        var _this = this;
+	        var result = new rxjs_1.ReplaySubject();
 	        var searchParams = this.buildParams();
 	        var resolvedUrl = this.resolveUrl(this.deleteUrl, searchParams);
 	        searchParams.delete(this.keyProperty);
-	        var result = this.http.delete(resolvedUrl, { search: searchParams });
-	        result.subscribe(this.handleResponse.bind(this), this.handleError.bind(this));
+	        this.http.delete(resolvedUrl, { search: searchParams })
+	            .subscribe(function (response) {
+	            result.next(null);
+	        }, function (error) {
+	            _this.handleError(error);
+	            result.error(error);
+	        }, function () { return result.complete(); });
 	        return result;
 	    };
 	    HttpRestModelDataSource.prototype.handleResponse = function (response) {
-	        this.model = response;
+	        this.model = response.json();
 	        this.modelChange.emit(this.model);
+	        this.isNew = false;
+	        this.isNewChange.emit(this.isNew);
 	    };
-	    HttpRestModelDataSource.prototype.handleError = function (error) {
+	    HttpRestModelDataSource.prototype.addModelError = function (property, code) {
+	        this.modelErrors[property] = code;
 	    };
 	    return HttpRestModelDataSource;
 	}(base_datasource_1.HttpRestBaseDataSource));
@@ -6314,16 +8763,95 @@
 
 
 /***/ },
+/* 54 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var router_1 = __webpack_require__(55);
+	var home_component_1 = __webpack_require__(56);
+	var user_list_component_1 = __webpack_require__(58);
+	var user_edit_component_1 = __webpack_require__(61);
+	var appRoutes = [
+	    { path: "", redirectTo: "home", pathMatch: "full" },
+	    { path: "home", component: home_component_1.HomeComponent },
+	    { path: "security/users",
+	        children: [
+	            { path: "", component: user_list_component_1.UserListComponent },
+	            { path: ":id", component: user_edit_component_1.UserEditComponent },
+	            { path: "new", component: user_edit_component_1.UserEditComponent }
+	        ]
+	    }
+	];
+	var AppRoutingModule = (function () {
+	    function AppRoutingModule() {
+	    }
+	    AppRoutingModule = __decorate([
+	        core_1.NgModule({
+	            imports: [
+	                router_1.RouterModule.forRoot(appRoutes)
+	            ],
+	            exports: [
+	                router_1.RouterModule
+	            ]
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], AppRoutingModule);
+	    return AppRoutingModule;
+	}());
+	exports.AppRoutingModule = AppRoutingModule;
+
+
+/***/ },
+/* 55 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(304);
+
+/***/ },
 /* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(281);
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var HomeComponent = (function () {
+	    function HomeComponent() {
+	    }
+	    HomeComponent = __decorate([
+	        core_1.Component({
+	            selector: "app-home",
+	            template: __webpack_require__(57)
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], HomeComponent);
+	    return HomeComponent;
+	}());
+	exports.HomeComponent = HomeComponent;
+
 
 /***/ },
 /* 57 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button [routerLink]=\"['/security/users/new']\">\r\n        <md-icon>add</md-icon>\r\n        <span>New</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <div class=\"flex-container\" fxLayout=\"row\" fxLayoutAlign=\"center start\">\r\n        <div class=\"flex-item\">\r\n            <d-table [dataSource]=\"users\">\r\n                <d-column property=\"id\" type=\"number\" title=\"Key\" canSort=\"true\"></d-column>\r\n                <d-column property=\"name\" title=\"Name\" type=\"text\" canSort=\"true\"></d-column>\r\n                <d-column>\r\n                    <template let-model=\"model\">\r\n                        <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                    </template>\r\n                </d-column>\r\n            </d-table>\r\n        </div>\r\n    </div>\r\n</md-sidenav-container>"
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><span class=\"material-icons\">menu</span></button>\r\n    <span>Home</span>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <p></p>\r\n    \r\n    Home!\r\n    Select an option from the left panel...\r\n\r\n</md-sidenav-container>"
 
 /***/ },
 /* 58 */
@@ -6340,48 +8868,157 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(48);
-	var user_service_1 = __webpack_require__(52);
-	var UserEditComponent = (function () {
-	    function UserEditComponent(userSource, activatedRoute) {
+	var user_datasource_1 = __webpack_require__(59);
+	var UserListComponent = (function () {
+	    function UserListComponent(users) {
+	        this.users = users;
+	    }
+	    UserListComponent.prototype.ngOnInit = function () {
+	        this.users.load();
+	    };
+	    UserListComponent = __decorate([
+	        core_1.Component({
+	            selector: "user-list",
+	            template: __webpack_require__(60),
+	            providers: [user_datasource_1.UserCollectionDataSource]
+	        }), 
+	        __metadata('design:paramtypes', [user_datasource_1.UserCollectionDataSource])
+	    ], UserListComponent);
+	    return UserListComponent;
+	}());
+	exports.UserListComponent = UserListComponent;
+
+
+/***/ },
+/* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var http_1 = __webpack_require__(25);
+	var core_module_1 = __webpack_require__(35);
+	var core_module_2 = __webpack_require__(35);
+	var UserQuery = (function () {
+	    function UserQuery() {
+	    }
+	    return UserQuery;
+	}());
+	exports.UserQuery = UserQuery;
+	var UserCollectionDataSource = (function (_super) {
+	    __extends(UserCollectionDataSource, _super);
+	    function UserCollectionDataSource(http) {
+	        _super.call(this, http, "/api/users/pages/:pageIndex");
+	        this.sortBy = "name";
+	    }
+	    UserCollectionDataSource = __decorate([
+	        core_1.Injectable(), 
+	        __metadata('design:paramtypes', [http_1.Http])
+	    ], UserCollectionDataSource);
+	    return UserCollectionDataSource;
+	}(core_module_1.HttpRestCollectionDataSource));
+	exports.UserCollectionDataSource = UserCollectionDataSource;
+	var UserModelDataSource = (function (_super) {
+	    __extends(UserModelDataSource, _super);
+	    function UserModelDataSource(http) {
+	        _super.call(this, http, "api/users/:id");
+	    }
+	    UserModelDataSource = __decorate([
+	        core_1.Injectable(), 
+	        __metadata('design:paramtypes', [http_1.Http])
+	    ], UserModelDataSource);
+	    return UserModelDataSource;
+	}(core_module_2.HttpRestModelDataSource));
+	exports.UserModelDataSource = UserModelDataSource;
+
+
+/***/ },
+/* 60 */
+/***/ function(module, exports) {
+
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <button md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>\r\n    <span>Users</span>\r\n    <div fxFlex></div>\r\n    <button md-button [routerLink]=\"['/security/users/new']\">\r\n        <md-icon>add</md-icon>\r\n        <span>New</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<md-sidenav-container>\r\n    <md-sidenav #sidenav>\r\n        <app-nav></app-nav>\r\n    </md-sidenav>\r\n    <div class=\"flex-container\" fxLayout=\"row\" fxLayoutAlign=\"center start\">\r\n        <div class=\"flex-item\">\r\n            <d-table [dataSource]=\"users\">\r\n                <d-column property=\"id\" type=\"number\" title=\"Key\" canSort=\"true\"></d-column>\r\n                <d-column property=\"name\" title=\"Name\" type=\"text\" canSort=\"true\"></d-column>\r\n                <d-column>\r\n                    <template let-model=\"model\">\r\n                        <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                    </template>\r\n                </d-column>\r\n            </d-table>\r\n        </div>\r\n    </div>\r\n</md-sidenav-container>"
+
+/***/ },
+/* 61 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var router_1 = __webpack_require__(55);
+	var user_datasource_1 = __webpack_require__(59);
+	var angular2localization_1 = __webpack_require__(31);
+	var UserEditComponent = (function (_super) {
+	    __extends(UserEditComponent, _super);
+	    function UserEditComponent(userSource, activatedRoute, localization) {
+	        _super.call(this, null, localization);
 	        this.userSource = userSource;
 	        this.activatedRoute = activatedRoute;
+	        this.localization = localization;
 	    }
 	    UserEditComponent.prototype.ngOnInit = function () {
 	        var key = this.activatedRoute.snapshot.params["id"];
-	        this.userSource.load(key);
+	        if (key !== "new") {
+	            this.userSource.load(key);
+	        }
 	    };
-	    UserEditComponent.prototype.save = function () {
-	        this.userSource.save()
-	            .subscribe(function (e) { return window.history.back(); });
+	    UserEditComponent.prototype.save = function (frm) {
+	        if (frm.valid) {
+	            this.userSource.save()
+	                .subscribe(function (e) { return window.history.back(); });
+	        }
 	    };
 	    UserEditComponent.prototype.delete = function () {
 	        this.userSource.delete()
 	            .subscribe(function (e) { return window.history.back(); });
 	    };
-	    UserEditComponent.prototype.do = function (form) {
-	    };
 	    UserEditComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-edit",
-	            template: __webpack_require__(59),
-	            providers: [user_service_1.UserModelDataSource]
+	            template: __webpack_require__(62),
+	            providers: [user_datasource_1.UserModelDataSource]
 	        }), 
-	        __metadata('design:paramtypes', [user_service_1.UserModelDataSource, router_1.ActivatedRoute])
+	        __metadata('design:paramtypes', [user_datasource_1.UserModelDataSource, router_1.ActivatedRoute, angular2localization_1.LocalizationService])
 	    ], UserEditComponent);
 	    return UserEditComponent;
-	}());
+	}(angular2localization_1.Locale));
 	exports.UserEditComponent = UserEditComponent;
 
 
 /***/ },
-/* 59 */
+/* 62 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-toolbar color=\"primary\">\r\n    <!--<button md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>-->\r\n    <span>Edit User '{{userSource.model.name}}'</span>\r\n    <div fxFlex></div>\r\n    <button md-button type=\"submit\" form=\"userForm\">\r\n        <md-icon>save</md-icon>\r\n        <span>Save</span>\r\n    </button>\r\n    <button md-button (click)=\"delete()\">\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<form id=\"userForm\" (ngSubmit)=\"save()\">\r\n    <md-input-container>\r\n        <input md-input name=\"name\" [(ngModel)]=\"userSource.model.name\" placeholder=\"Name\" />\r\n    </md-input-container>\r\n</form>"
+	module.exports = "<md-toolbar color=\"primary\">\r\n    <span *ngIf=\"userSource.isNew\" translate=\"yes\">security.user-edit.new</span>\r\n    <span *ngIf=\"!userSource.isNew\">{{ 'security.user-edit.edit' | translate:lang:{ user: userSource.model.name } }}</span>\r\n    <div fxFlex></div>\r\n    <button md-button type=\"submit\" form=\"userForm\">\r\n        <md-icon>save</md-icon>\r\n        <span>Save</span>\r\n    </button>\r\n    <button md-button (click)=\"delete();\">\r\n        <md-icon>delete</md-icon>\r\n        <span>Delete</span>\r\n    </button>\r\n    <button md-button>\r\n        <md-icon>more_vertical</md-icon>\r\n    </button>\r\n</md-toolbar>\r\n\r\n<md-card>\r\n    <form id=\"userForm\" (ngSubmit)=\"save(frm)\" #frm=\"ngForm\" novalidate>\r\n        <md-input-container>\r\n            <input md-input name=\"name\" #nameCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.name\" placeholder=\"Name\" required maxlength=\"10\" />\r\n            <md-hint [errormsg]=\"nameCtrl\" fieldName=\"Name\"></md-hint>\r\n        </md-input-container>\r\n    </form>\r\n</md-card>"
 
 /***/ },
-/* 60 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6401,7 +9038,7 @@
 	    AppNavComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-nav",
-	            template: __webpack_require__(61)
+	            template: __webpack_require__(64)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppNavComponent);
@@ -6411,16 +9048,21 @@
 
 
 /***/ },
-/* 61 */
+/* 64 */
 /***/ function(module, exports) {
 
 	module.exports = "<ul>\r\n    <li>\r\n        <a [routerLink]=\"['/home']\">Home</a>\r\n    </li>\r\n    <li>\r\n        <a [routerLink]=\"['/security/users']\">Users example</a>\r\n    </li>\r\n</ul>"
 
 /***/ },
-/* 62 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -6431,29 +9073,39 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var AppComponent = (function () {
-	    function AppComponent() {
+	var angular2localization_1 = __webpack_require__(31);
+	var AppComponent = (function (_super) {
+	    __extends(AppComponent, _super);
+	    function AppComponent(locale, localization) {
+	        _super.call(this, locale, localization);
+	        this.locale = locale;
+	        this.localization = localization;
+	        this.locale.addLanguages(["en", "es"]);
+	        this.locale.definePreferredLocale("en", "US", 30);
+	        this.locale.definePreferredCurrency("USD");
+	        this.localization.translationProvider("./lang/");
+	        this.localization.updateTranslation();
 	    }
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: "app",
-	            template: __webpack_require__(63)
+	            template: __webpack_require__(66)
 	        }), 
-	        __metadata('design:paramtypes', [])
+	        __metadata('design:paramtypes', [angular2localization_1.LocaleService, angular2localization_1.LocalizationService])
 	    ], AppComponent);
 	    return AppComponent;
-	}());
+	}(angular2localization_1.Locale));
 	exports.AppComponent = AppComponent;
 
 
 /***/ },
-/* 63 */
+/* 66 */
 /***/ function(module, exports) {
 
 	module.exports = "<router-outlet></router-outlet>\r\n"
 
 /***/ },
-/* 64 */
+/* 67 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

@@ -21,6 +21,7 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased; }
+
 /**
  * Applies styles for users in high contrast mode. Note that this only applies
  * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`
@@ -558,6 +559,13 @@ md-toolbar {
 
 .md-tooltip {
   background: rgba(97, 97, 97, 0.9); }
+
+md-input-container.ng-invalid:not(.ng-pristine) {
+  color: red; }
+  md-input-container.ng-invalid:not(.ng-pristine) .md-input-underline {
+    border-color: red; }
+    md-input-container.ng-invalid:not(.ng-pristine) .md-input-underline .md-input-ripple {
+      background-color: red !important; }
 html, body, app, md-sidenav-container, .my-content {
   margin: 0;
   width: 100%;
@@ -565,10 +573,5 @@ html, body, app, md-sidenav-container, .my-content {
 
 md-sidenav {
   width: 280px; }
-
-.md-button-wrapper .material-icon {
-  font-size: 11px;
-  vertical-align: baseline;
-  display: inline; }
 
 /*# sourceMappingURL=app.css.map*/

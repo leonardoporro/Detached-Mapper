@@ -6,19 +6,20 @@ import { RouterModule } from "@angular/router";
 import { HttpModule } from "@angular/http";
 import { MaterialModule } from "@angular/material";
 import { FlexLayoutModule } from "@angular/flex-layout"; 
+import { LocaleModule, LocalizationModule } from "angular2localization";
 
 // app
-import { SharedModule } from "../shared/shared.module";
+import { CoreModule } from "../core/core.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppNavComponent } from "./app-nav.component";
 import { AppComponent } from "./app.component";
 // home
 import { HomeComponent } from "./home/home.component";
 // user
-import { UserListComponent } from "./security/user-list.component";
-import { UserEditComponent } from "./security/user-edit.component";
+import { UserListComponent } from "./security/users/user-list.component";
+import { UserEditComponent } from "./security/users/user-edit.component";
 
-require("./styles.scss");
+require("./app-styles.scss");
 
 @NgModule({
     imports: [
@@ -27,14 +28,16 @@ require("./styles.scss");
         HttpModule,
         FlexLayoutModule.forRoot(),
         MaterialModule.forRoot(),
-        SharedModule, 
+        LocaleModule.forRoot(),
+        LocalizationModule.forRoot(),
+        CoreModule, 
         AppRoutingModule,
     ],
     declarations: [
         AppComponent,
         AppNavComponent,
         HomeComponent,
-       UserListComponent,
+        UserListComponent,
         UserEditComponent
     ],
     bootstrap: [AppComponent]

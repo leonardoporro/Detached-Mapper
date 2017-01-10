@@ -1,6 +1,7 @@
 ﻿let webpack = require("webpack");
 let ExtractTextPlugin = require("extract-text-webpack-plugin");
-let extractCss = new ExtractTextPlugin("../css/[name].css");
+let ExtractTextPluginCss = new ExtractTextPlugin("../css/[name].css");
+var MergeJsonWebpackPlugin = require("./webpack-json-merge.plugin");
 
 module.exports = {
     entry: {
@@ -14,7 +15,7 @@ module.exports = {
     },
     module: {
         preLoaders: [
-            { test:   /\.js$/, loader: "source-map-loader" }
+            { test: /\.js$/, loader: "source-map-loader" }
         ],
         loaders: [
             // all typescript.
@@ -24,18 +25,24 @@ module.exports = {
             { test: /\.component\.css$/, loaders: ["to-string", "css"] },
             { test: /\.component\.scss$/, loaders: ["to-string", "css", "sass"] },
             // other styles.
-            { test: /^((?!component).)*\.scss$/, loader: extractCss.extract(["css", "sass"]) },
-            { test: /^((?!component).)*\.css$/, loader: extractCss.extract(["css"]) },
+            { test: /^((?!component).)*\.scss$/, loader: ExtractTextPluginCss.extract(["css", "sass"]) },
+            { test: /^((?!component).)*\.css$/, loader: ExtractTextPluginCss.extract(["css"]) },
             // images and fonts.
             { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: "url", query: { limit: 25000, name: "../images/[name].[ext]" } },
             { test: /\.(ttf|eot|svg|woff|woff2)$/, loader: "url", query: { limit: 25000, name: "../fonts/[name].[ext]" } }
         ]
     },
     plugins: [
-       extractCss,
+       ExtractTextPluginCss,
        new webpack.DllReferencePlugin({
            context: __dirname,
            manifest: require("./wwwroot/js/vendor-manifest.json")
+       }),
+       new MergeJsonWebpackPlugin({
+           "bundles": [{
+               "pattern": "client/**/*.json",
+               "output": "./wwwroot/lang/en.json"
+           }]
        })
     ]
 };

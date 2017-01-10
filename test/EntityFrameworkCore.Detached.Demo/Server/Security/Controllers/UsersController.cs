@@ -1,6 +1,6 @@
-﻿using EntityFrameworkCore.Detached.Demo.Controllers;
-using EntityFrameworkCore.Detached.Demo.Model;
+﻿using EntityFrameworkCore.Detached.Demo.Model;
 using EntityFrameworkCore.Detached.Demo.Security.Models;
+using EntityFrameworkCore.Detached.Demo.Server.Core;
 
 namespace EntityFrameworkCore.Detached.Demo.Server.Security.Controllers
 {

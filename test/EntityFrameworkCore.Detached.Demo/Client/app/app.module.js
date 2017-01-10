@@ -15,17 +15,18 @@ var forms_1 = require("@angular/forms");
 var http_1 = require("@angular/http");
 var material_1 = require("@angular/material");
 var flex_layout_1 = require("@angular/flex-layout");
+var angular2localization_1 = require("angular2localization");
 // app
-var shared_module_1 = require("../shared/shared.module");
+var core_module_1 = require("../core/core.module");
 var app_routing_module_1 = require("./app-routing.module");
 var app_nav_component_1 = require("./app-nav.component");
 var app_component_1 = require("./app.component");
 // home
 var home_component_1 = require("./home/home.component");
 // user
-var user_list_component_1 = require("./security/user-list.component");
-var user_edit_component_1 = require("./security/user-edit.component");
-require("./styles.scss");
+var user_list_component_1 = require("./security/users/user-list.component");
+var user_edit_component_1 = require("./security/users/user-edit.component");
+require("./app-styles.scss");
 var AppModule = (function () {
     function AppModule() {
     }
@@ -37,7 +38,9 @@ var AppModule = (function () {
                 http_1.HttpModule,
                 flex_layout_1.FlexLayoutModule.forRoot(),
                 material_1.MaterialModule.forRoot(),
-                shared_module_1.SharedModule,
+                angular2localization_1.LocaleModule.forRoot(),
+                angular2localization_1.LocalizationModule.forRoot(),
+                core_module_1.CoreModule,
                 app_routing_module_1.AppRoutingModule,
             ],
             declarations: [

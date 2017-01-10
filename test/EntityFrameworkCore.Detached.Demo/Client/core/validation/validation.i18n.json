@@ -1,0 +1,8 @@
+{
+  "core": {
+    "validation": {
+      "required": "The field is required",
+      "pattern": "The field {{field}} data is invalid" 
+    }
+  }
+}
