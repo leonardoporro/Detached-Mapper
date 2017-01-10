@@ -49,6 +49,9 @@ Company company = await context.LoadAsync<Company>(1);
 ```
 
 History:
+- 1.0.0-preview2: 
+ * Working on a cool Angular 2 demo.
+
 - 1.0.0-preview1:
  * New service oriented architecture.
  * Plugins!
