@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+namespace Detached.EntityFramework.Tools
+{
+    /// <summary>
+    /// Builds a sort expression to be used later as a paramenter in a service or query.
+    /// </summary>
+    /// <typeparam name="TEntity">Clr type of the entity being sorted.</typeparam>
+    public interface ISorter<TEntity> : ISorterBase<TEntity>
+    {
+        /// <summary>
+        /// Orders by the specified property of the given entity.
+        /// </summary>
+        /// <typeparam name="TKey">Clr type of the key to order by.</typeparam>
+        /// <param name="keySelector"></param>
+        /// <returns>The ISorter instance, for chaining calls.</returns>
+        IOrderedSorter<TEntity> OrderBy<TKey>(Expression<Func<TEntity, TKey>> keySelector);
+
+        /// <summary>
+        /// Orders by the specified property of the given entity in descending order.
+        /// </summary>
+        /// <typeparam name="TKey">Clr type of the key to order by.</typeparam>
+        /// <param name="keySelector"></param>
+        /// <returns>The ISorter instance, for chaining calls.</returns>
+        IOrderedSorter<TEntity> OrderByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector);
+    }
+}

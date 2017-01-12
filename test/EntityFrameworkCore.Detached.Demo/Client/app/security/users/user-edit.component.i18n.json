@@ -1,8 +1,0 @@
-{
-  "security": {
-    "user-edit": {
-      "new": "New User",
-      "edit":  "Edit User '{{user}}'"
-    }
-  }
-}
