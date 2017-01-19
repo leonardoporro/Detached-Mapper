@@ -1,0 +1,24 @@
+{
+  "security": {
+    "users": {
+      "user": {
+        "name": {
+          "placeholder": "Name",
+          "displayName": "Name",
+          "tooltip": "User name"
+        },
+        "dateOfBirth": "DateOfBirth",
+        "active": "Is Active"
+      },
+      "new": {
+        "title": "New User"
+      },
+      "edit": {
+        "title": "Edit User '{{user}}'"
+      },
+      "delete": {
+        "confirm": "Do you really want to delete user '{{user}}'?"
+      }
+    }
+  }
+}

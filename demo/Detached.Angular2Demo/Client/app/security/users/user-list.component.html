@@ -1,0 +1,35 @@
+<md-toolbar color="primary">
+    <button md-button (click)="sidenav.open()"><md-icon>menu</md-icon></button>
+    <span>Users</span>
+    <div fxFlex></div>
+    <button md-button [routerLink]="['/security/users/new']">
+        <md-icon>add</md-icon>
+        <span>New</span>
+    </button>
+    <button md-button>
+        <md-icon>delete</md-icon>
+        <span>Delete</span>
+    </button>
+    <button md-button>
+        <md-icon>more_vertical</md-icon>
+    </button>
+</md-toolbar>
+
+<md-sidenav-container>
+    <md-sidenav #sidenav>
+        <app-nav></app-nav>
+    </md-sidenav>
+    <div class="flex-container" fxLayout="row" fxLayoutAlign="center start">
+        <div class="flex-item">
+            <d-table [dataSource]="users">
+                <d-column property="id" type="number" title="Key" canSort="true"></d-column>
+                <d-column property="name" title="Name" type="text" canSort="true"></d-column>
+                <d-column>
+                    <template let-model="model">
+                        <button md-icon-button [routerLink]="['/security/users/' + model.id]"><md-icon>edit</md-icon></button>
+                    </template>
+                </d-column>
+            </d-table>
+        </div>
+    </div>
+</md-sidenav-container>

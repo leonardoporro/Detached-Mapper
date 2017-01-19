@@ -1,0 +1,12 @@
+{
+  "core": {
+    "validation": {
+      "required": {
+        "errorMessage": "The field {{field}} is required."
+      },
+      "pattern": {
+        "errorMessage": "The field {{field}} data is invalid"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "ConnectionStrings": {
+    "Default": "Server=(localdb)\\mssqllocaldb;Database=DetachedDemoDB;Trusted_Connection=True;MultipleActiveResultSets=true;"
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Debug",
+      "System": "Information",
+      "Microsoft": "Information"
+    }
+  }
+}
