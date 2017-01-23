@@ -156,7 +156,7 @@ namespace Detached.EntityFramework
             int result = await _dbContext.SaveChangesAsync();
 
             // re-enable autodetect changes.
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
             return result;
         }
