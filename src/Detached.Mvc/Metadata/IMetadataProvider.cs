@@ -5,7 +5,9 @@ namespace Detached.Mvc.Metadata
 {
     public interface IMetadataProvider
     {
-        //string Resolve(string template, Type type, string propertyName = null, string metaPropertyName = null);
+        List<Pattern> Patterns { get; }
+
+        string Resolve(string template, Type type, string propertyName = null, string metaPropertyName = null);
 
         TypeMetadata GetTypeMetadata(Type type);
 

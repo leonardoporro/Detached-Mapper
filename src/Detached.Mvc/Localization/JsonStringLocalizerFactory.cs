@@ -6,17 +6,21 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Localization;
+using System.Reflection;
 
 namespace Detached.Mvc.Localization
 {
-    public class JsonStringLocalizerFactory : IStringLocalizerFactory
+    public class JsonStringLocalizerFactory : IStringLocalizerFactory, IJsonStringLocalizerFactory
     {
         #region Fields
 
-        const string DEFAULT_MODULE = "*";
+        const string DEFAULT_MODULE = "DEFAULT_MODULE";
         IFileSystem _fileSystem;
         IMetadataProvider _metadataProvider;
         ConcurrentDictionary<string, JsonStringLocalizerModule> _modules = new ConcurrentDictionary<string, JsonStringLocalizerModule>();
+        HashSet<CultureInfo> _cultures = new HashSet<CultureInfo>();
+        CultureInfo _defaultCulture;
 
         #endregion
 
@@ -34,14 +38,35 @@ namespace Detached.Mvc.Localization
 
         public Regex Pattern { get; set; } = new Regex(@"(?<name>[a-z]+)_(?:(?<module>[a-z]+)_)?(?<culture>[a-z]{2}(?:\-[a-z]{2})?)\b.json\b$", RegexOptions.IgnoreCase);
 
-        public ICollection<string> Modules { get; } = new HashSet<string>();
+        public IReadOnlyList<string> Modules
+        {
+            get
+            {
+                return _modules.Keys.ToList();
+            }
+        }
 
-        public ICollection<CultureInfo> Cultures { get; } = new HashSet<CultureInfo>();
+        public IReadOnlyList<CultureInfo> Cultures
+        {
+            get
+            {
+                return _cultures.ToList();
+            }
+        }
+
+        public CultureInfo DefaultCulture
+        {
+            get
+            {
+                return _defaultCulture;
+            }
+        }
 
         #endregion
 
         public void Configure(string sourcePath, CultureInfo defaultCulture)
         {
+            _defaultCulture = defaultCulture;
             _modules.Clear();
             string[] filePaths = _fileSystem.GetFiles(sourcePath);
             foreach (string filePath in filePaths)
@@ -53,8 +78,6 @@ namespace Detached.Mvc.Localization
                     string module = match.Groups["module"].Value;
                     if (string.IsNullOrEmpty(module))
                         module = DEFAULT_MODULE;
-                    else
-                        Modules.Add(module);
 
                     JsonStringLocalizerFile jsonFile = new JsonStringLocalizerFile(_fileSystem)
                     {
@@ -62,24 +85,28 @@ namespace Detached.Mvc.Localization
                         Module = module,
                         Culture = new CultureInfo(culture),
                     };
-                    Cultures.Add(jsonFile.Culture);
+                    _cultures.Add(jsonFile.Culture);
                     _modules.GetOrAdd(module, key => new JsonStringLocalizerModule(defaultCulture))
                             .Files[jsonFile.Culture] = jsonFile;
                 }
             }
+
+            if (_modules.Count == 0)
+                throw new Exception($"No localization files has been found at '{sourcePath}'. Please check if the directory contains files that can be matched by Pattern property.");
         }
 
         public IStringLocalizer Create(Type resourceSource)
         {
+            JsonStringLocalizerModule module = null;
             TypeMetadata typeMetadata = _metadataProvider.GetTypeMetadata(resourceSource);
-            JsonStringLocalizerModule module;
-            if (!_modules.TryGetValue(typeMetadata.Module, out module))
+
+            if (typeMetadata == null || !_modules.TryGetValue(typeMetadata.Module, out module))
             {
                 if (!_modules.TryGetValue(DEFAULT_MODULE, out module))
                 {
-                    throw new Exception("No localization modules has been loaded.");
                 }
             }
+
             return module;
         }
 

@@ -41,7 +41,7 @@ module.exports = {
        new MergeJsonWebpackPlugin({
            "bundles": [{
                "pattern": "client/**/*.i18n.json",
-               "output": "./wwwroot/lang/en.json"
+               "output": "./wwwroot/lang/res_en.json"
            }]
        })
     ]

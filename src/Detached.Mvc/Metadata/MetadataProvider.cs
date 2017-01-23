@@ -26,6 +26,7 @@ namespace Detached.Mvc.Metadata
 
         public MetadataProvider()
         {
+            Patterns.Add(new Pattern(@"(?<module>[\w]+)\.(?<feature>[\w]+)\.(?<class>[\w]+)(?:\+(?<property>[\w]+))?(?:\#(?<metaproperty>[\w]+))?$"));
         }
 
         #endregion
@@ -39,7 +40,6 @@ namespace Detached.Mvc.Metadata
         public StringCase StringCase { get; set; } = StringCase.CamelCase;
 
         #endregion
-
 
         Dictionary<string, string> GetMetadataValues(Type containerType, string propertyName, string metaPropertyName)
         {
@@ -65,30 +65,30 @@ namespace Detached.Mvc.Metadata
                         break;
                 }
 
-                if (metadata == null)
-                {
-                    throw new Exception($"Can't provide metadata for type {containerType.FullName}.");
-                }
-
                 return metadata;
             });
         }
 
         public TypeMetadata GetTypeMetadata(Type type)
         {
-            return new TypeMetadata(GetMetadataValues(type, null, null));
+            Dictionary<string, string> values = GetMetadataValues(type, null, null);
+            if (values != null)
+                return new TypeMetadata(values);
+            else
+                return null;
         }
 
         public PropertyMetadata GetPropertyMetadata(Type containerType, string propertyName, string metaPropertyName)
         {
-
-
             PropertyMetadata propMetadata = new PropertyMetadata(GetMetadataValues(containerType, propertyName, metaPropertyName));
-            if (propMetadata.Property == null)
-                propMetadata.Property = propertyName;
-            if (propMetadata.MetaProperty == null)
-                propMetadata.MetaProperty = metaPropertyName;
+            if (propMetadata != null)
+            {
+                if (propMetadata.Property == null)
+                    propMetadata.Property = propertyName;
+                if (propMetadata.MetaProperty == null)
+                    propMetadata.MetaProperty = metaPropertyName;
 
+            }
             return propMetadata;
         }
 

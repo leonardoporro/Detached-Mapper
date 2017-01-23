@@ -15,15 +15,16 @@ namespace Detached.Mvc.Metadata
 
         #region Ctor.
 
-        public Pattern(string regexPattern)
-            : this(regexPattern, new Dictionary<string, string>())
-        { 
-        }
-
-        public Pattern(string regexPattern, IDictionary<string, string> defaults)
+        public Pattern(string regexPattern, IDictionary<string, string> defaults = null)
         {
             _regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
-            _defaults = defaults;
+            _defaults = defaults ?? new Dictionary<string, string>();
+        }
+
+        public Pattern(Func<PatternBuilder, PatternBuilder> build, IDictionary<string, string> defaults = null)
+        {
+            _regex = new Regex(build(new PatternBuilder()), RegexOptions.IgnoreCase);
+            _defaults = defaults ?? new Dictionary<string, string>();
         }
 
         #endregion

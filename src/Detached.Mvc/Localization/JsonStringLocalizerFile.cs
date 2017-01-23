@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Detached.Mvc.Localization
@@ -14,6 +15,7 @@ namespace Detached.Mvc.Localization
     {
         IFileSystem _fileSystem;
         bool _loaded = false;
+        Regex paramsPattern = new Regex(@"\{\{[\w]+\}\}", RegexOptions.IgnoreCase);
 
         public JsonStringLocalizerFile(IFileSystem fileSystem)
         {
@@ -26,6 +28,8 @@ namespace Detached.Mvc.Localization
 
         public CultureInfo Culture { get; set; }
 
+        public Dictionary<string, LocalizedString> Strings { get; } = new Dictionary<string, LocalizedString>();
+
         public void EnsureLoaded()
         {
             if (!_loaded)
@@ -34,8 +38,6 @@ namespace Detached.Mvc.Localization
                 _loaded = true;
             }
         }
-
-        public Dictionary<string, LocalizedString> Strings { get; } = new Dictionary<string, LocalizedString>();
 
         public void Load()
         {
@@ -57,13 +59,26 @@ namespace Detached.Mvc.Localization
                 var value = property.Value;
                 if (value.Type == JTokenType.String)
                 {
-                    Strings[currentPath] = new LocalizedString(currentPath, (string)value);
+                    string text = (string)value;
+                    text = ReplaceNamedWithPositionalValues(text);
+                    Strings[currentPath] = new LocalizedString(currentPath, text);
                 }
                 else
                 {
                     AddValues((JObject)value, currentPath);
                 }
             }
+        }
+
+        string ReplaceNamedWithPositionalValues(string value)
+        {
+            int i = 0;
+            return paramsPattern.Replace(value, m =>
+            {
+                string result = "{" + i + "}";
+                i++;
+                return result;
+            });
         }
 
         public override string ToString()
