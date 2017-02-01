@@ -10,7 +10,7 @@ namespace Detached.Mvc.Localization.Mapping
 
     public class ResourceMapperOptions
     {
-        public List<MapRule> Rules { get; set; } = new List<MapRule>();
+        public List<Rule> Rules { get; set; } = new List<Rule>();
 
         public StringCase StringCase { get; set; } = StringCase.CamelCase;
     }

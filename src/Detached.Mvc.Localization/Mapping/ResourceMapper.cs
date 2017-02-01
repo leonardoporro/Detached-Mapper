@@ -31,7 +31,7 @@ namespace Detached.Mvc.Localization.Mapping
             return _cache.GetOrAdd(fullQualifiedName, fqn =>
             {
                 ResourceKey key = null;
-                foreach (MapRule map in _options.Rules)
+                foreach (Rule map in _options.Rules)
                 {
                     key = map.TryGetKey(fqn, _options);
                     if (key != null)

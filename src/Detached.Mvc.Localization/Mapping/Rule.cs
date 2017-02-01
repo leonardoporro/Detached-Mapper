@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace Detached.Mvc.Localization.Mapping
 {
-    public class MapRule
+    public class Rule
     {
         #region Fields
 
@@ -22,7 +17,7 @@ namespace Detached.Mvc.Localization.Mapping
 
         #region Ctor.
 
-        public MapRule(Regex expression, string keyTemplate, string sourceTemplate, string locationTemplate = null)
+        public Rule(Regex expression, string keyTemplate, string sourceTemplate, string locationTemplate = null)
         {
             _expression = expression;
             _keyTemplate = keyTemplate;
@@ -30,7 +25,7 @@ namespace Detached.Mvc.Localization.Mapping
             _locationTemplate = locationTemplate;
         }
 
-        public MapRule(string pattern, string keyTemplate, string sourceTemplate, string locationTemplate = null)
+        public Rule(string pattern, string keyTemplate, string sourceTemplate, string locationTemplate = null)
         {
             string regex = Regex.Escape(pattern);
             regex = regex.Replace(@"\{", "{");
@@ -39,8 +34,7 @@ namespace Detached.Mvc.Localization.Mapping
                 string token = m.Groups["token"].Value;
                 return $@"(?<{token}>[\w]+)";
             });
-            regex += "$";
-            _expression = new Regex(regex, RegexOptions.IgnoreCase);
+            _expression = new Regex("^" + regex + "$", RegexOptions.IgnoreCase);
             _keyTemplate = keyTemplate;
             _sourceTemplate = sourceTemplate;
             _locationTemplate = locationTemplate;

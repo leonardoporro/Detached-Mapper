@@ -15,17 +15,17 @@ namespace Detached.Mvc.Tests
             ResourceMapperOptions options = new ResourceMapperOptions();
             options.Rules.AddRange(new[]
             {
-                new MapRule(
+                new Rule(
                     expression: new Regex(@"\bSystem.ComponentModel.DataAnnotations.\b(?<class>[\w]+)Attribute\#(?<property>[\w]+)$"),
                     keyTemplate: "Validation_{class}_{property}",
                     sourceTemplate: "Core"
                 ),
-                new MapRule(
+                new Rule(
                     expression: new Regex(@"(?<module>[\w]+)\.(?<feature>[\w]+)\.(?<model>[\w]+)\#(?<field>[\w]+)\!(?<descriptor>[\w]+)$"),
                     keyTemplate: "{feature}_{model}_{field}_{descriptor}",
                     sourceTemplate: "{module}"
                 ),
-                new MapRule(
+                new Rule(
                     expression: new Regex(@"(?<module>[\w]+)\.(?<feature>[\w]+)\.(?<model>[\w]+)\!(?<descriptor>[\w]+)$"),
                     keyTemplate: "{feature}_{model}_{descriptor}",
                     sourceTemplate: "{module}"
@@ -73,17 +73,17 @@ namespace Detached.Mvc.Tests
             ResourceMapperOptions options = new ResourceMapperOptions();
             options.Rules.AddRange(new[]
             {
-                new MapRule(
+                new Rule(
                     pattern: "System.ComponentModel.DataAnnotations.{class}Attribute#{property}",
                     keyTemplate: "Validation_{class}_{property}",
                     sourceTemplate: "Core"
                 ),
-                new MapRule(
+                new Rule(
                     pattern: "{module}.{feature}.{model}#{field}!{descriptor}",
                     keyTemplate: "{feature}_{model}_{field}_{descriptor}",
                     sourceTemplate: "{module}"
                 ),
-                new MapRule(
+                new Rule(
                     pattern: "{module}.{feature}.{model}!{descriptor}",
                     keyTemplate: "{feature}_{model}_{descriptor}",
                     sourceTemplate:"{module}"

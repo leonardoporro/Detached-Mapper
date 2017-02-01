@@ -1,7 +1,7 @@
 
 # Detached.EntityFramework
 
-Loads and saves entire detached entity graphs (the entity with their child entities and lists). 
+Loads and saves entire detached entity graphs (the root entity object with its children). 
 Inspired by [GraphDiff](https://github.com/refactorthis/GraphDiff).
 It also provides some plugins to simplificate repetitive tasks, like auditing and pagination.
 
@@ -44,7 +44,7 @@ Optionally, you can register a generic detached context to inject it later into 
 services.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
 ```
 
-#### Configure the Model
+#### Configuring the Model
 Add [Owned] attributes to the navigation properties where the related objects will be modified along with the root entity (composition).
 Add [Associated] attributes to the navigation properties where the related objects are self-contained independent entities (association).
 
@@ -77,7 +77,7 @@ public class InvoiceType {
 public class Customer { ... }
 ```
 
-##### Persisting
+##### Persisting using DetachedContext
 Once configured, inject the DetachedContext into your service and use it to load and save entity graphs.
 
 ```csharp

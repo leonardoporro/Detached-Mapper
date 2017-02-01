@@ -63,11 +63,11 @@ namespace Detached.Angular2Demo.Server
                 o.Rules.Clear();
                 o.Rules.AddRange(new[] {
                     // model mapping
-                    new MapRule(pattern: "{module}.{feature}.{layer}.{model}#{field}!{descriptor}",
+                    new Rule(pattern: "{brand}.{product}.{platform}.{module}.{feature}.{layer}.{model}#{field}!{descriptor}",
                                 keyTemplate: "{model}_{field}_{descriptor}", 
                                 sourceTemplate: "Server.{module}.{feature}.Resources.Strings"),
                     // validators mapping
-                    new MapRule(pattern: "System.ComponentModel.DataAnnotations.{validator}Attribute#{property}", 
+                    new Rule(pattern: "System.ComponentModel.DataAnnotations.{validator}Attribute#{property}", 
                                 keyTemplate: "Validation_{validator}_{property}", 
                                 sourceTemplate: "Server.Common.Resources.Strings")
                 });
