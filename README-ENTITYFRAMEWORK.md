@@ -109,4 +109,9 @@ In progress ...
 
 
 # Nuget package:
-https://www.nuget.org/packages/EntityFrameworkCore.Detached/
+
+Detached.EntityFramework
+https://www.nuget.org/packages/Detached.EntityFramework
+
+(Deprecated) https://www.nuget.org/packages/EntityFrameworkCore.Detached/
+Please move to Detached.EntityFramework and sorry for the inconveniences.

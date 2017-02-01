@@ -1,6 +1,7 @@
 # Detached
 Detached is a set of tools to make the process of building services or REST APIs faster.
 It started with EntityFramework and was inspired by [GraphDiff](https://github.com/refactorthis/GraphDiff).
+Each tool has its own nuget and instructions, so please check individual read me as needed.
 
 If you'd like to participate or need some support, please drop me an email: mail@leonardoporro.com.ar
 or [fork me on github](https://github.com/leonardoporro/Detached/fork).
