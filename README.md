@@ -10,21 +10,25 @@ WARNING: This project is not guaranteed to work for your particular needs.
 
 # Detached.EntityFramework
 Allows loading and saving entire entity graphs (the entity with its children/relations) at once and without extra code.
+
 [Read me](./README-ENTITYFRAMEWORK.md)
 
 # Detached.Services
 Provides generic repositories based on Detached.EntityFramework.
-(https://github.com/leonardoporro/Detached/README-SERVICES.md)
+
+[Read me](./README-SERVICES.md)
 
 # Detached.Mvc
 Provides generic controllers and validations based on Detached.Services. 
-(https://github.com/leonardoporro/Detached/README-MVC.md)
+
+[Read me](./README-MVC.md)
 
 # Detached.Mvc.Localization
 Provides automatic localization by mapping full names and namespaces of Clr Types to specified keys and resource files.
 It also features a JsonStringLocalizer.
 This project does not have dependencies on Detached.EntityFramework or Detached.Services so it can be used separately.
-(https://github.com/leonardoporro/Detached/README-MVC-LOCALIZATION.md)
+
+[Read me](./README-MVC-LOCALIZATION.md)
 
 # Demos
 Currently building Angular2 and MVC demos.
