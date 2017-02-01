@@ -3,7 +3,7 @@
 
 Loads and saves entire detached entity graphs (the entity with their child entities and lists). 
 Inspired by [GraphDiff](https://github.com/refactorthis/GraphDiff).
-Also provides some plugins to simplificate repetitive tasks, like auditing and pagination.
+It also provides some plugins to simplificate repetitive tasks, like auditing and pagination.
 
 # Features
 * Loading entity graphs.
@@ -15,53 +15,98 @@ Also provides some plugins to simplificate repetitive tasks, like auditing and p
 	- PartialKey: Allows adding [PKey(n)] attribute to define composite keys.
 	- Pagination: Loads pages of data in an homogeneus way.
     - [Here your own plugin!].
-	 
-# Basic Usage
-```csharp
-// Create a detached wrapper for your context.
-IDetachedContext<YourDbContext> context = new DetachedContext<YourDbContext>(new YourDbContext());
 
-// Get some detached entity root. e.g.: Company has an [Owned] list of Employees.
-Company company = new Company {
-	Employees = new[] {
-    	new Employee { Id = 1, Name = "John Snow" },
-        new Employee { Id = 0, Name = "Daenerys Targaryen" } //new!
+# Usage
+You need to configure the DbContext and DetachedContext, add [Owned] and [Associated] attributes to your model and persist using the 
+the DetachedContext methods.
+
+# Configuring the DbContext
+When configuring your DdContext, specify UseDetached(). Optionally, add plugins and/or change configuration using the
+lambda argument e.g.: .UseDetached(conf => conf.UseAudit()).
+
+```csharp
+    services.AddDbContext<YourDbContext>(conf =>
+        conf.UseSqlServer("YourConnectionString")
+            .UseDetached(dconf => dconf.UseManyToManyHelper()));
+```
+
+An in-memory instance is probably better:
+```csharp
+    var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddEntityFrameworkDetached()
+            .BuildServiceProvider();
+```
+
+Optionally, you can register a generic detached context to inject it later into the services.
+
+```csharp
+services.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
+```
+
+# Configure the Model
+Add [Owned] attributes to the navigation properties where the related objects will be modified along with the root entity (composition).
+Add [Associated] attributes to the navigation properties where the related objects are self-contained independent entities (association).
+
+```csharp
+public class Invoice {
+	[Associated]
+	public InvoiceType Type { get; set; }
+
+	[Associated]
+	public Customer Customer { get; set; }
+
+	[Owned]
+	public IList<InvoiceRow> Rows { get; set; }
+
+	public decimal Total { get; set; }
+}
+
+public class InvoiceRow {
+	public int Id { get; set; }
+	public int Count { get; set; }
+	public string Description { get; set; }
+	public decimal UnitPrice { get; set; }
+}
+
+public class InvoiceType {
+	public int Id { get; set; }
+	public int Description { get; set; }
+}
+
+public class Customer { ... }
+```
+
+# Basic Usage
+Once configured, inject the DetachedContext into your service and use it to load and save entity graphs.
+
+```csharp
+public class InvoiceService {
+	IDetachedContext<YourDbContext> _detachedContext;
+	// inject the detached context. 
+	public YourService(IDetachedContext<YourDbContext> detachedContext)
+	{
+		_detachedContext = detachedContext; 
+	}
+
+	public virtual async Task<Invoice> Save(Invoice entity)
+    {
+		// update the entity graph: it will add/remove children and modify fields as needed.
+        entity = await _detachedContext.Set<Invoice>().UpdateAsync(T);
+
+		// once updated, we need to save the changes.
+        await _detachedContext.SaveChangesAsync();
+
+		// return the saved entity (it will contain, generated fields and ids).
+        return entity;
     }
 }
-
-// Save the detached entity to the database.
-await context.UpdateAsync(company);
-await context.SaveChangesAsync();  
-```
-You can also get detached root entities:
-
-```csharp
-DetachedContext context = new DetachedContext(new YourDbContext());
-
-// This loads the company with Id: 1 along with the employees (and any other relation).
-Company company = await context.LoadAsync<Company>(1); 
-
 ```
 
-# Configuration:
-To be able to process the [Owned] and [Associated] attributes, a custom convention builder is needed.
-You can replace the ICoreConventionSetBuilder service by overriding OnConfiguring in your DbContext:
+# Plugins
 
-```csharp
-protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-{
-    optionsBuilder.UseDetached().UseSqlServer(...);
-}
-```
-Or if you are using your own service collection: 
+In progress ... 
 
-```csharp
-
-            var serviceProvider = new ServiceCollection()
-                 .AddEntityFrameworkInMemoryDatabase()
-                 .AddEntityFrameworkDetached()
-                 .BuildServiceProvider();
-```
 
 # Nuget package:
 https://www.nuget.org/packages/EntityFrameworkCore.Detached/
