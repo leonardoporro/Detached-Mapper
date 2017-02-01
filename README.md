@@ -22,6 +22,8 @@ Provides generic controllers and validations based on Detached.Services.
 
 # Detached.Mvc.Localization
 Provides automatic localization by mapping full names and namespaces of Clr Types to specified keys and resource files.
+It also features a JsonStringLocalizer.
+This project does not have dependencies on Detached.EntityFramework or Detached.Services so it can be used separately.
 (https://github.com/leonardoporro/Detached/README-MVC-LOCALIZATION.md)
 
 # Demos
