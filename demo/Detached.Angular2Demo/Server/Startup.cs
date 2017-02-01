@@ -1,13 +1,11 @@
 ﻿using Detached.Angular2Demo.Model;
-using Detached.Angular2Demo.Server.Security.Invoices;
 using Detached.Angular2Demo.Server.Security.Roles.Services;
 using Detached.Angular2Demo.Server.Security.Users.Services;
 using Detached.EntityFramework;
 using Detached.EntityFramework.Plugins.ManyToMany;
 using Detached.EntityFramework.Plugins.Seeding;
-using Detached.Mvc;
 using Detached.Mvc.Localization;
-using Detached.Mvc.Metadata;
+using Detached.Mvc.Localization.Mapping;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -16,10 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Detached.Angular2Demo.Server
 {
@@ -46,91 +41,73 @@ namespace Detached.Angular2Demo.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            #region Database
-
             // add a DbContext and configure it to use Detached, and some plugins.
             services.AddDbContext<DefaultContext>(ctx =>
                 ctx.UseSqlServer(Configuration.GetConnectionString("Default"))
                    .UseDetached(dconf => dconf.UseManyToManyHelper()));
 
             // add a generic IDetachedContext to be injected later to services/controllers.
-            // IDetachedContext generic parameter (DbContext) is resolved recursively.
             services.AddScoped(typeof(IDetachedContext<>), typeof(DetachedContext<>));
 
-            #endregion
+            services.AddLocalization();
 
-            #region Mvc
+            // add MVC.
+            services.AddMvc();
 
-            services.AddMvc(options =>
+            // add resource mapper.
+            // this maps .NET type names to a key and resource file.
+            services.AddResourceMapper(o =>
             {
-            }).AddDataAnnotationsLocalization();
-
-            #endregion
-
-            #region Localization
-
-            services.AddJsonLocalization();
-            services.AddLocalizationMetadata();
-
-            #endregion
+                o.StringCase = StringCase.PascalCase;
+                o.Rules.Clear();
+                o.Rules.AddRange(new[] {
+                    // model mapping
+                    new MapRule(pattern: "{module}.{feature}.{layer}.{model}#{field}!{descriptor}",
+                                keyTemplate: "{model}_{field}_{descriptor}", 
+                                sourceTemplate: "Server.{module}.{feature}.Resources.Strings"),
+                    // validators mapping
+                    new MapRule(pattern: "System.ComponentModel.DataAnnotations.{validator}Attribute#{property}", 
+                                keyTemplate: "Validation_{validator}_{property}", 
+                                sourceTemplate: "Server.Common.Resources.Strings")
+                });
+            })
+            .AddAutomaticDisplayMetadataLocalization()
+            .AddAutomaticValidationAttributeLocalization();
 
             // register app services.
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IInvoiceService, InvoiceService>(); 
         }
 
-        public void Configure(IApplicationBuilder app, 
-                              IHostingEnvironment env, 
-                              ILoggerFactory loggerFactory, 
-                              IDetachedContext<DefaultContext> detached,
-                              IMetadataProvider metadataProvider,
-                              IJsonStringLocalizerFactory localizerFactory)
+        public void Configure(IApplicationBuilder app,
+                              IHostingEnvironment env,
+                              ILoggerFactory loggerFactory,
+                              IDetachedContext<DefaultContext> detached)
         {
-            #region Logging
-
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            #endregion
-
-            #region Database
-
             // ensure db exists and add data from Seed.json
-            detached.DbContext.Database.EnsureCreated();
-            detached.SeedFromJsonFileAsync("./Server/Seed.json").GetAwaiter().GetResult();
+            if (detached.DbContext.Database.EnsureCreated())
+            {
+                detached.SeedFromJsonFileAsync("./Server/Seed.json").GetAwaiter().GetResult();
+            }
 
-            #endregion
-
-            #region Localization
-
-            // this provides generated keys for types and properties, based on their Clr namespace and names.
-            metadataProvider.Patterns.Clear();
-            
-            // this generates keys like core.validation.required.errorMessage, for .NET built-in validators
-            metadataProvider.Patterns.Add(new Pattern(@"\bSystem.ComponentModel.DataAnnotations.\b(?<class>[\w]+)Attribute(?:\+(?<property>[\w]+))?$",
-                                          new Dictionary<string, string> { { "module", "core" }, { "feature", "validation" } }));
-
-            // this generates keys like users.user.name.displayName for app classes.
-            metadataProvider.Patterns.Add(new Pattern(@"(?<module>[\w]+)\.(?<feature>[\w]+)\.(?:[\w]+)\.(?<class>[\w]+)(?:\+(?<property>[\w]+))?(?:\#(?<metaproperty>[\w]+))?$"));
-
-            // this loads a directory with json files, and provides the available cultures and modules.
-            // file content is loaded when needed.
-            localizerFactory.Configure(@".\wwwroot\lang", new CultureInfo("en"));
-
-            // configure localization based on the factory.
+            // add localization support
+            CultureInfo[] supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("es-AR")
+            };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
-                DefaultRequestCulture = new RequestCulture(localizerFactory.DefaultCulture, localizerFactory.DefaultCulture),
+                DefaultRequestCulture = new RequestCulture(supportedCultures[0], supportedCultures[0]),
                 FallBackToParentCultures = false,
-                SupportedCultures = localizerFactory.Cultures.ToList(),
-                SupportedUICultures = localizerFactory.Cultures.ToList()
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
             });
 
-            #endregion
-
-            #region Mvc
-
+            // configure WebPack hot reload and error page
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -145,8 +122,10 @@ namespace Detached.Angular2Demo.Server
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            // use Angular2 client files (.js, .html)
             app.UseStaticFiles();
 
+            // use MVC with SPA fallback to support Angular2 routing
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -157,8 +136,6 @@ namespace Detached.Angular2Demo.Server
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
-
-            #endregion
         }
     }
 }

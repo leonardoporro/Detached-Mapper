@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "Detached.Mvc": "1.0.0-*",
+    "Detached.Mvc.Localization": "1.0.0-*",
     "Detached.Services": "1.0.0-*",
     "Microsoft.AspNetCore.Diagnostics": "1.1.0",
     "Microsoft.AspNetCore.Mvc": "1.1.0",

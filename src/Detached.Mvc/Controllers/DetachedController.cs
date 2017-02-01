@@ -1,12 +1,13 @@
 ﻿using Detached.EntityFramework.Plugins.Pagination;
-using Detached.Mvc.Errors;
+using Detached.Mvc.Validation;
 using Detached.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 
-namespace EntityFrameworkCore.Detached.Demo.Server.Core
+namespace Detached.Mvc.Controllers
 {
     [Route("api/[controller]")]
     public class DetachedController<TEntity, TQuery> : Controller
@@ -16,6 +17,8 @@ namespace EntityFrameworkCore.Detached.Demo.Server.Core
         #region Fields
 
         IDetachedService<TEntity, TQuery> _detachedService;
+        IStringLocalizer _stringLocalizer;
+        ILogger _logger;
 
         #endregion
 
@@ -24,7 +27,6 @@ namespace EntityFrameworkCore.Detached.Demo.Server.Core
         public DetachedController(IDetachedService<TEntity, TQuery> detachedService)
         {
             _detachedService = detachedService;
-            bool x = new CultureInfo("es-AR") == new CultureInfo("es-AR");
         }
 
         #endregion
@@ -48,10 +50,9 @@ namespace EntityFrameworkCore.Detached.Demo.Server.Core
         }
 
         [HttpPost]
+        [ValidateModel]
         public virtual async Task<TEntity> Save([FromBody]TEntity entity)
         {
-            ValidateModel();
-
             return await _detachedService.Save(entity);
         }
 
@@ -59,16 +60,6 @@ namespace EntityFrameworkCore.Detached.Demo.Server.Core
         public virtual async Task Delete(string id)
         {
             await _detachedService.Delete(id);
-        }
-
-        protected virtual void ValidateModel()
-        {
-            if (!ModelState.IsValid)
-            {
-                ModelErrorResult modelErrorResult = new ModelErrorResult();
-
-                throw new HandledException<ModelErrorResult>(modelErrorResult);
-            }
         }
     }
 }
