@@ -6,7 +6,7 @@ If you'd like to participate or need some support, please drop me an email: mail
 or [fork me on github](https://github.com/leonardoporro/Detached/fork).
 Thanks in advance for your help!
 
-WARNING: This project is not guaranteed to work for your particular needs. Some of the 
+WARNING: This project is not guaranteed to work for your particular needs. 
 
 # Detached.EntityFramework
 Allows loading and saving entire entity graphs (the entity with its children/relations) at once and without extra code.
