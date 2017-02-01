@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Detached.Mvc.Controllers
 {
     [Route("api/[controller]")]
-    public class DetachedController<TEntity, TQuery> : Controller
+    public abstract class DetachedController<TEntity, TQuery> : Controller
         where TEntity : class
         where TQuery : IDetachedQuery<TEntity>
     {
@@ -49,8 +49,7 @@ namespace Detached.Mvc.Controllers
             return await _detachedService.GetPage(pageIndex, pageSize, noCount, query);
         }
 
-        [HttpPost]
-        [ValidateModel]
+        [HttpPost] 
         public virtual async Task<TEntity> Save([FromBody]TEntity entity)
         {
             return await _detachedService.Save(entity);

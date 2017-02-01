@@ -49,13 +49,14 @@ namespace Detached.Angular2Demo.Server
             // add a generic IDetachedContext to be injected later to services/controllers.
             services.AddScoped(typeof(IDetachedContext<>), typeof(DetachedContext<>));
 
+            // add .resx localization.
             services.AddLocalization();
 
             // add MVC.
             services.AddMvc();
 
-            // add resource mapper.
-            // this maps .NET type names to a key and resource file.
+            // add a resource mapper.
+            // this maps .NET type names to a key and resource file/table/etc.
             services.AddResourceMapper(o =>
             {
                 o.StringCase = StringCase.PascalCase;

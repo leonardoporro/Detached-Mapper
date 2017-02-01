@@ -25,8 +25,8 @@ namespace Detached.Mvc.Validation
             else
             {
                 IStringLocalizer localizer = _localizerFactory.Create(context.Controller.GetType());
-                ModelError modelError = new ModelError(context.ModelState);
-                context.Result = new ObjectResult(modelError)
+                //ModelError modelError = new ModelError(context.ModelState);
+                context.Result = new ObjectResult("")
                 {
                     StatusCode = StatusCodes.Status400BadRequest
                 };

@@ -1,0 +1,3 @@
+# Detached.Mvc.Localization
+
+In progress...
