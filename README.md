@@ -10,7 +10,7 @@ WARNING: This project is not guaranteed to work for your particular needs.
 
 # Detached.EntityFramework
 Allows loading and saving entire entity graphs (the entity with its children/relations) at once and without extra code.
-[Read me](/README-ENTITYFRAMEWORK.md)
+[Read me](./README-ENTITYFRAMEWORK.md)
 
 # Detached.Services
 Provides generic repositories based on Detached.EntityFramework.
