@@ -5,7 +5,7 @@ Loads and saves entire detached entity graphs (the entity with their child entit
 Inspired by [GraphDiff](https://github.com/refactorthis/GraphDiff).
 It also provides some plugins to simplificate repetitive tasks, like auditing and pagination.
 
-# Features
+## Features
 * Loading entity graphs.
 * Updating entity graphs.
 * Plugins:
@@ -16,11 +16,11 @@ It also provides some plugins to simplificate repetitive tasks, like auditing an
 	- Pagination: Loads pages of data in an homogeneus way.
     - [Here your own plugin!].
 
-# Usage
+## Usage
 You need to configure the DbContext and DetachedContext, add [Owned] and [Associated] attributes to your model and persist using the 
 the DetachedContext methods.
 
-# Configuring the DbContext
+#### Configuring the DbContext
 When configuring your DdContext, specify UseDetached(). Optionally, add plugins and/or change configuration using the
 lambda argument e.g.: .UseDetached(conf => conf.UseAudit()).
 
@@ -30,7 +30,7 @@ lambda argument e.g.: .UseDetached(conf => conf.UseAudit()).
             .UseDetached(dconf => dconf.UseManyToManyHelper()));
 ```
 
-An in-memory instance is probably better:
+An in-memory instance is probably better for unit testing:
 ```csharp
     var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
@@ -44,7 +44,7 @@ Optionally, you can register a generic detached context to inject it later into 
 services.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
 ```
 
-# Configure the Model
+#### Configure the Model
 Add [Owned] attributes to the navigation properties where the related objects will be modified along with the root entity (composition).
 Add [Associated] attributes to the navigation properties where the related objects are self-contained independent entities (association).
 
@@ -77,7 +77,7 @@ public class InvoiceType {
 public class Customer { ... }
 ```
 
-# Basic Usage
+##### Persisting
 Once configured, inject the DetachedContext into your service and use it to load and save entity graphs.
 
 ```csharp
@@ -103,7 +103,7 @@ public class InvoiceService {
 }
 ```
 
-# Plugins
+## Plugins
 
 In progress ... 
 
