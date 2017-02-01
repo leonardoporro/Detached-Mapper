@@ -13,6 +13,7 @@ namespace Detached.Mvc.Tests
         {
             // GIVEN: a resource mapper
             ResourceMapperOptions options = new ResourceMapperOptions();
+            options.StringCase = StringCase.PascalCase;
             options.Rules.AddRange(new[]
             {
                 new Rule(
@@ -71,6 +72,7 @@ namespace Detached.Mvc.Tests
         {
             // GIVEN: a resource mapper
             ResourceMapperOptions options = new ResourceMapperOptions();
+            options.StringCase = StringCase.PascalCase;
             options.Rules.AddRange(new[]
             {
                 new Rule(
@@ -79,12 +81,12 @@ namespace Detached.Mvc.Tests
                     sourceTemplate: "Core"
                 ),
                 new Rule(
-                    pattern: "{module}.{feature}.{model}#{field}!{descriptor}",
+                    pattern: "{brand}.{library}.{package}.{module}.{feature}.{model}#{field}!{descriptor}",
                     keyTemplate: "{feature}_{model}_{field}_{descriptor}",
                     sourceTemplate: "{module}"
                 ),
                 new Rule(
-                    pattern: "{module}.{feature}.{model}!{descriptor}",
+                    pattern: "{brand}.{library}.{package}.{module}.{feature}.{model}!{descriptor}",
                     keyTemplate: "{feature}_{model}_{descriptor}",
                     sourceTemplate:"{module}"
                 )
@@ -93,7 +95,7 @@ namespace Detached.Mvc.Tests
             ResourceMapper resourceMapper = new ResourceMapper(options);
 
             // WHEN: a raw full qualified name is provided
-            ResourceKey rawKey = resourceMapper.GetKey("Module.Feature.Model#Field!Descriptor");
+            ResourceKey rawKey = resourceMapper.GetKey("Brand.Library.Package.Module.Feature.Model#Field!Descriptor");
 
             // THEN: a valid resource key is returned.
             Assert.Equal("Feature_Model_Field_Descriptor", rawKey.Name);
