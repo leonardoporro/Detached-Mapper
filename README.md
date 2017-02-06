@@ -33,3 +33,13 @@ This project does not have dependencies on Detached.EntityFramework or Detached.
 
 # Demos
 Currently building Angular2 and MVC demos.
+
+# Build
+To build the project, you need:
+ - Microsoft Visual Studio 2015 Update 3
+ - .NET Core 1.0.1 Tools Preview 2
+https://www.microsoft.com/net/core#windowsvs2015
+
+Unit tests depend on Moq beta. Please, in VS2015, go to Tools->Options, look for Nuget Package manager 
+and add this source:
+https://www.myget.org/F/aspnet-contrib/api/v3/index.json
