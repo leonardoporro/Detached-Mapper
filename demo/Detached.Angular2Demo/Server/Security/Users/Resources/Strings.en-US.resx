@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="UsersController_Save_InternalError" xml:space="preserve">
+    <value>an internal error happened. damn!</value>
+  </data>
   <data name="User_Name_DisplayName" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="User_Name_RegularExpression" xml:space="preserve">
     <value>The field {0} only accepts lower-case letters</value>
-  </data>
-  <data name="User_Name_Required" xml:space="preserve">
-    <value>The field {0} is required -&gt;Property-specific</value>
   </data>
 </root>

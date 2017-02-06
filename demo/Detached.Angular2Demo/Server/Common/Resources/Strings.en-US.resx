@@ -117,10 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Errors_InternalError_ErrorMessage" xml:space="preserve">
+    <value>An internal error has occurred. Please try again later or contact '{0}'.</value>
+  </data>
+  <data name="Errors_InvalidModel_ErrorMessage" xml:space="preserve">
+    <value>The submitted data is not valid. Please check the errors and try again.</value>
+  </data>
   <data name="Validation_RegularExpression_ErrorMessage" xml:space="preserve">
-    <value>Field data is not valid.</value>
+    <value>Field data is not valid</value>
   </data>
   <data name="Validation_Required_ErrorMessage" xml:space="preserve">
-    <value>Field '{0}' is required :)</value>
+    <value>Field '{0}' is required</value>
   </data>
 </root>

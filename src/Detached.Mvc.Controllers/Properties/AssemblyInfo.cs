@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Detached.Mvc.Localization")]
+[assembly: AssemblyProduct("Detached.Mvc")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("206af418-85e9-40c6-85f2-58144eff8059")]
+[assembly: Guid("09d59fb4-fe99-4e3a-b867-32ef550509e0")]

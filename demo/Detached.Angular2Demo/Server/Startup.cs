@@ -56,21 +56,17 @@ namespace Detached.Angular2Demo.Server
             services.AddMvc();
 
             // add a resource mapper.
-            // this maps .NET type names to a key and resource file/table/etc.
+            // this maps .NET type names to a key and resource source (file/table/etc).
             services.AddResourceMapper(o =>
             {
+                o.SupportInfo = new SupportInfo { Email = "it@example.com" };
                 o.StringCase = StringCase.PascalCase;
+                o.FallbackKey = (feat, type, prop) => new ResourceKey { KeyName = $"{feat}_{type}_{prop}", ResourceName = "Server.Common.Resources.Strings" };
                 o.Rules.Clear();
-                o.Rules.AddRange(new[] {
-                    // model mapping
-                    new Rule(pattern: "{brand}.{product}.{platform}.{module}.{feature}.{layer}.{model}#{field}!{descriptor}",
-                                keyTemplate: "{model}_{field}_{descriptor}", 
-                                sourceTemplate: "Server.{module}.{feature}.Resources.Strings"),
-                    // validators mapping
-                    new Rule(pattern: "System.ComponentModel.DataAnnotations.{validator}Attribute#{property}", 
-                                keyTemplate: "Validation_{validator}_{property}", 
-                                sourceTemplate: "Server.Common.Resources.Strings")
-                });
+                o.Rules.Add(
+                    new Rule(pattern: "{company}.{app}.{platform}.{module}.{feature}.{layer}.{modelOrController}.{fieldOrAction}#{descriptor}",
+                             keyTemplate: "{modelOrController}_{fieldOrAction}_{descriptor}", 
+                             sourceTemplate: "{platform}.{module}.{feature}.Resources.Strings"));
             })
             .AddAutomaticDisplayMetadataLocalization()
             .AddAutomaticValidationAttributeLocalization();

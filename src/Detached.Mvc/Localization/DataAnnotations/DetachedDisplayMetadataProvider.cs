@@ -34,11 +34,11 @@ namespace Detached.Mvc.Localization.DataAnnotations
                 case ModelMetadataKind.Property:
                     if (context.DisplayMetadata.DisplayName == null)
                     {
-                        ResourceKey displayKey = _resourceMapper.GetFieldKey(context.Key.ContainerType, context.Key.Name, "DisplayName");
+                        ResourceKey displayKey = _resourceMapper.GetKey(context.Key.ContainerType.Namespace, context.Key.ContainerType.Name, context.Key.Name, "DisplayName");
                         if (displayKey != null)
                         {
-                            IStringLocalizer localizer = _stringLocalizerFactory.Create(displayKey.Source, displayKey.Location);
-                            context.DisplayMetadata.DisplayName = () => localizer.GetString(displayKey.Name);
+                            IStringLocalizer localizer = _stringLocalizerFactory.Create(displayKey.ResourceName, displayKey.ResourceLocation);
+                            context.DisplayMetadata.DisplayName = () => localizer.GetString(displayKey.KeyName);
                         }
                     }
                     break;

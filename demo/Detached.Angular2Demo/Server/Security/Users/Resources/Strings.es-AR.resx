@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="UsersController_Save_InternalErro" xml:space="preserve">
+    <value>an internal error happened. damn!</value>
+  </data>
   <data name="User_Name_DisplayName" xml:space="preserve">
     <value>Nombre</value>
   </data>
   <data name="User_Name_RegularExpression" xml:space="preserve">
     <value>El campo {0} debe contener solamente letras minusculas</value>
-  </data>
-  <data name="User_Name_Required" xml:space="preserve">
-    <value>El campo {0} es requerido -&gt; Especifico de la propiedad</value>
   </data>
 </root>

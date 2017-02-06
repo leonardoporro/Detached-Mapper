@@ -7,10 +7,10 @@ namespace Detached.Mvc.Localization.Mapping
 {
     public class ResourceKey
     {
-        public string Name { get; set; }
+        public string KeyName { get; set; }
 
-        public string Source { get; set; }
+        public string ResourceName { get; set; }
 
-        public string Location { get; set; }
+        public string ResourceLocation { get; set; }
     }
 }

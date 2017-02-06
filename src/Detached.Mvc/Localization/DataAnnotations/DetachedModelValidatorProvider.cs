@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.DataAnnotations.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Localization;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace Detached.Mvc.Localization.DataAnnotations
 {
@@ -41,28 +39,30 @@ namespace Detached.Mvc.Localization.DataAnnotations
                 }
 
                 IStringLocalizer stringLocalizer = null;
-                ResourceKey key = _resourceMapper.GetFieldKey(context.ModelMetadata.ContainerType ?? context.ModelMetadata.ModelType,
-                                                              context.ModelMetadata.PropertyName,
-                                                              attribute.GetType().Name.Replace("Attribute", ""));
+                Type modelType = context.ModelMetadata.ContainerType ?? context.ModelMetadata.ModelType;
+                string validatorName = attribute.GetType().Name.Replace("Attribute", "");
+                ResourceKey key = _resourceMapper.GetKey(modelType.Namespace,
+                                                         modelType.Name,
+                                                         context.ModelMetadata.PropertyName,
+                                                         validatorName);
                 if (key != null)
                 {
-                    stringLocalizer = _stringLocalizerFactory.Create(key.Source, key.Location);
+                    stringLocalizer = _stringLocalizerFactory.Create(key.ResourceName, key.ResourceLocation);
                     if (attribute.ErrorMessage == null)
-                        attribute.ErrorMessage = key.Name;
+                        attribute.ErrorMessage = key.KeyName;
                 }
 
-                ResourceKey alternateKey = _resourceMapper.GetFieldKey(attribute.GetType(), "ErrorMessage");
+                ResourceKey alternateKey = _resourceMapper.GetFallbackKey("Validation", validatorName, nameof(ValidationAttribute.ErrorMessage));
                 if (alternateKey != null)
                 {
-                    IStringLocalizer alternateStringLocalizer = _stringLocalizerFactory.Create(alternateKey.Source, alternateKey.Location);
-                    stringLocalizer = new CompositeStringLocalizer(new[] { stringLocalizer, alternateStringLocalizer }, new[] { key.Name, alternateKey.Name });
+                    IStringLocalizer alternateStringLocalizer = _stringLocalizerFactory.Create(alternateKey.ResourceName, alternateKey.ResourceLocation);
+                    stringLocalizer = new ValidatorStringLocalizerAdapter(new[] { stringLocalizer, alternateStringLocalizer }, new[] { key.KeyName, alternateKey.KeyName });
                 }
 
                 if (stringLocalizer == null)
                     stringLocalizer = _stringLocalizerFactory.Create(context.ModelMetadata.ContainerType ?? context.ModelMetadata.ModelType);
 
                 var validator = new DataAnnotationsModelValidator(_validationAttributeAdapterProvider, attribute, stringLocalizer);
-
                 validatorItem.Validator = validator;
                 validatorItem.IsReusable = true;
 

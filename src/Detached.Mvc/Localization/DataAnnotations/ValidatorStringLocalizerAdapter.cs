@@ -5,14 +5,14 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Detached.Mvc.Localization
+namespace Detached.Mvc.Localization.DataAnnotations
 {
-    public class CompositeStringLocalizer : IStringLocalizer
+    public class ValidatorStringLocalizerAdapter : IStringLocalizer
     {
         IList<IStringLocalizer> _stringLocalizers;
         IList<string> _keys;
 
-        public CompositeStringLocalizer(IList<IStringLocalizer> stringLocalizers, IList<string> keys = null)
+        public ValidatorStringLocalizerAdapter(IList<IStringLocalizer> stringLocalizers, IList<string> keys)
         {
             _stringLocalizers = stringLocalizers;
             _keys = keys;
@@ -57,7 +57,7 @@ namespace Detached.Mvc.Localization
 
         public IStringLocalizer WithCulture(CultureInfo culture)
         {
-            return new CompositeStringLocalizer(_stringLocalizers.Select(s => s.WithCulture(culture)).ToArray(), _keys);
+            return new ValidatorStringLocalizerAdapter(_stringLocalizers.Select(s => s.WithCulture(culture)).ToArray(), _keys);
         }
     }
 }

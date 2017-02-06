@@ -4,7 +4,7 @@
     "NETStandard.Library": "1.6.1"
   },
 
-   "frameworks": {
+  "frameworks": {
     "net451": {
       "frameworkAssemblies": {
         "System.ComponentModel.DataAnnotations": "",
@@ -13,11 +13,8 @@
         }
       }
     },
-    "netstandard1.3": {
-      "dependencies": {
-        "System.ComponentModel.Annotations": "4.3.0-*",
-        "System.Linq.Queryable": "4.3.0-*"
-      }
+    "netstandard1.6": {
+      "imports": "dnxcore50"
     }
   }
 }

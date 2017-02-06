@@ -1,4 +1,5 @@
 ﻿using Detached.Mvc.Localization.DataAnnotations;
+using Detached.Mvc.Localization.Errors;
 using Detached.Mvc.Localization.Json;
 using Detached.Mvc.Localization.Mapping;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,7 @@ namespace Detached.Mvc.Localization
             ResourceMapperOptions options = new ResourceMapperOptions();
             configure?.Invoke(options);
             serviceCollection.AddSingleton<IResourceMapper>(s => new ResourceMapper(options));
+            serviceCollection.AddSingleton<IErrorLocalizer, ErrorLocalizer>();
 
             return new ResourceMapperBuilder { Services = serviceCollection };
         }

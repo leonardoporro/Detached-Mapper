@@ -86,10 +86,10 @@ namespace Detached.Mvc.Localization.Mapping
             if (match.Success)
             {
                 key = new ResourceKey();
-                key.Name = Resolve(KeyNameTemplate, match, options);
-                key.Source = Resolve(SourceTemplate, match, options);
+                key.KeyName = Resolve(KeyNameTemplate, match, options);
+                key.ResourceName = Resolve(SourceTemplate, match, options);
                 if (LocationTemplate != null)
-                    key.Location = Resolve(LocationTemplate, match, options);
+                    key.ResourceLocation = Resolve(LocationTemplate, match, options);
             }
 
             return key;

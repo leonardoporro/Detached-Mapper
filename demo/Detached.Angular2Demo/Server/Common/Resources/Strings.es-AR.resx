@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Errors_InternalError_ErrorMessage" xml:space="preserve">
+    <value>Ha ocurrido un error interno. Por favor intente de nuevo mas tarde o contactese a '{0}'.</value>
+  </data>
+  <data name="Errors_InvalidModel_ErrorMessage" xml:space="preserve">
+    <value>Los datos enviados no son validos. Por favor chequeelos e intentelo nuevamente.</value>
+  </data>
   <data name="Validation_RegularExpression_ErrorMessage" xml:space="preserve">
     <value>Los datos no son validos</value>
   </data>

@@ -1,14 +1,15 @@
 ﻿using Detached.Angular2Demo.Server.Security.Users.Model;
 using Detached.Angular2Demo.Server.Security.Users.Services;
 using Detached.Mvc.Controllers;
+using Detached.Mvc.Errors;
 using Detached.Mvc.Validation;
-using Detached.Services;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Detached.Angular2Demo.Server.Security.Users.Controllers
 {
-    [ValidateModel]
+    [LocalizedApiErrors]
+    [LocalizedModelValidation]
     public class UsersController : DetachedController<User, UserQuery>
     {
         public UsersController(IUserService userService) 
