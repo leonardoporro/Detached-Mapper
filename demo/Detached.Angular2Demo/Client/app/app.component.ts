@@ -13,7 +13,7 @@ export class AppComponent extends Locale {
         this.locale.addLanguages(["en", "es"]);
         this.locale.definePreferredLocale("en", "US", 30);
         this.locale.definePreferredCurrency("USD");
-        this.localization.translationProvider("./lang/"); 
+        this.localization.translationProvider("./lang/res_"); 
         this.localization.updateTranslation();
     }
 }

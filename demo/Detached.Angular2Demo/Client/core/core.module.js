@@ -23,6 +23,7 @@ var form_errormsg_directive_1 = require("./directives/form-errormsg.directive");
 var content_directive_1 = require("./directives/content.directive");
 var column_component_1 = require("./components/table/column.component");
 var table_component_1 = require("./components/table/table.component");
+var list_component_1 = require("./components/list/list.component");
 require("./core-styles.scss");
 var CoreModule = (function () {
     function CoreModule() {
@@ -47,13 +48,15 @@ var CoreModule = (function () {
                 form_errormsg_directive_1.FormErrorMessageDirective,
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
-                table_component_1.TableComponent
+                table_component_1.TableComponent,
+                list_component_1.ListComponent
             ],
             declarations: [
                 form_errormsg_directive_1.FormErrorMessageDirective,
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
-                table_component_1.TableComponent
+                table_component_1.TableComponent,
+                list_component_1.ListComponent
             ],
             providers: []
         }), 

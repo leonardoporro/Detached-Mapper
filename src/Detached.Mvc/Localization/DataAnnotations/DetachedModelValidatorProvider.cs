@@ -48,7 +48,7 @@ namespace Detached.Mvc.Localization.DataAnnotations
                 if (key != null)
                 {
                     stringLocalizer = _stringLocalizerFactory.Create(key.ResourceName, key.ResourceLocation);
-                    if (attribute.ErrorMessage == null)
+                    if (attribute.ErrorMessage == null || attribute is DataTypeAttribute)
                         attribute.ErrorMessage = key.KeyName;
                 }
 

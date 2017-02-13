@@ -10,7 +10,7 @@ namespace Detached.Mvc.Localization.DataAnnotations
         IStringLocalizerFactory _stringLocalizer;
         IResourceMapper _resourceMapper;
 
-        public DetachedDisplayMetadataConfigureOptions(IResourceMapper resourceMapper, IStringLocalizerFactory stringLocalizer)
+        public DetachedDisplayMetadataConfigureOptions(IResourceMapper resourceMapper = null, IStringLocalizerFactory stringLocalizer = null)
         {
             _stringLocalizer = stringLocalizer;
             _resourceMapper = resourceMapper;

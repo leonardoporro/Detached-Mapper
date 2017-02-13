@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Detached.Mvc.Errors
 {
+    /// <summary>
+    /// Provides some standard error codes to be used in ApiError.ErrorCode.
+    /// </summary>
     public static class ApiErrorCodes
     {
         public static string UnauthorizedAccess = "UnauthorizedAccess";

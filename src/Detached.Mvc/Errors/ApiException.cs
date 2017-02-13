@@ -3,6 +3,10 @@ using System;
 
 namespace Detached.Mvc.Errors
 {
+    /// <summary>
+    /// Common known exception that allows to define the ErrorCode and the 
+    /// StatusCode to be used by the ApiErrorsFilter.
+    /// </summary>
     public class ApiException : Exception
     {
         #region Ctor.
@@ -35,8 +39,15 @@ namespace Detached.Mvc.Errors
 
         #endregion
 
+        /// <summary>
+        /// A standarized code for this error. 
+        /// ApiErrorCodes class provides some constants for known errors.
+        /// </summary>
         public string ErrorCode { get; set; }
         
+        /// <summary>
+        /// The HTTP error to be returned for the request.
+        /// </summary>
         public int HttpStatusCode { get; set; }
     }
 }

@@ -5,8 +5,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var core_1 = require("@angular/core");
-var http_1 = require("@angular/http");
-var rxjs_1 = require("rxjs");
 var base_datasource_1 = require("./base.datasource");
 (function (SortDirection) {
     SortDirection[SortDirection["Asc"] = 0] = "Asc";
@@ -22,77 +20,38 @@ exports.DataPage = DataPage;
 var HttpRestCollectionDataSource = (function (_super) {
     __extends(HttpRestCollectionDataSource, _super);
     function HttpRestCollectionDataSource(http, baseUrl) {
-        _super.call(this);
-        this.http = http;
+        _super.call(this, http);
         this.baseUrl = baseUrl;
-        this.keyProperty = "id";
-        this.searchParams = {};
         this.sortDirection = SortDirection.Asc;
         this.pageIndex = 1;
-        this.items = [];
+        this._items = [];
         this.itemsChange = new core_1.EventEmitter();
     }
-    /** builds a URLSearchParams instance from searchParams and collection parameters. */
-    HttpRestCollectionDataSource.prototype.buildParameters = function () {
-        var searchParams = new http_1.URLSearchParams();
-        for (var queryProp in this.searchParams) {
-            var value = this.searchParams[queryProp];
-            if (value) {
-                searchParams.append(queryProp, value);
+    Object.defineProperty(HttpRestCollectionDataSource.prototype, "items", {
+        get: function () {
+            return this._items;
+        },
+        set: function (value) {
+            if (value != this._items) {
+                this._items = value;
+                this.itemsChange.emit(this._items);
             }
-        }
-        if (this.searchText) {
-            searchParams.append("searchText", this.searchText);
-        }
-        if (this.sortBy) {
-            searchParams.append("orderBy", this.sortBy + (this.sortDirection == SortDirection.Asc ? "+asc" : "+desc"));
-        }
-        if (this.pageIndex) {
-            searchParams.append("pageIndex", this.pageIndex.toString());
-        }
-        if (this.pageSize) {
-            searchParams.append("pageSize", this.pageSize.toString());
-        }
-        if (this.noCount !== undefined) {
-            searchParams.append("noCount", this.noCount ? "true" : "false");
-        }
-        return searchParams;
-    };
+        },
+        enumerable: true,
+        configurable: true
+    });
     HttpRestCollectionDataSource.prototype.load = function () {
         var _this = this;
-        var result = new rxjs_1.ReplaySubject();
-        var searchParams = this.buildParameters();
-        var resolvedUrl = this.resolveUrl(this.baseUrl, searchParams);
-        this.http.get(resolvedUrl, { search: searchParams })
-            .subscribe(function (response) {
-            _this.handleResponse(response);
-            result.next(_this.items);
-        }, function (error) {
-            _this.handleError(error);
-            result.error(error);
-        }, function () { return result.complete(); });
-        return result;
-    };
-    HttpRestCollectionDataSource.prototype.handleResponse = function (response) {
-        var result = response.json();
-        if (result instanceof Array) {
-            this.handleArray(result);
-        }
-        else {
-            this.handlePage(result);
-        }
-    };
-    HttpRestCollectionDataSource.prototype.handleArray = function (array) {
-        this.items = array;
-        this.itemsChange.emit(this.items);
-    };
-    HttpRestCollectionDataSource.prototype.handlePage = function (page) {
-        this.items = page.items;
-        this.pageCount = page.pageCount;
-        this.rowCount = page.rowCount;
-        this.itemsChange.emit(this.items);
-    };
-    HttpRestCollectionDataSource.prototype.handleError = function (error) {
+        var params = Object.assign({}, this.requestParams);
+        params.searchText = this.searchText;
+        params.sortBy = this.sortBy;
+        params.sortDirection = this.sortDirection;
+        params.pageIndex = this.pageIndex;
+        params.pageSize = this.pageSize;
+        params.noCount = this.noCount;
+        var request = this.execute(this.baseUrl, this.requestParams, "get", null);
+        request.subscribe(function (data) { return _this.items = data; }, function (error) { });
+        return request;
     };
     HttpRestCollectionDataSource.prototype.toggleSort = function (propertyName) {
         if (this.sortBy != propertyName) {
@@ -110,14 +69,6 @@ var HttpRestCollectionDataSource = (function (_super) {
         }
         this.sortBy = propertyName;
         return this.load();
-    };
-    HttpRestCollectionDataSource.prototype.loadFirstPage = function () {
-    };
-    HttpRestCollectionDataSource.prototype.loadPreviousPage = function () {
-    };
-    HttpRestCollectionDataSource.prototype.loadNextPage = function () {
-    };
-    HttpRestCollectionDataSource.prototype.loadLastPage = function () {
     };
     return HttpRestCollectionDataSource;
 }(base_datasource_1.HttpRestBaseDataSource));

@@ -13,12 +13,20 @@ namespace Detached.Services
         where TEntity : class
         where TQuery : IDetachedQuery<TEntity>
     {
+        #region Field
+
         IDetachedContext<TDbContext> _detachedContext;
+
+        #endregion
+
+        #region Ctor.
 
         public DetachedService(IDetachedContext<TDbContext> detachedContext)
         {
             _detachedContext = detachedContext;
         }
+
+        #endregion
 
         public virtual async Task<TEntity> FindById(object key)
         {

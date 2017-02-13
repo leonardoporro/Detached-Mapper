@@ -17,6 +17,12 @@ var core_1 = require("@angular/core");
 var http_1 = require("@angular/http");
 var core_module_1 = require("../../../core/core.module");
 var core_module_2 = require("../../../core/core.module");
+var User = (function () {
+    function User() {
+    }
+    return User;
+}());
+exports.User = User;
 var UserQuery = (function () {
     function UserQuery() {
     }
@@ -26,7 +32,7 @@ exports.UserQuery = UserQuery;
 var UserCollectionDataSource = (function (_super) {
     __extends(UserCollectionDataSource, _super);
     function UserCollectionDataSource(http) {
-        _super.call(this, http, "/api/users/pages/:pageIndex");
+        _super.call(this, http, "/api/users");
         this.sortBy = "name";
     }
     UserCollectionDataSource = __decorate([
@@ -40,7 +46,7 @@ var UserModelDataSource = (function (_super) {
     __extends(UserModelDataSource, _super);
     function UserModelDataSource(http) {
         _super.call(this, http, "api/users/:id");
-        this.params.culture = "es-AR";
+        this.requestParams.culture = "es-AR";
     }
     UserModelDataSource = __decorate([
         core_1.Injectable(), 

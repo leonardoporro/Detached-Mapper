@@ -7,3 +7,15 @@
 md-sidenav {
     width: 280px;
 }
+
+md-input-container {
+    width: 300px;
+}
+
+@media (min-width: 700px) { 
+
+    md-sidenav {
+        background-color: black;
+    }
+
+}

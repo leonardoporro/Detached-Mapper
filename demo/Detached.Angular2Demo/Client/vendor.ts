@@ -6,5 +6,6 @@ import "@angular/forms";
 import "@angular/http";
 import "@angular/router";
 import "@angular/material";
+import "angular2localization";
 import "rxjs/Rx";
 import "hammerjs";

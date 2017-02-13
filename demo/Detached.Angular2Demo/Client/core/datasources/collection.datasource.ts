@@ -32,12 +32,10 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
     extends HttpRestBaseDataSource
     implements ICollectionDataSource<TEntity> {
 
-    constructor(private http: Http, public baseUrl: string) {
-        super();
+    constructor(http: Http, public baseUrl: string) {
+        super(http);
     }
 
-    public keyProperty: string = "id";
-    public searchParams: TSearchParams = <TSearchParams>{};
     public searchText: string;
     public sortBy: string;
     public sortDirection: SortDirection = SortDirection.Asc;
@@ -46,79 +44,32 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
     public noCount: boolean;
     public pageCount: number;
     public rowCount: number;
-    public items: TEntity[] = [];
+
+    _items: TEntity[] = [];
+    public get items(): TEntity[] {
+        return this._items;
+    }
+    public set items(value: TEntity[]) {
+        if (value != this._items) {
+            this._items = value;
+            this.itemsChange.emit(this._items);
+        }
+    }
     public itemsChange = new EventEmitter();
 
-    /** builds a URLSearchParams instance from searchParams and collection parameters. */
-    protected buildParameters(): URLSearchParams {
-        let searchParams = new URLSearchParams();
-        for (let queryProp in this.searchParams) {
-            let value = this.searchParams[queryProp];
-            if (value) {
-                searchParams.append(queryProp, value);
-            }
-        }
-        if (this.searchText) {
-            searchParams.append("searchText", this.searchText);
-        }
-        if (this.sortBy) {
-            searchParams.append("orderBy", this.sortBy + (this.sortDirection == SortDirection.Asc ? "+asc" : "+desc"));
-        }
-        if (this.pageIndex) {
-            searchParams.append("pageIndex", this.pageIndex.toString());
-        }
-        if (this.pageSize) {
-            searchParams.append("pageSize", this.pageSize.toString());
-        }
-        if (this.noCount !== undefined) {
-            searchParams.append("noCount", this.noCount ? "true" : "false");
-        }
-        return searchParams;
-    }
-
     public load(): ReplaySubject<TEntity[]> {
-        let result = new ReplaySubject();
-
-        let searchParams = this.buildParameters();
-        let resolvedUrl = this.resolveUrl(this.baseUrl, searchParams);
-
-        this.http.get(resolvedUrl, { search: searchParams })
-            .subscribe(response => {
-                this.handleResponse(response);
-                result.next(this.items);
-            },
-            error => {
-                this.handleError(error);
-                result.error(error);
-            },
-            () => result.complete());
-
-        return result;
-    }
-
-    protected handleResponse(response: Response) {
-        let result = response.json();
-        if (result instanceof Array) {
-            this.handleArray(result);
-        } else {
-            this.handlePage(result);
-        }
-    }
-
-    protected handleArray(array: TEntity[]) {
-        this.items = array;
-        this.itemsChange.emit(this.items);
-    }
-
-    protected handlePage(page: DataPage<TEntity>) {
-        this.items = page.items;
-        this.pageCount = page.pageCount;
-        this.rowCount = page.rowCount;
-        this.itemsChange.emit(this.items);
-    }
-
-    protected handleError(error) {
-
+        let params = Object.assign({}, this.requestParams);
+        params.searchText = this.searchText;
+        params.sortBy = this.sortBy;
+        params.sortDirection = this.sortDirection;
+        params.pageIndex = this.pageIndex;
+        params.pageSize = this.pageSize;
+        params.noCount = this.noCount;
+        
+        let request = this.execute<TEntity[]>(this.baseUrl, this.requestParams, "get", null);
+        request.subscribe(data => this.items = data,
+                          error => { });
+        return request;
     }
 
     public toggleSort(propertyName: string): Observable<TEntity[]> {
@@ -136,17 +87,5 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
         }
         this.sortBy = propertyName;
         return this.load();
-    }
-
-    public loadFirstPage() {
-    }
-
-    public loadPreviousPage() {
-    }
-
-    public loadNextPage() {
-    }
-
-    public loadLastPage() {
     }
 }

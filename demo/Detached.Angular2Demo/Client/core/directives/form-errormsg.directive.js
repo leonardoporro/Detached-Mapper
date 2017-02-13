@@ -32,12 +32,17 @@ var FormErrorMessageDirective = (function () {
             for (var errorName in this._formControl.errors) {
                 var errorValue = this._formControl.errors[errorName];
                 if (errorValue) {
-                    var args = {
-                        field: this.fieldName
-                    };
-                    var errorKey = "core.validation." + errorName;
-                    var errorText = this.localizationService.translate(errorKey, args);
-                    this.element.nativeElement.innerHTML = errorText;
+                    if (errorName == "server") {
+                        this.element.nativeElement.innerHTML = errorValue;
+                    }
+                    else {
+                        var args = {
+                            field: this.fieldName
+                        };
+                        var errorKey = "core.validation." + errorName;
+                        var errorText = this.localizationService.translate(errorKey, args);
+                        this.element.nativeElement.innerHTML = errorText;
+                    }
                 }
             }
         }

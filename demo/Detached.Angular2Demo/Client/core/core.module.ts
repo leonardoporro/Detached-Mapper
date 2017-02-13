@@ -11,6 +11,7 @@ import { FormErrorMessageDirective } from "./directives/form-errormsg.directive"
 import { ContentDirective } from "./directives/content.directive";
 import { ColumnComponent } from "./components/table/column.component";
 import { TableComponent } from "./components/table/table.component";
+import { ListComponent } from "./components/list/list.component";
 
 require("./core-styles.scss");
 
@@ -27,13 +28,15 @@ require("./core-styles.scss");
         FormErrorMessageDirective,
         ContentDirective,
         ColumnComponent,
-        TableComponent
+        TableComponent,
+        ListComponent
     ],
     declarations: [
         FormErrorMessageDirective,
         ContentDirective,
         ColumnComponent,
-        TableComponent
+        TableComponent,
+        ListComponent
     ],
     providers: [
         /*MDL_SELECT_VALUE_ACCESSOR*/

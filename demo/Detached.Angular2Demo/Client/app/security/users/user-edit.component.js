@@ -16,12 +16,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var router_1 = require("@angular/router");
 var users_datasource_1 = require("./users.datasource");
+var roles_datasource_1 = require("../roles/roles.datasource");
 var angular2localization_1 = require("angular2localization");
 var UserEditComponent = (function (_super) {
     __extends(UserEditComponent, _super);
-    function UserEditComponent(userSource, activatedRoute, localization) {
+    function UserEditComponent(userSource, rolesSource, activatedRoute, localization) {
         _super.call(this, null, localization);
         this.userSource = userSource;
+        this.rolesSource = rolesSource;
         this.activatedRoute = activatedRoute;
         this.localization = localization;
     }
@@ -30,24 +32,37 @@ var UserEditComponent = (function (_super) {
         if (key !== "new") {
             this.userSource.load(key);
         }
+        this.rolesSource.load();
     };
     UserEditComponent.prototype.save = function (frm) {
+        var _this = this;
         if (frm.valid) {
             this.userSource.save()
-                .subscribe(function (e) { return window.history.back(); });
+                .subscribe(function (ok) { return _this.close(); }, function (error) {
+                if (error.memberErrors) {
+                    for (var member in error.memberErrors) {
+                        var ctrl = frm.controls[member];
+                        ctrl.setErrors({ server: error.memberErrors[member] });
+                    }
+                }
+            });
         }
     };
     UserEditComponent.prototype.delete = function () {
+        var _this = this;
         this.userSource.delete()
-            .subscribe(function (e) { return window.history.back(); });
+            .subscribe(function (ok) { return _this.close(); });
+    };
+    UserEditComponent.prototype.close = function () {
+        window.history.back();
     };
     UserEditComponent = __decorate([
         core_1.Component({
             selector: "user-edit",
             template: require("./user-edit.component.html"),
-            providers: [users_datasource_1.UserModelDataSource]
+            providers: [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource]
         }), 
-        __metadata('design:paramtypes', [users_datasource_1.UserModelDataSource, router_1.ActivatedRoute, angular2localization_1.LocalizationService])
+        __metadata('design:paramtypes', [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource, router_1.ActivatedRoute, angular2localization_1.LocalizationService])
     ], UserEditComponent);
     return UserEditComponent;
 }(angular2localization_1.Locale));

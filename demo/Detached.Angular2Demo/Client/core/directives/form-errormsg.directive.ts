@@ -30,12 +30,17 @@ export class FormErrorMessageDirective {
             for (let errorName in this._formControl.errors) {
                 let errorValue = this._formControl.errors[errorName];
                 if (errorValue) {
-                    let args = {
-                        field: this.fieldName
-                    };
-                    let errorKey = "core.validation." + errorName;
-                    let errorText = this.localizationService.translate(errorKey, args);
-                    this.element.nativeElement.innerHTML = errorText;
+                    if (errorName == "server") {
+                        this.element.nativeElement.innerHTML = errorValue;
+                    }
+                    else {
+                        let args = {
+                            field: this.fieldName
+                        };
+                        let errorKey = "core.validation." + errorName;
+                        let errorText = this.localizationService.translate(errorKey, args);
+                        this.element.nativeElement.innerHTML = errorText;
+                    }
                 }
             }
         } else {

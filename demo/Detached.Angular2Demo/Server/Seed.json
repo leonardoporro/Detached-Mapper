@@ -1,4 +1,4 @@
-﻿{
+{
   "roles": [
     {
       "Id": 1,
@@ -18,43 +18,28 @@
     {
       "Id": 1,
       "Name": "User 1",
+      "Email": "user1@example.com",
       "Roles": [{ "Id": 1 }, { "Id": 2 }]
     },
     {
       "Id": 2,
-      "Name": "User 2"
+      "Name": "User 2",
+      "Email": "user2@example.com"
     },
     {
       "Id": 3,
-      "Name": "User 3"
+      "Name": "User 3",
+      "Email": "user3@example.com"
     },
     {
       "Id": 4,
-      "Name": "User 4"
+      "Name": "User 4",
+      "Email": "user4@example.com"
     },
     {
       "Id": 5,
-      "Name": "User 5"
-    },
-    {
-      "Id": 6,
-      "Name": "User 6"
-    },
-    {
-      "Id": 7,
-      "Name": "User 7"
-    },
-    {
-      "Id": 8,
-      "Name": "User 8"
-    },
-    {
-      "Id": 9,
-      "Name": "User 9"
-    },
-    {
-      "Id": 10,
-      "Name": "User 10"
+      "Name": "User 5",
+      "Email": "user5@example.com"
     }
   ]
 }

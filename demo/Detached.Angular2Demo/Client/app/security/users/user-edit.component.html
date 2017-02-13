@@ -18,8 +18,19 @@
 <md-card>
     <form id="userForm" (ngSubmit)="save(frm)" #frm="ngForm" novalidate>
         <md-input-container>
-            <input md-input name="name" #nameCtrl="ngModel" [(ngModel)]="userSource.model.name" placeholder="{{ 'security.users.user.name' | translate:lang }}" />
+            <input required md-input name="Name" #nameCtrl="ngModel" [(ngModel)]="userSource.model.name" placeholder="{{ 'security.users.user.name' | translate:lang }}" />
             <md-hint [errormsg]="nameCtrl" fieldName="Name"></md-hint>
         </md-input-container>
+
+        <md-input-container>
+            <input md-input name="Email" #mailCtrl="ngModel" [(ngModel)]="userSource.model.email" placeholder="{{ 'security.users.user.mail' | translate:lang }}" />
+            <md-hint [errormsg]="mailCtrl" fieldName="Mail"></md-hint>
+        </md-input-container>
+
+        <d-list [dataSource]="rolesSource" [selection]="userSource.model.roles" placeholder="roles">
+            <template let-model="model" let-index="index">
+                {{model.name}} 
+            </template>
+        </d-list>
     </form>
 </md-card>

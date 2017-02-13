@@ -24,7 +24,7 @@ var AppComponent = (function (_super) {
         this.locale.addLanguages(["en", "es"]);
         this.locale.definePreferredLocale("en", "US", 30);
         this.locale.definePreferredCurrency("USD");
-        this.localization.translationProvider("./lang/");
+        this.localization.translationProvider("./lang/res_");
         this.localization.updateTranslation();
     }
     AppComponent = __decorate([

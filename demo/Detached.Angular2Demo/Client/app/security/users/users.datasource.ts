@@ -1,11 +1,19 @@
 ﻿import { Injectable } from "@angular/core";
-import { Http, URLSearchParams } from "@angular/http";
+import { Http } from "@angular/http";
 import { HttpRestCollectionDataSource } from "../../../core/core.module";
 import { HttpRestModelDataSource } from "../../../core/core.module";
+import { Role } from "../roles/roles.datasource";
 
-export interface User {
+export class User {
     id: number;
     name: string;
+    firstName: string;
+    lastName: string;
+    dateOfBith: Date;
+    email: string;
+    address: string;
+    city: string;
+    roles: Role[];
 }
 
 export class UserQuery {
@@ -17,7 +25,7 @@ export class UserQuery {
 @Injectable()
 export class UserCollectionDataSource extends HttpRestCollectionDataSource<User, UserQuery> {
     constructor(http: Http) {
-        super(http, "/api/users/pages/:pageIndex");
+        super(http, "/api/users");
         this.sortBy = "name";
     }
 }
@@ -26,6 +34,6 @@ export class UserCollectionDataSource extends HttpRestCollectionDataSource<User,
 export class UserModelDataSource extends HttpRestModelDataSource<User> {
     constructor(http: Http) {
         super(http, "api/users/:id");
-        this.params.culture = "es-AR";
+        this.requestParams.culture = "es-AR";
     }
 }

@@ -61,12 +61,12 @@ namespace Detached.Angular2Demo.Server
             {
                 o.SupportInfo = new SupportInfo { Email = "it@example.com" };
                 o.StringCase = StringCase.PascalCase;
-                o.FallbackKey = (feat, type, prop) => new ResourceKey { KeyName = $"{feat}_{type}_{prop}", ResourceName = "Server.Common.Resources.Strings" };
+                o.FallbackKey = (feat, type, prop) => new ResourceKey { KeyName = $"{feat}_{type}_{prop}", ResourceName = "Server.Common.Resources.Resources" };
                 o.Rules.Clear();
                 o.Rules.Add(
                     new Rule(pattern: "{company}.{app}.{platform}.{module}.{feature}.{layer}.{modelOrController}.{fieldOrAction}#{descriptor}",
                              keyTemplate: "{modelOrController}_{fieldOrAction}_{descriptor}", 
-                             sourceTemplate: "{platform}.{module}.{feature}.Resources.Strings"));
+                             sourceTemplate: "{platform}.{module}.{feature}.Resources.Resources"));
             })
             .AddAutomaticDisplayMetadataLocalization()
             .AddAutomaticValidationAttributeLocalization();
