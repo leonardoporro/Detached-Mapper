@@ -7,7 +7,7 @@ export enum SortDirection { Asc, Desc }
 
 export interface ICollectionDataSource<TEntity> {
     searchText: string;
-    sortBy: string;
+    orderBy: string;
     sortDirection: SortDirection;
     pageIndex: number;
     pageSize: number;
@@ -34,10 +34,12 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
 
     constructor(http: Http, public baseUrl: string) {
         super(http);
+        this.pageBaseUrl = baseUrl + "pages/:pageIndex";
     }
 
+    protected pageBaseUrl: string;
     public searchText: string;
-    public sortBy: string;
+    public orderBy: string;
     public sortDirection: SortDirection = SortDirection.Asc;
     public pageIndex: number = 1;
     public pageSize: number;
@@ -60,20 +62,39 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
     public load(): ReplaySubject<TEntity[]> {
         let params = Object.assign({}, this.requestParams);
         params.searchText = this.searchText;
-        params.sortBy = this.sortBy;
-        params.sortDirection = this.sortDirection;
-        params.pageIndex = this.pageIndex;
-        params.pageSize = this.pageSize;
-        params.noCount = this.noCount;
+        params.orderBy = this.getSortQueryParam();
         
-        let request = this.execute<TEntity[]>(this.baseUrl, this.requestParams, "get", null);
+        let request = this.execute<TEntity[]>(this.baseUrl, params, "get", null);
         request.subscribe(data => this.items = data,
                           error => { });
         return request;
     }
 
+    public loadPage(): ReplaySubject<TEntity[]> {
+        let params = Object.assign({}, this.requestParams);
+        params.searchText = this.searchText;
+        params.orderBy = this.getSortQueryParam();
+        params.pageIndex = this.pageIndex;
+        params.pageSize = this.pageSize;
+        params.noCount = this.noCount;
+
+        let request = this.execute<TEntity[]>(this.baseUrl, params, "get", null);
+        request.subscribe(data => this.items = data,
+            error => { });
+        return request;
+    }
+
+    protected getSortQueryParam() {
+        if (this.orderBy) {
+            if (this.sortDirection == 1)
+                return this.orderBy + "+desc";
+            else
+                return this.orderBy + "+asc";
+        }
+    }
+
     public toggleSort(propertyName: string): Observable<TEntity[]> {
-        if (this.sortBy != propertyName) {
+        if (this.orderBy != propertyName) {
             this.sortDirection = SortDirection.Asc;
         } else {
             switch (this.sortDirection) {
@@ -85,7 +106,7 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
                     break;
             }
         }
-        this.sortBy = propertyName;
+        this.orderBy = propertyName;
         return this.load();
     }
 }

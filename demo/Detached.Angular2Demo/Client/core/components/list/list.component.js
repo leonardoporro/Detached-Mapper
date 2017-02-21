@@ -32,8 +32,7 @@ var ListComponent = (function (_super) {
         core_1.Component({
             selector: 'd-list',
             template: require("./list.component.html"),
-            encapsulation: core_1.ViewEncapsulation.None,
-            styles: [require("./list.component.scss")],
+            encapsulation: core_1.ViewEncapsulation.None
         }), 
         __metadata('design:paramtypes', [])
     ], ListComponent);

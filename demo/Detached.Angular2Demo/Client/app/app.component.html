@@ -1,1 +1,21 @@
-﻿<router-outlet></router-outlet>
+<div fxLayout="column" class="container">
+    <md-toolbar color="primary" class="app-toolbar">
+        <button class="app-sidenav-button" md-button (click)="sidenav.open()"><md-icon>menu</md-icon></button>
+        <span>Detached</span>
+    </md-toolbar>
+    <md-sidenav-container fxFlex>
+        <md-sidenav #sidenav (click)="sidenav.close()">
+            <md-list class="app-nav" dense>
+                <md-list-item [routerLink]="['/home']">
+                    <md-icon md-list-icon>home</md-icon>
+                    <span>Home</span>
+                </md-list-item>
+                <md-list-item [routerLink]="['/security/users']">
+                    <md-icon md-list-icon>people</md-icon>
+                    <span>Users Example</span>
+                </md-list-item>
+            </md-list>
+        </md-sidenav>
+        <router-outlet></router-outlet>
+    </md-sidenav-container>
+</div>

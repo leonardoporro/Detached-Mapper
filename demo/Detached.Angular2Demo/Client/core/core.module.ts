@@ -8,12 +8,11 @@ import { LocaleModule, LocalizationModule } from "angular2localization";
 
 // components.
 import { FormErrorMessageDirective } from "./directives/form-errormsg.directive";
+import { OnSizeChangedDirective } from "./directives/size-changed.directive";
 import { ContentDirective } from "./directives/content.directive";
 import { ColumnComponent } from "./components/table/column.component";
 import { TableComponent } from "./components/table/table.component";
 import { ListComponent } from "./components/list/list.component";
-
-require("./core-styles.scss");
 
 @NgModule({
     imports: [
@@ -26,6 +25,7 @@ require("./core-styles.scss");
     ],
     exports: [
         FormErrorMessageDirective,
+        OnSizeChangedDirective,
         ContentDirective,
         ColumnComponent,
         TableComponent,
@@ -33,6 +33,7 @@ require("./core-styles.scss");
     ],
     declarations: [
         FormErrorMessageDirective,
+        OnSizeChangedDirective,
         ContentDirective,
         ColumnComponent,
         TableComponent,

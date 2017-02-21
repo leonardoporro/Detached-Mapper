@@ -11,7 +11,6 @@ import { LocaleModule, LocalizationModule } from "angular2localization";
 // app
 import { CoreModule } from "../core/core.module";
 import { AppRoutingModule } from "./app-routing.module";
-import { AppNavComponent } from "./app-nav.component";
 import { AppComponent } from "./app.component";
 // home
 import { HomeComponent } from "./home/home.component";
@@ -35,7 +34,6 @@ require("./app-styles.scss");
     ],
     declarations: [
         AppComponent,
-        AppNavComponent,
         HomeComponent,
         UserListComponent,
         UserEditComponent

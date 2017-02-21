@@ -20,11 +20,11 @@ var material_1 = require("@angular/material");
 var angular2localization_1 = require("angular2localization");
 // components.
 var form_errormsg_directive_1 = require("./directives/form-errormsg.directive");
+var size_changed_directive_1 = require("./directives/size-changed.directive");
 var content_directive_1 = require("./directives/content.directive");
 var column_component_1 = require("./components/table/column.component");
 var table_component_1 = require("./components/table/table.component");
 var list_component_1 = require("./components/list/list.component");
-require("./core-styles.scss");
 var CoreModule = (function () {
     function CoreModule() {
     }
@@ -46,6 +46,7 @@ var CoreModule = (function () {
             ],
             exports: [
                 form_errormsg_directive_1.FormErrorMessageDirective,
+                size_changed_directive_1.OnSizeChangedDirective,
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
                 table_component_1.TableComponent,
@@ -53,6 +54,7 @@ var CoreModule = (function () {
             ],
             declarations: [
                 form_errormsg_directive_1.FormErrorMessageDirective,
+                size_changed_directive_1.OnSizeChangedDirective,
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
                 table_component_1.TableComponent,

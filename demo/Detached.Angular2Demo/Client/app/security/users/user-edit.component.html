@@ -1,36 +1,32 @@
-<md-toolbar color="primary">
-    <span *ngIf="userSource.isNew" translate="yes">security.users.new.title</span>
-    <span *ngIf="!userSource.isNew">{{ 'security.users.edit.title' | translate:lang:{ user: userSource.model.name } }}</span>
-    <div fxFlex></div>
-    <button md-button type="submit" form="userForm">
-        <md-icon>save</md-icon>
-        <span>Save</span>
-    </button>
-    <button md-button (click)="delete();">
-        <md-icon>delete</md-icon>
-        <span>Delete</span>
-    </button>
-    <button md-button>
-        <md-icon>more_vertical</md-icon>
-    </button>
-</md-toolbar>
+<md-card style="max-width:800px;margin-left:auto;margin-right:auto;margin-top:10px">
+    <md-card-title>Edit User</md-card-title>
+    <md-card-subtitle>This is an edit user card</md-card-subtitle>
 
-<md-card>
-    <form id="userForm" (ngSubmit)="save(frm)" #frm="ngForm" novalidate>
-        <md-input-container>
-            <input required md-input name="Name" #nameCtrl="ngModel" [(ngModel)]="userSource.model.name" placeholder="{{ 'security.users.user.name' | translate:lang }}" />
-            <md-hint [errormsg]="nameCtrl" fieldName="Name"></md-hint>
-        </md-input-container>
+    <md-card-content>
+        <form id="userForm" (ngSubmit)="save(frm)" #frm="ngForm" novalidate>
+            <md-input-container>
+                <input required md-input name="Name" #nameCtrl="ngModel" [(ngModel)]="userSource.model.name" placeholder="{{ 'security.users.user.name' | translate:lang }}" />
+                <md-hint [errormsg]="nameCtrl" fieldName="Name"></md-hint>
+            </md-input-container>
 
-        <md-input-container>
-            <input md-input name="Email" #mailCtrl="ngModel" [(ngModel)]="userSource.model.email" placeholder="{{ 'security.users.user.mail' | translate:lang }}" />
-            <md-hint [errormsg]="mailCtrl" fieldName="Mail"></md-hint>
-        </md-input-container>
+            <md-input-container>
+                <input md-input name="Email" #mailCtrl="ngModel" [(ngModel)]="userSource.model.email" placeholder="{{ 'security.users.user.mail' | translate:lang }}" />
+                <md-hint [errormsg]="mailCtrl" fieldName="Mail"></md-hint>
+            </md-input-container>
 
-        <d-list [dataSource]="rolesSource" [selection]="userSource.model.roles" placeholder="roles">
-            <template let-model="model" let-index="index">
-                {{model.name}} 
-            </template>
-        </d-list>
-    </form>
+            <d-list [dataSource]="rolesSource" [selection]="userSource.model.roles" placeholder="roles">
+                <template let-model="model" let-index="index">
+                    {{model.name}}
+                </template>
+            </d-list>
+        </form>
+    </md-card-content>
+
+    <md-card-actions>
+        <div fxLayout="row">
+            <div fxFlex></div>
+            <button md-button (click)="save(frm)">Save</button>
+            <button md-button (click)="close()">Cancel</button>
+        </div>
+    </md-card-actions>
 </md-card>

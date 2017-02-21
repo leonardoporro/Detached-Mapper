@@ -1,4 +1,4 @@
-﻿import { Component } from "@angular/core";
+﻿import { Component, Input } from "@angular/core";
 import { Locale, LocaleService, LocalizationService } from "angular2localization";
 
 @Component({
@@ -15,5 +15,24 @@ export class AppComponent extends Locale {
         this.locale.definePreferredCurrency("USD");
         this.localization.translationProvider("./lang/res_"); 
         this.localization.updateTranslation();
+
+        this.adjustSideNav();
+        window.onresize = () => this.adjustSideNav();
     }
+
+    adjustSideNav() {
+        if (window.innerWidth > 800) {
+            this.mode = "side";
+            this.open = true;
+        }
+        else {
+            this.mode = "over";
+            this.open = false;
+        }
+    }
+
+    @Input()
+    public mode: string = "over";
+    @Input()
+    public open: boolean = false; 
 }

@@ -18,15 +18,38 @@ var angular2localization_1 = require("angular2localization");
 var AppComponent = (function (_super) {
     __extends(AppComponent, _super);
     function AppComponent(locale, localization) {
+        var _this = this;
         _super.call(this, locale, localization);
         this.locale = locale;
         this.localization = localization;
+        this.mode = "over";
+        this.open = false;
         this.locale.addLanguages(["en", "es"]);
         this.locale.definePreferredLocale("en", "US", 30);
         this.locale.definePreferredCurrency("USD");
         this.localization.translationProvider("./lang/res_");
         this.localization.updateTranslation();
+        this.adjustSideNav();
+        window.onresize = function () { return _this.adjustSideNav(); };
     }
+    AppComponent.prototype.adjustSideNav = function () {
+        if (window.innerWidth > 800) {
+            this.mode = "side";
+            this.open = true;
+        }
+        else {
+            this.mode = "over";
+            this.open = false;
+        }
+    };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', String)
+    ], AppComponent.prototype, "mode", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], AppComponent.prototype, "open", void 0);
     AppComponent = __decorate([
         core_1.Component({
             selector: "app",

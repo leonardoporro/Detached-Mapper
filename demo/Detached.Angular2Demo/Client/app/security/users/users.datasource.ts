@@ -26,14 +26,14 @@ export class UserQuery {
 export class UserCollectionDataSource extends HttpRestCollectionDataSource<User, UserQuery> {
     constructor(http: Http) {
         super(http, "/api/users");
-        this.sortBy = "name";
+        this.orderBy = "name";
     }
 }
 
 @Injectable()
 export class UserModelDataSource extends HttpRestModelDataSource<User> {
     constructor(http: Http) {
-        super(http, "api/users/:id");
+        super(http, "api/users");
         this.requestParams.culture = "es-AR";
     }
 }

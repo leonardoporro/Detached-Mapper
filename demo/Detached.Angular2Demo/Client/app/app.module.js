@@ -19,7 +19,6 @@ var angular2localization_1 = require("angular2localization");
 // app
 var core_module_1 = require("../core/core.module");
 var app_routing_module_1 = require("./app-routing.module");
-var app_nav_component_1 = require("./app-nav.component");
 var app_component_1 = require("./app.component");
 // home
 var home_component_1 = require("./home/home.component");
@@ -45,7 +44,6 @@ var AppModule = (function () {
             ],
             declarations: [
                 app_component_1.AppComponent,
-                app_nav_component_1.AppNavComponent,
                 home_component_1.HomeComponent,
                 user_list_component_1.UserListComponent,
                 user_edit_component_1.UserEditComponent

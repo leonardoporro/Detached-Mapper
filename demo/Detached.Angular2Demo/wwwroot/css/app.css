@@ -19,6 +19,7 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased; }
 
@@ -566,19 +567,183 @@ md-input-container.ng-invalid:not(.ng-pristine) {
     border-color: red; }
     md-input-container.ng-invalid:not(.ng-pristine) .md-input-underline .md-input-ripple {
       background-color: red !important; }
-html, body, app, md-sidenav-container, .my-content {
-  margin: 0;
+
+/**
+ * Applies styles for users in high contrast mode. Note that this only applies
+ * to Microsoft browsers. Chrome can be included by checking for the `html[hc]`
+ * attribute, however Chrome handles high contrast differently.
+ */
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/../fonts/MaterialIcons-Regular.eot);
+  /* For IE6-8 */
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url(/../fonts/MaterialIcons-Regular.woff2) format("woff2"), url(/../fonts/MaterialIcons-Regular.woff) format("woff"), url(/../fonts/MaterialIcons-Regular.ttf) format("truetype"); }
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased; }
+
+d-list .d-list-wrapper {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px; }
+  d-list .d-list-wrapper .d-placeholder {
+    margin-bottom: 3px;
+    font-size: 75%;
+    color: rgba(0, 0, 0, 0.38); }
+  d-list .d-list-wrapper .d-list-item {
+    padding-top: 5px;
+    padding-bottom: 5px; }
+  d-list .d-list-wrapper .md-checkbox-inner-container {
+    width: 18px;
+    height: 18px;
+    color: rgba(0, 0, 0, 0.54); }
+
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/../fonts/MaterialIcons-Regular.eot);
+  /* For IE6-8 */
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url(/../fonts/MaterialIcons-Regular.woff2) format("woff2"), url(/../fonts/MaterialIcons-Regular.woff) format("woff"), url(/../fonts/MaterialIcons-Regular.ttf) format("truetype"); }
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased; }
+
+d-table .d-table-container {
+  display: table;
+  position: relative;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: #000; }
+  d-table .d-table-container .d-table-row {
+    display: table-row;
+    height: 48px;
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+    d-table .d-table-container .d-table-row.d-table-selected {
+      background-color: #f5f5f5; }
+    d-table .d-table-container .d-table-row:hover {
+      background-color: #eeeeee; }
+    d-table .d-table-container .d-table-row .d-table-cell {
+      display: table-cell;
+      vertical-align: middle;
+      /*padding-left: $d-table-column-padding;
+                padding-right: $d-table-column-spacing;*/
+      border: 1px solid gray;
+      /*&:first-of-type {
+                    padding-left: $d-table-column-padding * 2;
+                }
+
+                &:last-of-type {
+                    padding-right: $d-table-column-padding * 2;
+                }*/ }
+      d-table .d-table-container .d-table-row .d-table-cell.d-table-selector {
+        text-align: center; }
+        d-table .d-table-container .d-table-row .d-table-cell.d-table-selector .md-checkbox-inner-container {
+          width: 18px;
+          height: 18px;
+          color: rgba(0, 0, 0, 0.54);
+          margin-right: 0px; }
+      d-table .d-table-container .d-table-row .d-table-cell.d-table-cell-text {
+        text-align: left; }
+      d-table .d-table-container .d-table-row .d-table-cell.d-table-cell-number {
+        text-align: right; }
+    d-table .d-table-container .d-table-row.d-table-header:hover {
+      background-color: #ffffff; }
+    d-table .d-table-container .d-table-row.d-table-header .d-table-cell {
+      color: rgba(0, 0, 0, 0.54);
+      height: 56px;
+      font-size: 12px;
+      vertical-align: bottom;
+      padding-bottom: 10px;
+      text-wrap: none; }
+      d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sortable {
+        cursor: pointer; }
+      d-table .d-table-container .d-table-row.d-table-header .d-table-cell .d-table-sort-arrow {
+        font-size: 14px !important;
+        vertical-align: text-bottom;
+        transition: all 0.5s;
+        opacity: 0; }
+      d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sorted-asc {
+        color: rgba(0, 0, 0, 0.87); }
+        d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sorted-asc .d-table-sort-arrow {
+          opacity: 1; }
+      d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sorted-desc {
+        color: rgba(0, 0, 0, 0.87); }
+        d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sorted-desc .d-table-sort-arrow {
+          transform: rotate(180deg);
+          opacity: 1; }
+
+html, body, .container {
+  margin: 0px;
   width: 100%;
   height: 100%; }
 
 md-sidenav {
-  width: 280px; }
+  width: 300px; }
 
 md-input-container {
   width: 300px; }
 
-@media (min-width: 700px) {
-  md-sidenav {
-    background-color: black; } }
+md-list.app-nav .md-list-item {
+  cursor: pointer; }
+  md-list.app-nav .md-list-item:hover {
+    background-color: #eeeeee; }
+  md-list.app-nav .md-list-item .material-icons {
+    color: #808080 !important;
+    vertical-align: text-bottom !important; }
+
+button.app-sidenav-button {
+  background-color: orange;
+  min-width: 0px;
+  height: 100%;
+  border-radius: 0px;
+  margin-right: 10px; }
+
+md-toolbar.app-toolbar {
+  height: auto;
+  min-height: 0px;
+  padding-left: 0px;
+  padding-right: 0px; }
+  md-toolbar.app-toolbar md-toolbar-row {
+    min-height: 0px;
+    height: 45px; }
+
+.feature-toolbar md-icon {
+  font-size: 18px !important;
+  color: #808080;
+  width: auto;
+  height: auto; }
 
 /*# sourceMappingURL=app.css.map*/

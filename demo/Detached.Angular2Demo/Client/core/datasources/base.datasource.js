@@ -13,7 +13,10 @@ var HttpRestBaseDataSource = (function () {
         this.isBusy = true;
         var searchParams = new http_1.URLSearchParams();
         for (var paramProp in params) {
-            searchParams.append(paramProp, params[paramProp]);
+            var value = params[paramProp];
+            if (value !== undefined) {
+                searchParams.append(paramProp, value);
+            }
         }
         var url = baseUrl.replace(/:[a-zA-z0-9]+/, function (match, args) {
             var paramName = match.substr(1);

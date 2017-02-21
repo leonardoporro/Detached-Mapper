@@ -38,11 +38,11 @@ module.exports = {
            context: __dirname,
            manifest: require("./wwwroot/js/vendor-manifest.json")
        }),
-       new MergeJsonWebpackPlugin({
-           "bundles": [{
-               "pattern": "client/**/*.i18n.json",
-               "output": "./wwwroot/lang/res_en.json"
-           }]
-       })
+       //new MergeJsonWebpackPlugin({
+       //    "bundles": [{
+       //        "pattern": "client/**/*.i18n.json",
+       //        "output": "./wwwroot/lang/res_en.json"
+       //    }]
+       //})
     ]
 };

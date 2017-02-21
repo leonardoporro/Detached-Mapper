@@ -18,8 +18,8 @@ var HttpRestModelDataSource = (function (_super) {
         this.isNew = true;
         this.isNewChange = new core_1.EventEmitter();
         this.loadUrl = baseUrl;
-        this.saveUrl = baseUrl.replace("/:" + this.keyProperty, "");
-        this.deleteUrl = baseUrl;
+        this.saveUrl = baseUrl + "/:" + this.keyProperty;
+        this.deleteUrl = this.saveUrl;
     }
     HttpRestModelDataSource.prototype.load = function (key) {
         var _this = this;

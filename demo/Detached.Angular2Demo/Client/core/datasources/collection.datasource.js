@@ -26,6 +26,7 @@ var HttpRestCollectionDataSource = (function (_super) {
         this.pageIndex = 1;
         this._items = [];
         this.itemsChange = new core_1.EventEmitter();
+        this.pageBaseUrl = baseUrl + "pages/:pageIndex";
     }
     Object.defineProperty(HttpRestCollectionDataSource.prototype, "items", {
         get: function () {
@@ -44,17 +45,33 @@ var HttpRestCollectionDataSource = (function (_super) {
         var _this = this;
         var params = Object.assign({}, this.requestParams);
         params.searchText = this.searchText;
-        params.sortBy = this.sortBy;
-        params.sortDirection = this.sortDirection;
-        params.pageIndex = this.pageIndex;
-        params.pageSize = this.pageSize;
-        params.noCount = this.noCount;
-        var request = this.execute(this.baseUrl, this.requestParams, "get", null);
+        params.orderBy = this.getSortQueryParam();
+        var request = this.execute(this.baseUrl, params, "get", null);
         request.subscribe(function (data) { return _this.items = data; }, function (error) { });
         return request;
     };
+    HttpRestCollectionDataSource.prototype.loadPage = function () {
+        var _this = this;
+        var params = Object.assign({}, this.requestParams);
+        params.searchText = this.searchText;
+        params.orderBy = this.getSortQueryParam();
+        params.pageIndex = this.pageIndex;
+        params.pageSize = this.pageSize;
+        params.noCount = this.noCount;
+        var request = this.execute(this.baseUrl, params, "get", null);
+        request.subscribe(function (data) { return _this.items = data; }, function (error) { });
+        return request;
+    };
+    HttpRestCollectionDataSource.prototype.getSortQueryParam = function () {
+        if (this.orderBy) {
+            if (this.sortDirection == 1)
+                return this.orderBy + "+desc";
+            else
+                return this.orderBy + "+asc";
+        }
+    };
     HttpRestCollectionDataSource.prototype.toggleSort = function (propertyName) {
-        if (this.sortBy != propertyName) {
+        if (this.orderBy != propertyName) {
             this.sortDirection = SortDirection.Asc;
         }
         else {
@@ -67,7 +84,7 @@ var HttpRestCollectionDataSource = (function (_super) {
                     break;
             }
         }
-        this.sortBy = propertyName;
+        this.orderBy = propertyName;
         return this.load();
     };
     return HttpRestCollectionDataSource;

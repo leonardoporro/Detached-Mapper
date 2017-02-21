@@ -9,19 +9,29 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require("@angular/core");
+(function (ColumnType) {
+    ColumnType[ColumnType["Text"] = 1] = "Text";
+    ColumnType[ColumnType["Number"] = 2] = "Number";
+    ColumnType[ColumnType["Template"] = 3] = "Template";
+})(exports.ColumnType || (exports.ColumnType = {}));
+var ColumnType = exports.ColumnType;
 var ColumnComponent = (function () {
-    function ColumnComponent(viewContainer) {
-        this.viewContainer = viewContainer;
-        this.type = "text";
-        this.canSort = false;
+    function ColumnComponent() {
     }
+    ColumnComponent.prototype.sizeChanged = function (e) {
+        this.actualSize = e.clientSize;
+    };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], ColumnComponent.prototype, "div", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
     ], ColumnComponent.prototype, "title", void 0);
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', String)
+        __metadata('design:type', Number)
     ], ColumnComponent.prototype, "type", void 0);
     __decorate([
         core_1.Input(), 
@@ -34,7 +44,19 @@ var ColumnComponent = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], ColumnComponent.prototype, "width", void 0);
+    ], ColumnComponent.prototype, "size", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Number)
+    ], ColumnComponent.prototype, "minWidth", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Number)
+    ], ColumnComponent.prototype, "priority", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], ColumnComponent.prototype, "visible", void 0);
     __decorate([
         core_1.ContentChild(core_1.TemplateRef), 
         __metadata('design:type', core_1.TemplateRef)
@@ -43,7 +65,7 @@ var ColumnComponent = (function () {
         core_1.Directive({
             selector: "d-column"
         }), 
-        __metadata('design:paramtypes', [core_1.ViewContainerRef])
+        __metadata('design:paramtypes', [])
     ], ColumnComponent);
     return ColumnComponent;
 }());

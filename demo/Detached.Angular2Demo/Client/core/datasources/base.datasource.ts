@@ -19,7 +19,10 @@ export class HttpRestBaseDataSource {
 
         let searchParams = new URLSearchParams();
         for (let paramProp in params) {
-            searchParams.append(paramProp, params[paramProp]);
+            let value = params[paramProp];
+            if (value !== undefined) {
+                searchParams.append(paramProp, value);
+            }
         }
 
         let url = baseUrl.replace(/:[a-zA-z0-9]+/, function (match: string, args: any[]) {

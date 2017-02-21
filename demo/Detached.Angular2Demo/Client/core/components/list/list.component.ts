@@ -15,8 +15,7 @@ import { SortDirection } from "../../datasources/collection.datasource";
 @Component({
     selector: 'd-list',
     template: require("./list.component.html"),
-    encapsulation: ViewEncapsulation.None,
-    styles: [require("./list.component.scss")],
+    encapsulation: ViewEncapsulation.None
 })
 export class ListComponent extends CollectionComponent {
 

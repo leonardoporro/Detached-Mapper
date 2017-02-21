@@ -33,7 +33,7 @@ var UserCollectionDataSource = (function (_super) {
     __extends(UserCollectionDataSource, _super);
     function UserCollectionDataSource(http) {
         _super.call(this, http, "/api/users");
-        this.sortBy = "name";
+        this.orderBy = "name";
     }
     UserCollectionDataSource = __decorate([
         core_1.Injectable(), 
@@ -45,7 +45,7 @@ exports.UserCollectionDataSource = UserCollectionDataSource;
 var UserModelDataSource = (function (_super) {
     __extends(UserModelDataSource, _super);
     function UserModelDataSource(http) {
-        _super.call(this, http, "api/users/:id");
+        _super.call(this, http, "api/users");
         this.requestParams.culture = "es-AR";
     }
     UserModelDataSource = __decorate([

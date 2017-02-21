@@ -1,5 +1,6 @@
-﻿import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
+﻿import { Component, OnInit, Input, Output, EventEmitter, ContentChild } from "@angular/core";
 import { User, UserCollectionDataSource } from "./users.datasource";
+import { MdSidenav } from "@angular/material";
 
 @Component({
     selector: "user-list",

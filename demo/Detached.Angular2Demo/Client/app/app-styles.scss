@@ -1,21 +1,68 @@
-﻿html, body, app, md-sidenav-container, .my-content {
-    margin: 0;
+﻿@import '../core/core-styles.scss';
+
+$app-nav-hover-color: #eeeeee !default;
+$app-nav-icon-color: #808080 !default;
+
+html, body, .container {
+    margin: 0px;
     width: 100%;
     height: 100%;
 }
 
 md-sidenav {
-    width: 280px;
+    width: 300px;
 }
 
 md-input-container {
     width: 300px;
 }
 
-@media (min-width: 700px) { 
+md-list {
+    &.app-nav {
+        .md-list-item {
+            cursor: pointer;
 
-    md-sidenav {
-        background-color: black;
+            &:hover {
+                background-color: $app-nav-hover-color;
+            }
+
+            .material-icons {
+                color: $app-nav-icon-color !important;
+                vertical-align: text-bottom !important;
+            }
+        }
     }
+}
 
+button {
+    &.app-sidenav-button {
+        background-color: orange;
+        min-width: 0px;
+        height: 100%;
+        border-radius: 0px;
+        margin-right: 10px;
+    }
+}
+
+md-toolbar {
+    &.app-toolbar {
+        height: auto;
+        min-height: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+
+        md-toolbar-row {
+            min-height: 0px;
+            height: 45px;
+        }
+    }
+}
+
+.feature-toolbar {
+    md-icon {
+        font-size: 18px !important;
+        color: #808080;
+        width: auto;
+        height: auto;
+    }
 }
