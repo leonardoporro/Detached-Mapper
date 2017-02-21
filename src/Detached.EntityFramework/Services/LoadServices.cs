@@ -1,6 +1,7 @@
 ﻿using Detached.EntityFramework.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,7 @@ namespace Detached.EntityFramework.Services
 
             // compute paths from owned and associated navigations.
             List<string> paths = new List<string>();
-            GetIncludePaths(entityType, new HashSet<IEntityType>(), null, ref paths);
+            GetIncludePaths(entityType, null, ref paths);
 
             // get base query.
             IQueryable<TEntity> query = _dbContext.Set<TEntity>();
@@ -53,7 +54,7 @@ namespace Detached.EntityFramework.Services
             return query;
         }
 
-        public virtual void GetIncludePaths(IEntityType entityType, HashSet<IEntityType> visited, string currentPath, ref List<string> paths)
+        public virtual void GetIncludePaths( IEntityType entityType, string currentPath, ref List<string> paths)
         {
             // gets a list of navigations.
             var navs = entityType.GetNavigations()
@@ -67,16 +68,15 @@ namespace Detached.EntityFramework.Services
                                  .Where(n => (n.IsAssociated || n.IsOwned))
                                  .ToList();
 
-            visited.Add(entityType);
+            //visited.Add(entityType);
 
             if (navs.Any())
             {
                 // there are children. call recursively.
                 foreach (var nav in navs)
                 {
-                    bool recurse = !visited.Contains(nav.TargetType);
-                    if (nav.IsOwned && recurse)
-                        GetIncludePaths(nav.TargetType, visited, currentPath + "." + nav.Navigation.Name, ref paths);
+                    if (nav.IsOwned)
+                        GetIncludePaths(nav.TargetType, currentPath + "." + nav.Navigation.Name, ref paths);
                     else
                         paths.Add((currentPath + "." + nav.Navigation.Name).TrimStart('.'));
                 }

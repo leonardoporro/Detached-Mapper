@@ -17,6 +17,8 @@ namespace Detached.EntityFramework.Tests
 
         public DbSet<AssociatedListItem> AssociatedListItems { get; set; }
 
+        public DbSet<TwoReferencesSameTypeEntity> TwoReferencesEntity { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

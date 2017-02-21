@@ -328,5 +328,61 @@ namespace Detached.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        [Fact]
+        public async Task when_2_entities_same_type_persisted_values_are_updated()
+        {
+            TwoReferencesSameTypeEntity entity = new TwoReferencesSameTypeEntity();
+            entity.ReferenceA = new TwoReferencesSameTypeReference
+            {
+                Name = "Reference A",
+                Items = new[]
+                {
+                    new TwoReferencesSameTypeItem { Name = "Reference A Item 1" },
+                    new TwoReferencesSameTypeItem { Name = "Reference A Item 2" },
+                    new TwoReferencesSameTypeItem { Name = "Reference A Item 3" }
+                }
+            };
+            entity.ReferenceB = new TwoReferencesSameTypeReference
+            {
+                Name = "Reference B",
+                Items = new[]
+                {
+                    new TwoReferencesSameTypeItem { Name = "Reference B Item 1" },
+                    new TwoReferencesSameTypeItem { Name = "Reference B Item 2" },
+                    new TwoReferencesSameTypeItem { Name = "Reference B Item 3" }
+                }
+            };
+            entity.ReferenceC = new TwoReferencesSameTypeReference
+            {
+                Name = "Reference C",
+                Items = new[]
+                {
+                    new TwoReferencesSameTypeItem { Name = "Reference C Item 1" },
+                    new TwoReferencesSameTypeItem { Name = "Reference C Item 2" },
+                    new TwoReferencesSameTypeItem { Name = "Reference C Item 3" }
+                }
+            };
+
+            using (IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>())
+            {
+                await detachedContext.Set<TwoReferencesSameTypeEntity>().UpdateAsync(entity);
+                await detachedContext.SaveChangesAsync();
+
+                TwoReferencesSameTypeEntity entity2 = await detachedContext.Set<TwoReferencesSameTypeEntity>().LoadAsync(1);
+
+                Assert.Equal("Reference A Item 1", entity2.ReferenceA.Items[0].Name);
+                Assert.Equal("Reference A Item 2", entity2.ReferenceA.Items[1].Name);
+                Assert.Equal("Reference A Item 3", entity2.ReferenceA.Items[2].Name);
+
+                Assert.Equal("Reference B Item 1", entity2.ReferenceB.Items[0].Name);
+                Assert.Equal("Reference B Item 2", entity2.ReferenceB.Items[1].Name);
+                Assert.Equal("Reference B Item 3", entity2.ReferenceB.Items[2].Name);
+
+                Assert.Equal("Reference C Item 1", entity2.ReferenceC.Items[0].Name);
+                Assert.Equal("Reference C Item 2", entity2.ReferenceC.Items[1].Name);
+                Assert.Equal("Reference C Item 3", entity2.ReferenceC.Items[2].Name);
+            }
+        }
     }
 }

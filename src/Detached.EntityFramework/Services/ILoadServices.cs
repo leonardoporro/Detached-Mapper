@@ -26,10 +26,9 @@ namespace Detached.EntityFramework.Services
         /// Gets the property paths that must be included (joined) in order to get a Detached Entity Graph. 
         /// </summary>
         /// <param name="entityType">The Crl type of the entity whose navigations are going to be inspected.</param>
-        /// <param name="visited">A hash table of the visited types, to avoid cycles.</param>
         /// <param name="currentPath">The current path being built (this is a recursive method).</param>
         /// <param name="paths">The resulting list of paths.</param>
-        void GetIncludePaths(IEntityType entityType, HashSet<IEntityType> visited, string currentPath, ref List<string> paths);
+        void GetIncludePaths(IEntityType entityType, string currentPath, ref List<string> paths);
 
         /// <summary>
         /// Loads a Detached Entity Graph whose Root has the given key value.
