@@ -13,6 +13,7 @@ import { ContentDirective } from "./directives/content.directive";
 import { ColumnComponent } from "./components/table/column.component";
 import { TableComponent } from "./components/table/table.component";
 import { ListComponent } from "./components/list/list.component";
+import { PageIndicatorComponent } from "./components/page-indicator/page-indicator.component";
 
 @NgModule({
     imports: [
@@ -29,7 +30,8 @@ import { ListComponent } from "./components/list/list.component";
         ContentDirective,
         ColumnComponent,
         TableComponent,
-        ListComponent
+        ListComponent,
+        PageIndicatorComponent
     ],
     declarations: [
         FormErrorMessageDirective,
@@ -37,7 +39,8 @@ import { ListComponent } from "./components/list/list.component";
         ContentDirective,
         ColumnComponent,
         TableComponent,
-        ListComponent
+        ListComponent,
+        PageIndicatorComponent
     ],
     providers: [
         /*MDL_SELECT_VALUE_ACCESSOR*/

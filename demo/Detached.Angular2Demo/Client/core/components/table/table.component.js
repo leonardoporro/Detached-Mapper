@@ -21,6 +21,7 @@ var TableComponent = (function (_super) {
     function TableComponent() {
         _super.apply(this, arguments);
         this._columns = [];
+        this.visibleColumnsChange = new core_1.EventEmitter();
     }
     Object.defineProperty(TableComponent.prototype, "columnsQuery", {
         set: function (value) {
@@ -35,58 +36,22 @@ var TableComponent = (function (_super) {
         },
         set: function (value) {
             this._columns = value;
-            var index = 1;
-            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-                var column = _a[_i];
-                // default for canSort
-                if (column.canSort == undefined && column.property) {
-                    column.canSort = true;
-                }
-                // default for type
-                if (column.type == undefined) {
-                    if (column.template)
-                        column.type = column_component_1.ColumnType.Template;
-                    else
-                        column.type = column_component_1.ColumnType.Text;
-                }
-                // default for title
-                if (column.title == undefined && column.property) {
-                    column.title = column.property;
-                }
-                // default for size
-                if (column.size == undefined) {
-                    switch (column.type) {
-                        case column_component_1.ColumnType.Text:
-                            column.size = "grow";
-                            break;
-                        default:
-                            column.size = "stretch";
-                            break;
-                    }
-                }
-                // default for minWidth
-                if (column.minWidth == undefined) {
-                    switch (column.type) {
-                        case column_component_1.ColumnType.Text:
-                            column.minWidth = 300;
-                            break;
-                        case column_component_1.ColumnType.Number:
-                            column.minWidth = 100;
-                            break;
-                        default:
-                            column.minWidth = 100;
-                            break;
-                    }
-                }
-                // default for priority
-                if (column.priority == undefined) {
-                    column.priority = index;
-                }
-                if (column.visible == undefined) {
-                    column.visible = true;
-                }
-            }
+            this.setDefaults();
             this.setColumnWidths();
+            this.visibleColumnsChange.emit(null);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TableComponent.prototype, "visibleColumns", {
+        get: function () {
+            var visible = [];
+            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+                var c = _a[_i];
+                if (c.visible)
+                    visible.push(c);
+            }
+            return visible;
         },
         enumerable: true,
         configurable: true
@@ -96,36 +61,127 @@ var TableComponent = (function (_super) {
             this.dataSource.toggleSort(column.property);
         }
     };
+    TableComponent.prototype.setDefaults = function () {
+        var index = 1;
+        for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+            var column = _a[_i];
+            // default for canSort
+            if (column.canSort == undefined && column.property) {
+                column.canSort = true;
+            }
+            // default for type
+            if (column.type == undefined) {
+                if (column.template)
+                    column.type = column_component_1.ColumnType.Template;
+                else
+                    column.type = column_component_1.ColumnType.Text;
+            }
+            // default for title
+            if (column.title == undefined && column.property) {
+                column.title = column.property;
+            }
+            // default for size
+            if (column.size == undefined) {
+                switch (column.type) {
+                    case column_component_1.ColumnType.Text:
+                        column.size = "grow";
+                        break;
+                    default:
+                        column.size = "stretch";
+                        break;
+                }
+            }
+            // default for minWidth
+            if (column.minWidth == undefined) {
+                switch (column.type) {
+                    case column_component_1.ColumnType.Text:
+                        column.minWidth = 125;
+                        break;
+                    case column_component_1.ColumnType.Number:
+                        column.minWidth = 50;
+                        break;
+                    default:
+                        column.minWidth = 50;
+                        break;
+                }
+            }
+            // default for priority
+            if (column.priority == undefined) {
+                if (column.type == column_component_1.ColumnType.Template)
+                    column.priority = 0;
+                else
+                    column.priority = index;
+            }
+            // default for visible
+            if (column.visible == undefined) {
+                column.visible = true;
+            }
+            index++;
+        }
+    };
     TableComponent.prototype.setColumnWidths = function () {
         var total = 100;
         var count = 0;
         for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
             var column = _a[_i];
-            if (column.size == "grow") {
-                count++;
-            }
-            else if (column.size.endsWith("%")) {
-                var percentSize = parseInt(column.size.substr(0, column.size.length - 1));
-                total -= percentSize;
+            if (column.visible) {
+                if (column.size == "grow") {
+                    count++;
+                }
+                else if (column.size.endsWith("%")) {
+                    var percentSize = parseInt(column.size.substr(0, column.size.length - 1));
+                    total -= percentSize;
+                }
             }
         }
         for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
             var column = _c[_b];
-            switch (column.size) {
-                case "grow":
-                    column.clientSize = total / count + "%";
-                    break;
-                case "shrink":
-                    column.clientSize = "auto";
-                    break;
-                default:
-                    column.clientSize = column.size;
-                    break;
+            if (column.visible) {
+                switch (column.size) {
+                    case "grow":
+                        column.clientSize = total / count + "%";
+                        break;
+                    case "shrink":
+                        column.clientSize = "auto";
+                        break;
+                    default:
+                        column.clientSize = column.size;
+                        break;
+                }
             }
         }
     };
-    TableComponent.prototype.sizeChanged = function (e) {
-        console.debug(e.clientWidth);
+    TableComponent.prototype.sizeChanged = function (nativeElement) {
+        if (this._columns) {
+            var minWidthAll = 0;
+            var pVisibleColumn = null;
+            var pHiddenColumn = null;
+            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+                var column = _a[_i];
+                if (column.visible) {
+                    minWidthAll += column.minWidth;
+                    if (column.priority > 0 && (pVisibleColumn == null || column.priority > pVisibleColumn.priority)) {
+                        pVisibleColumn = column;
+                    }
+                }
+                else {
+                    if (column.priority > 0 && (pHiddenColumn == null || column.priority < pHiddenColumn.priority)) {
+                        pHiddenColumn = column;
+                    }
+                }
+            }
+            var delta = nativeElement.clientWidth - minWidthAll;
+            if (delta < 0 && pVisibleColumn) {
+                pVisibleColumn.visible = false;
+                this.visibleColumnsChange.emit(null);
+                this.setColumnWidths();
+            }
+            if (pHiddenColumn && delta > pHiddenColumn.minWidth) {
+                pHiddenColumn.visible = true;
+                this.visibleColumnsChange.emit(null);
+                this.setColumnWidths();
+            }
+        }
     };
     __decorate([
         core_1.ContentChildren(column_component_1.ColumnComponent), 

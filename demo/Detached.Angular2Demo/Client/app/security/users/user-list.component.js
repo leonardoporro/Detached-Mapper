@@ -11,11 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require("@angular/core");
 var users_datasource_1 = require("./users.datasource");
 var UserListComponent = (function () {
-    function UserListComponent(users) {
-        this.users = users;
+    function UserListComponent(usersSource) {
+        this.usersSource = usersSource;
     }
     UserListComponent.prototype.ngOnInit = function () {
-        this.users.load();
+        this.usersSource.pageSize = 3;
+        this.usersSource.load();
     };
     UserListComponent = __decorate([
         core_1.Component({

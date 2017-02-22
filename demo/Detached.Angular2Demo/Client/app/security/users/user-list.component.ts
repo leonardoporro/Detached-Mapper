@@ -8,10 +8,11 @@ import { MdSidenav } from "@angular/material";
     providers: [UserCollectionDataSource]
 })
 export class UserListComponent implements OnInit {
-    constructor(public users: UserCollectionDataSource) {
+    constructor(public usersSource: UserCollectionDataSource) {
     }
 
     ngOnInit() {
-        this.users.load();
+        this.usersSource.pageSize = 3;
+        this.usersSource.load();
     }
 }

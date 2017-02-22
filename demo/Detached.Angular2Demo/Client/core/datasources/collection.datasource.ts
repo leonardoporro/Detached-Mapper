@@ -10,9 +10,11 @@ export interface ICollectionDataSource<TEntity> {
     orderBy: string;
     sortDirection: SortDirection;
     pageIndex: number;
+    pageIndexChange: EventEmitter<any>;
     pageSize: number;
     noCount: boolean;
     pageCount: number;
+    pageCountChange: EventEmitter<any>;
     rowCount: number;
     items: TEntity[];
     itemsChange: EventEmitter<any>;
@@ -34,17 +36,37 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
 
     constructor(http: Http, public baseUrl: string) {
         super(http);
-        this.pageBaseUrl = baseUrl + "pages/:pageIndex";
+        this.pageBaseUrl = baseUrl + "/pages/:pageIndex";
     }
 
     protected pageBaseUrl: string;
     public searchText: string;
     public orderBy: string;
     public sortDirection: SortDirection = SortDirection.Asc;
-    public pageIndex: number = 1;
+
     public pageSize: number;
     public noCount: boolean;
-    public pageCount: number;
+
+    _pageCount: number;
+    public pageCountChange = new EventEmitter();
+    public get pageCount(): number { return this._pageCount; }
+    public set pageCount(value: number) {
+        if (value !== this._pageCount) {
+            this._pageCount = value;
+            this.pageCountChange.emit(this._pageCount);
+        }
+    }
+
+    _pageIndex: number = 1;
+    public pageIndexChange = new EventEmitter();
+    public get pageIndex(): number { return this._pageIndex; }
+    public set pageIndex(value: number) {
+        if (value !== this._pageIndex) {
+            this._pageIndex = value;
+            this.pageIndexChange.emit(this._pageIndex);
+        }
+    }
+
     public rowCount: number;
 
     _items: TEntity[] = [];
@@ -59,29 +81,36 @@ export class HttpRestCollectionDataSource<TEntity, TSearchParams>
     }
     public itemsChange = new EventEmitter();
 
-    public load(): ReplaySubject<TEntity[]> {
+    public load(): ReplaySubject<any> {
         let params = Object.assign({}, this.requestParams);
         params.searchText = this.searchText;
         params.orderBy = this.getSortQueryParam();
-        
-        let request = this.execute<TEntity[]>(this.baseUrl, params, "get", null);
-        request.subscribe(data => this.items = data,
-                          error => { });
-        return request;
-    }
 
-    public loadPage(): ReplaySubject<TEntity[]> {
-        let params = Object.assign({}, this.requestParams);
-        params.searchText = this.searchText;
-        params.orderBy = this.getSortQueryParam();
-        params.pageIndex = this.pageIndex;
-        params.pageSize = this.pageSize;
-        params.noCount = this.noCount;
+        if (this.pageSize) {
+            params.pageIndex = this.pageIndex;
+            params.pageSize = this.pageSize;
+            params.noCount = this.noCount;
 
-        let request = this.execute<TEntity[]>(this.baseUrl, params, "get", null);
-        request.subscribe(data => this.items = data,
-            error => { });
-        return request;
+            let request = this.execute<DataPage<TEntity>>(this.pageBaseUrl, params, "get", null);
+            request.subscribe(data => {
+                this.items = data.items;
+                this.pageCount = data.pageCount;
+            },
+                error => {
+
+                });
+            return request;
+        } else {
+            let request = this.execute<TEntity[]>(this.baseUrl, params, "get", null);
+            request.subscribe(data => {
+                this.items = data;
+            },
+                error => {
+
+                });
+
+            return request;
+        }
     }
 
     protected getSortQueryParam() {

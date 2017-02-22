@@ -641,10 +641,9 @@ d-list .d-list-wrapper {
   -webkit-font-smoothing: antialiased; }
 
 d-table .d-table-container {
-  display: table;
-  position: relative;
+  display: inline-table;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
   color: #000; }
   d-table .d-table-container .d-table-row {
     display: table-row;
@@ -658,16 +657,8 @@ d-table .d-table-container {
     d-table .d-table-container .d-table-row .d-table-cell {
       display: table-cell;
       vertical-align: middle;
-      /*padding-left: $d-table-column-padding;
-                padding-right: $d-table-column-spacing;*/
-      border: 1px solid gray;
-      /*&:first-of-type {
-                    padding-left: $d-table-column-padding * 2;
-                }
-
-                &:last-of-type {
-                    padding-right: $d-table-column-padding * 2;
-                }*/ }
+      padding-left: 12px;
+      padding-right: 12px; }
       d-table .d-table-container .d-table-row .d-table-cell.d-table-selector {
         text-align: center; }
         d-table .d-table-container .d-table-row .d-table-cell.d-table-selector .md-checkbox-inner-container {
@@ -679,6 +670,12 @@ d-table .d-table-container {
         text-align: left; }
       d-table .d-table-container .d-table-row .d-table-cell.d-table-cell-number {
         text-align: right; }
+      d-table .d-table-container .d-table-row .d-table-cell.d-table-column-invisible {
+        display: none; }
+      d-table .d-table-container .d-table-row .d-table-cell:first-of-type {
+        padding-left: 24px; }
+      d-table .d-table-container .d-table-row .d-table-cell:last-of-type {
+        padding-right: 24px; }
     d-table .d-table-container .d-table-row.d-table-header:hover {
       background-color: #ffffff; }
     d-table .d-table-container .d-table-row.d-table-header .d-table-cell {
@@ -704,6 +701,18 @@ d-table .d-table-container {
         d-table .d-table-container .d-table-row.d-table-header .d-table-cell.d-table-sorted-desc .d-table-sort-arrow {
           transform: rotate(180deg);
           opacity: 1; }
+
+d-page-indicator div.d-page-indicator-container {
+  padding-top: 20px;
+  padding-bottom: 20px; }
+
+d-page-indicator button.d-page-indicator-button {
+  min-width: 0px; }
+
+d-page-indicator button.d-page-indicator-button-current {
+  min-width: 0px;
+  background-color: orange;
+  color: white; }
 
 html, body, .container {
   margin: 0px;

@@ -1,13 +1,9 @@
 ﻿import {
     Directive,
     Input,
-    Output,
-    EventEmitter,
     ContentChild,
-    TemplateRef,
-    ViewContainerRef
+    TemplateRef
 } from "@angular/core";
-import { SortDirection } from "../../datasources/collection.datasource";
 
 export enum ColumnType { Text = 1, Number = 2, Template = 3}
 
@@ -32,7 +28,7 @@ export class ColumnComponent {
     public canSort: boolean;
 
     @Input()
-    public size: string; 
+    public size: string;
 
     @Input()
     public minWidth: number;
@@ -50,7 +46,7 @@ export class ColumnComponent {
     @ContentChild(TemplateRef)
     public template: TemplateRef<any>;
 
-    public sizeChanged(e) {
-        this.actualSize = e.clientSize;
+    public sizeChanged(nativeElement: any): void {
+        this.actualSize = nativeElement.clientWidth;
     }
 }

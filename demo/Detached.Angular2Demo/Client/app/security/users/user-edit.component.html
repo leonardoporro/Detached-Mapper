@@ -14,6 +14,11 @@
                 <md-hint [errormsg]="mailCtrl" fieldName="Mail"></md-hint>
             </md-input-container>
 
+            <md-input-container>
+                <input md-input name="Address" #addressCtrl="ngModel" [(ngModel)]="userSource.model.address" placeholder="{{ 'security.users.user.address' | translate:lang }}" />
+                <md-hint [errormsg]="addressCtrl" fieldName="Address"></md-hint>
+            </md-input-container>
+
             <d-list [dataSource]="rolesSource" [selection]="userSource.model.roles" placeholder="roles">
                 <template let-model="model" let-index="index">
                     {{model.name}}

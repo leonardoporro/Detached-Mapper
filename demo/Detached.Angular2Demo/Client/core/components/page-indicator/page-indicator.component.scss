@@ -1,0 +1,18 @@
+﻿d-page-indicator {
+    div.d-page-indicator-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    button {
+        &.d-page-indicator-button {
+            min-width: 0px;
+        }
+
+        &.d-page-indicator-button-current {
+            min-width: 0px;
+            background-color: orange;
+            color: white;
+        }
+    }
+}

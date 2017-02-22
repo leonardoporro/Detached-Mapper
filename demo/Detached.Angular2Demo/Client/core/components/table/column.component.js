@@ -18,8 +18,8 @@ var ColumnType = exports.ColumnType;
 var ColumnComponent = (function () {
     function ColumnComponent() {
     }
-    ColumnComponent.prototype.sizeChanged = function (e) {
-        this.actualSize = e.clientSize;
+    ColumnComponent.prototype.sizeChanged = function (nativeElement) {
+        this.actualSize = nativeElement.clientWidth;
     };
     __decorate([
         core_1.Input(), 

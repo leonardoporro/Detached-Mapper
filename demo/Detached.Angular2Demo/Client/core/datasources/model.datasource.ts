@@ -15,9 +15,9 @@ export class HttpRestModelDataSource<TEntity> extends HttpRestBaseDataSource imp
 
     constructor(http: Http, protected baseUrl: string) {
         super(http);
-        this.loadUrl = baseUrl;
-        this.saveUrl = baseUrl + "/:" + this.keyProperty;
-        this.deleteUrl = this.saveUrl;
+        this.loadUrl = baseUrl + "/:" + this.keyProperty;
+        this.saveUrl = baseUrl;
+        this.deleteUrl = this.loadUrl;
     }
    
     public model: TEntity = <TEntity>{};

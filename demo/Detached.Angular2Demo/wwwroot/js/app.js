@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "b2f147241608c5075f54"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "aa32f5763da88fc6f23c"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -1997,14 +1997,14 @@
 	var angular2localization_1 = __webpack_require__(31);
 	// app
 	var core_module_1 = __webpack_require__(32);
-	var app_routing_module_1 = __webpack_require__(60);
-	var app_component_1 = __webpack_require__(70);
+	var app_routing_module_1 = __webpack_require__(62);
+	var app_component_1 = __webpack_require__(72);
 	// home
-	var home_component_1 = __webpack_require__(62);
+	var home_component_1 = __webpack_require__(64);
 	// user
-	var user_list_component_1 = __webpack_require__(64);
-	var user_edit_component_1 = __webpack_require__(67);
-	__webpack_require__(72);
+	var user_list_component_1 = __webpack_require__(66);
+	var user_edit_component_1 = __webpack_require__(69);
+	__webpack_require__(74);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
@@ -5357,6 +5357,7 @@
 	var column_component_1 = __webpack_require__(50);
 	var table_component_1 = __webpack_require__(51);
 	var list_component_1 = __webpack_require__(54);
+	var page_indicator_component_1 = __webpack_require__(56);
 	var CoreModule = (function () {
 	    function CoreModule() {
 	    }
@@ -5382,7 +5383,8 @@
 	                content_directive_1.ContentDirective,
 	                column_component_1.ColumnComponent,
 	                table_component_1.TableComponent,
-	                list_component_1.ListComponent
+	                list_component_1.ListComponent,
+	                page_indicator_component_1.PageIndicatorComponent
 	            ],
 	            declarations: [
 	                form_errormsg_directive_1.FormErrorMessageDirective,
@@ -5390,7 +5392,8 @@
 	                content_directive_1.ContentDirective,
 	                column_component_1.ColumnComponent,
 	                table_component_1.TableComponent,
-	                list_component_1.ListComponent
+	                list_component_1.ListComponent,
+	                page_indicator_component_1.PageIndicatorComponent
 	            ],
 	            providers: []
 	        }), 
@@ -5399,8 +5402,8 @@
 	    return CoreModule;
 	}());
 	exports.CoreModule = CoreModule;
-	__export(__webpack_require__(56));
-	__export(__webpack_require__(59));
+	__export(__webpack_require__(58));
+	__export(__webpack_require__(61));
 
 
 /***/ },
@@ -7309,8 +7312,8 @@
 	var ColumnComponent = (function () {
 	    function ColumnComponent() {
 	    }
-	    ColumnComponent.prototype.sizeChanged = function (e) {
-	        this.actualSize = e.clientSize;
+	    ColumnComponent.prototype.sizeChanged = function (nativeElement) {
+	        this.actualSize = nativeElement.clientWidth;
 	    };
 	    __decorate([
 	        core_1.Input(), 
@@ -7390,6 +7393,7 @@
 	    function TableComponent() {
 	        _super.apply(this, arguments);
 	        this._columns = [];
+	        this.visibleColumnsChange = new core_1.EventEmitter();
 	    }
 	    Object.defineProperty(TableComponent.prototype, "columnsQuery", {
 	        set: function (value) {
@@ -7404,58 +7408,22 @@
 	        },
 	        set: function (value) {
 	            this._columns = value;
-	            var index = 1;
-	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                var column = _a[_i];
-	                // default for canSort
-	                if (column.canSort == undefined && column.property) {
-	                    column.canSort = true;
-	                }
-	                // default for type
-	                if (column.type == undefined) {
-	                    if (column.template)
-	                        column.type = column_component_1.ColumnType.Template;
-	                    else
-	                        column.type = column_component_1.ColumnType.Text;
-	                }
-	                // default for title
-	                if (column.title == undefined && column.property) {
-	                    column.title = column.property;
-	                }
-	                // default for size
-	                if (column.size == undefined) {
-	                    switch (column.type) {
-	                        case column_component_1.ColumnType.Text:
-	                            column.size = "grow";
-	                            break;
-	                        default:
-	                            column.size = "stretch";
-	                            break;
-	                    }
-	                }
-	                // default for minWidth
-	                if (column.minWidth == undefined) {
-	                    switch (column.type) {
-	                        case column_component_1.ColumnType.Text:
-	                            column.minWidth = 300;
-	                            break;
-	                        case column_component_1.ColumnType.Number:
-	                            column.minWidth = 100;
-	                            break;
-	                        default:
-	                            column.minWidth = 100;
-	                            break;
-	                    }
-	                }
-	                // default for priority
-	                if (column.priority == undefined) {
-	                    column.priority = index;
-	                }
-	                if (column.visible == undefined) {
-	                    column.visible = true;
-	                }
-	            }
+	            this.setDefaults();
 	            this.setColumnWidths();
+	            this.visibleColumnsChange.emit(null);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(TableComponent.prototype, "visibleColumns", {
+	        get: function () {
+	            var visible = [];
+	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	                var c = _a[_i];
+	                if (c.visible)
+	                    visible.push(c);
+	            }
+	            return visible;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -7465,36 +7433,127 @@
 	            this.dataSource.toggleSort(column.property);
 	        }
 	    };
+	    TableComponent.prototype.setDefaults = function () {
+	        var index = 1;
+	        for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	            var column = _a[_i];
+	            // default for canSort
+	            if (column.canSort == undefined && column.property) {
+	                column.canSort = true;
+	            }
+	            // default for type
+	            if (column.type == undefined) {
+	                if (column.template)
+	                    column.type = column_component_1.ColumnType.Template;
+	                else
+	                    column.type = column_component_1.ColumnType.Text;
+	            }
+	            // default for title
+	            if (column.title == undefined && column.property) {
+	                column.title = column.property;
+	            }
+	            // default for size
+	            if (column.size == undefined) {
+	                switch (column.type) {
+	                    case column_component_1.ColumnType.Text:
+	                        column.size = "grow";
+	                        break;
+	                    default:
+	                        column.size = "stretch";
+	                        break;
+	                }
+	            }
+	            // default for minWidth
+	            if (column.minWidth == undefined) {
+	                switch (column.type) {
+	                    case column_component_1.ColumnType.Text:
+	                        column.minWidth = 125;
+	                        break;
+	                    case column_component_1.ColumnType.Number:
+	                        column.minWidth = 50;
+	                        break;
+	                    default:
+	                        column.minWidth = 50;
+	                        break;
+	                }
+	            }
+	            // default for priority
+	            if (column.priority == undefined) {
+	                if (column.type == column_component_1.ColumnType.Template)
+	                    column.priority = 0;
+	                else
+	                    column.priority = index;
+	            }
+	            // default for visible
+	            if (column.visible == undefined) {
+	                column.visible = true;
+	            }
+	            index++;
+	        }
+	    };
 	    TableComponent.prototype.setColumnWidths = function () {
 	        var total = 100;
 	        var count = 0;
 	        for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
 	            var column = _a[_i];
-	            if (column.size == "grow") {
-	                count++;
-	            }
-	            else if (column.size.endsWith("%")) {
-	                var percentSize = parseInt(column.size.substr(0, column.size.length - 1));
-	                total -= percentSize;
+	            if (column.visible) {
+	                if (column.size == "grow") {
+	                    count++;
+	                }
+	                else if (column.size.endsWith("%")) {
+	                    var percentSize = parseInt(column.size.substr(0, column.size.length - 1));
+	                    total -= percentSize;
+	                }
 	            }
 	        }
 	        for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
 	            var column = _c[_b];
-	            switch (column.size) {
-	                case "grow":
-	                    column.clientSize = total / count + "%";
-	                    break;
-	                case "shrink":
-	                    column.clientSize = "auto";
-	                    break;
-	                default:
-	                    column.clientSize = column.size;
-	                    break;
+	            if (column.visible) {
+	                switch (column.size) {
+	                    case "grow":
+	                        column.clientSize = total / count + "%";
+	                        break;
+	                    case "shrink":
+	                        column.clientSize = "auto";
+	                        break;
+	                    default:
+	                        column.clientSize = column.size;
+	                        break;
+	                }
 	            }
 	        }
 	    };
-	    TableComponent.prototype.sizeChanged = function (e) {
-	        console.debug(e.clientWidth);
+	    TableComponent.prototype.sizeChanged = function (nativeElement) {
+	        if (this._columns) {
+	            var minWidthAll = 0;
+	            var pVisibleColumn = null;
+	            var pHiddenColumn = null;
+	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
+	                var column = _a[_i];
+	                if (column.visible) {
+	                    minWidthAll += column.minWidth;
+	                    if (column.priority > 0 && (pVisibleColumn == null || column.priority > pVisibleColumn.priority)) {
+	                        pVisibleColumn = column;
+	                    }
+	                }
+	                else {
+	                    if (column.priority > 0 && (pHiddenColumn == null || column.priority < pHiddenColumn.priority)) {
+	                        pHiddenColumn = column;
+	                    }
+	                }
+	            }
+	            var delta = nativeElement.clientWidth - minWidthAll;
+	            if (delta < 0 && pVisibleColumn) {
+	                pVisibleColumn.visible = false;
+	                this.visibleColumnsChange.emit(null);
+	                this.setColumnWidths();
+	            }
+	            if (pHiddenColumn && delta > pHiddenColumn.minWidth) {
+	                pHiddenColumn.visible = true;
+	                this.visibleColumnsChange.emit(null);
+	                this.setColumnWidths();
+	            }
+	        }
 	    };
 	    __decorate([
 	        core_1.ContentChildren(column_component_1.ColumnComponent), 
@@ -7753,7 +7812,7 @@
 /* 53 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"d-table-container\" sizeChanged (onSizeChanged)=\"sizeChanged($event)\">\r\n    <div class=\"d-table-row d-table-header\">\r\n        <div class=\"d-table-cell d-table-selector\">\r\n            <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n        </div>\r\n        <div *ngFor=\"let column of columns\" sizeChanged (onSizeChanged)=\"column.sizeChanged($event)\"\r\n             [ngClass]=\"{ 'd-table-cell': true,\r\n                          'd-table-sortable': column.canSort,\r\n                          'd-table-sorted': dataSource.orderBy==column.property,\r\n                          'd-table-sorted-asc': dataSource.orderBy==column.property && dataSource.sortDirection == 0,\r\n                          'd-table-sorted-desc': dataSource.orderBy==column.property && dataSource.sortDirection == 1,\r\n                          'd-table-cell-text': column.type == 1,\r\n                          'd-table-cell-number': column.type == 2,\r\n                          'd-table-cell-template': column.type == 3 }\"\r\n             [ngStyle]=\"{ 'width': column.clientSize }\"\r\n             (click)=\"toggleSort(column)\">\r\n            <span>{{column.title}}</span><span class=\"material-icons d-table-sort-arrow\">arrow_upward</span>\r\n        </div>\r\n    </div>\r\n    <div *ngFor=\"let item of items; let index = index;\"\r\n         [ngClass]=\"{ 'd-table-row': true,\r\n                      'd-table-selected': item.selected }\">\r\n\r\n        <div class=\"d-table-cell d-table-selector\">\r\n            <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n        </div>\r\n\r\n        <div [ngClass]=\"{ 'd-table-cell': true, 'xs':true,\r\n                          'd-table-cell-text': column.type == 'text',\r\n                          'd-table-cell-number': column.type == 'number' }\"\r\n             [ngStyle]=\"{ 'width': column.clientSize }\"\r\n             *ngFor=\"let column of columns\">\r\n            <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item.model\" [index]=\"index\"></d-content>\r\n            <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n        </div>\r\n    </div>\r\n</div>"
+	module.exports = "<div style=\"width:100%\" sizeChanged (onSizeChanged)=\"sizeChanged($event)\">\r\n    <div class=\"d-table-container\">\r\n        <div class=\"d-table-row d-table-header\">\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </div>\r\n            <div *ngFor=\"let column of columns\" sizeChanged (onSizeChanged)=\"column.sizeChanged($event)\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                              'd-table-sortable': column.canSort,\r\n                              'd-table-sorted-asc': dataSource.orderBy==column.property && dataSource.sortDirection == 0,\r\n                              'd-table-sorted-desc': dataSource.orderBy==column.property && dataSource.sortDirection == 1,\r\n                              'd-table-cell-text': column.type == 1,\r\n                              'd-table-cell-number': column.type == 2,\r\n                              'd-table-cell-template': column.type == 3,\r\n                              'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\"\r\n                 (click)=\"toggleSort(column)\">\r\n                <span>{{column.title}}</span><span class=\"material-icons d-table-sort-arrow\">arrow_upward</span>\r\n            </div>\r\n        </div>\r\n        <div *ngFor=\"let item of items; let index = index;\"\r\n             [ngClass]=\"{ 'd-table-row': true,\r\n                      'd-table-selected': item.selected }\">\r\n\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </div>\r\n\r\n            <div *ngFor=\"let column of columns\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                          'd-table-cell-text': column.type == 1,\r\n                          'd-table-cell-number': column.type == 2,\r\n                          'd-table-cell-template': column.type == 3,\r\n                          'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\">\r\n                <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item.model\" [index]=\"index\"></d-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
 
 /***/ },
 /* 54 */
@@ -7813,13 +7872,107 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(21);
+	var PageIndicatorComponent = (function () {
+	    function PageIndicatorComponent() {
+	        this.pages = [];
+	        this.pagesChange = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(PageIndicatorComponent.prototype, "dataSource", {
+	        set: function (value) {
+	            this._dataSource = value;
+	            this._dataSource.pageIndexChange.subscribe(this.onPageIndexChange.bind(this));
+	            this._dataSource.pageCountChange.subscribe(this.onPageCountChange.bind(this));
+	            this._pageIndex = this._dataSource.pageIndex;
+	            this._pageCount = this._dataSource.pageCount;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(PageIndicatorComponent.prototype, "pageIndex", {
+	        get: function () { return this._pageIndex; },
+	        set: function (value) {
+	            if (value !== this._pageIndex) {
+	                this._pageIndex = value;
+	                if (this._dataSource) {
+	                    this._dataSource.pageIndex = value;
+	                    this._dataSource.load();
+	                }
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(PageIndicatorComponent.prototype, "pageCount", {
+	        get: function () {
+	            return this._pageCount;
+	        },
+	        set: function (value) {
+	            if (value !== this._pageCount) {
+	                this._pageCount = value;
+	                this.pages = [];
+	                var i = 1;
+	                while (i <= this._pageCount) {
+	                    this.pages.push(i);
+	                    i++;
+	                }
+	                this.pagesChange.emit(this.pages);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    PageIndicatorComponent.prototype.onPageIndexChange = function () {
+	        this.pageIndex = this._dataSource.pageIndex;
+	    };
+	    PageIndicatorComponent.prototype.onPageCountChange = function () {
+	        this.pageCount = this._dataSource.pageCount;
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Object), 
+	        __metadata('design:paramtypes', [Object])
+	    ], PageIndicatorComponent.prototype, "dataSource", null);
+	    PageIndicatorComponent = __decorate([
+	        core_1.Component({
+	            selector: 'd-page-indicator',
+	            template: __webpack_require__(57),
+	            encapsulation: core_1.ViewEncapsulation.None
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], PageIndicatorComponent);
+	    return PageIndicatorComponent;
+	}());
+	exports.PageIndicatorComponent = PageIndicatorComponent;
+
+
+/***/ },
+/* 57 */
+/***/ function(module, exports) {
+
+	module.exports = "<div fxLayout=\"row\" fxLayoutAlign=\"center center\" class=\"d-page-indicator-container\">\r\n    <button md-button (click)=\"pageIndex = 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>first_page</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageIndex - 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_left</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = page\"\r\n            [ngClass]=\"{ 'd-page-indicator-button': true,\r\n                             'd-page-indicator-button-current': pageIndex == page }\"\r\n            *ngFor=\"let page of pages\">\r\n        <span>{{page}}</span>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageIndex + 1\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_right</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageCount\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>last_page</md-icon>\r\n    </button>\r\n</div>"
+
+/***/ },
+/* 58 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var core_1 = __webpack_require__(21);
-	var base_datasource_1 = __webpack_require__(57);
+	var base_datasource_1 = __webpack_require__(59);
 	(function (SortDirection) {
 	    SortDirection[SortDirection["Asc"] = 0] = "Asc";
 	    SortDirection[SortDirection["Desc"] = 1] = "Desc";
@@ -7837,11 +7990,35 @@
 	        _super.call(this, http);
 	        this.baseUrl = baseUrl;
 	        this.sortDirection = SortDirection.Asc;
-	        this.pageIndex = 1;
+	        this.pageCountChange = new core_1.EventEmitter();
+	        this._pageIndex = 1;
+	        this.pageIndexChange = new core_1.EventEmitter();
 	        this._items = [];
 	        this.itemsChange = new core_1.EventEmitter();
-	        this.pageBaseUrl = baseUrl + "pages/:pageIndex";
+	        this.pageBaseUrl = baseUrl + "/pages/:pageIndex";
 	    }
+	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "pageCount", {
+	        get: function () { return this._pageCount; },
+	        set: function (value) {
+	            if (value !== this._pageCount) {
+	                this._pageCount = value;
+	                this.pageCountChange.emit(this._pageCount);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "pageIndex", {
+	        get: function () { return this._pageIndex; },
+	        set: function (value) {
+	            if (value !== this._pageIndex) {
+	                this._pageIndex = value;
+	                this.pageIndexChange.emit(this._pageIndex);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "items", {
 	        get: function () {
 	            return this._items;
@@ -7860,21 +8037,26 @@
 	        var params = Object.assign({}, this.requestParams);
 	        params.searchText = this.searchText;
 	        params.orderBy = this.getSortQueryParam();
-	        var request = this.execute(this.baseUrl, params, "get", null);
-	        request.subscribe(function (data) { return _this.items = data; }, function (error) { });
-	        return request;
-	    };
-	    HttpRestCollectionDataSource.prototype.loadPage = function () {
-	        var _this = this;
-	        var params = Object.assign({}, this.requestParams);
-	        params.searchText = this.searchText;
-	        params.orderBy = this.getSortQueryParam();
-	        params.pageIndex = this.pageIndex;
-	        params.pageSize = this.pageSize;
-	        params.noCount = this.noCount;
-	        var request = this.execute(this.baseUrl, params, "get", null);
-	        request.subscribe(function (data) { return _this.items = data; }, function (error) { });
-	        return request;
+	        if (this.pageSize) {
+	            params.pageIndex = this.pageIndex;
+	            params.pageSize = this.pageSize;
+	            params.noCount = this.noCount;
+	            var request = this.execute(this.pageBaseUrl, params, "get", null);
+	            request.subscribe(function (data) {
+	                _this.items = data.items;
+	                _this.pageCount = data.pageCount;
+	            }, function (error) {
+	            });
+	            return request;
+	        }
+	        else {
+	            var request = this.execute(this.baseUrl, params, "get", null);
+	            request.subscribe(function (data) {
+	                _this.items = data;
+	            }, function (error) {
+	            });
+	            return request;
+	        }
 	    };
 	    HttpRestCollectionDataSource.prototype.getSortQueryParam = function () {
 	        if (this.orderBy) {
@@ -7907,12 +8089,12 @@
 
 
 /***/ },
-/* 57 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var http_1 = __webpack_require__(25);
-	var ReplaySubject_1 = __webpack_require__(58);
+	var ReplaySubject_1 = __webpack_require__(60);
 	var HttpRestBaseDataSource = (function () {
 	    function HttpRestBaseDataSource(http) {
 	        this.http = http;
@@ -7977,13 +8159,13 @@
 
 
 /***/ },
-/* 58 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(429);
 
 /***/ },
-/* 59 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7993,7 +8175,7 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var core_1 = __webpack_require__(21);
-	var base_datasource_1 = __webpack_require__(57);
+	var base_datasource_1 = __webpack_require__(59);
 	var HttpRestModelDataSource = (function (_super) {
 	    __extends(HttpRestModelDataSource, _super);
 	    function HttpRestModelDataSource(http, baseUrl) {
@@ -8005,9 +8187,9 @@
 	        this.modelErrorsChange = new core_1.EventEmitter();
 	        this.isNew = true;
 	        this.isNewChange = new core_1.EventEmitter();
-	        this.loadUrl = baseUrl;
-	        this.saveUrl = baseUrl + "/:" + this.keyProperty;
-	        this.deleteUrl = this.saveUrl;
+	        this.loadUrl = baseUrl + "/:" + this.keyProperty;
+	        this.saveUrl = baseUrl;
+	        this.deleteUrl = this.loadUrl;
 	    }
 	    HttpRestModelDataSource.prototype.load = function (key) {
 	        var _this = this;
@@ -8036,7 +8218,7 @@
 
 
 /***/ },
-/* 60 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8050,10 +8232,10 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(61);
-	var home_component_1 = __webpack_require__(62);
-	var user_list_component_1 = __webpack_require__(64);
-	var user_edit_component_1 = __webpack_require__(67);
+	var router_1 = __webpack_require__(63);
+	var home_component_1 = __webpack_require__(64);
+	var user_list_component_1 = __webpack_require__(66);
+	var user_edit_component_1 = __webpack_require__(69);
 	var appRoutes = [
 	    { path: "", redirectTo: "home", pathMatch: "full" },
 	    { path: "home", component: home_component_1.HomeComponent },
@@ -8085,13 +8267,13 @@
 
 
 /***/ },
-/* 61 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(17))(304);
 
 /***/ },
-/* 62 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8111,7 +8293,7 @@
 	    HomeComponent = __decorate([
 	        core_1.Component({
 	            selector: "app-home",
-	            template: __webpack_require__(63)
+	            template: __webpack_require__(65)
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], HomeComponent);
@@ -8121,13 +8303,13 @@
 
 
 /***/ },
-/* 63 */
+/* 65 */
 /***/ function(module, exports) {
 
 	module.exports = "<p></p>\r\nHome!\r\nSelect an option from the left panel...\r\n"
 
 /***/ },
-/* 64 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8141,18 +8323,19 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var users_datasource_1 = __webpack_require__(65);
+	var users_datasource_1 = __webpack_require__(67);
 	var UserListComponent = (function () {
-	    function UserListComponent(users) {
-	        this.users = users;
+	    function UserListComponent(usersSource) {
+	        this.usersSource = usersSource;
 	    }
 	    UserListComponent.prototype.ngOnInit = function () {
-	        this.users.load();
+	        this.usersSource.pageSize = 3;
+	        this.usersSource.load();
 	    };
 	    UserListComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-list",
-	            template: __webpack_require__(66),
+	            template: __webpack_require__(68),
 	            providers: [users_datasource_1.UserCollectionDataSource]
 	        }), 
 	        __metadata('design:paramtypes', [users_datasource_1.UserCollectionDataSource])
@@ -8163,7 +8346,7 @@
 
 
 /***/ },
-/* 65 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8226,13 +8409,13 @@
 
 
 /***/ },
-/* 66 */
+/* 68 */
 /***/ function(module, exports) {
 
-	module.exports = "\r\n<md-card>\r\n    <md-card-title>Users List</md-card-title>\r\n    <md-card-subtitle>\r\n\r\n    </md-card-subtitle>\r\n    <md-card-content>\r\n\r\n        <div fxLayout=\"row\" class=\"feature-toolbar\">\r\n            <md-input-container>\r\n                <input md-input placeholder=\"search\" />\r\n                <md-icon md-prefix>search</md-icon>\r\n            </md-input-container>\r\n            <div fxFlex></div>\r\n            <button md-button>New</button>\r\n        </div>\r\n\r\n        <d-table [dataSource]=\"users\">\r\n            <d-column property=\"id\" type=\"number\"></d-column>\r\n            <d-column property=\"name\"></d-column>\r\n            <d-column property=\"email\"></d-column>\r\n            <d-column>\r\n                <template let-model=\"model\">\r\n                    <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                </template>\r\n            </d-column>\r\n        </d-table>\r\n\r\n    </md-card-content>\r\n</md-card>\r\n\r\n\r\n\r\n\r\n"
+	module.exports = "\r\n<md-card>\r\n    <md-card-title>Users List</md-card-title>\r\n    <md-card-subtitle>\r\n        <md-input-container>\r\n            <input md-input placeholder=\"search\" />\r\n            <md-icon md-prefix>search</md-icon>\r\n        </md-input-container>\r\n\r\n        <button md-raised-button [routerLink]=\"['/security/users/new']\"><md-icon>add</md-icon> New</button>\r\n\r\n    </md-card-subtitle>\r\n    <md-card-content>\r\n        <d-table [dataSource]=\"usersSource\">\r\n            <d-column property=\"id\" type=\"number\"></d-column>\r\n            <d-column property=\"name\" priority=\"0\"></d-column>\r\n            <d-column property=\"email\"></d-column>\r\n            <d-column property=\"address\"></d-column>\r\n            <d-column>\r\n                <template let-model=\"model\">\r\n                    <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                </template>\r\n            </d-column>\r\n        </d-table>\r\n\r\n        <md-card-actions>\r\n            <d-page-indicator [dataSource]=\"usersSource\"></d-page-indicator>\r\n        </md-card-actions>\r\n\r\n    </md-card-content>\r\n</md-card>\r\n\r\n\r\n\r\n\r\n"
 
 /***/ },
-/* 67 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8251,9 +8434,9 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(61);
-	var users_datasource_1 = __webpack_require__(65);
-	var roles_datasource_1 = __webpack_require__(68);
+	var router_1 = __webpack_require__(63);
+	var users_datasource_1 = __webpack_require__(67);
+	var roles_datasource_1 = __webpack_require__(70);
 	var angular2localization_1 = __webpack_require__(31);
 	var UserEditComponent = (function (_super) {
 	    __extends(UserEditComponent, _super);
@@ -8296,7 +8479,7 @@
 	    UserEditComponent = __decorate([
 	        core_1.Component({
 	            selector: "user-edit",
-	            template: __webpack_require__(69),
+	            template: __webpack_require__(71),
 	            providers: [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource]
 	        }), 
 	        __metadata('design:paramtypes', [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource, router_1.ActivatedRoute, angular2localization_1.LocalizationService])
@@ -8307,7 +8490,7 @@
 
 
 /***/ },
-/* 68 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8356,13 +8539,13 @@
 
 
 /***/ },
-/* 69 */
+/* 71 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-card style=\"max-width:800px;margin-left:auto;margin-right:auto;margin-top:10px\">\r\n    <md-card-title>Edit User</md-card-title>\r\n    <md-card-subtitle>This is an edit user card</md-card-subtitle>\r\n\r\n    <md-card-content>\r\n        <form id=\"userForm\" (ngSubmit)=\"save(frm)\" #frm=\"ngForm\" novalidate>\r\n            <md-input-container>\r\n                <input required md-input name=\"Name\" #nameCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.name\" placeholder=\"{{ 'security.users.user.name' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"nameCtrl\" fieldName=\"Name\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Email\" #mailCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.email\" placeholder=\"{{ 'security.users.user.mail' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"mailCtrl\" fieldName=\"Mail\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <d-list [dataSource]=\"rolesSource\" [selection]=\"userSource.model.roles\" placeholder=\"roles\">\r\n                <template let-model=\"model\" let-index=\"index\">\r\n                    {{model.name}}\r\n                </template>\r\n            </d-list>\r\n        </form>\r\n    </md-card-content>\r\n\r\n    <md-card-actions>\r\n        <div fxLayout=\"row\">\r\n            <div fxFlex></div>\r\n            <button md-button (click)=\"save(frm)\">Save</button>\r\n            <button md-button (click)=\"close()\">Cancel</button>\r\n        </div>\r\n    </md-card-actions>\r\n</md-card>"
+	module.exports = "<md-card style=\"max-width:800px;margin-left:auto;margin-right:auto;margin-top:10px\">\r\n    <md-card-title>Edit User</md-card-title>\r\n    <md-card-subtitle>This is an edit user card</md-card-subtitle>\r\n\r\n    <md-card-content>\r\n        <form id=\"userForm\" (ngSubmit)=\"save(frm)\" #frm=\"ngForm\" novalidate>\r\n            <md-input-container>\r\n                <input required md-input name=\"Name\" #nameCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.name\" placeholder=\"{{ 'security.users.user.name' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"nameCtrl\" fieldName=\"Name\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Email\" #mailCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.email\" placeholder=\"{{ 'security.users.user.mail' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"mailCtrl\" fieldName=\"Mail\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Address\" #addressCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.address\" placeholder=\"{{ 'security.users.user.address' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"addressCtrl\" fieldName=\"Address\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <d-list [dataSource]=\"rolesSource\" [selection]=\"userSource.model.roles\" placeholder=\"roles\">\r\n                <template let-model=\"model\" let-index=\"index\">\r\n                    {{model.name}}\r\n                </template>\r\n            </d-list>\r\n        </form>\r\n    </md-card-content>\r\n\r\n    <md-card-actions>\r\n        <div fxLayout=\"row\">\r\n            <div fxFlex></div>\r\n            <button md-button (click)=\"save(frm)\">Save</button>\r\n            <button md-button (click)=\"close()\">Cancel</button>\r\n        </div>\r\n    </md-card-actions>\r\n</md-card>"
 
 /***/ },
-/* 70 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8420,7 +8603,7 @@
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: "app",
-	            template: __webpack_require__(71)
+	            template: __webpack_require__(73)
 	        }), 
 	        __metadata('design:paramtypes', [angular2localization_1.LocaleService, angular2localization_1.LocalizationService])
 	    ], AppComponent);
@@ -8430,13 +8613,13 @@
 
 
 /***/ },
-/* 71 */
+/* 73 */
 /***/ function(module, exports) {
 
 	module.exports = "<div fxLayout=\"column\" class=\"container\">\r\n    <md-toolbar color=\"primary\" class=\"app-toolbar\">\r\n        <button class=\"app-sidenav-button\" md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>\r\n        <span>Detached</span>\r\n    </md-toolbar>\r\n    <md-sidenav-container fxFlex>\r\n        <md-sidenav #sidenav (click)=\"sidenav.close()\">\r\n            <md-list class=\"app-nav\" dense>\r\n                <md-list-item [routerLink]=\"['/home']\">\r\n                    <md-icon md-list-icon>home</md-icon>\r\n                    <span>Home</span>\r\n                </md-list-item>\r\n                <md-list-item [routerLink]=\"['/security/users']\">\r\n                    <md-icon md-list-icon>people</md-icon>\r\n                    <span>Users Example</span>\r\n                </md-list-item>\r\n            </md-list>\r\n        </md-sidenav>\r\n        <router-outlet></router-outlet>\r\n    </md-sidenav-container>\r\n</div>"
 
 /***/ },
-/* 72 */
+/* 74 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

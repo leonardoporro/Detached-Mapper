@@ -25,6 +25,7 @@ var content_directive_1 = require("./directives/content.directive");
 var column_component_1 = require("./components/table/column.component");
 var table_component_1 = require("./components/table/table.component");
 var list_component_1 = require("./components/list/list.component");
+var page_indicator_component_1 = require("./components/page-indicator/page-indicator.component");
 var CoreModule = (function () {
     function CoreModule() {
     }
@@ -50,7 +51,8 @@ var CoreModule = (function () {
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
                 table_component_1.TableComponent,
-                list_component_1.ListComponent
+                list_component_1.ListComponent,
+                page_indicator_component_1.PageIndicatorComponent
             ],
             declarations: [
                 form_errormsg_directive_1.FormErrorMessageDirective,
@@ -58,7 +60,8 @@ var CoreModule = (function () {
                 content_directive_1.ContentDirective,
                 column_component_1.ColumnComponent,
                 table_component_1.TableComponent,
-                list_component_1.ListComponent
+                list_component_1.ListComponent,
+                page_indicator_component_1.PageIndicatorComponent
             ],
             providers: []
         }), 

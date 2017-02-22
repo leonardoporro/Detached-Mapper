@@ -1,0 +1,20 @@
+<div fxLayout="row" fxLayoutAlign="center center" class="d-page-indicator-container">
+    <button md-button (click)="pageIndex = 1" [disabled]="pageIndex <= 1" class="d-page-indicator-button">
+        <md-icon>first_page</md-icon>
+    </button>
+    <button md-button (click)="pageIndex = pageIndex - 1" [disabled]="pageIndex <= 1" class="d-page-indicator-button">
+        <md-icon>keyboard_arrow_left</md-icon>
+    </button>
+    <button md-button (click)="pageIndex = page"
+            [ngClass]="{ 'd-page-indicator-button': true,
+                             'd-page-indicator-button-current': pageIndex == page }"
+            *ngFor="let page of pages">
+        <span>{{page}}</span>
+    </button>
+    <button md-button (click)="pageIndex = pageIndex + 1" [disabled]="pageIndex >= pageCount" class="d-page-indicator-button">
+        <md-icon>keyboard_arrow_right</md-icon>
+    </button>
+    <button md-button (click)="pageIndex = pageCount" [disabled]="pageIndex >= pageCount" class="d-page-indicator-button">
+        <md-icon>last_page</md-icon>
+    </button>
+</div>
