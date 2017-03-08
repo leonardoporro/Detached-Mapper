@@ -62,8 +62,16 @@ namespace Detached.EntityFramework
         /// A Detached Entity Graph is an object graph that consist of a Root entity and its
         /// Associated and Owned entities, working as a single unit.
         /// </summary>
-        /// <param name="key">The key of the detached root entity to delete.</param>
-        Task DeleteAsync(params object[] key);
+        /// <param name="keyValues">The key of the detached root entity to delete.</param>
+        Task DeleteAsync(params object[] keyValues);
+
+        /// <summary>
+        /// Deletes one or many Detached Entity Graphs by their Root key.
+        /// A Detached Entity Graph is an object graph that consist of a Root entity and its
+        /// Associated and Owned entities, working as a single unit.
+        /// </summary>
+        /// <param name="keys">The keys of the detached root entities to delete.</param>
+        Task DeleteAsync(params KeyValue[] keys);
     }
 
     public interface IDetachedSet
@@ -100,8 +108,16 @@ namespace Detached.EntityFramework
         /// A Detached Entity Graph is an object graph that consist of a Root entity and its
         /// Associated and Owned entities, working as a single unit.
         /// </summary>
-        /// <param name="key">The key of the detached root entity to delete.</param>
-        Task DeleteAsync(params object[] key);
+        /// <param name="keyValues">The key of the detached root entity to delete.</param>
+        Task DeleteAsync(params object[] keyValues);
+
+        /// <summary>
+        /// Deletes one or many Detached Entity Graphs by their Root key.
+        /// A Detached Entity Graph is an object graph that consist of a Root entity and its
+        /// Associated and Owned entities, working as a single unit.
+        /// </summary>
+        /// <param name="keyValues">The keys of the detached root entities to delete.</param>
+        Task DeleteAsync(params KeyValue[] keyValues);
 
         /// <summary>
         /// Gets the Clr Type of the entities in this set.

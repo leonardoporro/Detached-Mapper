@@ -17,8 +17,16 @@ namespace Detached.EntityFramework.Services
         /// Useful to search for entities by key.
         /// </summary>
         /// <param name="keyValues">The value(s) of the entity key being searched.</param>
-        /// <returns></returns>
-        Expression<Func<TEntity, bool>> CreateEqualityExpression(object[] keyValues);
+        /// <returns>An expression that compares the entiy key with the given values.</returns>
+        Expression<Func<TEntity, bool>> CreateFindByKeyExpression(object[] keyValues);
+
+        /// <summary>
+        /// Creates an expression that compares the entity key with the given values.
+        /// Useful to search for entities by multiple keys.
+        /// </summary>
+        /// <param name="keyValues">The value(s) of the entity key being searched.</param>
+        /// <returns>An expression that compares the entiy key with the given values.</returns>
+        Expression<Func<TEntity, bool>> CreateFilterByKeysExpression(KeyValue[] keys);
     }
 
     /// <summary>
@@ -39,7 +47,7 @@ namespace Detached.EntityFramework.Services
         /// </summary>
         /// <param name="entity">The entity whose key is wanted.</param>
         /// <returns>object[] containing key value(s).</returns>
-        object[] GetKeyValues(object entity);
+        KeyValue GetKeyValue(object entity);
 
         /// <summary>
         /// Gets the underlying key object.
@@ -52,6 +60,6 @@ namespace Detached.EntityFramework.Services
         /// </summary>
         /// <param name="instances">Enumeration of entities to convert to a table.</param>
         /// <returns>A dictionary where the key is the entity key, and the value is the entity itself.</returns>
-        Dictionary<object[], object> CreateTable(IEnumerable instances);
+        Dictionary<KeyValue, object> CreateTable(IEnumerable instances);
     }
 }

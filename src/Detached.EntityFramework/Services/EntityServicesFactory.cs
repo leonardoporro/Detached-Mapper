@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Detached.EntityFramework.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Detached.EntityFramework.Services
@@ -10,7 +12,7 @@ namespace Detached.EntityFramework.Services
         DbContext _dbContext;
         Type _dbContextType;
 
-        Dictionary<Type, IEntityServices> cache = new Dictionary<Type, IEntityServices>();
+        ConcurrentDictionary<Type, IEntityServices> cache = new ConcurrentDictionary<Type, IEntityServices>();
 
 
         public EntityServicesFactory(DbContext dbContext)
@@ -27,7 +29,7 @@ namespace Detached.EntityFramework.Services
             if (!cache.TryGetValue(clrType, out result))
             { 
                 IEntityType entityType = _dbContext.Model.FindEntityType(clrType);
-                result = new KeyServices<TEntity>(entityType);
+                result = new EntityServices<TEntity>(entityType);
                 cache[clrType] = result;
             }
             return (IEntityServices<TEntity>)result;
@@ -40,7 +42,7 @@ namespace Detached.EntityFramework.Services
 
             if (!cache.TryGetValue(clrType, out result))
             {
-                result = (IEntityServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
+                result = (IEntityServices)Activator.CreateInstance(typeof(EntityServices<>).MakeGenericType(entityType.ClrType), entityType);
                 cache[clrType] = result;
             }
             return result;
@@ -48,14 +50,14 @@ namespace Detached.EntityFramework.Services
 
         public IEntityServices GetEntityServices(Type clrType)
         {
-            IEntityServices result;
-            if (!cache.TryGetValue(clrType, out result))
+            return cache.GetOrAdd(clrType, t =>
             {
-                IEntityType entityType = _dbContext.Model.FindEntityType(clrType);
-                result = (IEntityServices)Activator.CreateInstance(typeof(KeyServices<>).MakeGenericType(entityType.ClrType), entityType);
-                cache[clrType] = result;
-            }
-            return result;
+                IEntityType entityType = _dbContext.Model.FindEntityType(t);
+                if (entityType == null)
+                    throw new EntityNotFoundException();
+
+                return (IEntityServices)Activator.CreateInstance(typeof(EntityServices<>).MakeGenericType(entityType.ClrType), entityType);
+            });
         }   
     }
 }

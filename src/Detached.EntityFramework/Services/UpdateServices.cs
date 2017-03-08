@@ -19,7 +19,7 @@ namespace Detached.EntityFramework.Services
 
         IEventManager _eventManager;
         IEntryFinder _entryServices;
-        IEntityServicesFactory _keyServicesFactory;
+        IEntityServicesFactory _entityServicesFactory;
         DbContext _dbContext;
         DetachedOptionsExtension _options;
 
@@ -29,14 +29,14 @@ namespace Detached.EntityFramework.Services
 
         public UpdateServices(DbContext dbContext,
                               IEntryFinder entryServices,
-                              IEntityServicesFactory keyServicesFactory,
+                              IEntityServicesFactory entityServicesFactory,
                               IEventManager eventManager,
                               DetachedOptionsExtension options)
         {
             _dbContext = dbContext;
             _eventManager = eventManager;
             _entryServices = entryServices;
-            _keyServicesFactory = keyServicesFactory;
+            _entityServicesFactory = entityServicesFactory;
             _options = options;
         }
 
@@ -224,7 +224,7 @@ namespace Detached.EntityFramework.Services
                 IClrPropertyGetter getter = navigationEntry.Metadata.GetGetter();
                 object detachedValue = getter.GetClrValue(detached);
 
-                IEntityServices keyServices = _keyServicesFactory.GetEntityServices(navType);
+                IEntityServices entityServices = _entityServicesFactory.GetEntityServices(navType);
 
                 if (navigationEntry.Metadata.IsCollection())
                 {
@@ -232,14 +232,14 @@ namespace Detached.EntityFramework.Services
                     IList mergedList = Activator.CreateInstance(typeof(List<>).MakeGenericType(navType.ClrType)) as IList;
 
                     // create hash table for O(N) merge.
-                    Dictionary<object[], object> dbTable = keyServices.CreateTable((IEnumerable)navigationEntry.CurrentValue);
+                    Dictionary<KeyValue, object> dbTable = entityServices.CreateTable((IEnumerable)navigationEntry.CurrentValue);
 
                     if (detachedValue != null)
                     {
                         foreach (object detachedItem in (IEnumerable)detachedValue)
                         {
                             object persistedItem;
-                            object[] entityKey = keyServices.GetKeyValues(detachedItem);
+                            KeyValue entityKey = entityServices.GetKeyValue(detachedItem);
                             if (dbTable.TryGetValue(entityKey, out persistedItem))
                             {
                                 if (owned)
@@ -268,7 +268,7 @@ namespace Detached.EntityFramework.Services
                 {
                     if (!visited.Contains(navigationEntry.CurrentValue)) // avoid stack overflow! (this might be also done checking if the property is dependent to parent)
                     {
-                        if (keyServices.Equal(detachedValue, navigationEntry.CurrentValue))
+                        if (entityServices.Equal(detachedValue, navigationEntry.CurrentValue))
                         {
                             // merge owned references and do nothing for associated references.
                             if (owned)

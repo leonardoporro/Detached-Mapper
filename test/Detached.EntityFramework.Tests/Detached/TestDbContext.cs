@@ -1,4 +1,5 @@
-﻿using Detached.EntityFramework.Plugins.Auditing;
+﻿using Detached.DataAnnotations;
+using Detached.EntityFramework.Plugins.Auditing;
 using Detached.EntityFramework.Tests.Plugins.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,14 @@ namespace Detached.EntityFramework.Tests
             optionsBuilder.UseInternalServiceProvider(serviceProvider)
                           .UseInMemoryDatabase()
                           .UseDetached(opts => opts.UseAuditing());
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Entity>().OwnsOne(e => e.OwnedReference).WithOne();
+
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

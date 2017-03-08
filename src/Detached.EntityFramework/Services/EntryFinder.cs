@@ -14,7 +14,7 @@ namespace Detached.EntityFramework.Services
     {
         #region Fields
 
-        IEntityServicesFactory _keyServicesFactory;
+        IEntityServicesFactory _entityServicesFactory;
         DbContext _dbContext;
         Func<IKey, IIdentityMap> _findIdentityMap;
        
@@ -23,9 +23,9 @@ namespace Detached.EntityFramework.Services
         #region Ctor.
 
         public EntryFinder(DbContext dbContext,
-                           IEntityServicesFactory keyServicesFactory)
+                           IEntityServicesFactory entityServicesFactory)
         {
-            _keyServicesFactory = keyServicesFactory;
+            _entityServicesFactory = entityServicesFactory;
             _dbContext = dbContext;
 
             IStateManager stateManager = dbContext.ChangeTracker.GetInfrastructure();
@@ -41,13 +41,13 @@ namespace Detached.EntityFramework.Services
 
         public virtual EntityEntry FindEntry(object entity)
         {
-            IEntityServices keyServices = _keyServicesFactory.GetEntityServices(entity.GetType());
-            object[] keyValues = keyServices.GetKeyValues(entity);
+            IEntityServices entityServices = _entityServicesFactory.GetEntityServices(entity.GetType());
+            KeyValue keyValue = entityServices.GetKeyValue(entity);
 
-            IIdentityMap map = _findIdentityMap(keyServices.GetKey());
+            IIdentityMap map = _findIdentityMap(entityServices.GetKey());
             if (map != null)
             {
-                var existing = map.TryGetEntry(keyValues);
+                var existing = map.TryGetEntry(keyValue.Values);
                 if (existing != null)
                 {
                     return new EntityEntry(existing);

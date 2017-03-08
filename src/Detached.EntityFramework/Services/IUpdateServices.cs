@@ -42,6 +42,6 @@ namespace Detached.EntityFramework.Services
         /// 
         /// </summary>
         /// <param name="persiste"></param>
-        void Delete(object persiste);
+        void Delete(object persisted);
     }
 }

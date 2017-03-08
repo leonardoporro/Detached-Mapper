@@ -66,7 +66,7 @@ namespace Detached.EntityFramework.Services
             where TResult : class;
 
         /// <summary>
-        /// Loads the persisted (in database) version for the given entity.
+        /// Loads the persisted (database) version for the given entity.
         /// </summary>
         /// <typeparam name="TEntity">Clr type for the entity.</typeparam>
         /// <param name="entity">Entity whose persisted version is going to be loaded.</param>
@@ -74,11 +74,11 @@ namespace Detached.EntityFramework.Services
         Task<TEntity> LoadPersisted<TEntity>(TEntity entity) where TEntity : class;
 
         /// <summary>
-        /// Loads the persisted (in database) version for the given entity.
+        /// Loads the persisted (database) version for the given entity.
         /// </summary>
         /// <typeparam name="TEntity">Clr type for the entity.</typeparam>
-        /// <param name="keyValues">Entity key value(s).</param>
-        /// <returns>The attached and persisted version of the given entity, or null if not found.</returns>
-        Task<TEntity> LoadPersisted<TEntity>(object[] keyValues) where TEntity : class;
+        /// <param name="keys">Entitie(s) key value(s).</param>
+        /// <returns>The attached and persisted versions of the given keys, or null if not found.</returns>
+        Task<IList<TEntity>> LoadPersisted<TEntity>(KeyValue[] keys) where TEntity : class;
     }
 }

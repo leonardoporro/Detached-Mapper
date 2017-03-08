@@ -15,7 +15,7 @@ namespace Detached.EntityFramework.Tests
         [ForeignKey(nameof(OwnedReference))]
         public int? OwnedReferenceId { get; set; }
 
-        [Owned]
+        //[Owned] -> Defined using Fluent, see TestDbContext.OnModelCreate.
         public OwnedReference OwnedReference { get; set; }
 
         [ForeignKey(nameof(AssociatedReference))]

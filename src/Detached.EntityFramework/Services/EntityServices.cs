@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Detached.EntityFramework.Services
 {
-    public class KeyServices<TEntity> : IEntityServices<TEntity>, IEntityServices
+    public class EntityServices<TEntity> : IEntityServices<TEntity>, IEntityServices
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace Detached.EntityFramework.Services
 
         #region Ctor.
 
-        public KeyServices(IEntityType entityType)
+        public EntityServices(IEntityType entityType)
         {
             _entityType = entityType;
             _key = entityType.FindPrimaryKey();
@@ -79,32 +79,28 @@ namespace Detached.EntityFramework.Services
             return _key;
         }
 
-        public object[] GetKeyValues(object entity)
+        public KeyValue GetKeyValue(object entity)
         {
             object[] values = new object[_keySize];
             int offset = 0;
             foreach (IKeyGetter getter in _keyGetters)
                 getter.Get(entity, values, ref offset);
-            return values;
+            return new KeyValue(values);
         }
 
         public int GetHashCode(object entity)
         {
-            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(GetKeyValues(entity));
+            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(GetKeyValue(entity));
         }
 
         public bool Equal(object entityA, object entityB)
         {
             if (entityA != null && entityB != null)
             {
-                object[] keyA = GetKeyValues(entityA);
-                object[] keyB = GetKeyValues(entityB);
-                for (int i = 0; i < _keySize; i++)
-                {
-                    if (!Equals(keyA[i], keyB[i]))
-                        return false;
-                }
-                return true;
+                KeyValue keyA = GetKeyValue(entityA);
+                KeyValue keyB = GetKeyValue(entityB);
+
+                return keyA.Equals(keyB);
             }
             else
             {
@@ -112,17 +108,51 @@ namespace Detached.EntityFramework.Services
             }
         }
 
-        public Dictionary<object[], object> CreateTable(IEnumerable entities)
+        public Dictionary<KeyValue, object> CreateTable(IEnumerable entities)
         {
-            Dictionary<object[], object> table = new Dictionary<object[], object>(KeyEqualityComparer.Instance);
+            Dictionary<KeyValue, object> table = new Dictionary<KeyValue, object>();
             foreach (TEntity entity in entities)
             {
-                table.Add(GetKeyValues(entity), entity);
+                table.Add(GetKeyValue(entity), entity);
             }
             return table;
         }
 
-        public Expression<Func<TEntity, bool>> CreateEqualityExpression(object[] keyValues)
+        public Expression<Func<TEntity, bool>> CreateFilterByKeysExpression(KeyValue[] keys)
+        {
+            Expression result = null;
+            ParameterExpression param = Expression.Parameter(_key.DeclaringEntityType.ClrType);
+
+            foreach (KeyValue key in keys)
+            { 
+                Func<int, Expression> buildCompare = i =>
+                {
+                    object keyValue = key.Values[i];
+                    IProperty keyProperty = _key.Properties[i];
+                    if (keyValue.GetType() != keyProperty.ClrType)
+                    {
+                        keyValue = Convert.ChangeType(keyValue, keyProperty.ClrType);
+                    }
+
+                    return Expression.Equal(Expression.Property(param, keyProperty.PropertyInfo),
+                                            Expression.Constant(keyValue));
+                };
+
+                Expression findExpr = buildCompare(0);
+                for (int i = 1; i < _key.Properties.Count; i++)
+                {
+                    findExpr = Expression.AndAlso(findExpr, buildCompare(i));
+                }
+                if (result == null)
+                    result = findExpr;
+                else
+                    result = Expression.OrElse(result, findExpr);
+            }
+
+            return Expression.Lambda<Func<TEntity, bool>>(result, param);
+        }
+
+        public Expression<Func<TEntity, bool>> CreateFindByKeyExpression(object[] keyValues)
         {
             if (keyValues == null || keyValues.Any(kv => kv == null))
                 throw new ArgumentException("Key values cannot be null.", nameof(keyValues));

@@ -85,14 +85,23 @@ namespace Detached.EntityFramework
 
         public virtual async Task DeleteAsync(params object[] keyValues)
         {
+            await DeleteAsync(new KeyValue(keyValues));
+        }
+
+        public virtual async Task DeleteAsync(params KeyValue[] keys)
+        {
             // temporally disable autodetect changes.
             bool autoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
 
-            TEntity persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(keyValues);
+            IList<TEntity> persisted = await _detachedServices.LoadServices.LoadPersisted<TEntity>(keys);
             if (persisted != null)
-                _detachedServices.UpdateServices.Delete(persisted);
-
+            {
+                foreach (TEntity entity in persisted)
+                {
+                    _detachedServices.UpdateServices.Delete(entity);
+                }
+            }
             // re-enable autodetect changes.
             _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
         }

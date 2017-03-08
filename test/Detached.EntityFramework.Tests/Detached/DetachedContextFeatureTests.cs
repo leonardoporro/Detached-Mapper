@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -382,6 +383,41 @@ namespace Detached.EntityFramework.Tests
                 Assert.Equal("Reference C Item 1", entity2.ReferenceC.Items[0].Name);
                 Assert.Equal("Reference C Item 2", entity2.ReferenceC.Items[1].Name);
                 Assert.Equal("Reference C Item 3", entity2.ReferenceC.Items[2].Name);
+            }
+        }
+
+        [Fact]
+        public async Task when_deleting_multiple_ids__entities_are_deleted()
+        {
+            using (TestDbContext context = new TestDbContext())
+            {
+                IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
+
+                await detachedContext.Set<Entity>().UpdateAsync(new Entity
+                {
+                    Name = "Entity 1"
+                });
+
+                await detachedContext.Set<Entity>().UpdateAsync(new Entity
+                {
+                    Name = "Entity 2"
+                });
+
+                await detachedContext.Set<Entity>().UpdateAsync(new Entity
+                {
+                    Name = "Entity 3"
+                });
+
+                await detachedContext.SaveChangesAsync();
+
+                List<Entity> all = context.Entities.ToList();
+                Assert.Equal(3, all.Count);
+
+                await detachedContext.Set<Entity>().DeleteAsync(new KeyValue(1), new KeyValue(2));
+                await detachedContext.SaveChangesAsync();
+
+                all = context.Entities.ToList();
+                Assert.Equal(1, all.Count);
             }
         }
     }

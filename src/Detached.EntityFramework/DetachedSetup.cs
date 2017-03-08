@@ -1,13 +1,20 @@
-﻿using Detached.EntityFramework.Conventions;
+﻿using Detached.DataAnnotations;
+using Detached.EntityFramework.Conventions;
 using Detached.EntityFramework.Events;
 using Detached.EntityFramework.Plugins;
 using Detached.EntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Detached.EntityFramework
 {
@@ -96,6 +103,101 @@ namespace Detached.EntityFramework
         {
             options.DetachedServices.AddScoped<TService, TImplementation>();
             return options;
+        }
+
+        /// <summary>
+        /// (Detached) Configures a relationship where this entity type owns (see [Owned]) instances of the specified entity.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr Type of the entity.</typeparam>
+        /// <typeparam name="TRelatedEntity">Clr type of the related entity.</typeparam>
+        /// <param name="builder">The entity builder</param>
+        /// <param name="navigationExpression">A property selector</param>
+        /// <returns>A pre-configured collection builder</returns>
+        public static CollectionNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TEntity, TRelatedEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            CollectionNavigationBuilder<TEntity, TRelatedEntity> navigationBuilder = builder.HasMany(navigationExpression);
+
+            RunAttributeConvention(navigationBuilder.GetInfrastructure(), navigationExpression, new OwnedNavigationAttributeConvention());
+
+            return navigationBuilder;
+        }
+
+        /// <summary>
+        /// (Detached) Configures a relationship where this entity type owns (see [Owned]) a single instance of the given entity.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr Type of the entity.</typeparam>
+        /// <typeparam name="TRelatedEntity">Clr type of the related entity.</typeparam>
+        /// <param name="builder">The entity builder</param>
+        /// <param name="navigationExpression">A property selector</param>
+        /// <returns>A pre-configured reference builder</returns>
+        public static ReferenceNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TEntity, TRelatedEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            ReferenceNavigationBuilder<TEntity, TRelatedEntity> navigationBuilder = builder.HasOne(navigationExpression);
+
+            RunAttributeConvention(navigationBuilder.GetInfrastructure(), navigationExpression, new OwnedNavigationAttributeConvention());
+
+            return navigationBuilder;
+        }
+
+        /// <summary>
+        /// (Detached) Configures a relationship where this entity type has (see [Associated]) instances of the specified entity.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr Type of the entity.</typeparam>
+        /// <typeparam name="TRelatedEntity">Clr type of the related entity.</typeparam>
+        /// <param name="builder">The entity builder</param>
+        /// <param name="navigationExpression">A property selector</param>
+        /// <returns>A pre-configured collection builder</returns>
+        public static CollectionNavigationBuilder<TEntity, TRelatedEntity> RefersMany<TEntity, TRelatedEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            CollectionNavigationBuilder<TEntity, TRelatedEntity> navigationBuilder = builder.HasMany(navigationExpression);
+            InternalRelationshipBuilder internalBuilder = navigationBuilder.GetInfrastructure();
+
+            internalBuilder.Metadata.SetAnnotation(typeof(AssociatedAttribute).FullName, new AssociatedAttribute(), ConfigurationSource.Explicit);
+
+            return navigationBuilder;
+        }
+
+        /// <summary>
+        /// (Detached) Configures a relationship where this entity type has (see [Associated]) a single instance of the given entity.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr Type of the entity.</typeparam>
+        /// <typeparam name="TRelatedEntity">Clr type of the related entity.</typeparam>
+        /// <param name="builder">The entity builder</param>
+        /// <param name="navigationExpression">A property selector</param>
+        /// <returns>A pre-configured reference builder</returns>
+        public static ReferenceNavigationBuilder<TEntity, TRelatedEntity> RefersOne<TEntity, TRelatedEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            ReferenceNavigationBuilder<TEntity, TRelatedEntity> navigationBuilder = builder.HasOne(navigationExpression);
+            RunAttributeConvention(navigationBuilder.GetInfrastructure(), navigationExpression, new AssociatedNavigationAttributeConvention());
+
+            return navigationBuilder;
+        }
+
+        /// <summary>
+        /// Adds the given attribute convention to the specified relationship builder. i.e.: Owned, Associated.
+        /// </summary>
+        /// <typeparam name="TEntity">Clr type of the entity</typeparam>
+        /// <typeparam name="TRelatedEntity">Clr type of the association</typeparam>
+        /// <typeparam name="TAttribute">DataAnnotation type</typeparam>
+        /// <param name="builder">The relationship builder</param>
+        /// <param name="navigationExpression">The property selector</param>
+        /// <param name="convention">The convention to apply</param>
+        static void RunAttributeConvention<TEntity, TRelatedEntity, TAttribute>(InternalRelationshipBuilder builder, Expression<Func<TEntity, TRelatedEntity>> navigationExpression, NavigationAttributeNavigationConvention<TAttribute> convention)
+            where TAttribute : Attribute, new()
+        {
+            EntityType entityType = builder.ModelBuilder.Metadata.FindEntityType(typeof(TEntity));
+            PropertyInfo propInfo = ((MemberExpression)navigationExpression.Body).Member as PropertyInfo;
+            Navigation navigation = entityType.FindNavigation(propInfo);
+
+            convention.Apply(builder, navigation, new TAttribute());
         }
     }
 }
