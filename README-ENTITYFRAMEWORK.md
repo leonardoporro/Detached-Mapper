@@ -47,6 +47,7 @@ services.AddTransient(typeof(IDetachedContext<>), typeof(DetachedContext<>));
 #### Configuring the Model
 Add [Owned] attributes to the navigation properties where the related objects will be modified along with the root entity (composition).
 Add [Associated] attributes to the navigation properties where the related objects are self-contained independent entities (association).
+There are fluent alternatives: OwnsOne, OwnsMany, RefersOne and RefersMany that works just like the original HasOne and HasMany.
 
 ```csharp
 public class Invoice {
