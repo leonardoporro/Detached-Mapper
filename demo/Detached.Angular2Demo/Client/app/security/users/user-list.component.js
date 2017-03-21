@@ -8,25 +8,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var users_datasource_1 = require("./users.datasource");
+var users_services_1 = require("./users.services");
+var md_core_1 = require("../../../core/md-core");
 var UserListComponent = (function () {
-    function UserListComponent(usersSource) {
-        this.usersSource = usersSource;
+    function UserListComponent(userCollection) {
+        //this.userSelection.keys.subscribe(u => {
+        this.userCollection = userCollection;
+        this.userSelection = new md_core_1.Selection();
+        //    let k = "keys=" + JSON.stringify(u);
+        //    window.history.replaceState(null, "Selection Change", "?" + k);
+        //    let s = window.location.origin + window.location.pathname + "?" + k;
+        //    window.history.replaceState(null, "SC", s);
+        //});
     }
     UserListComponent.prototype.ngOnInit = function () {
-        this.usersSource.pageSize = 3;
-        this.usersSource.load();
+        this.userCollection.params.pageSize = 5;
+        this.userCollection.load();
     };
-    UserListComponent = __decorate([
-        core_1.Component({
-            selector: "user-list",
-            template: require("./user-list.component.html"),
-            providers: [users_datasource_1.UserCollectionDataSource]
-        }), 
-        __metadata('design:paramtypes', [users_datasource_1.UserCollectionDataSource])
-    ], UserListComponent);
     return UserListComponent;
 }());
+UserListComponent = __decorate([
+    core_1.Component({
+        selector: "user-list",
+        template: require("./user-list.component.html"),
+        providers: [users_services_1.UserCollection, users_services_1.UserService]
+    }),
+    __metadata("design:paramtypes", [users_services_1.UserCollection])
+], UserListComponent);
 exports.UserListComponent = UserListComponent;
 //# sourceMappingURL=user-list.component.js.map

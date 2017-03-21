@@ -66,7 +66,7 @@ namespace Detached.Mvc.Localization.Errors
         /// <returns>A localized string.</returns>
         public LocalizedString GetFallbackErrorMessage(string errorCode)
         {
-            ResourceKey resourceKey = _resourceMapper.GetFallbackKey("Errors", errorCode, nameof(ModelError.ErrorMessage));
+            ResourceKey resourceKey = _resourceMapper.GetFallbackKey("Errors", errorCode, nameof(ApiModelError.Message));
             if (resourceKey != null)
             {
                 IStringLocalizer stringLocalizer = _stringLocalizerFactory.Create(resourceKey.ResourceName, resourceKey.ResourceLocation);

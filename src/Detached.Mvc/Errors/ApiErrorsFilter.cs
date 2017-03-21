@@ -37,23 +37,23 @@ namespace Detached.Mvc.Errors
             {
                 ApiException apiException = (ApiException)context.Exception;
                 httpStatusCode = apiException.HttpStatusCode;
-                apiError.ErrorCode = apiException.ErrorCode;
+                apiError.Code = apiException.ErrorCode;
             }
             else if (context.Exception is UnauthorizedAccessException)
             {
-                apiError.ErrorCode = ApiErrorCodes.UnauthorizedAccess;
+                apiError.Code = ApiErrorCodes.UnauthorizedAccess;
                 httpStatusCode = StatusCodes.Status403Forbidden;
             }
             else
             {
-                apiError.ErrorCode = ApiErrorCodes.InternalError;
+                apiError.Code = ApiErrorCodes.InternalError;
                 httpStatusCode = StatusCodes.Status500InternalServerError;
             }
 
             // localize the error message.
-            apiError.ErrorMessage = 
+            apiError.Message = 
                 _errorLocalizer.GetLocalizedErrorMessage(context.ActionDescriptor as ControllerActionDescriptor,
-                                                         apiError.ErrorCode);
+                                                         apiError.Code);
            
             // return the result.
             context.Result = new ObjectResult(apiError)

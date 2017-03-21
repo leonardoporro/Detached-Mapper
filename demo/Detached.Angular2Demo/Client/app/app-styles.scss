@@ -1,4 +1,4 @@
-﻿@import '../core/core-styles.scss';
+﻿@import '../../node_modules/@angular/material/core/style/elevation';
 
 $app-nav-hover-color: #eeeeee !default;
 $app-nav-icon-color: #808080 !default;
@@ -10,6 +10,7 @@ html, body, .container {
 }
 
 md-sidenav {
+    min-width: 300px;
     width: 300px;
 }
 
@@ -36,7 +37,7 @@ md-list {
 
 button {
     &.app-sidenav-button {
-        background-color: orange;
+        @include md-elevation(0);
         min-width: 0px;
         height: 100%;
         border-radius: 0px;
@@ -46,6 +47,9 @@ button {
 
 md-toolbar {
     &.app-toolbar {
+        @include md-elevation(3);
+        z-index: 1000;
+        margin-left: 0;
         height: auto;
         min-height: 0px;
         padding-left: 0px;
@@ -53,7 +57,7 @@ md-toolbar {
 
         md-toolbar-row {
             min-height: 0px;
-            height: 45px;
+            height: 50px;
         }
     }
 }

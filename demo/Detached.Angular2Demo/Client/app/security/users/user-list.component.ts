@@ -1,18 +1,29 @@
-﻿import { Component, OnInit, Input, Output, EventEmitter, ContentChild } from "@angular/core";
-import { User, UserCollectionDataSource } from "./users.datasource";
-import { MdSidenav } from "@angular/material";
+﻿import { Component, OnInit, Input } from "@angular/core";
+import { User, UserService, UserCollection } from "./users.services";
+import { ISelection, Selection } from "../../../core/md-core";
 
 @Component({
     selector: "user-list",
     template: require("./user-list.component.html"),
-    providers: [UserCollectionDataSource]
+    providers: [UserCollection, UserService]
 })
 export class UserListComponent implements OnInit {
-    constructor(public usersSource: UserCollectionDataSource) {
+    constructor(public userCollection: UserCollection) {
+        //this.userSelection.keys.subscribe(u => {
+
+        //    let k = "keys=" + JSON.stringify(u);
+
+        //    window.history.replaceState(null, "Selection Change", "?" + k);
+
+        //    let s = window.location.origin + window.location.pathname + "?" + k;
+        //    window.history.replaceState(null, "SC", s);
+        //});
     }
 
+    public userSelection: ISelection<User> = new Selection();
+
     ngOnInit() {
-        this.usersSource.pageSize = 3;
-        this.usersSource.load();
+        this.userCollection.params.pageSize = 5;
+        this.userCollection.load();
     }
 }

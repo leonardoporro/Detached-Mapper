@@ -2,14 +2,13 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
 import { HttpModule } from "@angular/http";
 import { MaterialModule } from "@angular/material";
-import { FlexLayoutModule } from "@angular/flex-layout"; 
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { LocaleModule, LocalizationModule } from "angular2localization";
 
 // app
-import { CoreModule } from "../core/core.module";
+import { MdCoreModule } from "../core/md-core";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 // home
@@ -18,7 +17,7 @@ import { HomeComponent } from "./home/home.component";
 import { UserListComponent } from "./security/users/user-list.component";
 import { UserEditComponent } from "./security/users/user-edit.component";
 
-require("./app-styles.scss");
+require("./app-styles.css");
 
 @NgModule({
     imports: [
@@ -29,7 +28,7 @@ require("./app-styles.scss");
         MaterialModule.forRoot(),
         LocaleModule.forRoot(),
         LocalizationModule.forRoot(),
-        CoreModule, 
+        MdCoreModule,
         AppRoutingModule,
     ],
     declarations: [

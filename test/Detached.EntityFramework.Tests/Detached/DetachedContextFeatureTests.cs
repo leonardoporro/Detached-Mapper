@@ -391,6 +391,7 @@ namespace Detached.EntityFramework.Tests
         {
             using (TestDbContext context = new TestDbContext())
             {
+                // GIVEN: 3 entities
                 IDetachedContext<TestDbContext> detachedContext = new DetachedContext<TestDbContext>(context);
 
                 await detachedContext.Set<Entity>().UpdateAsync(new Entity
@@ -413,9 +414,11 @@ namespace Detached.EntityFramework.Tests
                 List<Entity> all = context.Entities.ToList();
                 Assert.Equal(3, all.Count);
 
+                // WHEN: two are deleted in batch
                 await detachedContext.Set<Entity>().DeleteAsync(new KeyValue(1), new KeyValue(2));
                 await detachedContext.SaveChangesAsync();
 
+                // THEN: only one remains
                 all = context.Entities.ToList();
                 Assert.Equal(1, all.Count);
             }

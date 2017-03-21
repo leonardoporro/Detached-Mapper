@@ -11,7 +11,10 @@ namespace Detached.Angular2Demo.Server.Security.Users.Services
         protected override IQueryable<User> ApplyCustom(IQueryable<User> query)
         {
             if (!string.IsNullOrEmpty(Name))
-                query = query.Where(n => n.Name.Contains(this.Name));
+                query = query.Where(n => n.Name.Contains(Name));
+
+            if (!string.IsNullOrEmpty(SearchText))
+                query = query.Where(n => n.Name.Contains(SearchText));
 
             return query;
         }

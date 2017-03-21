@@ -1,35 +1,34 @@
-﻿import { Component, OnInit } from "@angular/core";
+﻿import { Component, OnInit, Input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { User, UserModelDataSource } from "./users.datasource";
-import { Role, RoleCollectionDataSource } from "../roles/roles.datasource";
-import { Locale, LocalizationService } from "angular2localization";
 import { NgForm, FormGroup } from "@angular/forms";
+import { User, UserService, UserModel } from "./users.services";
+import { ISelection, Selection } from "../../../core/md-core";
+import { MdMessageBoxService } from "../../../core/md-core";
 
 @Component({
     selector: "user-edit",
     template: require("./user-edit.component.html"),
-    providers: [UserModelDataSource, RoleCollectionDataSource]
+    providers: [UserModel, UserService, MdMessageBoxService]
 })
-export class UserEditComponent extends Locale implements OnInit {
-    constructor(public userSource: UserModelDataSource,
-        public rolesSource: RoleCollectionDataSource,
-        public activatedRoute: ActivatedRoute,
-        public localization: LocalizationService) {
+export class UserEditComponent implements OnInit {
 
-        super(null, localization);
+    constructor(private userModel: UserModel,
+        private activatedRoute: ActivatedRoute,
+        private messageBoxService: MdMessageBoxService) {
     }
 
     ngOnInit() {
         let key = this.activatedRoute.snapshot.params["id"];
         if (key !== "new") {
-            this.userSource.load(key);
+            this.userModel.load(key);
         }
-        this.rolesSource.load();
-    }
+        //this.rolesSource.load();
+    } 
 
-    save(frm : NgForm ) {
+    save(frm: NgForm) {
+
         if (frm.valid) {
-            this.userSource.save()
+            this.userModel.save()
                 .subscribe(ok => this.close(),
                 error => {
                     if (error.memberErrors) {
@@ -43,8 +42,8 @@ export class UserEditComponent extends Locale implements OnInit {
     }
 
     delete() {
-        this.userSource.delete()
-            .subscribe(ok => this.close());
+        //this.userSource.delete()
+        //    .subscribe(ok => this.close());
     }
 
     close() {

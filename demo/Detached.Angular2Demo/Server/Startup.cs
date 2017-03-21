@@ -53,7 +53,7 @@ namespace Detached.Angular2Demo.Server
             services.AddLocalization();
 
             // add MVC.
-            services.AddMvc();
+            services.AddMvc(); 
 
             // add a resource mapper.
             // this maps .NET type names to a key and resource source (file/table/etc).

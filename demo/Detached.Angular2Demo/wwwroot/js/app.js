@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "aa32f5763da88fc6f23c"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "e30f3c4314f429db4e54"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -614,7 +614,7 @@
 	    options.log = false;
 	  }
 	  if (overrides.name) {
-	    options.name = overrides.name 
+	    options.name = overrides.name;
 	  }
 	  if (overrides.quiet && overrides.quiet !== 'false') {
 	    options.log = false;
@@ -634,22 +634,27 @@
 	    "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events#Tools"
 	  );
 	} else {
-	  connect(window.EventSource);
+	  connect();
 	}
 	
-	function connect(EventSource) {
-	  var source = new EventSource(options.path);
+	function EventSourceWrapper() {
+	  var source;
 	  var lastActivity = new Date();
+	  var listeners = [];
 	
-	  source.onopen = handleOnline;
-	  source.onmessage = handleMessage;
-	  source.onerror = handleDisconnect;
-	
+	  init();
 	  var timer = setInterval(function() {
 	    if ((new Date() - lastActivity) > options.timeout) {
 	      handleDisconnect();
 	    }
 	  }, options.timeout / 2);
+	
+	  function init() {
+	    source = new window.EventSource(options.path);
+	    source.onopen = handleOnline;
+	    source.onerror = handleDisconnect;
+	    source.onmessage = handleMessage;
+	  }
 	
 	  function handleOnline() {
 	    if (options.log) console.log("[HMR] connected");
@@ -658,6 +663,40 @@
 	
 	  function handleMessage(event) {
 	    lastActivity = new Date();
+	    for (var i = 0; i < listeners.length; i++) {
+	      listeners[i](event);
+	    }
+	  }
+	
+	  function handleDisconnect() {
+	    clearInterval(timer);
+	    source.close();
+	    setTimeout(init, options.timeout);
+	  }
+	
+	  return {
+	    addMessageListener: function(fn) {
+	      listeners.push(fn);
+	    }
+	  };
+	}
+	
+	function getEventSourceWrapper() {
+	  if (!window.__whmEventSourceWrapper) {
+	    window.__whmEventSourceWrapper = {};
+	  }
+	  if (!window.__whmEventSourceWrapper[options.path]) {
+	    // cache the wrapper for other entries loaded on
+	    // the same page with the same options.path
+	    window.__whmEventSourceWrapper[options.path] = EventSourceWrapper();
+	  }
+	  return window.__whmEventSourceWrapper[options.path];
+	}
+	
+	function connect() {
+	  getEventSourceWrapper().addMessageListener(handleMessage);
+	
+	  function handleMessage(event) {
 	    if (event.data == "\uD83D\uDC93") {
 	      return;
 	    }
@@ -669,23 +708,19 @@
 	      }
 	    }
 	  }
-	
-	  function handleDisconnect() {
-	    clearInterval(timer);
-	    source.close();
-	    setTimeout(function() { connect(EventSource); }, options.timeout);
-	  }
-	
 	}
 	
-	var reporter;
 	// the reporter needs to be a singleton on the page
-	// in case the client is being used by mutliple bundles
+	// in case the client is being used by multiple bundles
 	// we only want to report once.
 	// all the errors will go to all clients
 	var singletonKey = '__webpack_hot_middleware_reporter__';
-	if (typeof window !== 'undefined' && !window[singletonKey]) {
-	  reporter = window[singletonKey] = createReporter();
+	var reporter;
+	if (typeof window !== 'undefined') {
+	  if (!window[singletonKey]) {
+	    window[singletonKey] = createReporter();
+	  }
+	  reporter = window[singletonKey];
 	}
 	
 	function createReporter() {
@@ -696,8 +731,36 @@
 	    overlay = __webpack_require__(8);
 	  }
 	
-	
+	  var styles = {
+	    errors: "color: #ff0000;",
+	    warnings: "color: #5c3b00;"
+	  };
 	  var previousProblems = null;
+	  function log(type, obj) {
+	    var newProblems = obj[type].map(function(msg) { return strip(msg); }).join('\n');
+	    if (previousProblems == newProblems) {
+	      return;
+	    } else {
+	      previousProblems = newProblems;
+	    }
+	
+	    var style = styles[type];
+	    var name = obj.name ? "'" + obj.name + "' " : "";
+	    var title = "[HMR] bundle " + name + "has " + obj[type].length + " " + type;
+	    // NOTE: console.warn or console.error will print the stack trace
+	    // which isn't helpful here, so using console.log to escape it.
+	    if (console.group && console.groupEnd) {
+	      console.group("%c" + title, style);
+	      console.log("%c" + newProblems, style);
+	      console.groupEnd();
+	    } else {
+	      console.log(
+	        "%c" + title + "\n\t%c" + newProblems.replace(/\n/g, "\n\t"),
+	        style + "font-weight: bold;",
+	        style + "font-weight: normal;"
+	      );
+	    }
+	  }
 	
 	  return {
 	    cleanProblemsCache: function () {
@@ -705,12 +768,7 @@
 	    },
 	    problems: function(type, obj) {
 	      if (options.warn) {
-	        var newProblems = obj[type].map(function(msg) { return strip(msg); }).join('\n');
-	
-	        if (previousProblems !== newProblems) {
-	          previousProblems = newProblems;
-	          console.warn("[HMR] bundle has " + type + ":\n" + newProblems);
-	        }
+	        log(type, obj);
 	      }
 	      if (overlay && type !== 'warnings') overlay.showProblems(type, obj[type]);
 	    },
@@ -730,12 +788,17 @@
 	function processMessage(obj) {
 	  switch(obj.action) {
 	    case "building":
-	      if (options.log) console.log("[HMR] bundle rebuilding");
+	      if (options.log) {
+	        console.log(
+	          "[HMR] bundle " + (obj.name ? "'" + obj.name + "' " : "") +
+	          "rebuilding"
+	        );
+	      }
 	      break;
 	    case "built":
 	      if (options.log) {
 	        console.log(
-	          "[HMR] bundle " + (obj.name ? obj.name + " " : "") +
+	          "[HMR] bundle " + (obj.name ? "'" + obj.name + "' " : "") +
 	          "rebuilt in " + obj.time + "ms"
 	        );
 	      }
@@ -985,7 +1048,7 @@
 
 	'use strict';
 	module.exports = function () {
-		return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+		return /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g;
 	};
 
 
@@ -996,6 +1059,7 @@
 	/*eslint-env browser*/
 	
 	var clientOverlay = document.createElement('div');
+	clientOverlay.id = 'webpack-hot-middleware-clientOverlay';
 	var styles = {
 	  background: 'rgba(0,0,0,0.85)',
 	  color: '#E8E8E8',
@@ -1011,7 +1075,8 @@
 	  top: 0,
 	  bottom: 0,
 	  overflow: 'auto',
-	  dir: 'ltr'
+	  dir: 'ltr',
+	  textAlign: 'left'
 	};
 	for (var key in styles) {
 	  clientOverlay.style[key] = styles[key];
@@ -1107,7 +1172,7 @@
 	}
 	var _openTags = {
 	  '1': 'font-weight:bold', // bold
-	  '2': 'opacity:0.8', // dim
+	  '2': 'opacity:0.5', // dim
 	  '3': '<i>', // italic
 	  '4': '<u>', // underscore
 	  '8': 'display:none', // hidden
@@ -1919,6 +1984,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
 	__webpack_require__(16);
 	__webpack_require__(18);
 	__webpack_require__(19);
@@ -1926,9 +1992,9 @@
 	var core_1 = __webpack_require__(21);
 	var app_module_1 = __webpack_require__(22);
 	var platform = platform_browser_dynamic_1.platformBrowserDynamic();
-	if (module['hot']) {
-	    module['hot'].accept();
-	    module['hot'].dispose(function () { platform.destroy(); });
+	if (module["hot"]) {
+	    module["hot"].accept();
+	    module["hot"].dispose(function () { platform.destroy(); });
 	}
 	else {
 	    core_1.enableProdMode();
@@ -1984,9 +2050,7 @@
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	// angular 2
 	var core_1 = __webpack_require__(21);
 	var platform_browser_1 = __webpack_require__(23);
@@ -1994,45 +2058,44 @@
 	var http_1 = __webpack_require__(25);
 	var material_1 = __webpack_require__(26);
 	var flex_layout_1 = __webpack_require__(27);
-	var angular2localization_1 = __webpack_require__(31);
+	var angular2localization_1 = __webpack_require__(32);
 	// app
-	var core_module_1 = __webpack_require__(32);
-	var app_routing_module_1 = __webpack_require__(62);
-	var app_component_1 = __webpack_require__(72);
+	var md_core_1 = __webpack_require__(33);
+	var app_routing_module_1 = __webpack_require__(74);
+	var app_component_1 = __webpack_require__(83);
 	// home
-	var home_component_1 = __webpack_require__(64);
+	var home_component_1 = __webpack_require__(76);
 	// user
-	var user_list_component_1 = __webpack_require__(66);
-	var user_edit_component_1 = __webpack_require__(69);
-	__webpack_require__(74);
+	var user_list_component_1 = __webpack_require__(78);
+	var user_edit_component_1 = __webpack_require__(81);
+	__webpack_require__(85);
 	var AppModule = (function () {
 	    function AppModule() {
 	    }
-	    AppModule = __decorate([
-	        core_1.NgModule({
-	            imports: [
-	                platform_browser_1.BrowserModule,
-	                forms_1.FormsModule,
-	                http_1.HttpModule,
-	                flex_layout_1.FlexLayoutModule.forRoot(),
-	                material_1.MaterialModule.forRoot(),
-	                angular2localization_1.LocaleModule.forRoot(),
-	                angular2localization_1.LocalizationModule.forRoot(),
-	                core_module_1.CoreModule,
-	                app_routing_module_1.AppRoutingModule,
-	            ],
-	            declarations: [
-	                app_component_1.AppComponent,
-	                home_component_1.HomeComponent,
-	                user_list_component_1.UserListComponent,
-	                user_edit_component_1.UserEditComponent
-	            ],
-	            bootstrap: [app_component_1.AppComponent]
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], AppModule);
 	    return AppModule;
 	}());
+	AppModule = __decorate([
+	    core_1.NgModule({
+	        imports: [
+	            platform_browser_1.BrowserModule,
+	            forms_1.FormsModule,
+	            http_1.HttpModule,
+	            flex_layout_1.FlexLayoutModule.forRoot(),
+	            material_1.MaterialModule.forRoot(),
+	            angular2localization_1.LocaleModule.forRoot(),
+	            angular2localization_1.LocalizationModule.forRoot(),
+	            md_core_1.MdCoreModule,
+	            app_routing_module_1.AppRoutingModule,
+	        ],
+	        declarations: [
+	            app_component_1.AppComponent,
+	            home_component_1.HomeComponent,
+	            user_list_component_1.UserListComponent,
+	            user_edit_component_1.UserEditComponent
+	        ],
+	        bootstrap: [app_component_1.AppComponent]
+	    })
+	], AppModule);
 	exports.AppModule = AppModule;
 
 
@@ -2065,12 +2128,19 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	(function (global, factory) {
-	     true ? factory(exports, __webpack_require__(28), __webpack_require__(29), __webpack_require__(21), __webpack_require__(30)) :
-	    typeof define === 'function' && define.amd ? define(['exports', 'rxjs/add/operator/map', 'rxjs/add/operator/filter', '@angular/core', 'rxjs/BehaviorSubject'], factory) :
-	    (factory((global.ng = global.ng || {}, global.ng.flexLayout = global.ng.flexLayout || {}),global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.ng.core,global.Rx));
-	}(this, (function (exports,rxjs_add_operator_map,rxjs_add_operator_filter,_angular_core,rxjs_BehaviorSubject) { 'use strict';
+	     true ? factory(exports, __webpack_require__(28), __webpack_require__(29), __webpack_require__(21), __webpack_require__(30), __webpack_require__(31)) :
+	    typeof define === 'function' && define.amd ? define(['exports', 'rxjs/add/operator/map', 'rxjs/add/operator/filter', '@angular/core', 'rxjs/BehaviorSubject', '@angular/common'], factory) :
+	    (factory((global.ng = global.ng || {}, global.ng.flexLayout = global.ng.flexLayout || {}),global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.ng.core,global.Rx,global.ng.common));
+	}(this, (function (exports,rxjs_add_operator_map,rxjs_add_operator_filter,_angular_core,rxjs_BehaviorSubject,_angular_common) { 'use strict';
 	
-	/** @internal Applies CSS prefixes to appropriate style keys.*/
+	/**
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
+	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	/** Applies CSS prefixes to appropriate style keys.*/
 	function applyCssPrefixes(target) {
 	    for (var key in target) {
 	        var value = target[key];
@@ -2122,28 +2192,30 @@
 	}
 	function toAlignContentValue(value) {
 	    switch (value) {
-	        case "space-between": return "justify";
-	        case "space-around": return "distribute";
+	        case "space-between":
+	            return "justify";
+	        case "space-around":
+	            return "distribute";
 	        default:
 	            return toBoxValue(value);
 	    }
 	}
-	/** @internal Convert flex values flex-start, flex-end to start, end. */
+	/** Convert flex values flex-start, flex-end to start, end. */
 	function toBoxValue(value) {
 	    if (value === void 0) { value = ""; }
 	    return (value == 'flex-start') ? 'start' : ((value == 'flex-end') ? 'end' : value);
 	}
-	/** @internal Convert flex Direction to Box orientation */
+	/** Convert flex Direction to Box orientation */
 	function toBoxOrient(flexDirection) {
 	    if (flexDirection === void 0) { flexDirection = 'row'; }
 	    return flexDirection.indexOf('column') === -1 ? 'horizontal' : 'vertical';
 	}
-	/** @internal Convert flex Direction to Box direction type */
+	/** Convert flex Direction to Box direction type */
 	function toBoxDirection(flexDirection) {
 	    if (flexDirection === void 0) { flexDirection = 'row'; }
 	    return flexDirection.indexOf('reverse') !== -1 ? 'reverse' : 'normal';
 	}
-	/** @internal Convert flex order to Box ordinal group */
+	/** Convert flex order to Box ordinal group */
 	function toBoxOrdinal(order) {
 	    if (order === void 0) { order = '0'; }
 	    var value = order ? parseInt(order) + 1 : 1;
@@ -2151,8 +2223,13 @@
 	}
 	
 	/**
-	 * @internal
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
 	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	/**
 	 * Extends an object with the *enumerable* and *own* properties of one or more source objects,
 	 * similar to Object.assign.
 	 *
@@ -2180,7 +2257,6 @@
 	    return dest;
 	}
 	
-	/** @internal  */
 	var KeyOptions = (function () {
 	    function KeyOptions(baseKey, defaultValue, inputKeys) {
 	        this.baseKey = baseKey;
@@ -2190,15 +2266,14 @@
 	    return KeyOptions;
 	}());
 	/**
-	 * @internal
-	 *
-	 * ResponsiveActivation acts as a proxy between the MonitorMedia service (which emits mediaQuery changes)
-	 * and the fx API directives. The MQA proxies mediaQuery change events and notifies the directive
-	 * via the specified callback.
+	 * ResponsiveActivation acts as a proxy between the MonitorMedia service (which emits mediaQuery
+	 * changes) and the fx API directives. The MQA proxies mediaQuery change events and notifies the
+	 * directive via the specified callback.
 	 *
 	 * - The MQA also determines which directive property should be used to determine the
 	 *   current change 'value'... BEFORE the original `onMediaQueryChanges()` method is called.
-	 * - The `ngOnDestroy()` method is also head-hooked to enable auto-unsubscribe from the MediaQueryServices.
+	 * - The `ngOnDestroy()` method is also head-hooked to enable auto-unsubscribe from the
+	 *   MediaQueryServices.
 	 *
 	 * NOTE: these interceptions enables the logic in the fx API directives to remain terse and clean.
 	 */
@@ -2246,11 +2321,18 @@
 	         */
 	        get: function () {
 	            var key = this.activatedInputKey;
-	            return this._hasKeyValue(key) ? this._lookupKeyValue(key) : this._options.defaultValue;
+	            return this.hasKeyValue(key) ? this._lookupKeyValue(key) : this._options.defaultValue;
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    /**
+	     * Fast validator for presence of attribute on the host element
+	     */
+	    ResponsiveActivation.prototype.hasKeyValue = function (key) {
+	        var value = this._options.inputKeys[key];
+	        return typeof value !== 'undefined';
+	    };
 	    /**
 	     * Remove interceptors, restore original functions, and forward the onDestroy() call
 	     */
@@ -2325,7 +2407,7 @@
 	     *     (since a different activate may be in use)
 	     */
 	    ResponsiveActivation.prototype._calculateActivatedValue = function (current) {
-	        var currentKey = this._options.baseKey + current.suffix; // e.g. suffix == 'GtSm', _baseKey == 'hide'
+	        var currentKey = this._options.baseKey + current.suffix; // e.g. suffix == 'GtSm',
 	        var newKey = this._activatedInputKey; // e.g. newKey == hideGtSm
 	        newKey = current.matches ? currentKey : ((newKey == currentKey) ? null : newKey);
 	        this._activatedInputKey = this._validateInputKey(newKey);
@@ -2359,10 +2441,6 @@
 	    ResponsiveActivation.prototype._lookupKeyValue = function (key) {
 	        return this._options.inputKeys[key];
 	    };
-	    ResponsiveActivation.prototype._hasKeyValue = function (key) {
-	        var value = this._options.inputKeys[key];
-	        return typeof value !== 'undefined';
-	    };
 	    return ResponsiveActivation;
 	}());
 	
@@ -2379,6 +2457,7 @@
 	         *  Dictionary of input keys with associated values
 	         */
 	        this._inputMap = {};
+	        this._display = this._getDisplayStyle();
 	    }
 	    // *********************************************
 	    // Accessor Methods
@@ -2401,6 +2480,25 @@
 	    // *********************************************
 	    // Protected Methods
 	    // *********************************************
+	    /**
+	     * Was the directive's default selector used ?
+	     * If not, use the fallback value!
+	     */
+	    BaseFxDirective.prototype._getDefaultVal = function (key, fallbackVal) {
+	        var val = this._queryInput(key);
+	        var hasDefaultVal = (val !== undefined && val !== null);
+	        return (hasDefaultVal && val !== '') ? val : fallbackVal;
+	    };
+	    /**
+	     * Quick accessor to the current HTMLElement's `display` style
+	     * Note: this allows use to preserve the original style
+	     * and optional restore it when the mediaQueries deactivate
+	     */
+	    BaseFxDirective.prototype._getDisplayStyle = function (source) {
+	        var element = source || this._elementRef.nativeElement;
+	        var value = element.style['display'] || getComputedStyle(element)['display'];
+	        return value.trim();
+	    };
 	    /**
 	     * Applies styles given via string pair or object map to the directive element.
 	     */
@@ -2460,20 +2558,129 @@
 	         */
 	        get: function () {
 	            var obj = this._elementRef.nativeElement.childNodes;
-	            var array = [];
+	            var buffer = [];
 	            // iterate backwards ensuring that length is an UInt32
 	            for (var i = obj.length; i--;) {
-	                array[i] = obj[i];
+	                buffer[i] = obj[i];
 	            }
-	            return array;
+	            return buffer;
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    /**
+	     * Fast validator for presence of attribute on the host element
+	     */
+	    BaseFxDirective.prototype.hasKeyValue = function (key) {
+	        return this._mqActivation.hasKeyValue(key);
+	    };
 	    return BaseFxDirective;
 	}());
 	
-	var RESPONSIVE_ALIASES = ['xs', 'gt-xs', 'sm', 'gt-sm', 'md', 'gt-md', 'lg', 'gt-lg', 'xl'];
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	/**
+	 * Adapter to the BaseFxDirective abstract class so it can be used via composition.
+	 * @see BaseFxDirective
+	 */
+	var BaseFxDirectiveAdapter = (function (_super) {
+	    __extends(BaseFxDirectiveAdapter, _super);
+	    function BaseFxDirectiveAdapter() {
+	        _super.apply(this, arguments);
+	    }
+	    Object.defineProperty(BaseFxDirectiveAdapter.prototype, "inputMap", {
+	        get: function () {
+	            return this._inputMap;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(BaseFxDirectiveAdapter.prototype, "mqActivation", {
+	        /**
+	         * @see BaseFxDirective._mqActivation
+	         */
+	        get: function () {
+	            return this._mqActivation;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    /**
+	     * @see BaseFxDirective._queryInput
+	     */
+	    BaseFxDirectiveAdapter.prototype.queryInput = function (key) {
+	        return this._queryInput(key);
+	    };
+	    /**
+	     *  Save the property value.
+	     */
+	    BaseFxDirectiveAdapter.prototype.cacheInput = function (key, source, cacheRaw) {
+	        if (cacheRaw === void 0) { cacheRaw = false; }
+	        if (cacheRaw) {
+	            this._cacheInputRaw(key, source);
+	        }
+	        else if (Array.isArray(source)) {
+	            this._cacheInputArray(key, source);
+	        }
+	        else if (typeof source === 'object') {
+	            this._cacheInputObject(key, source);
+	        }
+	        else if (typeof source === 'string') {
+	            this._cacheInputString(key, source);
+	        }
+	        else {
+	            throw new Error('Invalid class value provided. Did you want to cache the raw value?');
+	        }
+	    };
+	    /**
+	     * @see BaseFxDirective._listenForMediaQueryChanges
+	     */
+	    BaseFxDirectiveAdapter.prototype.listenForMediaQueryChanges = function (key, defaultValue, onMediaQueryChange) {
+	        return this._listenForMediaQueryChanges(key, defaultValue, onMediaQueryChange);
+	    };
+	    // ************************************************************
+	    // Protected Methods
+	    // ************************************************************
+	    /**
+	     * No implicit transforms of the source.
+	     * Required when caching values expected later for KeyValueDiffers
+	     */
+	    BaseFxDirectiveAdapter.prototype._cacheInputRaw = function (key, source) {
+	        this._inputMap[key] = source;
+	    };
+	    /**
+	     *  Save the property value for Array values.
+	     */
+	    BaseFxDirectiveAdapter.prototype._cacheInputArray = function (key, source) {
+	        this._inputMap[key] = source.join(' ');
+	    };
+	    /**
+	     *  Save the property value for key/value pair values.
+	     */
+	    BaseFxDirectiveAdapter.prototype._cacheInputObject = function (key, source) {
+	        var classes = [];
+	        for (var prop in source) {
+	            if (!!source[prop]) {
+	                classes.push(prop);
+	            }
+	        }
+	        this._inputMap[key] = classes.join(' ');
+	    };
+	    /**
+	     *  Save the property value for string values.
+	     */
+	    BaseFxDirectiveAdapter.prototype._cacheInputString = function (key, source) {
+	        this._inputMap[key] = source;
+	    };
+	    return BaseFxDirectiveAdapter;
+	}(BaseFxDirective));
+	
+	var RESPONSIVE_ALIASES = [
+	    'xs', 'gt-xs', 'sm', 'gt-sm', 'md', 'gt-md', 'lg', 'gt-lg', 'xl'
+	];
 	var RAW_DEFAULTS = [
 	    {
 	        alias: 'xs',
@@ -2527,7 +2734,7 @@
 	        alias: 'xl',
 	        suffix: 'Xl',
 	        overlapping: false,
-	        mediaQuery: 'screen and (min-width: 1921px)' // should be distinct from 'gt-lg' range
+	        mediaQuery: 'screen and (min-width: 1920px) and (max-width: 5000px)'
 	    }
 	];
 	/**
@@ -2537,7 +2744,8 @@
 	var BREAKPOINTS = new _angular_core.OpaqueToken('fxRawBreakpoints');
 	/**
 	 *  Provider to return observable to ALL known BreakPoint(s)
-	 *  Developers should build custom providers to override this default BreakPointRegistry dataset provider
+	 *  Developers should build custom providers to override
+	 *  this default BreakPointRegistry dataset provider
 	 *  NOTE: !! custom breakpoints lists MUST contain the following aliases & suffixes:
 	 *        [xs, gt-xs, sm, gt-sm, md, gt-md, lg, gt-lg, xl]
 	 */
@@ -2559,8 +2767,6 @@
 	    return function (target, key) { decorator(target, key, paramIndex); }
 	};
 	/**
-	 * @internal
-	 *
 	 * Registry of 1..n MediaQuery breakpoint ranges
 	 * This is published as a provider and may be overriden from custom, application-specific ranges
 	 *
@@ -2634,7 +2840,7 @@
 	 */
 	var MediaChange = (function () {
 	    function MediaChange(matches, // Is the mq currently activated
-	        mediaQuery, // e.g.   screen and (min-width: 600px) and (max-width: 959px)
+	        mediaQuery, // e.g.   (min-width: 600px) and (max-width: 959px)
 	        mqAlias, // e.g.   gt-sm, md, gt-lg
 	        suffix // e.g.   GtSM, Md, GtLg
 	        ) {
@@ -2660,17 +2866,9 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	/**
-	 *  Opaque Token unique to the flex-layout library.
-	 *  Note: Developers must use this token when building their own custom `MatchMediaObservableProvider`
-	 *  provider.
-	 *
-	 *  @see ./providers/match-media-observable-provider.ts
-	 */
-	var MatchMediaObservable = new _angular_core.OpaqueToken('fxObservableMatchMedia');
-	/**
-	 * MediaMonitor configures listeners to mediaQuery changes and publishes an Observable facade to convert
-	 * mediaQuery change callbacks to subscriber notifications. These notifications will be performed within the
-	 * ng Zone to trigger change detections and component updates.
+	 * MediaMonitor configures listeners to mediaQuery changes and publishes an Observable facade to
+	 * convert mediaQuery change callbacks to subscriber notifications. These notifications will be
+	 * performed within the ng Zone to trigger change detections and component updates.
 	 *
 	 * NOTE: both mediaQuery activations and de-activations are announced in notifications
 	 */
@@ -2706,16 +2904,16 @@
 	        });
 	    };
 	    /**
-	     * Based on the BreakPointRegistry provider, register internal listeners for each unique mediaQuery
-	     * Each listener emits specific MediaChange data to observers
+	     * Based on the BreakPointRegistry provider, register internal listeners for each unique
+	     * mediaQuery. Each listener emits specific MediaChange data to observers
 	     */
 	    MatchMedia.prototype.registerQuery = function (mediaQuery) {
 	        var _this = this;
 	        if (mediaQuery) {
 	            var mql = this._registry.get(mediaQuery);
-	            var onMQLEvent = function (mql) {
+	            var onMQLEvent = function (e) {
 	                _this._zone.run(function () {
-	                    var change = new MediaChange(mql.matches, mediaQuery);
+	                    var change = new MediaChange(e.matches, mediaQuery);
 	                    _this._source.next(change);
 	                });
 	            };
@@ -2739,8 +2937,10 @@
 	        return canListen ? window.matchMedia(query) : {
 	            matches: query === 'all' || query === '',
 	            media: query,
-	            addListener: function () { },
-	            removeListener: function () { }
+	            addListener: function () {
+	            },
+	            removeListener: function () {
+	            }
 	        };
 	    };
 	    MatchMedia = __decorate$3([
@@ -2781,8 +2981,6 @@
 	}
 	
 	/**
-	 * @internal
-	 *
 	 * For the specified MediaChange, make sure it contains the breakpoint alias
 	 * and suffix (if available).
 	 */
@@ -2897,30 +3095,169 @@
 	    return MediaMonitor;
 	}());
 	
+	var __decorate$5 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata$5 = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
 	/**
-	 * This factory uses the BreakPoint Registry only to inject alias information into the raw MediaChange
-	 * notification. For custom mediaQuery notifications, alias information will not be injected and those
-	 * fields will be ''.
-	 *
-	 * !! Only activation mediaChange notifications are publised by the MatchMediaObservable
+	 * Base class for MediaService and pseudo-token for
 	 */
-	function instanceOfMatchMediaObservable(mediaWatcher, breakpoints) {
-	    var onlyActivations = function (change) { return change.matches === true; };
-	    var findBreakpoint = function (mediaQuery) { return breakpoints.findByQuery(mediaQuery); };
-	    var injectAlias = function (change) { return mergeAlias(change, findBreakpoint(change.mediaQuery)); };
-	    // Note: the raw MediaChange events [from MatchMedia] do not contain important alias information
-	    //       these must be injected into the MediaChange
-	    return mediaWatcher.observe().filter(onlyActivations).map(injectAlias);
-	}
+	var ObservableMedia = (function () {
+	    function ObservableMedia() {
+	    }
+	    return ObservableMedia;
+	}());
+	/**
+	 * Class internalizes a MatchMedia service and exposes an Subscribable and Observable interface.
 	
+	 * This an Observable with that exposes a feature to subscribe to mediaQuery
+	 * changes and a validator method (`isActive(<alias>)`) to test if a mediaQuery (or alias) is
+	 * currently active.
+	 *
+	 * !! Only mediaChange activations (not de-activations) are announced by the ObservableMedia
+	 *
+	 * This class uses the BreakPoint Registry to inject alias information into the raw MediaChange
+	 * notification. For custom mediaQuery notifications, alias information will not be injected and
+	 * those fields will be ''.
+	 *
+	 * !! This is not an actual Observable. It is a wrapper of an Observable used to publish additional
+	 * methods like `isActive(<alias>). To access the Observable and use RxJS operators, use
+	 * `.asObservable()` with syntax like media.asObservable().map(....).
+	 *
+	 *  @usage
+	 *
+	 *  // RxJS
+	 *  import 'rxjs/add/operator/filter';
+	 *  import { ObservableMedia } from '@angular/flex-layout';
+	 *
+	 *  @Component({ ... })
+	 *  export class AppComponent {
+	 *    status : string = '';
+	 *
+	 *    constructor(  media:ObservableMedia ) {
+	 *      let onChange = (change:MediaChange) => {
+	 *        this.status = change ? `'${change.mqAlias}' = (${change.mediaQuery})` : "";
+	 *      };
+	 *
+	 *      // Subscribe directly or access observable to use filter/map operators
+	 *      // e.g.
+	 *      //      media.subscribe(onChange);
+	 *
+	 *      media.asObservable()
+	 *        .filter((change:MediaChange) => true)   // silly noop filter
+	 *        .subscribe(onChange);
+	 *    }
+	 *  }
+	 */
+	var MediaService = (function () {
+	    function MediaService(mediaWatcher, breakpoints) {
+	        this.mediaWatcher = mediaWatcher;
+	        this.breakpoints = breakpoints;
+	        /**
+	         * Should we announce gt-<xxx> breakpoint activations ?
+	         */
+	        this.filterOverlaps = true;
+	        this.observable$ = this._buildObservable();
+	        this._registerBreakPoints();
+	    }
+	    /**
+	     * Test if specified query/alias is active.
+	     */
+	    MediaService.prototype.isActive = function (alias) {
+	        var query = this._toMediaQuery(alias);
+	        return this.mediaWatcher.isActive(query);
+	    };
+	    
+	    /**
+	     * Proxy to the Observable subscribe method
+	     */
+	    MediaService.prototype.subscribe = function (next, error, complete) {
+	        return this.observable$.subscribe(next, error, complete);
+	    };
+	    
+	    /**
+	     * Access to observable for use with operators like
+	     * .filter(), .map(), etc.
+	     */
+	    MediaService.prototype.asObservable = function () {
+	        return this.observable$;
+	    };
+	    // ************************************************
+	    // Internal Methods
+	    // ************************************************
+	    /**
+	     * Register all the mediaQueries registered in the BreakPointRegistry
+	     * This is needed so subscribers can be auto-notified of all standard, registered
+	     * mediaQuery activations
+	     */
+	    MediaService.prototype._registerBreakPoints = function () {
+	        var _this = this;
+	        this.breakpoints.items.forEach(function (bp) {
+	            _this.mediaWatcher.registerQuery(bp.mediaQuery);
+	            return bp;
+	        });
+	    };
+	    /**
+	     * Prepare internal observable
+	     * NOTE: the raw MediaChange events [from MatchMedia] do not contain important alias information
+	     * these must be injected into the MediaChange
+	     */
+	    MediaService.prototype._buildObservable = function () {
+	        var _this = this;
+	        return this.mediaWatcher.observe()
+	            .filter(function (change) {
+	            // Only pass/announce activations (not de-activations)
+	            return change.matches === true;
+	        })
+	            .map(function (change) {
+	            // Inject associated (if any) alias information into the MediaChange event
+	            return mergeAlias(change, _this._findByQuery(change.mediaQuery));
+	        })
+	            .filter(function (change) {
+	            var bp = _this.breakpoints.findByQuery(change.mediaQuery);
+	            return !bp ? true : !(_this.filterOverlaps && bp.overlapping);
+	        });
+	    };
+	    /**
+	     * Breakpoint locator by alias
+	     */
+	    MediaService.prototype._findByAlias = function (alias) {
+	        return this.breakpoints.findByAlias(alias);
+	    };
+	    /**
+	     * Breakpoint locator by mediaQuery
+	     */
+	    MediaService.prototype._findByQuery = function (query) {
+	        return this.breakpoints.findByQuery(query);
+	    };
+	    
+	    /**
+	     * Find associated breakpoint (if any)
+	     */
+	    MediaService.prototype._toMediaQuery = function (query) {
+	        var bp = this._findByAlias(query) || this._findByQuery(query);
+	        return bp ? bp.mediaQuery : query;
+	    };
+	    
+	    MediaService = __decorate$5([
+	        _angular_core.Injectable(), 
+	        __metadata$5('design:paramtypes', [MatchMedia, BreakPointRegistry])
+	    ], MediaService);
+	    return MediaService;
+	}());
 	/**
 	 *  Provider to return observable to ALL MediaQuery events
 	 *  Developers should build custom providers to override this default MediaQuery Observable
 	 */
-	var MatchMediaObservableProvider = {
-	    provide: MatchMediaObservable,
-	    deps: [MatchMedia, BreakPointRegistry],
-	    useFactory: instanceOfMatchMediaObservable
+	var ObservableMediaProvider = {
+	    provide: ObservableMedia,
+	    useClass: MediaService,
+	    deps: [MatchMedia, BreakPointRegistry]
 	};
 	
 	var __decorate$4 = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -2940,19 +3277,14 @@
 	var MediaQueriesModule = (function () {
 	    function MediaQueriesModule() {
 	    }
-	    MediaQueriesModule.forRoot = function () {
-	        return {
-	            ngModule: MediaQueriesModule
-	        };
-	    };
 	    MediaQueriesModule = __decorate$4([
 	        _angular_core.NgModule({
 	            providers: [
 	                MatchMedia,
-	                MediaMonitor,
-	                BreakPointRegistry,
 	                BreakPointsProvider,
-	                MatchMediaObservableProvider // Allows easy subscription to the injectable `media$` matchMedia observable
+	                BreakPointRegistry,
+	                MediaMonitor,
+	                ObservableMediaProvider // easy subscription injectable `media$` matchMedia observable
 	            ]
 	        }), 
 	        __metadata$4('design:paramtypes', [])
@@ -2960,18 +3292,18 @@
 	    return MediaQueriesModule;
 	}());
 	
-	var __extends$1 = (this && this.__extends) || function (d, b) {
+	var __extends$2 = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var __decorate$6 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	var __decorate$7 = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var __metadata$6 = (this && this.__metadata) || function (k, v) {
+	var __metadata$7 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var LAYOUT_VALUES = ['row', 'column', 'row-reverse', 'column-reverse'];
@@ -2983,7 +3315,7 @@
 	 *
 	 */
 	var LayoutDirective = (function (_super) {
-	    __extends$1(LayoutDirective, _super);
+	    __extends$2(LayoutDirective, _super);
 	    /**
 	     *
 	     */
@@ -2997,11 +3329,13 @@
 	        enumerable: true,
 	        configurable: true
 	    });
+	    
 	    Object.defineProperty(LayoutDirective.prototype, "layoutXs", {
 	        set: function (val) { this._cacheInput('layoutXs', val); },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    
 	    Object.defineProperty(LayoutDirective.prototype, "layoutGtXs", {
 	        set: function (val) { this._cacheInput('layoutGtXs', val); },
 	        enumerable: true,
@@ -3113,75 +3447,75 @@
 	        value = value ? value.toLowerCase() : '';
 	        return LAYOUT_VALUES.find(function (x) { return x === value; }) ? value : LAYOUT_VALUES[0]; // "row"
 	    };
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layout", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.xs'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutXs", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.gt-xs'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutGtXs", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.sm'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutSm", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.gt-sm'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutGtSm", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.md'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutMd", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.gt-md'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutGtMd", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.lg'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutLg", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.gt-lg'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutGtLg", null);
-	    __decorate$6([
+	    __decorate$7([
 	        _angular_core.Input('fxLayout.xl'), 
-	        __metadata$6('design:type', Object), 
-	        __metadata$6('design:paramtypes', [Object])
+	        __metadata$7('design:type', Object), 
+	        __metadata$7('design:paramtypes', [Object])
 	    ], LayoutDirective.prototype, "layoutXl", null);
-	    LayoutDirective = __decorate$6([
-	        _angular_core.Directive({ selector: "\n  [fxLayout],\n  [fxLayout.xs]\n  [fxLayout.gt-xs],\n  [fxLayout.sm],\n  [fxLayout.gt-sm]\n  [fxLayout.md],\n  [fxLayout.gt-md]\n  [fxLayout.lg],\n  [fxLayout.gt-lg],\n  [fxLayout.xl]\n" }), 
-	        __metadata$6('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
+	    LayoutDirective = __decorate$7([
+	        _angular_core.Directive({ selector: "\n  [fxLayout],\n  [fxLayout.xs],\n  [fxLayout.gt-xs],\n  [fxLayout.sm],\n  [fxLayout.gt-sm],\n  [fxLayout.md],\n  [fxLayout.gt-md],\n  [fxLayout.lg],\n  [fxLayout.gt-lg],\n  [fxLayout.xl]\n" }), 
+	        __metadata$7('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
 	    ], LayoutDirective);
 	    return LayoutDirective;
 	}(BaseFxDirective));
 	
-	var __extends$2 = (this && this.__extends) || function (d, b) {
+	var __extends$3 = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var __decorate$7 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	var __decorate$8 = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var __metadata$7 = (this && this.__metadata) || function (k, v) {
+	var __metadata$8 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var __param$2 = (this && this.__param) || function (paramIndex, decorator) {
@@ -3194,7 +3528,7 @@
 	 * @see https://css-tricks.com/almanac/properties/f/flex-wrap/
 	 */
 	var LayoutWrapDirective = (function (_super) {
-	    __extends$2(LayoutWrapDirective, _super);
+	    __extends$3(LayoutWrapDirective, _super);
 	    function LayoutWrapDirective(monitor, elRef, renderer, container) {
 	        _super.call(this, monitor, elRef, renderer);
 	        this._layout = 'row'; // default flex-direction
@@ -3331,77 +3665,77 @@
 	        }
 	        return value;
 	    };
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrap", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.xs'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapXs", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.gt-xs'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapGtXs", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.sm'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapSm", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.gt-sm'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapGtSm", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.md'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapMd", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.gt-md'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapGtMd", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.lg'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapLg", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.gt-lg'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapGtLg", null);
-	    __decorate$7([
+	    __decorate$8([
 	        _angular_core.Input('fxLayoutWrap.xl'), 
-	        __metadata$7('design:type', Object), 
-	        __metadata$7('design:paramtypes', [Object])
+	        __metadata$8('design:type', Object), 
+	        __metadata$8('design:paramtypes', [Object])
 	    ], LayoutWrapDirective.prototype, "wrapXl", null);
-	    LayoutWrapDirective = __decorate$7([
-	        _angular_core.Directive({ selector: "\n  [fxLayoutWrap],\n  [fxLayoutWrap.xs]\n  [fxLayoutWrap.gt-xs],\n  [fxLayoutWrap.sm],\n  [fxLayoutWrap.gt-sm]\n  [fxLayoutWrap.md],\n  [fxLayoutWrap.gt-md]\n  [fxLayoutWrap.lg],\n  [fxLayoutWrap.gt-lg],\n  [fxLayoutWrap.xl]\n" }),
+	    LayoutWrapDirective = __decorate$8([
+	        _angular_core.Directive({ selector: "\n  [fxLayoutWrap],\n  [fxLayoutWrap.xs],\n  [fxLayoutWrap.gt-xs],\n  [fxLayoutWrap.sm],\n  [fxLayoutWrap.gt-sm],\n  [fxLayoutWrap.md],\n  [fxLayoutWrap.gt-md],\n  [fxLayoutWrap.lg],\n  [fxLayoutWrap.gt-lg],\n  [fxLayoutWrap.xl]\n" }),
 	        __param$2(3, _angular_core.Optional()),
 	        __param$2(3, _angular_core.Self()), 
-	        __metadata$7('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective])
+	        __metadata$8('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective])
 	    ], LayoutWrapDirective);
 	    return LayoutWrapDirective;
 	}(BaseFxDirective));
 	
-	var __extends = (this && this.__extends) || function (d, b) {
+	var __extends$1 = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var __decorate$5 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	var __decorate$6 = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var __metadata$5 = (this && this.__metadata) || function (k, v) {
+	var __metadata$6 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var __param$1 = (this && this.__param) || function (paramIndex, decorator) {
@@ -3414,7 +3748,7 @@
 	 * @see https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 	 */
 	var FlexDirective = (function (_super) {
-	    __extends(FlexDirective, _super);
+	    __extends$1(FlexDirective, _super);
 	    // Explicitly @SkipSelf on LayoutDirective and LayoutWrapDirective because we want the
 	    // parent flex container for this flex item.
 	    function FlexDirective(monitor, elRef, renderer, _container, _wrap) {
@@ -3437,69 +3771,93 @@
 	        }
 	    }
 	    Object.defineProperty(FlexDirective.prototype, "flex", {
-	        set: function (val) { this._cacheInput("flex", val); },
+	        set: function (val) {
+	            this._cacheInput("flex", val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(FlexDirective.prototype, "shrink", {
-	        set: function (val) { this._cacheInput("shrink", val); },
+	        set: function (val) {
+	            this._cacheInput("shrink", val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(FlexDirective.prototype, "grow", {
-	        set: function (val) { this._cacheInput("grow", val); },
+	        set: function (val) {
+	            this._cacheInput("grow", val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(FlexDirective.prototype, "flexXs", {
-	        set: function (val) { this._cacheInput('flexXs', val); },
+	        set: function (val) {
+	            this._cacheInput('flexXs', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(FlexDirective.prototype, "flexGtXs", {
-	        set: function (val) { this._cacheInput('flexGtXs', val); },
+	        set: function (val) {
+	            this._cacheInput('flexGtXs', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexSm", {
-	        set: function (val) { this._cacheInput('flexSm', val); },
+	        set: function (val) {
+	            this._cacheInput('flexSm', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexGtSm", {
-	        set: function (val) { this._cacheInput('flexGtSm', val); },
+	        set: function (val) {
+	            this._cacheInput('flexGtSm', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexMd", {
-	        set: function (val) { this._cacheInput('flexMd', val); },
+	        set: function (val) {
+	            this._cacheInput('flexMd', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexGtMd", {
-	        set: function (val) { this._cacheInput('flexGtMd', val); },
+	        set: function (val) {
+	            this._cacheInput('flexGtMd', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexLg", {
-	        set: function (val) { this._cacheInput('flexLg', val); },
+	        set: function (val) {
+	            this._cacheInput('flexLg', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexGtLg", {
-	        set: function (val) { this._cacheInput('flexGtLg', val); },
+	        set: function (val) {
+	            this._cacheInput('flexGtLg', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(FlexDirective.prototype, "flexXl", {
-	        set: function (val) { this._cacheInput('flexXl', val); },
+	        set: function (val) {
+	            this._cacheInput('flexXl', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
@@ -3551,7 +3909,8 @@
 	        basis = basis.replace(";", "");
 	        var hasCalc = basis && basis.indexOf("calc") > -1;
 	        var matches = !hasCalc ? basis.split(" ") : this._getPartsWithCalc(basis.trim());
-	        return (matches.length === 3) ? matches : [this._queryInput("grow"), this._queryInput("shrink"), basis];
+	        return (matches.length === 3) ? matches : [this._queryInput("grow"),
+	            this._queryInput("shrink"), basis];
 	    };
 	    /**
 	     * Extract more complicated short-hand versions.
@@ -3559,7 +3918,6 @@
 	     * fxFlex="3 3 calc(15em + 20px)"
 	     */
 	    FlexDirective.prototype._getPartsWithCalc = function (value) {
-	        debugger;
 	        var parts = [this._queryInput("grow"), this._queryInput("shrink"), value];
 	        var j = value.indexOf('calc');
 	        if (j > 0) {
@@ -3577,10 +3935,16 @@
 	     * Use default fallback of "row"
 	     */
 	    FlexDirective.prototype._validateValue = function (grow, shrink, basis) {
-	        var css;
+	        var css, isValue;
 	        var direction = (this._layout === 'column') || (this._layout == 'column-reverse') ?
 	            'column' :
 	            'row';
+	        if (grow == "0") {
+	            grow = 0;
+	        }
+	        if (shrink == "0") {
+	            shrink = 0;
+	        }
 	        // flex-basis allows you to specify the initial/starting main-axis size of the element,
 	        // before anything else is computed. It can either be a percentage or an absolute value.
 	        // It is, however, not the breaking point for flex-grow/shrink properties
@@ -3602,40 +3966,42 @@
 	            case '':
 	                css = extendObject(clearStyles, { 'flex': '1 1 0.000000001px' });
 	                break;
+	            case 'initial': // default
+	            case 'nogrow':
+	                grow = 0;
+	                css = extendObject(clearStyles, { 'flex': '0 1 auto' });
+	                break;
 	            case 'grow':
 	                css = extendObject(clearStyles, { 'flex': '1 1 100%' });
 	                break;
-	            case 'initial':
-	                css = extendObject(clearStyles, { 'flex': '0 1 auto' });
-	                break; // default
-	            case 'auto':
-	                css = extendObject(clearStyles, { 'flex': '1 1 auto' });
-	                break;
-	            case 'none':
-	                css = extendObject(clearStyles, { 'flex': '0 0 auto' });
-	                break;
-	            case 'nogrow':
-	                css = extendObject(clearStyles, { 'flex': '0 1 auto' });
-	                break;
-	            case 'none':
-	                css = extendObject(clearStyles, { 'flex': 'none' });
-	                break;
 	            case 'noshrink':
+	                shrink = 0;
 	                css = extendObject(clearStyles, { 'flex': '1 0 auto' });
+	                break;
+	            case 'auto':
+	                css = extendObject(clearStyles, { 'flex': grow + " " + shrink + " auto" });
+	                break;
+	            case 'none':
+	                grow = 0;
+	                shrink = 0;
+	                css = extendObject(clearStyles, { 'flex': '0 0 auto' });
 	                break;
 	            default:
 	                var isPercent = String(basis).indexOf('%') > -1;
-	                var isValue = String(basis).indexOf('px') > -1 ||
+	                isValue = String(basis).indexOf('px') > -1 ||
 	                    String(basis).indexOf('calc') > -1 ||
 	                    String(basis).indexOf('em') > -1 ||
 	                    String(basis).indexOf('vw') > -1 ||
 	                    String(basis).indexOf('vh') > -1;
 	                // Defaults to percentage sizing unless `px` is explicitly set
-	                if (!isValue && !isPercent && !isNaN(basis))
+	                if (!isValue && !isPercent && !isNaN(basis)) {
 	                    basis = basis + '%';
-	                if (basis === '0px')
+	                }
+	                if (basis === '0px') {
 	                    basis = '0%';
+	                }
 	                // Set max-width = basis if using layout-wrap
+	                // tslint:disable-next-line:max-line-length
 	                // @see https://github.com/philipwalton/flexbugs#11-min-and-max-size-declarations-are-ignored-when-wrappifl-flex-items
 	                css = extendObject(clearStyles, {
 	                    'flex': grow + " " + shrink + " " + ((isValue || this._wrap) ? basis : '100%'),
@@ -3644,79 +4010,84 @@
 	        }
 	        var max = (direction === 'row') ? 'max-width' : 'max-height';
 	        var min = (direction === 'row') ? 'min-width' : 'min-height';
-	        var usingCalc = String(basis).indexOf('calc') > -1;
-	        css[min] = (basis == '0%') ? 0 : null;
-	        css[max] = (basis == '0%') ? 0 : usingCalc ? null : basis;
+	        var usingCalc = (String(basis).indexOf('calc') > -1) || (basis == 'auto');
+	        var isPx = String(basis).indexOf('px') > -1 || usingCalc;
+	        // make box inflexible when shrink and grow are both zero
+	        // should not set a min when the grow is zero
+	        // should not set a max when the shrink is zero
+	        var isFixed = !grow && !shrink;
+	        css[min] = (basis == '0%') ? 0 : isFixed || (isPx && grow) ? basis : null;
+	        css[max] = (basis == '0%') ? 0 : isFixed || (!usingCalc && shrink) ? basis : null;
 	        return extendObject(css, { 'box-sizing': 'border-box' });
 	    };
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flex", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxShrink'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "shrink", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxGrow'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "grow", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.xs'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexXs", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.gt-xs'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexGtXs", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.sm'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexSm", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.gt-sm'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexGtSm", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.md'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexMd", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.gt-md'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexGtMd", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.lg'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexLg", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.gt-lg'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexGtLg", null);
-	    __decorate$5([
+	    __decorate$6([
 	        _angular_core.Input('fxFlex.xl'), 
-	        __metadata$5('design:type', Object), 
-	        __metadata$5('design:paramtypes', [Object])
+	        __metadata$6('design:type', Object), 
+	        __metadata$6('design:paramtypes', [Object])
 	    ], FlexDirective.prototype, "flexXl", null);
-	    FlexDirective = __decorate$5([
-	        _angular_core.Directive({ selector: "\n  [fxFlex],\n  [fxFlex.xs]\n  [fxFlex.gt-xs],\n  [fxFlex.sm],\n  [fxFlex.gt-sm]\n  [fxFlex.md],\n  [fxFlex.gt-md]\n  [fxFlex.lg],\n  [fxFlex.gt-lg],\n  [fxFlex.xl]\n"
+	    FlexDirective = __decorate$6([
+	        _angular_core.Directive({ selector: "\n  [fxFlex],\n  [fxFlex.xs],\n  [fxFlex.gt-xs],\n  [fxFlex.sm],\n  [fxFlex.gt-sm],\n  [fxFlex.md],\n  [fxFlex.gt-md],\n  [fxFlex.lg],\n  [fxFlex.gt-lg],\n  [fxFlex.xl]\n"
 	        }),
 	        __param$1(3, _angular_core.Optional()),
 	        __param$1(3, _angular_core.SkipSelf()),
 	        __param$1(4, _angular_core.Optional()),
 	        __param$1(4, _angular_core.SkipSelf()), 
-	        __metadata$5('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective, LayoutWrapDirective])
+	        __metadata$6('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective, LayoutWrapDirective])
 	    ], FlexDirective);
 	    return FlexDirective;
 	}(BaseFxDirective));
@@ -3735,30 +4106,36 @@
 	var __metadata$9 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
-	var __param$4 = (this && this.__param) || function (paramIndex, decorator) {
+	var __param$3 = (this && this.__param) || function (paramIndex, decorator) {
 	    return function (target, key) { decorator(target, key, paramIndex); }
 	};
-	var FALSY$1 = ['false', false, 0];
+	var FALSY = ['false', false, 0];
+	/**
+	 * For fxHide selectors, we invert the 'value'
+	 * and assign to the equivalent fxShow selector cache
+	 *  - When 'hide' === '' === true, do NOT show the element
+	 *  - When 'hide' === false or 0... we WILL show the element
+	 */
+	function negativeOf(hide) {
+	    return (hide === "") ? false :
+	        ((hide === "false") || (hide === 0)) ? true : !hide;
+	}
 	/**
 	 * 'show' Layout API directive
 	 *
 	 */
-	var ShowDirective = (function (_super) {
-	    __extends$4(ShowDirective, _super);
+	var ShowHideDirective = (function (_super) {
+	    __extends$4(ShowHideDirective, _super);
 	    /**
 	     *
 	     */
-	    function ShowDirective(monitor, _layout, _hideDirective, elRef, renderer) {
+	    function ShowHideDirective(monitor, _layout, elRef, renderer) {
 	        var _this = this;
 	        _super.call(this, monitor, elRef, renderer);
 	        this._layout = _layout;
-	        this._hideDirective = _hideDirective;
 	        this.elRef = elRef;
 	        this.renderer = renderer;
-	        /**
-	         * Original dom Elements CSS display style
-	         */
-	        this._display = 'flex';
+	        this._display = this._getDisplayStyle(); // re-invoke override to use `this._layout`
 	        if (_layout) {
 	            /**
 	             * The Layout can set the display:flex (and incorrectly affect the Hide/Show directives.
@@ -3767,83 +4144,179 @@
 	            this._layoutWatcher = _layout.layout$.subscribe(function () { return _this._updateWithValue(); });
 	        }
 	    }
-	    Object.defineProperty(ShowDirective.prototype, "show", {
-	        set: function (val) { this._cacheInput("show", val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(ShowDirective.prototype, "showXs", {
-	        set: function (val) { this._cacheInput('showXs', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(ShowDirective.prototype, "showGtXs", {
-	        set: function (val) { this._cacheInput('showGtXs', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showSm", {
-	        set: function (val) { this._cacheInput('showSm', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showGtSm", {
-	        set: function (val) { this._cacheInput('showGtSm', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showMd", {
-	        set: function (val) { this._cacheInput('showMd', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showGtMd", {
-	        set: function (val) { this._cacheInput('showGtMd', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showLg", {
-	        set: function (val) { this._cacheInput('showLg', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showGtLg", {
-	        set: function (val) { this._cacheInput('showGtLg', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "showXl", {
-	        set: function (val) { this._cacheInput('showXl', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(ShowDirective.prototype, "usesHideAPI", {
-	        /**
-	          * Does the current element also use the fxShow API ?
-	          */
-	        get: function () {
-	            return !!this._hideDirective;
+	    Object.defineProperty(ShowHideDirective.prototype, "show", {
+	        set: function (val) {
+	            this._cacheInput("show", val);
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Object.defineProperty(ShowHideDirective.prototype, "hide", {
+	        set: function (val) {
+	            this._cacheInput("show", negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ShowHideDirective.prototype, "showXs", {
+	        set: function (val) {
+	            this._cacheInput('showXs', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ShowHideDirective.prototype, "hideXs", {
+	        set: function (val) {
+	            this._cacheInput("showXs", negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ShowHideDirective.prototype, "showGtXs", {
+	        set: function (val) {
+	            this._cacheInput('showGtXs', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideGtXs", {
+	        set: function (val) {
+	            this._cacheInput('showGtXs', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showSm", {
+	        set: function (val) {
+	            this._cacheInput('showSm', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideSm", {
+	        set: function (val) {
+	            this._cacheInput('showSm', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showGtSm", {
+	        set: function (val) {
+	            this._cacheInput('showGtSm', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideGtSm", {
+	        set: function (val) {
+	            this._cacheInput('showGtSm', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showMd", {
+	        set: function (val) {
+	            this._cacheInput('showMd', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideMd", {
+	        set: function (val) {
+	            this._cacheInput('showMd', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showGtMd", {
+	        set: function (val) {
+	            this._cacheInput('showGtMd', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideGtMd", {
+	        set: function (val) {
+	            this._cacheInput('showGtMd', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showLg", {
+	        set: function (val) {
+	            this._cacheInput('showLg', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideLg", {
+	        set: function (val) {
+	            this._cacheInput('showLg', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showGtLg", {
+	        set: function (val) {
+	            this._cacheInput('showGtLg', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideGtLg", {
+	        set: function (val) {
+	            this._cacheInput('showGtLg', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "showXl", {
+	        set: function (val) {
+	            this._cacheInput('showXl', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ShowHideDirective.prototype, "hideXl", {
+	        set: function (val) {
+	            this._cacheInput('showXl', negativeOf(val));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
 	    // *********************************************
 	    // Lifecycle Methods
 	    // *********************************************
+	    /**
+	     * Override accessor to the current HTMLElement's `display` style
+	     * Note: Show/Hide will not change the display to 'flex' but will set it to 'block'
+	     * unless it was already explicitly defined.
+	     */
+	    ShowHideDirective.prototype._getDisplayStyle = function () {
+	        return this._layout ? "flex" : _super.prototype._getDisplayStyle.call(this);
+	    };
 	    /**
 	     * On changes to any @Input properties...
 	     * Default to use the non-responsive Input value ('fxShow')
 	     * Then conditionally override with the mq-activated Input's current value
 	     */
-	    ShowDirective.prototype.ngOnChanges = function (changes) {
+	    ShowHideDirective.prototype.ngOnChanges = function (changes) {
 	        if (changes['show'] != null || this._mqActivation) {
 	            this._updateWithValue();
 	        }
@@ -3852,14 +4325,16 @@
 	     * After the initial onChanges, build an mqActivation object that bridges
 	     * mql change events to onMediaQueryChange handlers
 	     */
-	    ShowDirective.prototype.ngOnInit = function () {
+	    ShowHideDirective.prototype.ngOnInit = function () {
 	        var _this = this;
-	        this._listenForMediaQueryChanges('show', true, function (changes) {
+	        var value = this._getDefaultVal("show", true);
+	        // Build _mqActivation controller
+	        this._listenForMediaQueryChanges('show', value, function (changes) {
 	            _this._updateWithValue(changes.value);
 	        });
 	        this._updateWithValue();
 	    };
-	    ShowDirective.prototype.ngOnDestroy = function () {
+	    ShowHideDirective.prototype.ngOnDestroy = function () {
 	        _super.prototype.ngOnDestroy.call(this);
 	        if (this._layoutWatcher) {
 	            this._layoutWatcher.unsubscribe();
@@ -3869,318 +4344,132 @@
 	    // Protected methods
 	    // *********************************************
 	    /** Validate the visibility value and then update the host's inline display style */
-	    ShowDirective.prototype._updateWithValue = function (value) {
-	        value = value || this._queryInput("show") || true;
+	    ShowHideDirective.prototype._updateWithValue = function (value) {
+	        value = value || this._getDefaultVal("show", true);
 	        if (this._mqActivation) {
 	            value = this._mqActivation.activatedInput;
 	        }
 	        var shouldShow = this._validateTruthy(value);
-	        if (shouldShow || !this.usesHideAPI) {
-	            this._applyStyleToElement(this._buildCSS(shouldShow));
-	        }
+	        this._applyStyleToElement(this._buildCSS(shouldShow));
 	    };
 	    /** Build the CSS that should be assigned to the element instance */
-	    ShowDirective.prototype._buildCSS = function (show) {
+	    ShowHideDirective.prototype._buildCSS = function (show) {
 	        return { 'display': show ? this._display : 'none' };
 	    };
 	    /**  Validate the to be not FALSY */
-	    ShowDirective.prototype._validateTruthy = function (show) {
-	        return (FALSY$1.indexOf(show) == -1);
+	    ShowHideDirective.prototype._validateTruthy = function (show) {
+	        return (FALSY.indexOf(show) == -1);
 	    };
 	    __decorate$9([
 	        _angular_core.Input('fxShow'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "show", null);
+	    ], ShowHideDirective.prototype, "show", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hide", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.xs'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showXs", null);
+	    ], ShowHideDirective.prototype, "showXs", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.xs'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideXs", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.gt-xs'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showGtXs", null);
+	    ], ShowHideDirective.prototype, "showGtXs", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.gt-xs'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideGtXs", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.sm'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showSm", null);
+	    ], ShowHideDirective.prototype, "showSm", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.sm'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideSm", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.gt-sm'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showGtSm", null);
+	    ], ShowHideDirective.prototype, "showGtSm", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.gt-sm'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideGtSm", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.md'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showMd", null);
+	    ], ShowHideDirective.prototype, "showMd", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.md'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideMd", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.gt-md'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showGtMd", null);
+	    ], ShowHideDirective.prototype, "showGtMd", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.gt-md'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideGtMd", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.lg'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showLg", null);
+	    ], ShowHideDirective.prototype, "showLg", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.lg'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideLg", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.gt-lg'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showGtLg", null);
+	    ], ShowHideDirective.prototype, "showGtLg", null);
+	    __decorate$9([
+	        _angular_core.Input('fxHide.gt-lg'), 
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideGtLg", null);
 	    __decorate$9([
 	        _angular_core.Input('fxShow.xl'), 
 	        __metadata$9('design:type', Object), 
 	        __metadata$9('design:paramtypes', [Object])
-	    ], ShowDirective.prototype, "showXl", null);
-	    ShowDirective = __decorate$9([
-	        _angular_core.Directive({ selector: "\n  [fxShow],\n  [fxShow.xs]\n  [fxShow.gt-xs],\n  [fxShow.sm],\n  [fxShow.gt-sm]\n  [fxShow.md],\n  [fxShow.gt-md]\n  [fxShow.lg],\n  [fxShow.gt-lg],\n  [fxShow.xl]\n" }),
-	        __param$4(1, _angular_core.Optional()),
-	        __param$4(1, _angular_core.Self()),
-	        __param$4(2, _angular_core.Inject(_angular_core.forwardRef(function () { return HideDirective; }))),
-	        __param$4(2, _angular_core.Optional()),
-	        __param$4(2, _angular_core.Self()), 
-	        __metadata$9('design:paramtypes', [MediaMonitor, LayoutDirective, Object, _angular_core.ElementRef, _angular_core.Renderer])
-	    ], ShowDirective);
-	    return ShowDirective;
-	}(BaseFxDirective));
-	
-	var __extends$3 = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate$8 = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata$8 = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var __param$3 = (this && this.__param) || function (paramIndex, decorator) {
-	    return function (target, key) { decorator(target, key, paramIndex); }
-	};
-	/**
-	 * 'show' Layout API directive
-	 *
-	 */
-	var HideDirective = (function (_super) {
-	    __extends$3(HideDirective, _super);
-	    /**
-	     *
-	     */
-	    function HideDirective(monitor, _layout, _showDirective, elRef, renderer) {
-	        var _this = this;
-	        _super.call(this, monitor, elRef, renderer);
-	        this._layout = _layout;
-	        this._showDirective = _showDirective;
-	        this.elRef = elRef;
-	        this.renderer = renderer;
-	        /**
-	         * Original dom Elements CSS display style
-	         */
-	        this._display = 'flex';
-	        if (_layout) {
-	            /**
-	             * The Layout can set the display:flex (and incorrectly affect the Hide/Show directives.
-	             * Whenever Layout [on the same element] resets its CSS, then update the Hide/Show CSS
-	             */
-	            this._layoutWatcher = _layout.layout$.subscribe(function () { return _this._updateWithValue(); });
-	        }
-	    }
-	    Object.defineProperty(HideDirective.prototype, "hide", {
-	        set: function (val) { this._cacheInput("hide", val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(HideDirective.prototype, "hideXs", {
-	        set: function (val) { this._cacheInput('hideXs', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(HideDirective.prototype, "hideGtXs", {
-	        set: function (val) { this._cacheInput('hideGtXs', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideSm", {
-	        set: function (val) { this._cacheInput('hideSm', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideGtSm", {
-	        set: function (val) { this._cacheInput('hideGtSm', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideMd", {
-	        set: function (val) { this._cacheInput('hideMd', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideGtMd", {
-	        set: function (val) { this._cacheInput('hideGtMd', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideLg", {
-	        set: function (val) { this._cacheInput('hideLg', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideGtLg", {
-	        set: function (val) { this._cacheInput('hideGtLg', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "hideXl", {
-	        set: function (val) { this._cacheInput('hideXl', val); },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    
-	    Object.defineProperty(HideDirective.prototype, "usesShowAPI", {
-	        /**
-	         * Does the current element also use the fxShow API ?
-	         */
-	        get: function () {
-	            return !!this._showDirective;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    // *********************************************
-	    // Lifecycle Methods
-	    // *********************************************
-	    /**
-	     * On changes to any @Input properties...
-	     * Default to use the non-responsive Input value ('fxHide')
-	     * Then conditionally override with the mq-activated Input's current value
-	     */
-	    HideDirective.prototype.ngOnChanges = function (changes) {
-	        if (changes['hide'] != null || this._mqActivation) {
-	            this._updateWithValue();
-	        }
-	    };
-	    /**
-	     * After the initial onChanges, build an mqActivation object that bridges
-	     * mql change events to onMediaQueryChange handlers
-	     */
-	    HideDirective.prototype.ngOnInit = function () {
-	        var _this = this;
-	        this._listenForMediaQueryChanges('hide', true, function (changes) {
-	            _this._updateWithValue(changes.value);
-	        });
-	        this._updateWithValue();
-	    };
-	    HideDirective.prototype.ngOnDestroy = function () {
-	        _super.prototype.ngOnDestroy.call(this);
-	        if (this._layoutWatcher) {
-	            this._layoutWatcher.unsubscribe();
-	        }
-	    };
-	    // *********************************************
-	    // Protected methods
-	    // *********************************************
-	    /**
-	     * Validate the visibility value and then update the host's inline display style
-	     */
-	    HideDirective.prototype._updateWithValue = function (value) {
-	        value = value || this._queryInput("hide") || true;
-	        if (this._mqActivation) {
-	            value = this._mqActivation.activatedInput;
-	        }
-	        var shouldHide = this._validateTruthy(value);
-	        if (shouldHide || !this.usesShowAPI) {
-	            this._applyStyleToElement(this._buildCSS(shouldHide));
-	        }
-	    };
-	    /**
-	     * Build the CSS that should be assigned to the element instance
-	     */
-	    HideDirective.prototype._buildCSS = function (value) {
-	        return { 'display': value ? 'none' : this._display };
-	    };
-	    /**
-	     * Validate the value to NOT be FALSY
-	     */
-	    HideDirective.prototype._validateTruthy = function (value) {
-	        return FALSY.indexOf(value) === -1;
-	    };
-	    __decorate$8([
-	        _angular_core.Input('fxHide'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hide", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.xs'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideXs", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.gt-xs'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideGtXs", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.sm'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideSm", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.gt-sm'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideGtSm", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.md'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideMd", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.gt-md'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideGtMd", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.lg'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideLg", null);
-	    __decorate$8([
-	        _angular_core.Input('fxHide.gt-lg'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideGtLg", null);
-	    __decorate$8([
+	    ], ShowHideDirective.prototype, "showXl", null);
+	    __decorate$9([
 	        _angular_core.Input('fxHide.xl'), 
-	        __metadata$8('design:type', Object), 
-	        __metadata$8('design:paramtypes', [Object])
-	    ], HideDirective.prototype, "hideXl", null);
-	    HideDirective = __decorate$8([
-	        _angular_core.Directive({ selector: "\n  [fxHide],\n  [fxHide.xs]\n  [fxHide.gt-xs],\n  [fxHide.sm],\n  [fxHide.gt-sm]\n  [fxHide.md],\n  [fxHide.gt-md]\n  [fxHide.lg],\n  [fxHide.gt-lg],\n  [fxHide.xl]\n" }),
+	        __metadata$9('design:type', Object), 
+	        __metadata$9('design:paramtypes', [Object])
+	    ], ShowHideDirective.prototype, "hideXl", null);
+	    ShowHideDirective = __decorate$9([
+	        _angular_core.Directive({
+	            selector: "\n  [fxShow],\n  [fxShow.xs],[fxShow.gt-xs],[fxShow.sm],[fxShow.gt-sm],\n  [fxShow.md],[fxShow.gt-md],[fxShow.lg],[fxShow.gt-lg],[fxShow.xl],  \n  [fxHide],\n  [fxHide.xs],[fxHide.gt-xs],[fxHide.sm],[fxHide.gt-sm],\n  [fxHide.md],[fxHide.gt-md],[fxHide.lg],[fxHide.gt-lg],[fxHide.xl]  \n"
+	        }),
 	        __param$3(1, _angular_core.Optional()),
-	        __param$3(1, _angular_core.Self()),
-	        __param$3(2, _angular_core.Optional()),
-	        __param$3(2, _angular_core.Self()), 
-	        __metadata$8('design:paramtypes', [MediaMonitor, LayoutDirective, ShowDirective, _angular_core.ElementRef, _angular_core.Renderer])
-	    ], HideDirective);
-	    return HideDirective;
+	        __param$3(1, _angular_core.Self()), 
+	        __metadata$9('design:paramtypes', [MediaMonitor, LayoutDirective, _angular_core.ElementRef, _angular_core.Renderer])
+	    ], ShowHideDirective);
+	    return ShowHideDirective;
 	}(BaseFxDirective));
-	var FALSY = ['false', false, 0];
 	
 	var __extends$5 = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -4384,7 +4673,7 @@
 	    ], FlexAlignDirective.prototype, "alignXl", null);
 	    FlexAlignDirective = __decorate$10([
 	        _angular_core.Directive({
-	            selector: "\n  [fxFlexAlign],\n  [fxFlexAlign.xs]\n  [fxFlexAlign.gt-xs],\n  [fxFlexAlign.sm],\n  [fxFlexAlign.gt-sm]\n  [fxFlexAlign.md],\n  [fxFlexAlign.gt-md]\n  [fxFlexAlign.lg],\n  [fxFlexAlign.gt-lg],\n  [fxFlexAlign.xl]\n"
+	            selector: "\n  [fxFlexAlign],\n  [fxFlexAlign.xs],\n  [fxFlexAlign.gt-xs],\n  [fxFlexAlign.sm],\n  [fxFlexAlign.gt-sm],\n  [fxFlexAlign.md],\n  [fxFlexAlign.gt-md],\n  [fxFlexAlign.lg],\n  [fxFlexAlign.gt-lg],\n  [fxFlexAlign.xl]\n"
 	        }), 
 	        __metadata$10('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
 	    ], FlexAlignDirective);
@@ -4427,7 +4716,7 @@
 	        this._applyStyleToElement(FLEX_FILL_CSS);
 	    }
 	    FlexFillDirective = __decorate$11([
-	        _angular_core.Directive({ selector: "\n  [fxFill],\n  [fxFill.xs]\n  [fxFill.gt-xs],\n  [fxFill.sm],\n  [fxFill.gt-sm]\n  [fxFill.md],\n  [fxFill.gt-md]\n  [fxFill.lg],\n  [fxFill.gt-lg],\n  [fxFill.xl]\n" }), 
+	        _angular_core.Directive({ selector: "\n  [fxFill],\n  [fxFlexFill]\n" }), 
 	        __metadata$11('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
 	    ], FlexFillDirective);
 	    return FlexFillDirective;
@@ -4548,8 +4837,9 @@
 	    FlexOffsetDirective.prototype._buildCSS = function (offset) {
 	        var isPercent = String(offset).indexOf('%') > -1;
 	        var isPx = String(offset).indexOf('px') > -1;
-	        if (!isPx && !isPercent && !isNaN(offset))
+	        if (!isPx && !isPercent && !isNaN(offset)) {
 	            offset = offset + '%';
+	        }
 	        return { 'margin-left': "" + offset };
 	    };
 	    __decorate$12([
@@ -4603,7 +4893,7 @@
 	        __metadata$12('design:paramtypes', [Object])
 	    ], FlexOffsetDirective.prototype, "offsetXl", null);
 	    FlexOffsetDirective = __decorate$12([
-	        _angular_core.Directive({ selector: "\n  [fxFlexOffset],\n  [fxFlexOffset.xs]\n  [fxFlexOffset.gt-xs],\n  [fxFlexOffset.sm],\n  [fxFlexOffset.gt-sm]\n  [fxFlexOffset.md],\n  [fxFlexOffset.gt-md]\n  [fxFlexOffset.lg],\n  [fxFlexOffset.gt-lg],\n  [fxFlexOffset.xl]\n" }), 
+	        _angular_core.Directive({ selector: "\n  [fxFlexOffset],\n  [fxFlexOffset.xs],\n  [fxFlexOffset.gt-xs],\n  [fxFlexOffset.sm],\n  [fxFlexOffset.gt-sm],\n  [fxFlexOffset.md],\n  [fxFlexOffset.gt-md],\n  [fxFlexOffset.lg],\n  [fxFlexOffset.gt-lg],\n  [fxFlexOffset.xl]\n" }), 
 	        __metadata$12('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
 	    ], FlexOffsetDirective);
 	    return FlexOffsetDirective;
@@ -4778,7 +5068,7 @@
 	        __metadata$13('design:paramtypes', [Object])
 	    ], FlexOrderDirective.prototype, "orderXl", null);
 	    FlexOrderDirective = __decorate$13([
-	        _angular_core.Directive({ selector: "\n  [fxFlexOrder],\n  [fxFlexOrder.xs]\n  [fxFlexOrder.gt-xs],\n  [fxFlexOrder.sm],\n  [fxFlexOrder.gt-sm]\n  [fxFlexOrder.md],\n  [fxFlexOrder.gt-md]\n  [fxFlexOrder.lg],\n  [fxFlexOrder.gt-lg],\n  [fxFlexOrder.xl]\n" }), 
+	        _angular_core.Directive({ selector: "\n  [fxFlexOrder],\n  [fxFlexOrder.xs],\n  [fxFlexOrder.gt-xs],\n  [fxFlexOrder.sm],\n  [fxFlexOrder.gt-sm],\n  [fxFlexOrder.md],\n  [fxFlexOrder.gt-md],\n  [fxFlexOrder.lg],\n  [fxFlexOrder.gt-lg],\n  [fxFlexOrder.xl]\n" }), 
 	        __metadata$13('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
 	    ], FlexOrderDirective);
 	    return FlexOrderDirective;
@@ -4798,7 +5088,7 @@
 	var __metadata$14 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
-	var __param$5 = (this && this.__param) || function (paramIndex, decorator) {
+	var __param$4 = (this && this.__param) || function (paramIndex, decorator) {
 	    return function (target, key) { decorator(target, key, paramIndex); }
 	};
 	/**
@@ -4921,9 +5211,10 @@
 	     */
 	    LayoutAlignDirective.prototype._onLayoutChange = function (direction) {
 	        var _this = this;
-	        this._layout = (direction || '').toLowerCase().replace('-reverse', '');
-	        if (!LAYOUT_VALUES.find(function (x) { return x === _this._layout; }))
+	        this._layout = (direction || '').toLowerCase();
+	        if (!LAYOUT_VALUES.find(function (x) { return x === _this._layout; })) {
 	            this._layout = 'row';
+	        }
 	        var value = this._queryInput("align") || 'start stretch';
 	        if (this._mqActivation) {
 	            value = this._mqActivation.activatedInput;
@@ -4931,7 +5222,7 @@
 	        this._allowStretching(value, this._layout || "row");
 	    };
 	    LayoutAlignDirective.prototype._buildCSS = function (align) {
-	        var css = {}, _a = align.split(' '), main_axis = _a[0], cross_axis = _a[1];
+	        var css = {}, _a = align.split(' '), main_axis = _a[0], cross_axis = _a[1]; // tslint:disable-line:variable-name
 	        css['justify-content'] = 'flex-start'; // default main axis
 	        css['align-items'] = 'stretch'; // default cross axis
 	        css['align-content'] = 'stretch'; // default cross axis
@@ -4978,7 +5269,7 @@
 	     * NOTE: this is only done if the crossAxis is explicitly set to 'stretch'
 	     */
 	    LayoutAlignDirective.prototype._allowStretching = function (align, layout) {
-	        var _a = align.split(' '), cross_axis = _a[1];
+	        var _a = align.split(' '), cross_axis = _a[1]; // tslint:disable-line:variable-name
 	        if (cross_axis == 'stretch') {
 	            // Use `null` values to remove style
 	            this._applyStyleToElement({
@@ -5039,9 +5330,9 @@
 	        __metadata$14('design:paramtypes', [Object])
 	    ], LayoutAlignDirective.prototype, "alignXl", null);
 	    LayoutAlignDirective = __decorate$14([
-	        _angular_core.Directive({ selector: "\n  [fxLayoutAlign],\n  [fxLayoutAlign.xs]\n  [fxLayoutAlign.gt-xs],\n  [fxLayoutAlign.sm],\n  [fxLayoutAlign.gt-sm]\n  [fxLayoutAlign.md],\n  [fxLayoutAlign.gt-md]\n  [fxLayoutAlign.lg],\n  [fxLayoutAlign.gt-lg],\n  [fxLayoutAlign.xl]\n" }),
-	        __param$5(3, _angular_core.Optional()),
-	        __param$5(3, _angular_core.Self()), 
+	        _angular_core.Directive({ selector: "\n  [fxLayoutAlign],\n  [fxLayoutAlign.xs],\n  [fxLayoutAlign.gt-xs],\n  [fxLayoutAlign.sm],\n  [fxLayoutAlign.gt-sm],\n  [fxLayoutAlign.md],\n  [fxLayoutAlign.gt-md],\n  [fxLayoutAlign.lg],\n  [fxLayoutAlign.gt-lg],\n  [fxLayoutAlign.xl]\n" }),
+	        __param$4(3, _angular_core.Optional()),
+	        __param$4(3, _angular_core.Self()), 
 	        __metadata$14('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective])
 	    ], LayoutAlignDirective);
 	    return LayoutAlignDirective;
@@ -5061,69 +5352,96 @@
 	var __metadata$15 = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	var __param$5 = (this && this.__param) || function (paramIndex, decorator) {
+	    return function (target, key) { decorator(target, key, paramIndex); }
+	};
 	/**
 	 * 'layout-padding' styling directive
 	 *  Defines padding of child elements in a layout container
 	 */
 	var LayoutGapDirective = (function (_super) {
 	    __extends$10(LayoutGapDirective, _super);
-	    function LayoutGapDirective(monitor, elRef, renderer) {
+	    function LayoutGapDirective(monitor, elRef, renderer, container) {
 	        _super.call(this, monitor, elRef, renderer);
+	        this._layout = 'row'; // default flex-direction
+	        if (container) {
+	            this._layoutWatcher = container.layout$.subscribe(this._onLayoutChange.bind(this));
+	        }
 	    }
 	    Object.defineProperty(LayoutGapDirective.prototype, "gap", {
-	        set: function (val) { this._cacheInput('gap', val); },
+	        set: function (val) {
+	            this._cacheInput('gap', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapXs", {
-	        set: function (val) { this._cacheInput('gapXs', val); },
+	        set: function (val) {
+	            this._cacheInput('gapXs', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapGtXs", {
-	        set: function (val) { this._cacheInput('gapGtXs', val); },
+	        set: function (val) {
+	            this._cacheInput('gapGtXs', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapSm", {
-	        set: function (val) { this._cacheInput('gapSm', val); },
+	        set: function (val) {
+	            this._cacheInput('gapSm', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapGtSm", {
-	        set: function (val) { this._cacheInput('gapGtSm', val); },
+	        set: function (val) {
+	            this._cacheInput('gapGtSm', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapMd", {
-	        set: function (val) { this._cacheInput('gapMd', val); },
+	        set: function (val) {
+	            this._cacheInput('gapMd', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapGtMd", {
-	        set: function (val) { this._cacheInput('gapGtMd', val); },
+	        set: function (val) {
+	            this._cacheInput('gapGtMd', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapLg", {
-	        set: function (val) { this._cacheInput('gapLg', val); },
+	        set: function (val) {
+	            this._cacheInput('gapLg', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapGtLg", {
-	        set: function (val) { this._cacheInput('gapGtLg', val); },
+	        set: function (val) {
+	            this._cacheInput('gapGtLg', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    
 	    Object.defineProperty(LayoutGapDirective.prototype, "gapXl", {
-	        set: function (val) { this._cacheInput('gapXl', val); },
+	        set: function (val) {
+	            this._cacheInput('gapXl', val);
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
@@ -5142,30 +5460,103 @@
 	     */
 	    LayoutGapDirective.prototype.ngAfterContentInit = function () {
 	        var _this = this;
+	        this._watchContentChanges();
 	        this._listenForMediaQueryChanges('gap', '0', function (changes) {
 	            _this._updateWithValue(changes.value);
 	        });
 	        this._updateWithValue();
 	    };
+	    LayoutGapDirective.prototype.ngOnDestroy = function () {
+	        _super.prototype.ngOnDestroy.call(this);
+	        if (this._layoutWatcher) {
+	            this._layoutWatcher.unsubscribe();
+	        }
+	        if (this._observer) {
+	            this._observer.disconnect();
+	        }
+	    };
 	    // *********************************************
 	    // Protected methods
 	    // *********************************************
 	    /**
+	     * Watch for child nodes to be added... and apply the layout gap styles to each.
+	     * NOTE: this does NOT! differentiate between viewChildren and contentChildren
+	     */
+	    LayoutGapDirective.prototype._watchContentChanges = function () {
+	        var _this = this;
+	        var onMutationCallback = function (mutations) {
+	            var validatedChanges = function (it) {
+	                return (it.addedNodes && it.addedNodes.length) ||
+	                    (it.removedNodes && it.removedNodes.length);
+	            };
+	            // update gap styles only for child 'added' or 'removed' events
+	            if (mutations.filter(validatedChanges).length) {
+	                _this._updateWithValue();
+	            }
+	        };
+	        this._observer = new MutationObserver(onMutationCallback);
+	        this._observer.observe(this._elementRef.nativeElement, { childList: true });
+	    };
+	    /**
+	     * Cache the parent container 'flex-direction' and update the 'margin' styles
+	     */
+	    LayoutGapDirective.prototype._onLayoutChange = function (direction) {
+	        var _this = this;
+	        this._layout = (direction || '').toLowerCase();
+	        if (!LAYOUT_VALUES.find(function (x) { return x === _this._layout; })) {
+	            this._layout = 'row';
+	        }
+	        this._updateWithValue();
+	    };
+	    /**
 	     *
 	     */
 	    LayoutGapDirective.prototype._updateWithValue = function (value) {
-	        value = value || this._queryInput("padding") || '0';
+	        var _this = this;
+	        value = value || this._queryInput("gap") || '0';
 	        if (this._mqActivation) {
 	            value = this._mqActivation.activatedInput;
 	        }
-	        // For each `element` child, set the padding styles...
+	        // Gather all non-hidden Element nodes
 	        var items = this.childrenNodes
 	            .filter(function (el) { return (el.nodeType === 1); }) // only Element types
-	            .filter(function (el, j) { return j > 0; }); // skip first element since gaps are needed
-	        this._applyStyleToElements(this._buildCSS(value), items);
+	            .filter(function (el) { return _this._getDisplayStyle(el) != "none"; });
+	        var numItems = items.length;
+	        if (numItems > 1) {
+	            var lastItem = items[numItems - 1];
+	            // For each `element` children EXCEPT the last,
+	            // set the margin right/bottom styles...
+	            items = items.filter(function (el, j) { return j < numItems - 1; });
+	            this._applyStyleToElements(this._buildCSS(value), items);
+	            // Clear all gaps for all visible elements
+	            this._applyStyleToElements(this._buildCSS(), [lastItem]);
+	        }
 	    };
+	    /**
+	     * Prepare margin CSS, remove any previous explicitly
+	     * assigned margin assignments
+	     */
 	    LayoutGapDirective.prototype._buildCSS = function (value) {
-	        return { 'margin-left': value };
+	        if (value === void 0) { value = null; }
+	        var key, margins = {
+	            'margin-left': null,
+	            'margin-right': null,
+	            'margin-top': null,
+	            'margin-bottom': null
+	        };
+	        switch (this._layout) {
+	            case 'column':
+	            case 'column-reverse':
+	                key = 'margin-bottom';
+	                break;
+	            case "row":
+	            case 'row-reverse':
+	            default:
+	                key = 'margin-right';
+	                break;
+	        }
+	        margins[key] = value;
+	        return margins;
 	    };
 	    __decorate$15([
 	        _angular_core.Input('fxLayoutGap'), 
@@ -5218,11 +5609,380 @@
 	        __metadata$15('design:paramtypes', [Object])
 	    ], LayoutGapDirective.prototype, "gapXl", null);
 	    LayoutGapDirective = __decorate$15([
-	        _angular_core.Directive({ selector: "\n  [fxLayoutGap],\n  [fxLayoutGap.xs]\n  [fxLayoutGap.gt-xs],\n  [fxLayoutGap.sm],\n  [fxLayoutGap.gt-sm]\n  [fxLayoutGap.md],\n  [fxLayoutGap.gt-md]\n  [fxLayoutGap.lg],\n  [fxLayoutGap.gt-lg],\n  [fxLayoutGap.xl]\n" }), 
-	        __metadata$15('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer])
+	        _angular_core.Directive({ selector: "\n  [fxLayoutGap],\n  [fxLayoutGap.xs],\n  [fxLayoutGap.gt-xs],\n  [fxLayoutGap.sm],\n  [fxLayoutGap.gt-sm]\n  [fxLayoutGap.md],\n  [fxLayoutGap.gt-md]\n  [fxLayoutGap.lg],\n  [fxLayoutGap.gt-lg],\n  [fxLayoutGap.xl]\n"
+	        }),
+	        __param$5(3, _angular_core.Optional()),
+	        __param$5(3, _angular_core.Self()), 
+	        __metadata$15('design:paramtypes', [MediaMonitor, _angular_core.ElementRef, _angular_core.Renderer, LayoutDirective])
 	    ], LayoutGapDirective);
 	    return LayoutGapDirective;
 	}(BaseFxDirective));
+	
+	var __extends$11 = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate$16 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata$16 = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	/**
+	 * Directive to add responsive support for ngClass.
+	 */
+	var ClassDirective = (function (_super) {
+	    __extends$11(ClassDirective, _super);
+	    function ClassDirective(monitor, _bpRegistry, _iterableDiffers, _keyValueDiffers, _ngEl, _renderer) {
+	        _super.call(this, _iterableDiffers, _keyValueDiffers, _ngEl, _renderer);
+	        this.monitor = monitor;
+	        this._bpRegistry = _bpRegistry;
+	        this._base = new BaseFxDirectiveAdapter(monitor, _ngEl, _renderer);
+	    }
+	    Object.defineProperty(ClassDirective.prototype, "classXs", {
+	        set: function (val) {
+	            this._base.cacheInput('classXs', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ClassDirective.prototype, "classGtXs", {
+	        set: function (val) {
+	            this._base.cacheInput('classGtXs', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classSm", {
+	        set: function (val) {
+	            this._base.cacheInput('classSm', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classGtSm", {
+	        set: function (val) {
+	            this._base.cacheInput('classGtSm', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classMd", {
+	        set: function (val) {
+	            this._base.cacheInput('classMd', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classGtMd", {
+	        set: function (val) {
+	            this._base.cacheInput('classGtMd', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classLg", {
+	        set: function (val) {
+	            this._base.cacheInput('classLg', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classGtLg", {
+	        set: function (val) {
+	            this._base.cacheInput('classGtLg', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(ClassDirective.prototype, "classXl", {
+	        set: function (val) {
+	            this._base.cacheInput('classXl', val);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    /**
+	     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+	     */
+	    ClassDirective.prototype.ngOnChanges = function (changes) {
+	        var changed = this._bpRegistry.items.some(function (it) { return "class" + it.suffix in changes; });
+	        if (changed || this._base.mqActivation) {
+	            this._updateStyle();
+	        }
+	    };
+	    /**
+	     * After the initial onChanges, build an mqActivation object that bridges
+	     * mql change events to onMediaQueryChange handlers
+	     */
+	    ClassDirective.prototype.ngOnInit = function () {
+	        var _this = this;
+	        this._base.listenForMediaQueryChanges('class', '', function (changes) {
+	            _this._updateStyle(changes.value);
+	        });
+	        this._updateStyle();
+	    };
+	    ClassDirective.prototype.ngOnDestroy = function () {
+	        this._base.ngOnDestroy();
+	    };
+	    ClassDirective.prototype._updateStyle = function (value) {
+	        var clazz = value || this._base.queryInput("class") || '';
+	        if (this._base.mqActivation) {
+	            clazz = this._base.mqActivation.activatedInput;
+	        }
+	        // Delegate subsequent activity to the NgClass logic
+	        this.ngClass = clazz;
+	    };
+	    __decorate$16([
+	        _angular_core.Input('class.xs'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classXs", null);
+	    __decorate$16([
+	        _angular_core.Input('class.gt-xs'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classGtXs", null);
+	    __decorate$16([
+	        _angular_core.Input('class.sm'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classSm", null);
+	    __decorate$16([
+	        _angular_core.Input('class.gt-sm'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classGtSm", null);
+	    __decorate$16([
+	        _angular_core.Input('class.md'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classMd", null);
+	    __decorate$16([
+	        _angular_core.Input('class.gt-md'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classGtMd", null);
+	    __decorate$16([
+	        _angular_core.Input('class.lg'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classLg", null);
+	    __decorate$16([
+	        _angular_core.Input('class.gt-lg'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classGtLg", null);
+	    __decorate$16([
+	        _angular_core.Input('class.xl'), 
+	        __metadata$16('design:type', Object), 
+	        __metadata$16('design:paramtypes', [Object])
+	    ], ClassDirective.prototype, "classXl", null);
+	    ClassDirective = __decorate$16([
+	        _angular_core.Directive({
+	            selector: "\n    [class.xs],\n    [class.gt-xs],\n    [class.sm],\n    [class.gt-sm],\n    [class.md],\n    [class.gt-md],\n    [class.lg],\n    [class.gt-lg],\n    [class.xl]\n  "
+	        }), 
+	        __metadata$16('design:paramtypes', [MediaMonitor, BreakPointRegistry, _angular_core.IterableDiffers, _angular_core.KeyValueDiffers, _angular_core.ElementRef, _angular_core.Renderer])
+	    ], ClassDirective);
+	    return ClassDirective;
+	}(_angular_common.NgClass));
+	
+	var __extends$12 = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate$17 = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata$17 = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	/**
+	 * Directive to add responsive support for ngStyle.
+	 *
+	 */
+	var StyleDirective = (function (_super) {
+	    __extends$12(StyleDirective, _super);
+	    /**
+	     *
+	     */
+	    function StyleDirective(monitor, _bpRegistry, _differs, _ngEl, _renderer) {
+	        _super.call(this, _differs, _ngEl, _renderer);
+	        this.monitor = monitor;
+	        this._bpRegistry = _bpRegistry;
+	        this._base = new BaseFxDirectiveAdapter(monitor, _ngEl, _renderer);
+	    }
+	    Object.defineProperty(StyleDirective.prototype, "styleXs", {
+	        set: function (val) {
+	            this._base.cacheInput('styleXs', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(StyleDirective.prototype, "styleGtXs", {
+	        set: function (val) {
+	            this._base.cacheInput('styleGtXs', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleSm", {
+	        set: function (val) {
+	            this._base.cacheInput('styleSm', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleGtSm", {
+	        set: function (val) {
+	            this._base.cacheInput('styleGtSm', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleMd", {
+	        set: function (val) {
+	            this._base.cacheInput('styleMd', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleGtMd", {
+	        set: function (val) {
+	            this._base.cacheInput('styleGtMd', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleLg", {
+	        set: function (val) {
+	            this._base.cacheInput('styleLg', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleGtLg", {
+	        set: function (val) {
+	            this._base.cacheInput('styleGtLg', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    Object.defineProperty(StyleDirective.prototype, "styleXl", {
+	        set: function (val) {
+	            this._base.cacheInput('styleXl', val, true);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    
+	    /**
+	     * For @Input changes on the current mq activation property, see onMediaQueryChanges()
+	     */
+	    StyleDirective.prototype.ngOnChanges = function (changes) {
+	        var changed = this._bpRegistry.items.some(function (it) { return "style" + it.suffix in changes; });
+	        if (changed || this._base.mqActivation) {
+	            this._updateStyle();
+	        }
+	    };
+	    /**
+	     * After the initial onChanges, build an mqActivation object that bridges
+	     * mql change events to onMediaQueryChange handlers
+	     */
+	    StyleDirective.prototype.ngOnInit = function () {
+	        var _this = this;
+	        this._base.listenForMediaQueryChanges('style', '', function (changes) {
+	            _this._updateStyle(changes.value);
+	        });
+	        this._updateStyle();
+	    };
+	    StyleDirective.prototype.ngOnDestroy = function () {
+	        this._base.ngOnDestroy();
+	    };
+	    StyleDirective.prototype._updateStyle = function (value) {
+	        var style = value || this._base.queryInput("style") || '';
+	        if (this._base.mqActivation) {
+	            style = this._base.mqActivation.activatedInput;
+	        }
+	        // Delegate subsequent activity to the NgStyle logic
+	        this.ngStyle = style;
+	    };
+	    __decorate$17([
+	        _angular_core.Input('style.xs'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleXs", null);
+	    __decorate$17([
+	        _angular_core.Input('style.gt-xs'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleGtXs", null);
+	    __decorate$17([
+	        _angular_core.Input('style.sm'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleSm", null);
+	    __decorate$17([
+	        _angular_core.Input('style.gt-sm'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleGtSm", null);
+	    __decorate$17([
+	        _angular_core.Input('style.md'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleMd", null);
+	    __decorate$17([
+	        _angular_core.Input('style.gt-md'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleGtMd", null);
+	    __decorate$17([
+	        _angular_core.Input('style.lg'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleLg", null);
+	    __decorate$17([
+	        _angular_core.Input('style.gt-lg'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleGtLg", null);
+	    __decorate$17([
+	        _angular_core.Input('style.xl'), 
+	        __metadata$17('design:type', Object), 
+	        __metadata$17('design:paramtypes', [Object])
+	    ], StyleDirective.prototype, "styleXl", null);
+	    StyleDirective = __decorate$17([
+	        _angular_core.Directive({
+	            selector: "\n    [style.xs],\n    [style.gt-xs],\n    [style.sm],\n    [style.gt-sm],\n    [style.md],\n    [style.gt-md],\n    [style.lg],\n    [style.gt-lg],\n    [style.xl]\n  "
+	        }), 
+	        __metadata$17('design:paramtypes', [MediaMonitor, BreakPointRegistry, _angular_core.KeyValueDiffers, _angular_core.ElementRef, _angular_core.Renderer])
+	    ], StyleDirective);
+	    return StyleDirective;
+	}(_angular_common.NgStyle));
 	
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -5250,8 +6010,9 @@
 	    FlexOffsetDirective,
 	    FlexFillDirective,
 	    FlexAlignDirective,
-	    ShowDirective,
-	    HideDirective,
+	    ShowHideDirective,
+	    ClassDirective,
+	    StyleDirective,
 	];
 	/**
 	 *
@@ -5259,22 +6020,58 @@
 	var FlexLayoutModule = (function () {
 	    function FlexLayoutModule() {
 	    }
+	    /** @deprecated */
 	    FlexLayoutModule.forRoot = function () {
-	        return { ngModule: FlexLayoutModule, providers: [MediaMonitor] };
+	        return {
+	            ngModule: FlexLayoutModule
+	        };
 	    };
 	    FlexLayoutModule = __decorate([
 	        _angular_core.NgModule({
 	            declarations: ALL_DIRECTIVES,
 	            imports: [MediaQueriesModule],
 	            exports: [MediaQueriesModule].concat(ALL_DIRECTIVES),
-	            providers: []
+	            providers: [MediaMonitor]
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], FlexLayoutModule);
 	    return FlexLayoutModule;
 	}());
 	
+	/**
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
+	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	
+	/**
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
+	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	
+	/**
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
+	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	
+	/**
+	 * @license
+	 * Copyright Google Inc. All Rights Reserved.
+	 *
+	 * Use of this source code is governed by an MIT-style license that can be
+	 * found in the LICENSE file at https://angular.io/license
+	 */
+	
 	exports.BaseFxDirective = BaseFxDirective;
+	exports.BaseFxDirectiveAdapter = BaseFxDirectiveAdapter;
 	exports.KeyOptions = KeyOptions;
 	exports.ResponsiveActivation = ResponsiveActivation;
 	exports.FlexLayoutModule = FlexLayoutModule;
@@ -5283,7 +6080,9 @@
 	exports.RAW_DEFAULTS = RAW_DEFAULTS;
 	exports.BREAKPOINTS = BREAKPOINTS;
 	exports.BreakPointsProvider = BreakPointsProvider;
-	exports.MatchMediaObservable = MatchMediaObservable;
+	exports.ObservableMedia = ObservableMedia;
+	exports.MediaService = MediaService;
+	exports.ObservableMediaProvider = ObservableMediaProvider;
 	exports.MatchMedia = MatchMedia;
 	exports.MediaChange = MediaChange;
 	exports.MediaMonitor = MediaMonitor;
@@ -5324,10 +6123,16 @@
 /* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(354);
+	module.exports = (__webpack_require__(17))(278);
 
 /***/ },
 /* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(354);
+
+/***/ },
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5337,80 +6142,99 @@
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
 	function __export(m) {
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
 	// angular.
 	var core_1 = __webpack_require__(21);
-	var common_1 = __webpack_require__(33);
+	var common_1 = __webpack_require__(31);
 	var forms_1 = __webpack_require__(24);
 	var flex_layout_1 = __webpack_require__(27);
 	var material_1 = __webpack_require__(26);
-	var angular2localization_1 = __webpack_require__(31);
+	var angular2localization_1 = __webpack_require__(32);
+	// directives.
+	var form_error_1 = __webpack_require__(34);
+	var resize_events_1 = __webpack_require__(35);
+	var content_1 = __webpack_require__(49);
 	// components.
-	var form_errormsg_directive_1 = __webpack_require__(34);
-	var size_changed_directive_1 = __webpack_require__(35);
-	var content_directive_1 = __webpack_require__(49);
-	var column_component_1 = __webpack_require__(50);
-	var table_component_1 = __webpack_require__(51);
-	var list_component_1 = __webpack_require__(54);
-	var page_indicator_component_1 = __webpack_require__(56);
-	var CoreModule = (function () {
-	    function CoreModule() {
+	var item_1 = __webpack_require__(50);
+	// material components.
+	var data_column_1 = __webpack_require__(51);
+	var data_table_1 = __webpack_require__(52);
+	var data_list_1 = __webpack_require__(62);
+	var page_indicator_1 = __webpack_require__(64);
+	var block_ui_1 = __webpack_require__(66);
+	var message_box_1 = __webpack_require__(68);
+	var message_box_2 = __webpack_require__(70);
+	var confirmation_box_1 = __webpack_require__(71);
+	var error_box_1 = __webpack_require__(72);
+	__webpack_require__(87);
+	var MdCoreModule = MdCoreModule_1 = (function () {
+	    function MdCoreModule() {
 	    }
-	    CoreModule.forRoot = function () {
+	    MdCoreModule.forRoot = function () {
 	        return {
-	            ngModule: CoreModule,
+	            ngModule: MdCoreModule_1,
 	            providers: []
 	        };
 	    };
-	    CoreModule = __decorate([
-	        core_1.NgModule({
-	            imports: [
-	                common_1.CommonModule,
-	                forms_1.FormsModule,
-	                flex_layout_1.FlexLayoutModule,
-	                material_1.MaterialModule,
-	                angular2localization_1.LocaleModule,
-	                angular2localization_1.LocalizationModule
-	            ],
-	            exports: [
-	                form_errormsg_directive_1.FormErrorMessageDirective,
-	                size_changed_directive_1.OnSizeChangedDirective,
-	                content_directive_1.ContentDirective,
-	                column_component_1.ColumnComponent,
-	                table_component_1.TableComponent,
-	                list_component_1.ListComponent,
-	                page_indicator_component_1.PageIndicatorComponent
-	            ],
-	            declarations: [
-	                form_errormsg_directive_1.FormErrorMessageDirective,
-	                size_changed_directive_1.OnSizeChangedDirective,
-	                content_directive_1.ContentDirective,
-	                column_component_1.ColumnComponent,
-	                table_component_1.TableComponent,
-	                list_component_1.ListComponent,
-	                page_indicator_component_1.PageIndicatorComponent
-	            ],
-	            providers: []
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], CoreModule);
-	    return CoreModule;
+	    return MdCoreModule;
 	}());
-	exports.CoreModule = CoreModule;
-	__export(__webpack_require__(58));
-	__export(__webpack_require__(61));
+	MdCoreModule = MdCoreModule_1 = __decorate([
+	    core_1.NgModule({
+	        imports: [
+	            common_1.CommonModule,
+	            forms_1.FormsModule,
+	            flex_layout_1.FlexLayoutModule,
+	            material_1.MaterialModule,
+	            angular2localization_1.LocaleModule,
+	            angular2localization_1.LocalizationModule
+	        ],
+	        exports: [
+	            form_error_1.FormErrorMessageDirective,
+	            resize_events_1.ResizeEventsDirective,
+	            content_1.ContentDirective,
+	            item_1.ItemComponent,
+	            confirmation_box_1.MdConfirmationBoxDirective,
+	            error_box_1.MdErrorBoxDirective,
+	            message_box_1.MdMessageBoxComponent,
+	            data_column_1.MdDataColumnComponent,
+	            data_table_1.MdDataTableComponent,
+	            data_list_1.MdDataListComponent,
+	            page_indicator_1.MdPageIndicatorComponent,
+	            block_ui_1.MdBlockUIComponent,
+	        ],
+	        declarations: [
+	            form_error_1.FormErrorMessageDirective,
+	            resize_events_1.ResizeEventsDirective,
+	            content_1.ContentDirective,
+	            item_1.ItemComponent,
+	            confirmation_box_1.MdConfirmationBoxDirective,
+	            error_box_1.MdErrorBoxDirective,
+	            data_column_1.MdDataColumnComponent,
+	            data_table_1.MdDataTableComponent,
+	            data_list_1.MdDataListComponent,
+	            page_indicator_1.MdPageIndicatorComponent,
+	            block_ui_1.MdBlockUIComponent,
+	            message_box_1.MdMessageBoxComponent
+	        ],
+	        entryComponents: [
+	            message_box_1.MdMessageBoxComponent
+	        ],
+	        providers: [
+	            message_box_2.MdMessageBoxService
+	        ]
+	    })
+	], MdCoreModule);
+	exports.MdCoreModule = MdCoreModule;
+	var message_box_3 = __webpack_require__(70);
+	exports.MdMessageBoxService = message_box_3.MdMessageBoxService;
+	__export(__webpack_require__(55));
+	__export(__webpack_require__(53));
+	__export(__webpack_require__(73));
+	__export(__webpack_require__(59));
+	var MdCoreModule_1;
 
-
-/***/ },
-/* 33 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = (__webpack_require__(17))(278);
 
 /***/ },
 /* 34 */
@@ -5426,9 +6250,10 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
 	var forms_1 = __webpack_require__(24);
-	var angular2localization_1 = __webpack_require__(31);
+	var angular2localization_1 = __webpack_require__(32);
 	var FormErrorMessageDirective = (function () {
 	    function FormErrorMessageDirective(element, localizationService) {
 	        this.element = element;
@@ -5468,22 +6293,24 @@
 	            this.element.nativeElement.innerHTML = null;
 	        }
 	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', forms_1.FormControl)
-	    ], FormErrorMessageDirective.prototype, "errormsg", null);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], FormErrorMessageDirective.prototype, "fieldName", void 0);
-	    FormErrorMessageDirective = __decorate([
-	        core_1.Directive({
-	            selector: "[errormsg]"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ElementRef, angular2localization_1.LocalizationService])
-	    ], FormErrorMessageDirective);
 	    return FormErrorMessageDirective;
 	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", forms_1.FormControl),
+	    __metadata("design:paramtypes", [forms_1.FormControl])
+	], FormErrorMessageDirective.prototype, "errormsg", null);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], FormErrorMessageDirective.prototype, "fieldName", void 0);
+	FormErrorMessageDirective = __decorate([
+	    core_1.Directive({
+	        selector: "[errormsg]"
+	    }),
+	    __metadata("design:paramtypes", [core_1.ElementRef,
+	        angular2localization_1.LocalizationService])
+	], FormErrorMessageDirective);
 	exports.FormErrorMessageDirective = FormErrorMessageDirective;
 
 
@@ -5501,33 +6328,39 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var OnSizeChangedDirective = (function () {
-	    function OnSizeChangedDirective(element) {
+	var ResizeEventsDirective = (function () {
+	    function ResizeEventsDirective(element) {
 	        this.element = element;
-	        this.onSizeChanged = new core_1.EventEmitter();
-	        var elementResizeDetectorMaker = __webpack_require__(36);
-	        var erd = elementResizeDetectorMaker({
+	        this.onResize = new core_1.EventEmitter();
+	        var elementResizeDetectorType = __webpack_require__(36);
+	        this.elementResizeDetector = elementResizeDetectorType({
 	            strategy: "scroll"
 	        });
-	        erd.listenTo(element.nativeElement, this.onNativeSizeChanged.bind(this));
 	    }
-	    OnSizeChangedDirective.prototype.onNativeSizeChanged = function (e) {
-	        this.onSizeChanged.emit(e);
+	    ResizeEventsDirective.prototype.ngOnInit = function () {
+	        this.elementResizeDetector.listenTo(this.element.nativeElement, this.onNativeResize.bind(this));
 	    };
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', core_1.EventEmitter)
-	    ], OnSizeChangedDirective.prototype, "onSizeChanged", void 0);
-	    OnSizeChangedDirective = __decorate([
-	        core_1.Directive({
-	            selector: "[sizeChanged]"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ElementRef])
-	    ], OnSizeChangedDirective);
-	    return OnSizeChangedDirective;
+	    ResizeEventsDirective.prototype.ngOnDestroy = function () {
+	        this.elementResizeDetector.removeListener(this.element.nativeElement, this.onNativeResize.bind(this));
+	    };
+	    ResizeEventsDirective.prototype.onNativeResize = function (e) {
+	        this.onResize.emit(e);
+	    };
+	    return ResizeEventsDirective;
 	}());
-	exports.OnSizeChangedDirective = OnSizeChangedDirective;
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], ResizeEventsDirective.prototype, "onResize", void 0);
+	ResizeEventsDirective = __decorate([
+	    core_1.Directive({
+	        selector: "[resizeEvents]"
+	    }),
+	    __metadata("design:paramtypes", [core_1.ElementRef])
+	], ResizeEventsDirective);
+	exports.ResizeEventsDirective = ResizeEventsDirective;
 
 
 /***/ },
@@ -7230,6 +8063,7 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
 	var ContentDirective = (function () {
 	    function ContentDirective(_viewContainer) {
@@ -7260,31 +8094,31 @@
 	            this._viewContainer.clear();
 	        }
 	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Object)
-	    ], ContentDirective.prototype, "model", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ContentDirective.prototype, "index", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], ContentDirective.prototype, "template", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean), 
-	        __metadata('design:paramtypes', [Boolean])
-	    ], ContentDirective.prototype, "condition", null);
-	    ContentDirective = __decorate([
-	        core_1.Directive({
-	            selector: "d-content"
-	        }), 
-	        __metadata('design:paramtypes', [core_1.ViewContainerRef])
-	    ], ContentDirective);
 	    return ContentDirective;
 	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Object)
+	], ContentDirective.prototype, "model", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number)
+	], ContentDirective.prototype, "index", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", core_1.TemplateRef)
+	], ContentDirective.prototype, "template", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean),
+	    __metadata("design:paramtypes", [Boolean])
+	], ContentDirective.prototype, "condition", null);
+	ContentDirective = __decorate([
+	    core_1.Directive({
+	        selector: "d-content"
+	    }),
+	    __metadata("design:paramtypes", [core_1.ViewContainerRef])
+	], ContentDirective);
 	exports.ContentDirective = ContentDirective;
 
 
@@ -7302,68 +8136,68 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	(function (ColumnType) {
-	    ColumnType[ColumnType["Text"] = 1] = "Text";
-	    ColumnType[ColumnType["Number"] = 2] = "Number";
-	    ColumnType[ColumnType["Template"] = 3] = "Template";
-	})(exports.ColumnType || (exports.ColumnType = {}));
-	var ColumnType = exports.ColumnType;
-	var ColumnComponent = (function () {
-	    function ColumnComponent() {
+	var ItemComponent = (function () {
+	    function ItemComponent() {
+	        this._selected = false;
+	        this.selectedChange = new core_1.EventEmitter();
+	        this.modelChange = new core_1.EventEmitter();
 	    }
-	    ColumnComponent.prototype.sizeChanged = function (nativeElement) {
-	        this.actualSize = nativeElement.clientWidth;
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Object)
-	    ], ColumnComponent.prototype, "div", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnComponent.prototype, "title", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ColumnComponent.prototype, "type", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnComponent.prototype, "property", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean)
-	    ], ColumnComponent.prototype, "canSort", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ColumnComponent.prototype, "size", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ColumnComponent.prototype, "minWidth", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Number)
-	    ], ColumnComponent.prototype, "priority", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean)
-	    ], ColumnComponent.prototype, "visible", void 0);
-	    __decorate([
-	        core_1.ContentChild(core_1.TemplateRef), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], ColumnComponent.prototype, "template", void 0);
-	    ColumnComponent = __decorate([
-	        core_1.Directive({
-	            selector: "d-column"
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], ColumnComponent);
-	    return ColumnComponent;
+	    Object.defineProperty(ItemComponent.prototype, "selected", {
+	        get: function () {
+	            return this._selected;
+	        },
+	        set: function (value) {
+	            if (this._selected != value) {
+	                this._selected = value;
+	                this.selectedChange.emit(this);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemComponent.prototype, "model", {
+	        get: function () {
+	            return this._model;
+	        },
+	        set: function (value) {
+	            if (this._model != value) {
+	                this._model = value;
+	                this.modelChange.emit(this);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return ItemComponent;
 	}());
-	exports.ColumnComponent = ColumnComponent;
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean),
+	    __metadata("design:paramtypes", [Boolean])
+	], ItemComponent.prototype, "selected", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], ItemComponent.prototype, "selectedChange", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean),
+	    __metadata("design:paramtypes", [Boolean])
+	], ItemComponent.prototype, "model", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], ItemComponent.prototype, "modelChange", void 0);
+	ItemComponent = __decorate([
+	    core_1.Component({
+	        selector: "item",
+	        template: "<ng-content></ng-content>",
+	        exportAs: "listItem"
+	    })
+	], ItemComponent);
+	exports.ItemComponent = ItemComponent;
 
 
 /***/ },
@@ -7371,11 +8205,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7385,117 +8214,175 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var column_component_1 = __webpack_require__(50);
-	var collection_component_1 = __webpack_require__(52);
-	var TableComponent = (function (_super) {
-	    __extends(TableComponent, _super);
-	    function TableComponent() {
-	        _super.apply(this, arguments);
-	        this._columns = [];
-	        this.visibleColumnsChange = new core_1.EventEmitter();
+	var ColumnType;
+	(function (ColumnType) {
+	    ColumnType[ColumnType["Text"] = 1] = "Text";
+	    ColumnType[ColumnType["Number"] = 2] = "Number";
+	    ColumnType[ColumnType["Template"] = 3] = "Template";
+	})(ColumnType = exports.ColumnType || (exports.ColumnType = {}));
+	var MdDataColumnComponent = (function () {
+	    function MdDataColumnComponent() {
 	    }
-	    Object.defineProperty(TableComponent.prototype, "columnsQuery", {
-	        set: function (value) {
-	            this.columns = value.toArray();
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(TableComponent.prototype, "columns", {
-	        get: function () {
-	            return this._columns;
-	        },
-	        set: function (value) {
-	            this._columns = value;
-	            this.setDefaults();
-	            this.setColumnWidths();
-	            this.visibleColumnsChange.emit(null);
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(TableComponent.prototype, "visibleColumns", {
-	        get: function () {
-	            var visible = [];
-	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                var c = _a[_i];
-	                if (c.visible)
-	                    visible.push(c);
+	    MdDataColumnComponent.prototype.onResize = function (nativeElement) {
+	        this.actualSize = nativeElement.clientWidth;
+	    };
+	    MdDataColumnComponent.prototype.setup = function () {
+	        // default for canSort
+	        if (this.canSort == undefined && this.property) {
+	            this.canSort = true;
+	        }
+	        // default for type
+	        if (this.type == undefined) {
+	            if (this.template)
+	                this.type = ColumnType.Template;
+	            else
+	                this.type = ColumnType.Text;
+	        }
+	        // default for title
+	        if (this.title == undefined && this.property) {
+	            this.title = this.property;
+	        }
+	        // default for size
+	        if (this.size == undefined) {
+	            switch (this.type) {
+	                case ColumnType.Text:
+	                    this.size = "grow";
+	                    break;
+	                default:
+	                    this.size = "stretch";
+	                    break;
 	            }
-	            return visible;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    TableComponent.prototype.toggleSort = function (column) {
-	        if (column.canSort && column.property) {
-	            this.dataSource.toggleSort(column.property);
+	        }
+	        // default for minWidth
+	        if (this.minWidth == undefined) {
+	            switch (this.type) {
+	                case ColumnType.Text:
+	                    this.minWidth = 125;
+	                    break;
+	                case ColumnType.Number:
+	                    this.minWidth = 50;
+	                    break;
+	                default:
+	                    this.minWidth = 50;
+	                    break;
+	            }
+	        }
+	        // default for priority
+	        if (this.priority == undefined) {
+	            if (this.type == ColumnType.Template)
+	                this.priority = 0;
+	            else
+	                this.priority = this.index;
+	        }
+	        // default for visible
+	        if (this.visible == undefined) {
+	            this.visible = true;
 	        }
 	    };
-	    TableComponent.prototype.setDefaults = function () {
-	        var index = 1;
-	        for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	            var column = _a[_i];
-	            // default for canSort
-	            if (column.canSort == undefined && column.property) {
-	                column.canSort = true;
-	            }
-	            // default for type
-	            if (column.type == undefined) {
-	                if (column.template)
-	                    column.type = column_component_1.ColumnType.Template;
-	                else
-	                    column.type = column_component_1.ColumnType.Text;
-	            }
-	            // default for title
-	            if (column.title == undefined && column.property) {
-	                column.title = column.property;
-	            }
-	            // default for size
-	            if (column.size == undefined) {
-	                switch (column.type) {
-	                    case column_component_1.ColumnType.Text:
-	                        column.size = "grow";
-	                        break;
-	                    default:
-	                        column.size = "stretch";
-	                        break;
-	                }
-	            }
-	            // default for minWidth
-	            if (column.minWidth == undefined) {
-	                switch (column.type) {
-	                    case column_component_1.ColumnType.Text:
-	                        column.minWidth = 125;
-	                        break;
-	                    case column_component_1.ColumnType.Number:
-	                        column.minWidth = 50;
-	                        break;
-	                    default:
-	                        column.minWidth = 50;
-	                        break;
-	                }
-	            }
-	            // default for priority
-	            if (column.priority == undefined) {
-	                if (column.type == column_component_1.ColumnType.Template)
-	                    column.priority = 0;
-	                else
-	                    column.priority = index;
-	            }
-	            // default for visible
-	            if (column.visible == undefined) {
-	                column.visible = true;
-	            }
-	            index++;
+	    return MdDataColumnComponent;
+	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdDataColumnComponent.prototype, "title", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number)
+	], MdDataColumnComponent.prototype, "type", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdDataColumnComponent.prototype, "property", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean)
+	], MdDataColumnComponent.prototype, "canSort", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdDataColumnComponent.prototype, "size", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number)
+	], MdDataColumnComponent.prototype, "minWidth", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number)
+	], MdDataColumnComponent.prototype, "priority", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean)
+	], MdDataColumnComponent.prototype, "visible", void 0);
+	__decorate([
+	    core_1.ContentChild(core_1.TemplateRef),
+	    __metadata("design:type", core_1.TemplateRef)
+	], MdDataColumnComponent.prototype, "template", void 0);
+	MdDataColumnComponent = __decorate([
+	    core_1.Directive({
+	        selector: "md-data-column"
+	    })
+	], MdDataColumnComponent);
+	exports.MdDataColumnComponent = MdDataColumnComponent;
+
+
+/***/ },
+/* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var collection_1 = __webpack_require__(53);
+	var data_column_1 = __webpack_require__(51);
+	var items_control_1 = __webpack_require__(57);
+	var MdDataTableComponent = (function (_super) {
+	    __extends(MdDataTableComponent, _super);
+	    function MdDataTableComponent() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    MdDataTableComponent.prototype.ngAfterViewInit = function () {
+	        _super.prototype.ngAfterViewInit.call(this);
+	        this.columns.forEach(function (col, index) {
+	            col.index = index + 1;
+	            col.setup();
+	        });
+	        this.updateColumnWidths();
+	    };
+	    MdDataTableComponent.prototype.toggleSort = function (column) {
+	        if (this.collection) {
+	            this.collection.params.sortBy = column.property;
+	            if (this.collection.params.sortOrder == collection_1.SortOrder.Desc)
+	                this.collection.params.sortOrder = collection_1.SortOrder.Asc;
+	            else
+	                this.collection.params.sortOrder = collection_1.SortOrder.Desc;
+	            this.collection.load();
 	        }
 	    };
-	    TableComponent.prototype.setColumnWidths = function () {
+	    MdDataTableComponent.prototype.updateColumnWidths = function () {
 	        var total = 100;
 	        var count = 0;
-	        for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	            var column = _a[_i];
+	        this.columns.forEach(function (column) {
 	            if (column.visible) {
 	                if (column.size == "grow") {
 	                    count++;
@@ -7505,9 +8392,8 @@
 	                    total -= percentSize;
 	                }
 	            }
-	        }
-	        for (var _b = 0, _c = this._columns; _b < _c.length; _b++) {
-	            var column = _c[_b];
+	        });
+	        this.columns.forEach(function (column) {
 	            if (column.visible) {
 	                switch (column.size) {
 	                    case "grow":
@@ -7521,590 +8407,135 @@
 	                        break;
 	                }
 	            }
-	        }
+	        });
 	    };
-	    TableComponent.prototype.sizeChanged = function (nativeElement) {
-	        if (this._columns) {
-	            var minWidthAll = 0;
-	            var pVisibleColumn = null;
-	            var pHiddenColumn = null;
-	            for (var _i = 0, _a = this._columns; _i < _a.length; _i++) {
-	                var column = _a[_i];
+	    MdDataTableComponent.prototype.onResize = function (nativeElement) {
+	        if (this.columns) {
+	            var minWidthAll_1 = 0;
+	            var pVisibleColumn_1 = null;
+	            var pHiddenColumn_1 = null;
+	            this.columns.forEach(function (column) {
 	                if (column.visible) {
-	                    minWidthAll += column.minWidth;
-	                    if (column.priority > 0 && (pVisibleColumn == null || column.priority > pVisibleColumn.priority)) {
-	                        pVisibleColumn = column;
+	                    minWidthAll_1 += column.minWidth;
+	                    if (column.priority > 0 && (pVisibleColumn_1 == null || column.priority > pVisibleColumn_1.priority)) {
+	                        pVisibleColumn_1 = column;
 	                    }
 	                }
 	                else {
-	                    if (column.priority > 0 && (pHiddenColumn == null || column.priority < pHiddenColumn.priority)) {
-	                        pHiddenColumn = column;
+	                    if (column.priority > 0 && (pHiddenColumn_1 == null || column.priority < pHiddenColumn_1.priority)) {
+	                        pHiddenColumn_1 = column;
 	                    }
 	                }
+	            });
+	            var delta = nativeElement.clientWidth - minWidthAll_1;
+	            if (delta < 0 && pVisibleColumn_1) {
+	                pVisibleColumn_1.visible = false;
+	                this.updateColumnWidths();
 	            }
-	            var delta = nativeElement.clientWidth - minWidthAll;
-	            if (delta < 0 && pVisibleColumn) {
-	                pVisibleColumn.visible = false;
-	                this.visibleColumnsChange.emit(null);
-	                this.setColumnWidths();
-	            }
-	            if (pHiddenColumn && delta > pHiddenColumn.minWidth) {
-	                pHiddenColumn.visible = true;
-	                this.visibleColumnsChange.emit(null);
-	                this.setColumnWidths();
+	            if (pHiddenColumn_1 && delta > pHiddenColumn_1.minWidth) {
+	                pHiddenColumn_1.visible = true;
+	                this.updateColumnWidths();
 	            }
 	        }
 	    };
-	    __decorate([
-	        core_1.ContentChildren(column_component_1.ColumnComponent), 
-	        __metadata('design:type', core_1.QueryList), 
-	        __metadata('design:paramtypes', [core_1.QueryList])
-	    ], TableComponent.prototype, "columnsQuery", null);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], TableComponent.prototype, "columns", null);
-	    TableComponent = __decorate([
-	        core_1.Component({
-	            selector: 'd-table',
-	            template: __webpack_require__(53),
-	            encapsulation: core_1.ViewEncapsulation.None
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], TableComponent);
-	    return TableComponent;
-	}(collection_component_1.CollectionComponent));
-	exports.TableComponent = TableComponent;
-
-
-/***/ },
-/* 52 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var CollectionItem = (function () {
-	    function CollectionItem(model) {
-	        this.model = model;
-	        this._selected = false;
-	        this.selectedChange = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(CollectionItem.prototype, "selected", {
-	        get: function () {
-	            return this._selected;
-	        },
-	        set: function (value) {
-	            if (this._selected !== value) {
-	                this._selected = value;
-	                this.selectedChange.emit(this);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    return CollectionItem;
-	}());
-	exports.CollectionItem = CollectionItem;
-	var CollectionComponent = (function () {
-	    function CollectionComponent() {
-	        this._suspendFlag = false;
-	        this._items = [];
-	        this._selection = [];
-	        this.keyProperty = "id";
-	        this.displayProperty = "name";
-	        this.itemsChange = new core_1.EventEmitter();
-	        this.dataSourceChanged = new core_1.EventEmitter();
-	        this.selectionChange = new core_1.EventEmitter();
-	        this.allSelectedChange = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(CollectionComponent.prototype, "items", {
-	        //items.
-	        get: function () {
-	            return this._items;
-	        },
-	        set: function (value) {
-	            if (this._items !== value) {
-	                if (this._items) {
-	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                        var item = _a[_i];
-	                        item.selectedChange.unsubscribe();
-	                    }
-	                }
-	                this._items = value;
-	                if (this._items) {
-	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
-	                        var item = _c[_b];
-	                        item.selectedChange.subscribe(this.onItemSelectedChange.bind(this));
-	                    }
-	                }
-	                this.syncSelection();
-	                this.itemsChange.emit(this._items);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(CollectionComponent.prototype, "dataSource", {
-	        //item source.
-	        get: function () {
-	            return this._dataSource;
-	        },
-	        set: function (value) {
-	            if (this._dataSource != value) {
-	                if (this._dataSource) {
-	                    this._dataSource.itemsChange.unsubscribe();
-	                }
-	                this._dataSource = value;
-	                if (this._dataSource) {
-	                    this._dataSource.itemsChange.subscribe(this.onDataSourceItemsChange.bind(this));
-	                    this.onDataSourceItemsChange();
-	                }
-	                this.dataSourceChanged.emit(this.dataSource);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    CollectionComponent.prototype.onDataSourceItemsChange = function () {
-	        if (this._dataSource && this._dataSource.items) {
-	            this.items = this._dataSource.items.map(function (i) { return new CollectionItem(i); });
-	        }
-	    };
-	    Object.defineProperty(CollectionComponent.prototype, "selection", {
-	        // selection.
-	        get: function () {
-	            return this._selection;
-	        },
-	        set: function (value) {
-	            if (this._selection !== value) {
-	                this._selection = value;
-	                this.syncSelection();
-	                this.selectionChange.emit(this._selection);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    CollectionComponent.prototype.syncSelection = function () {
-	        var _this = this;
-	        this._suspendFlag = true;
-	        if (this._items && this._selection) {
-	            var _loop_1 = function(item) {
-	                item.selected = this_1._selection.find(function (s) { return item.model[_this.keyProperty] == s[_this.keyProperty]; }) !== undefined;
-	            };
-	            var this_1 = this;
-	            for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                var item = _a[_i];
-	                _loop_1(item);
-	            }
-	            this.syncAllSelected();
-	        }
-	        this._suspendFlag = false;
-	    };
-	    CollectionComponent.prototype.onItemSelectedChange = function (item) {
-	        var _this = this;
-	        if (!this._suspendFlag) {
-	            if (!this._selection) {
-	                this._selection = [];
-	            }
-	            var existing = this._selection.findIndex(function (s) { return s[_this.keyProperty] == item.model[_this.keyProperty]; });
-	            if (item.selected && existing < 0)
-	                this._selection.push(item.model);
-	            else if (!item.selected && existing >= 0)
-	                this._selection.splice(existing, 1);
-	            this.selectionChange.emit(this._selection);
-	            this.syncAllSelected();
-	        }
-	    };
-	    Object.defineProperty(CollectionComponent.prototype, "allSelected", {
-	        // all selected.
-	        get: function () {
-	            return this._allSelected;
-	        },
-	        set: function (value) {
-	            if (this._allSelected !== value) {
-	                this._allSelected = value;
-	                this._suspendFlag = true;
-	                this._selection = [];
-	                if (value) {
-	                    for (var _i = 0, _a = this._items; _i < _a.length; _i++) {
-	                        var item = _a[_i];
-	                        item.selected = true;
-	                        this._selection.push(item.model);
-	                    }
-	                }
-	                else {
-	                    for (var _b = 0, _c = this._items; _b < _c.length; _b++) {
-	                        var item = _c[_b];
-	                        item.selected = false;
-	                    }
-	                }
-	                this.selectionChange.emit(this._selection);
-	                this.allSelectedChange.emit(this._allSelected);
-	                this._suspendFlag = false;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    CollectionComponent.prototype.syncAllSelected = function () {
-	        var allSelected = this._items.length == this._selection.length && this._items.length > 0;
-	        if (this._allSelected !== allSelected) {
-	            this._allSelected = allSelected;
-	            this.allSelectedChange.emit(allSelected);
-	        }
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], CollectionComponent.prototype, "keyProperty", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], CollectionComponent.prototype, "displayProperty", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], CollectionComponent.prototype, "items", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], CollectionComponent.prototype, "itemsChange", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Object)
-	    ], CollectionComponent.prototype, "dataSource", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], CollectionComponent.prototype, "dataSourceChanged", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Array)
-	    ], CollectionComponent.prototype, "selection", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', Object)
-	    ], CollectionComponent.prototype, "selectionChange", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean)
-	    ], CollectionComponent.prototype, "allSelected", null);
-	    __decorate([
-	        core_1.Output(), 
-	        __metadata('design:type', core_1.EventEmitter)
-	    ], CollectionComponent.prototype, "allSelectedChange", void 0);
-	    return CollectionComponent;
-	}());
-	exports.CollectionComponent = CollectionComponent;
+	    return MdDataTableComponent;
+	}(items_control_1.ItemsControlComponent));
+	__decorate([
+	    core_1.ContentChildren(data_column_1.MdDataColumnComponent),
+	    __metadata("design:type", core_1.QueryList)
+	], MdDataTableComponent.prototype, "columns", void 0);
+	MdDataTableComponent = __decorate([
+	    core_1.Component({
+	        selector: 'md-data-table',
+	        template: __webpack_require__(61),
+	        encapsulation: core_1.ViewEncapsulation.None
+	    })
+	], MdDataTableComponent);
+	exports.MdDataTableComponent = MdDataTableComponent;
 
 
 /***/ },
 /* 53 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<div style=\"width:100%\" sizeChanged (onSizeChanged)=\"sizeChanged($event)\">\r\n    <div class=\"d-table-container\">\r\n        <div class=\"d-table-row d-table-header\">\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </div>\r\n            <div *ngFor=\"let column of columns\" sizeChanged (onSizeChanged)=\"column.sizeChanged($event)\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                              'd-table-sortable': column.canSort,\r\n                              'd-table-sorted-asc': dataSource.orderBy==column.property && dataSource.sortDirection == 0,\r\n                              'd-table-sorted-desc': dataSource.orderBy==column.property && dataSource.sortDirection == 1,\r\n                              'd-table-cell-text': column.type == 1,\r\n                              'd-table-cell-number': column.type == 2,\r\n                              'd-table-cell-template': column.type == 3,\r\n                              'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\"\r\n                 (click)=\"toggleSort(column)\">\r\n                <span>{{column.title}}</span><span class=\"material-icons d-table-sort-arrow\">arrow_upward</span>\r\n            </div>\r\n        </div>\r\n        <div *ngFor=\"let item of items; let index = index;\"\r\n             [ngClass]=\"{ 'd-table-row': true,\r\n                      'd-table-selected': item.selected }\">\r\n\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"item.selected\"></md-checkbox>\r\n            </div>\r\n\r\n            <div *ngFor=\"let column of columns\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                          'd-table-cell-text': column.type == 1,\r\n                          'd-table-cell-number': column.type == 2,\r\n                          'd-table-cell-template': column.type == 3,\r\n                          'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\">\r\n                <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item.model\" [index]=\"index\"></d-content>\r\n                <span *ngIf=\"!column.template\">{{item.model[column.property]}}</span>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var BehaviorSubject_1 = __webpack_require__(30);
+	var Subject_1 = __webpack_require__(54);
+	var Collection = (function () {
+	    function Collection(service) {
+	        this._values = new BehaviorSubject_1.BehaviorSubject(new Array());
+	        this._busy = new BehaviorSubject_1.BehaviorSubject(false);
+	        this._error = new Subject_1.Subject();
+	        this.params = { pageIndex: 1, pageSize: 0 };
+	        this.values = this._values.asObservable();
+	        this.busy = this._busy.asObservable();
+	        this.error = this._error.asObservable();
+	        this._service = service;
+	    }
+	    Object.defineProperty(Collection.prototype, "length", {
+	        get: function () {
+	            return this._values.getValue().length;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Collection.prototype.load = function () {
+	        var _this = this;
+	        this._busy.next(true);
+	        this._service.query(this.params)
+	            .subscribe(function (result) {
+	            _this._values.next(result.items);
+	            _this.pageCount = result.pageCount;
+	            _this.rowCount = result.pageCount;
+	            _this._busy.next(false);
+	        }, function (error) {
+	            _this._error.next(error);
+	            _this._busy.next(false);
+	        });
+	    };
+	    Collection.prototype.getValues = function () {
+	        return this._values.getValue();
+	    };
+	    Collection.prototype.getKey = function (model) {
+	        return model["id"];
+	    };
+	    return Collection;
+	}());
+	exports.Collection = Collection;
+	var service_1 = __webpack_require__(55);
+	exports.SortOrder = service_1.SortOrder;
+
 
 /***/ },
 /* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var collection_component_1 = __webpack_require__(52);
-	var ListComponent = (function (_super) {
-	    __extends(ListComponent, _super);
-	    function ListComponent() {
-	        _super.apply(this, arguments);
-	    }
-	    __decorate([
-	        core_1.ContentChild(core_1.TemplateRef), 
-	        __metadata('design:type', core_1.TemplateRef)
-	    ], ListComponent.prototype, "template", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], ListComponent.prototype, "placeholder", void 0);
-	    ListComponent = __decorate([
-	        core_1.Component({
-	            selector: 'd-list',
-	            template: __webpack_require__(55),
-	            encapsulation: core_1.ViewEncapsulation.None
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], ListComponent);
-	    return ListComponent;
-	}(collection_component_1.CollectionComponent));
-	exports.ListComponent = ListComponent;
-
+	module.exports = (__webpack_require__(17))(280);
 
 /***/ },
 /* 55 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"d-list-wrapper\">\r\n    <div class=\"d-placeholder\">\r\n        <label>{{placeholder}}</label>\r\n    </div>\r\n    <div class=\"d-list-item\" *ngFor=\"let item of items\">\r\n        <md-checkbox [(ngModel)]=\"item.selected\">\r\n\r\n            <d-content [condition]=\"template\"\r\n                       [template]=\"template\"\r\n                       [model]=\"item.model\"\r\n                       [index]=\"index\"></d-content>\r\n\r\n            <span *ngIf=\"!template\">{{item.model[displayProperty]}}</span>\r\n        </md-checkbox>\r\n    </div>\r\n</div>"
-
-/***/ },
-/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var PageIndicatorComponent = (function () {
-	    function PageIndicatorComponent() {
-	        this.pages = [];
-	        this.pagesChange = new core_1.EventEmitter();
-	    }
-	    Object.defineProperty(PageIndicatorComponent.prototype, "dataSource", {
-	        set: function (value) {
-	            this._dataSource = value;
-	            this._dataSource.pageIndexChange.subscribe(this.onPageIndexChange.bind(this));
-	            this._dataSource.pageCountChange.subscribe(this.onPageCountChange.bind(this));
-	            this._pageIndex = this._dataSource.pageIndex;
-	            this._pageCount = this._dataSource.pageCount;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(PageIndicatorComponent.prototype, "pageIndex", {
-	        get: function () { return this._pageIndex; },
-	        set: function (value) {
-	            if (value !== this._pageIndex) {
-	                this._pageIndex = value;
-	                if (this._dataSource) {
-	                    this._dataSource.pageIndex = value;
-	                    this._dataSource.load();
-	                }
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(PageIndicatorComponent.prototype, "pageCount", {
-	        get: function () {
-	            return this._pageCount;
-	        },
-	        set: function (value) {
-	            if (value !== this._pageCount) {
-	                this._pageCount = value;
-	                this.pages = [];
-	                var i = 1;
-	                while (i <= this._pageCount) {
-	                    this.pages.push(i);
-	                    i++;
-	                }
-	                this.pagesChange.emit(this.pages);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    PageIndicatorComponent.prototype.onPageIndexChange = function () {
-	        this.pageIndex = this._dataSource.pageIndex;
+	var __extends = (this && this.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	    };
-	    PageIndicatorComponent.prototype.onPageCountChange = function () {
-	        this.pageCount = this._dataSource.pageCount;
-	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Object), 
-	        __metadata('design:paramtypes', [Object])
-	    ], PageIndicatorComponent.prototype, "dataSource", null);
-	    PageIndicatorComponent = __decorate([
-	        core_1.Component({
-	            selector: 'd-page-indicator',
-	            template: __webpack_require__(57),
-	            encapsulation: core_1.ViewEncapsulation.None
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], PageIndicatorComponent);
-	    return PageIndicatorComponent;
-	}());
-	exports.PageIndicatorComponent = PageIndicatorComponent;
-
-
-/***/ },
-/* 57 */
-/***/ function(module, exports) {
-
-	module.exports = "<div fxLayout=\"row\" fxLayoutAlign=\"center center\" class=\"d-page-indicator-container\">\r\n    <button md-button (click)=\"pageIndex = 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>first_page</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageIndex - 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_left</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = page\"\r\n            [ngClass]=\"{ 'd-page-indicator-button': true,\r\n                             'd-page-indicator-button-current': pageIndex == page }\"\r\n            *ngFor=\"let page of pages\">\r\n        <span>{{page}}</span>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageIndex + 1\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_right</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageCount\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>last_page</md-icon>\r\n    </button>\r\n</div>"
-
-/***/ },
-/* 58 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var core_1 = __webpack_require__(21);
-	var base_datasource_1 = __webpack_require__(59);
-	(function (SortDirection) {
-	    SortDirection[SortDirection["Asc"] = 0] = "Asc";
-	    SortDirection[SortDirection["Desc"] = 1] = "Desc";
-	})(exports.SortDirection || (exports.SortDirection = {}));
-	var SortDirection = exports.SortDirection;
-	var DataPage = (function () {
-	    function DataPage() {
-	    }
-	    return DataPage;
-	}());
-	exports.DataPage = DataPage;
-	var HttpRestCollectionDataSource = (function (_super) {
-	    __extends(HttpRestCollectionDataSource, _super);
-	    function HttpRestCollectionDataSource(http, baseUrl) {
-	        _super.call(this, http);
-	        this.baseUrl = baseUrl;
-	        this.sortDirection = SortDirection.Asc;
-	        this.pageCountChange = new core_1.EventEmitter();
-	        this._pageIndex = 1;
-	        this.pageIndexChange = new core_1.EventEmitter();
-	        this._items = [];
-	        this.itemsChange = new core_1.EventEmitter();
-	        this.pageBaseUrl = baseUrl + "/pages/:pageIndex";
-	    }
-	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "pageCount", {
-	        get: function () { return this._pageCount; },
-	        set: function (value) {
-	            if (value !== this._pageCount) {
-	                this._pageCount = value;
-	                this.pageCountChange.emit(this._pageCount);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "pageIndex", {
-	        get: function () { return this._pageIndex; },
-	        set: function (value) {
-	            if (value !== this._pageIndex) {
-	                this._pageIndex = value;
-	                this.pageIndexChange.emit(this._pageIndex);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(HttpRestCollectionDataSource.prototype, "items", {
-	        get: function () {
-	            return this._items;
-	        },
-	        set: function (value) {
-	            if (value != this._items) {
-	                this._items = value;
-	                this.itemsChange.emit(this._items);
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    HttpRestCollectionDataSource.prototype.load = function () {
-	        var _this = this;
-	        var params = Object.assign({}, this.requestParams);
-	        params.searchText = this.searchText;
-	        params.orderBy = this.getSortQueryParam();
-	        if (this.pageSize) {
-	            params.pageIndex = this.pageIndex;
-	            params.pageSize = this.pageSize;
-	            params.noCount = this.noCount;
-	            var request = this.execute(this.pageBaseUrl, params, "get", null);
-	            request.subscribe(function (data) {
-	                _this.items = data.items;
-	                _this.pageCount = data.pageCount;
-	            }, function (error) {
-	            });
-	            return request;
-	        }
-	        else {
-	            var request = this.execute(this.baseUrl, params, "get", null);
-	            request.subscribe(function (data) {
-	                _this.items = data;
-	            }, function (error) {
-	            });
-	            return request;
-	        }
-	    };
-	    HttpRestCollectionDataSource.prototype.getSortQueryParam = function () {
-	        if (this.orderBy) {
-	            if (this.sortDirection == 1)
-	                return this.orderBy + "+desc";
-	            else
-	                return this.orderBy + "+asc";
-	        }
-	    };
-	    HttpRestCollectionDataSource.prototype.toggleSort = function (propertyName) {
-	        if (this.orderBy != propertyName) {
-	            this.sortDirection = SortDirection.Asc;
-	        }
-	        else {
-	            switch (this.sortDirection) {
-	                case SortDirection.Desc:
-	                    this.sortDirection = SortDirection.Asc;
-	                    break;
-	                case SortDirection.Asc:
-	                    this.sortDirection = SortDirection.Desc;
-	                    break;
-	            }
-	        }
-	        this.orderBy = propertyName;
-	        return this.load();
-	    };
-	    return HttpRestCollectionDataSource;
-	}(base_datasource_1.HttpRestBaseDataSource));
-	exports.HttpRestCollectionDataSource = HttpRestCollectionDataSource;
-
-
-/***/ },
-/* 59 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var http_1 = __webpack_require__(25);
-	var ReplaySubject_1 = __webpack_require__(60);
-	var HttpRestBaseDataSource = (function () {
-	    function HttpRestBaseDataSource(http) {
+	var error_1 = __webpack_require__(56);
+	var Service = (function () {
+	    function Service(http) {
 	        this.http = http;
-	        this.keyProperty = "id";
-	        this.requestParams = {};
 	    }
-	    HttpRestBaseDataSource.prototype.execute = function (baseUrl, params, verb, data) {
-	        var _this = this;
-	        var result = new ReplaySubject_1.ReplaySubject();
-	        this.isBusy = true;
+	    Service.prototype.request = function (baseUrl, params, method, data) {
 	        var searchParams = new http_1.URLSearchParams();
 	        for (var paramProp in params) {
 	            var value = params[paramProp];
@@ -8115,107 +8546,440 @@
 	        var url = baseUrl.replace(/:[a-zA-z0-9]+/, function (match, args) {
 	            var paramName = match.substr(1);
 	            var value = searchParams.get(paramName);
-	            if (!value)
-	                throw new URIError("parameter " + match + " in url '" + this.url + "' is not defined.");
-	            searchParams.delete(paramName); //don't send duplicated parameters.
+	            if (!value) {
+	                throw new URIError("parameter " + match + " in url '" + url + "' is not defined.");
+	            }
+	            searchParams.delete(paramName); // don't send duplicated parameters.
 	            return value;
-	        }.bind(this));
-	        var request;
-	        switch (verb) {
-	            case "get":
-	                request = this.http.get(url, { search: searchParams });
-	                break;
-	            case "post":
-	                request = this.http.post(url, data, { search: searchParams });
-	                break;
-	            case "put":
-	                request = this.http.put(url, data, { search: searchParams });
-	                break;
-	            case "delete":
-	                request = this.http.delete(url, { search: searchParams });
-	                break;
-	        }
-	        request.subscribe(function (data) { return result.next(_this.handleData(data)); }, function (error) { return result.error(_this.handleError(error)); }, function () {
-	            result.complete();
-	            _this.isBusy = false;
 	        });
-	        return result;
+	        var headers = new http_1.Headers();
+	        headers.append("Content-Type", "application/json");
+	        return this.http.request(url, {
+	            search: searchParams,
+	            method: method,
+	            headers: headers,
+	            body: data
+	        }).catch(this._mapException.bind(this))
+	            .map(this._mapResult.bind(this));
 	    };
-	    HttpRestBaseDataSource.prototype.handleData = function (data) {
-	        return data.json();
+	    Service.prototype._mapException = function (response, observable) {
+	        var errorValue;
+	        if (response.type == http_1.ResponseType.Default) {
+	            errorValue = response.json();
+	        }
+	        else {
+	            errorValue = new error_1.ApiError();
+	            errorValue.code = error_1.ApiErrorCodes.NoInternetConnection;
+	            errorValue.message = "No internet connection";
+	        }
+	        throw errorValue;
 	    };
-	    HttpRestBaseDataSource.prototype.handleError = function (error) {
-	        return error.json();
+	    Service.prototype._mapResult = function (response) {
+	        return response.json();
 	    };
-	    return HttpRestBaseDataSource;
+	    return Service;
 	}());
-	exports.HttpRestBaseDataSource = HttpRestBaseDataSource;
+	exports.Service = Service;
+	var EntityService = (function (_super) {
+	    __extends(EntityService, _super);
+	    function EntityService(http, baseUrl) {
+	        var _this = _super.call(this, http) || this;
+	        _this._queryUrl = baseUrl;
+	        _this._pagedQueryUrl = baseUrl + "/pages/:pageIndex";
+	        _this._postUrl = baseUrl;
+	        _this._getUrl = baseUrl + "/:key";
+	        _this._deleteUrl = baseUrl + "/:key";
+	        return _this;
+	    }
+	    EntityService.prototype.query = function (params) {
+	        if (params.pageSize) {
+	            return _super.prototype.request.call(this, this._pagedQueryUrl, params, http_1.RequestMethod.Get, null);
+	        }
+	        else {
+	            return _super.prototype.request.call(this, this._queryUrl, params, http_1.RequestMethod.Get, null)
+	                .map(function (data) {
+	                return {
+	                    items: data,
+	                    pageCount: 1,
+	                    rowCount: data.length
+	                };
+	            });
+	        }
+	    };
+	    EntityService.prototype.get = function (key) {
+	        return _super.prototype.request.call(this, this._getUrl, { key: key }, http_1.RequestMethod.Get, null);
+	    };
+	    EntityService.prototype.post = function (entity) {
+	        return _super.prototype.request.call(this, this._postUrl, {}, http_1.RequestMethod.Post, entity);
+	    };
+	    EntityService.prototype.delete = function (key) {
+	        return _super.prototype.request.call(this, this._deleteUrl, { key: key }, http_1.RequestMethod.Delete, null);
+	    };
+	    return EntityService;
+	}(Service));
+	exports.EntityService = EntityService;
+	var IServiceError = (function () {
+	    function IServiceError() {
+	    }
+	    return IServiceError;
+	}());
+	exports.IServiceError = IServiceError;
+	var SortOrder;
+	(function (SortOrder) {
+	    SortOrder[SortOrder["Asc"] = 1] = "Asc";
+	    SortOrder[SortOrder["Desc"] = 2] = "Desc";
+	})(SortOrder = exports.SortOrder || (exports.SortOrder = {}));
+	var QueryParams = (function () {
+	    function QueryParams() {
+	    }
+	    return QueryParams;
+	}());
+	exports.QueryParams = QueryParams;
+
+
+/***/ },
+/* 56 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var ApiError = (function () {
 	    function ApiError() {
 	    }
 	    return ApiError;
 	}());
 	exports.ApiError = ApiError;
+	var ApiValidationError = (function (_super) {
+	    __extends(ApiValidationError, _super);
+	    function ApiValidationError() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    return ApiValidationError;
+	}(ApiError));
+	exports.ApiValidationError = ApiValidationError;
+	var ApiErrorCodes = (function () {
+	    function ApiErrorCodes() {
+	    }
+	    return ApiErrorCodes;
+	}());
+	ApiErrorCodes.UnauthorizedAccess = "UnauthorizedAccess";
+	ApiErrorCodes.InternalError = "InternalError";
+	ApiErrorCodes.InvalidModel = "InvalidModel";
+	ApiErrorCodes.NotFound = "NotFound";
+	ApiErrorCodes.NoInternetConnection = "NoInternetConnection";
+	exports.ApiErrorCodes = ApiErrorCodes;
+
+
+/***/ },
+/* 57 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var Observable_1 = __webpack_require__(58);
+	var selection_1 = __webpack_require__(59);
+	var item_1 = __webpack_require__(50);
+	var ItemsControlComponent = (function () {
+	    function ItemsControlComponent() {
+	        this._allSelected = false;
+	        this.selectedItemsChange = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(ItemsControlComponent.prototype, "collection", {
+	        get: function () {
+	            return this._collection;
+	        },
+	        set: function (value) {
+	            this._collection = value;
+	            this._subscribeAllSelectedChange();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsControlComponent.prototype, "selection", {
+	        get: function () {
+	            return this._selection;
+	        },
+	        set: function (value) {
+	            this._selection = value;
+	            this._subscribeAllSelectedChange();
+	            this._subscribeSelection();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsControlComponent.prototype, "allSelected", {
+	        get: function () {
+	            return this._allSelected;
+	        },
+	        set: function (value) {
+	            if (this._allSelected != value) {
+	                if (this._selection && this._collection) {
+	                    this._allSelected = value;
+	                    if (value) {
+	                        this._selection.replace(this._collection.getValues());
+	                    }
+	                    else {
+	                        this._selection.clear();
+	                    }
+	                }
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(ItemsControlComponent.prototype, "selectedItems", {
+	        get: function () {
+	            return this._selectedItems;
+	        },
+	        set: function (value) {
+	            if (value != this._selectedItems) {
+	                if (this._selection) {
+	                    this._selectedItems = value;
+	                    this._selection.replace(value);
+	                    this.selectedItemsChange.emit(value);
+	                }
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ItemsControlComponent.prototype.ngAfterViewInit = function () {
+	        if (!this.selection) {
+	            this.selection = new selection_1.Selection();
+	        }
+	        this._subscribeItemChanges();
+	    };
+	    ItemsControlComponent.prototype._subscribeAllSelectedChange = function () {
+	        var _this = this;
+	        if (this._allSelectedSubscription)
+	            this._allSelectedSubscription.unsubscribe();
+	        if (this._collection && this._selection) {
+	            this._allSelectedSubscription = Observable_1.Observable.combineLatest(this._collection.values, this._selection.values)
+	                .subscribe(function (sources) { return _this._onAllSelectedChange(sources[0], sources[1]); });
+	        }
+	    };
+	    ItemsControlComponent.prototype._onAllSelectedChange = function (collectionValues, selectionValues) {
+	        var result = false;
+	        if (collectionValues && selectionValues) {
+	            if (collectionValues.length > 0 && collectionValues.length >= selectionValues.length) {
+	                result = true;
+	                for (var _i = 0, collectionValues_1 = collectionValues; _i < collectionValues_1.length; _i++) {
+	                    var item = collectionValues_1[_i];
+	                    if (!this.selection.has(item)) {
+	                        result = false;
+	                        break;
+	                    }
+	                }
+	            }
+	        }
+	        this._allSelected = result;
+	    };
+	    ItemsControlComponent.prototype._subscribeItemChanges = function () {
+	        var _this = this;
+	        if (this.items) {
+	            this.items.changes.startWith([])
+	                .subscribe(function (items) {
+	                _this._subscribeItemsModelChange(items);
+	                _this._subscribeItemsSelectedChange(items);
+	            });
+	        }
+	    };
+	    ItemsControlComponent.prototype._subscribeItemsSelectedChange = function (items) {
+	        if (this._itemSelectedSubscription) {
+	            this._itemSelectedSubscription.unsubscribe();
+	        }
+	        this._itemSelectedSubscription = Observable_1.Observable.merge.apply(Observable_1.Observable, items.map(function (r) { return r.selectedChange; })).subscribe(this._onItemSelectedChange.bind(this));
+	    };
+	    ItemsControlComponent.prototype._onItemSelectedChange = function (item) {
+	        if (item.selected) {
+	            this.selection.add(item.model);
+	        }
+	        else {
+	            this.selection.remove(item.model);
+	        }
+	    };
+	    ItemsControlComponent.prototype._subscribeItemsModelChange = function (items) {
+	        if (this._modelSelectedSubscription) {
+	            this._modelSelectedSubscription.unsubscribe();
+	        }
+	        this._modelSelectedSubscription = Observable_1.Observable.merge.apply(Observable_1.Observable, items.map(function (r) { return r.modelChange; })).subscribe(this._onItemModelChange.bind(this));
+	    };
+	    ItemsControlComponent.prototype._onItemModelChange = function (item) {
+	        item.selected = this._selection.has(item.model);
+	    };
+	    ItemsControlComponent.prototype._subscribeSelection = function () {
+	        this._selectionSubscription = this.selection.values
+	            .subscribe(this._onSelectionChange.bind(this));
+	    };
+	    ItemsControlComponent.prototype._onSelectionChange = function (values) {
+	        var _this = this;
+	        if (this.items) {
+	            this.items.forEach(function (row) {
+	                row.selected = _this.selection.has(row.model);
+	            });
+	        }
+	        this._selectedItems = values;
+	        this.selectedItemsChange.emit(values);
+	    };
+	    ItemsControlComponent.prototype.ngOnDestroy = function () {
+	        if (this._itemSelectedSubscription) {
+	            this._itemSelectedSubscription.unsubscribe();
+	        }
+	        if (this._modelSelectedSubscription) {
+	            this._modelSelectedSubscription.unsubscribe();
+	        }
+	        if (this._selectionSubscription) {
+	            this._selectionSubscription.unsubscribe();
+	        }
+	        if (this._allSelectedSubscription) {
+	            this._allSelectedSubscription.unsubscribe();
+	        }
+	    };
+	    return ItemsControlComponent;
+	}());
+	__decorate([
+	    core_1.ViewChildren(item_1.ItemComponent),
+	    __metadata("design:type", core_1.QueryList)
+	], ItemsControlComponent.prototype, "items", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Object),
+	    __metadata("design:paramtypes", [Object])
+	], ItemsControlComponent.prototype, "collection", null);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Object),
+	    __metadata("design:paramtypes", [Object])
+	], ItemsControlComponent.prototype, "selection", null);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean),
+	    __metadata("design:paramtypes", [Boolean])
+	], ItemsControlComponent.prototype, "allSelected", null);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Object),
+	    __metadata("design:paramtypes", [Array])
+	], ItemsControlComponent.prototype, "selectedItems", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], ItemsControlComponent.prototype, "selectedItemsChange", void 0);
+	exports.ItemsControlComponent = ItemsControlComponent;
+
+
+/***/ },
+/* 58 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(281);
+
+/***/ },
+/* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var BehaviorSubject_1 = __webpack_require__(30);
+	__webpack_require__(60);
+	var Selection = (function () {
+	    function Selection() {
+	        this._values = new BehaviorSubject_1.BehaviorSubject([]);
+	        this._keys = new BehaviorSubject_1.BehaviorSubject([]);
+	        this._map = new Map();
+	        this.values = this._values.asObservable();
+	        this.keys = this._keys.asObservable();
+	    }
+	    Object.defineProperty(Selection.prototype, "length", {
+	        get: function () {
+	            return this._map.size;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Selection.prototype.has = function (model) {
+	        return this._map.has(this.getKey(model));
+	    };
+	    Selection.prototype.add = function (model) {
+	        var key = this.getKey(model);
+	        if (!this._map.has(key)) {
+	            this._map.set(key, model);
+	            this._nextValues();
+	        }
+	    };
+	    Selection.prototype.remove = function (model) {
+	        if (this._map.delete(this.getKey(model))) {
+	            this._nextValues();
+	        }
+	    };
+	    Selection.prototype.toggle = function (model, selected) {
+	        if (selected == undefined) {
+	            selected = this.has(model);
+	        }
+	        if (selected)
+	            this.add(model);
+	        else
+	            this.remove(model);
+	    };
+	    Selection.prototype.clear = function () {
+	        if (this._map.size > 0) {
+	            this._map.clear();
+	            this._nextValues();
+	        }
+	    };
+	    Selection.prototype.replace = function (models) {
+	        if (models && models.length) {
+	            this._map.clear();
+	            for (var _i = 0, models_1 = models; _i < models_1.length; _i++) {
+	                var model = models_1[_i];
+	                this._map.set(this.getKey(model), model);
+	            }
+	            this._nextValues();
+	        }
+	    };
+	    Selection.prototype.getKey = function (model) {
+	        return model["id"];
+	    };
+	    Selection.prototype._nextValues = function () {
+	        this._values.next(Array.from(this._map.values()));
+	        this._keys.next(Array.from(this._map.keys()));
+	    };
+	    return Selection;
+	}());
+	exports.Selection = Selection;
 
 
 /***/ },
 /* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(17))(429);
+	module.exports = (__webpack_require__(17))(358);
 
 /***/ },
 /* 61 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var core_1 = __webpack_require__(21);
-	var base_datasource_1 = __webpack_require__(59);
-	var HttpRestModelDataSource = (function (_super) {
-	    __extends(HttpRestModelDataSource, _super);
-	    function HttpRestModelDataSource(http, baseUrl) {
-	        _super.call(this, http);
-	        this.baseUrl = baseUrl;
-	        this.model = {};
-	        this.modelChange = new core_1.EventEmitter();
-	        this.modelErrors = {};
-	        this.modelErrorsChange = new core_1.EventEmitter();
-	        this.isNew = true;
-	        this.isNewChange = new core_1.EventEmitter();
-	        this.loadUrl = baseUrl + "/:" + this.keyProperty;
-	        this.saveUrl = baseUrl;
-	        this.deleteUrl = this.loadUrl;
-	    }
-	    HttpRestModelDataSource.prototype.load = function (key) {
-	        var _this = this;
-	        var params = Object.assign({}, this.requestParams);
-	        params[this.keyProperty] = key;
-	        var request = this.execute(this.loadUrl, params, "get", null);
-	        request.subscribe(function (data) {
-	            _this.model = data;
-	        }, function (error) { });
-	        return request;
-	    };
-	    HttpRestModelDataSource.prototype.save = function () {
-	        var _this = this;
-	        var request = this.execute(this.saveUrl, this.requestParams, "post", this.model);
-	        request.subscribe(function (data) {
-	            _this.model = data;
-	        }, function (error) { });
-	        return request;
-	    };
-	    HttpRestModelDataSource.prototype.delete = function () {
-	        return null;
-	    };
-	    return HttpRestModelDataSource;
-	}(base_datasource_1.HttpRestBaseDataSource));
-	exports.HttpRestModelDataSource = HttpRestModelDataSource;
-
+	module.exports = "<div class=\"d-table-container\" resizeEvents (onResize)=\"onResize($event)\">\r\n\r\n    <md-block-ui [visible]=\"collection?.busy | async\"></md-block-ui>\r\n\r\n    <div class=\"d-table-wrapper\">\r\n        <div class=\"d-table-row d-table-header\">\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"allSelected\"></md-checkbox>\r\n            </div>\r\n            <div *ngFor=\"let column of columns\" resizeEvents (onResize)=\"column.onResize($event)\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                              'd-table-sortable': column.canSort,\r\n                              'd-table-sorted-asc': sortBy == column.property && sortDirection == 1,\r\n                              'd-table-sorted-desc': sortBy == column.property && sortDirection == 2,\r\n                              'd-table-cell-text': column.type == 1,\r\n                              'd-table-cell-number': column.type == 2,\r\n                              'd-table-cell-template': column.type == 3,\r\n                              'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\"\r\n                 (click)=\"toggleSort(column)\">\r\n                <span>{{column.title}}</span><span class=\"material-icons d-table-sort-arrow\">arrow_upward</span>\r\n            </div>\r\n        </div>\r\n\r\n        <item #listItem=\"listItem\" [model]=\"item\"\r\n                   *ngFor=\"let item of collection?.values | async; let index = index; trackBy:collection?.getKey\"\r\n                    [ngClass]=\"{ 'd-table-row': true, 'd-table-selected': listItem.selected }\">\r\n\r\n            <div class=\"d-table-cell d-table-selector\">\r\n                <md-checkbox [(ngModel)]=\"listItem.selected\"></md-checkbox>\r\n            </div>\r\n            <div *ngFor=\"let column of columns\"\r\n                 [ngClass]=\"{ 'd-table-cell': true,\r\n                              'd-table-cell-text': column.type == 1,\r\n                              'd-table-cell-number': column.type == 2,\r\n                              'd-table-cell-template': column.type == 3,\r\n                              'd-table-column-invisible': !column.visible }\"\r\n                 [ngStyle]=\"{ 'width': column.clientSize }\">\r\n                <d-content [condition]=\"column.template\" [template]=\"column.template\" [model]=\"item\" [index]=\"index\"></d-content>\r\n                <span *ngIf=\"!column.template\">{{item[column.property]}}</span>\r\n            </div>\r\n        </item>\r\n    </div>\r\n</div>";
 
 /***/ },
 /* 62 */
@@ -8231,46 +8995,36 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(63);
-	var home_component_1 = __webpack_require__(64);
-	var user_list_component_1 = __webpack_require__(66);
-	var user_edit_component_1 = __webpack_require__(69);
-	var appRoutes = [
-	    { path: "", redirectTo: "home", pathMatch: "full" },
-	    { path: "home", component: home_component_1.HomeComponent },
-	    { path: "security/users",
-	        children: [
-	            { path: "", component: user_list_component_1.UserListComponent },
-	            { path: ":id", component: user_edit_component_1.UserEditComponent },
-	            { path: "new", component: user_edit_component_1.UserEditComponent }
-	        ]
+	var MdDataListComponent = (function () {
+	    function MdDataListComponent() {
 	    }
-	];
-	var AppRoutingModule = (function () {
-	    function AppRoutingModule() {
-	    }
-	    AppRoutingModule = __decorate([
-	        core_1.NgModule({
-	            imports: [
-	                router_1.RouterModule.forRoot(appRoutes)
-	            ],
-	            exports: [
-	                router_1.RouterModule
-	            ]
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], AppRoutingModule);
-	    return AppRoutingModule;
+	    return MdDataListComponent;
 	}());
-	exports.AppRoutingModule = AppRoutingModule;
+	__decorate([
+	    core_1.ContentChild(core_1.TemplateRef),
+	    __metadata("design:type", core_1.TemplateRef)
+	], MdDataListComponent.prototype, "template", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdDataListComponent.prototype, "placeholder", void 0);
+	MdDataListComponent = __decorate([
+	    core_1.Component({
+	        selector: 'md-data-list',
+	        template: __webpack_require__(63),
+	        encapsulation: core_1.ViewEncapsulation.None
+	    })
+	], MdDataListComponent);
+	exports.MdDataListComponent = MdDataListComponent;
 
 
 /***/ },
 /* 63 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	module.exports = (__webpack_require__(17))(304);
+	module.exports = "<div class=\"d-list-wrapper\">\r\n    <div class=\"d-placeholder\">\r\n        <label>{{placeholder}}</label>\r\n    </div>\r\n    <div class=\"d-list-item\" *ngFor=\"let item of items\">\r\n        <md-checkbox [(ngModel)]=\"item.selected\">\r\n\r\n            <d-content [condition]=\"template\"\r\n                       [template]=\"template\"\r\n                       [model]=\"item.model\"\r\n                       [index]=\"index\"></d-content>\r\n\r\n            <span *ngIf=\"!template\">{{item.model[displayProperty]}}</span>\r\n        </md-checkbox>\r\n    </div>\r\n</div>";
 
 /***/ },
 /* 64 */
@@ -8286,27 +9040,85 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var HomeComponent = (function () {
-	    function HomeComponent() {
+	var MdPageIndicatorComponent = (function () {
+	    function MdPageIndicatorComponent() {
+	        this.pageIndexChange = new core_1.EventEmitter();
+	        this.pageCountChange = new core_1.EventEmitter();
+	        this.pages = [];
+	        this.pagesChange = new core_1.EventEmitter();
 	    }
-	    HomeComponent = __decorate([
-	        core_1.Component({
-	            selector: "app-home",
-	            template: __webpack_require__(65)
-	        }), 
-	        __metadata('design:paramtypes', [])
-	    ], HomeComponent);
-	    return HomeComponent;
+	    Object.defineProperty(MdPageIndicatorComponent.prototype, "pageIndex", {
+	        get: function () { return this._pageIndex; },
+	        set: function (value) {
+	            if (value !== this._pageIndex) {
+	                this._pageIndex = value;
+	                this.pageIndexChange.emit(value);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(MdPageIndicatorComponent.prototype, "pageCount", {
+	        get: function () {
+	            return this._pageCount;
+	        },
+	        set: function (value) {
+	            if (value !== this._pageCount) {
+	                this._pageCount = value;
+	                this.pages = [];
+	                var i = 1;
+	                while (i <= this._pageCount) {
+	                    this.pages.push(i);
+	                    i++;
+	                }
+	                this.pagesChange.emit(this.pages);
+	                this.pageCountChange.emit(this._pageCount);
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return MdPageIndicatorComponent;
 	}());
-	exports.HomeComponent = HomeComponent;
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number),
+	    __metadata("design:paramtypes", [Number])
+	], MdPageIndicatorComponent.prototype, "pageIndex", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", Object)
+	], MdPageIndicatorComponent.prototype, "pageIndexChange", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Number),
+	    __metadata("design:paramtypes", [Number])
+	], MdPageIndicatorComponent.prototype, "pageCount", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", Object)
+	], MdPageIndicatorComponent.prototype, "pageCountChange", void 0);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", Object)
+	], MdPageIndicatorComponent.prototype, "pagesChange", void 0);
+	MdPageIndicatorComponent = __decorate([
+	    core_1.Component({
+	        selector: 'md-page-indicator',
+	        template: __webpack_require__(65),
+	        encapsulation: core_1.ViewEncapsulation.None
+	    })
+	], MdPageIndicatorComponent);
+	exports.MdPageIndicatorComponent = MdPageIndicatorComponent;
 
 
 /***/ },
 /* 65 */
 /***/ function(module, exports) {
 
-	module.exports = "<p></p>\r\nHome!\r\nSelect an option from the left panel...\r\n"
+	module.exports = "<div fxLayout=\"row\" fxLayoutAlign=\"center center\" class=\"d-page-indicator-container\">\r\n    <button md-button (click)=\"pageIndex = 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>first_page</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageIndex - 1\" [disabled]=\"pageIndex <= 1\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_left</md-icon>\r\n    </button>\r\n    <div *ngFor=\"let page of pages\">\r\n        <button md-button *ngIf=\"pageIndex != page\" (click)=\"pageIndex = page\" class=\"d-page-indicator-button\">\r\n            <span>{{page}}</span>\r\n        </button>\r\n\r\n        <button md-raised-button *ngIf=\"pageIndex == page\" (click)=\"pageIndex = page\" class=\"d-page-indicator-button\" color=\"primary\">\r\n            <span>{{page}}</span>\r\n        </button>\r\n    </div>\r\n\r\n    <button md-button (click)=\"pageIndex = pageIndex + 1\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>keyboard_arrow_right</md-icon>\r\n    </button>\r\n    <button md-button (click)=\"pageIndex = pageCount\" [disabled]=\"pageIndex >= pageCount\" class=\"d-page-indicator-button\">\r\n        <md-icon>last_page</md-icon>\r\n    </button>\r\n</div>";
 
 /***/ },
 /* 66 */
@@ -8322,39 +9134,39 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var users_datasource_1 = __webpack_require__(67);
-	var UserListComponent = (function () {
-	    function UserListComponent(usersSource) {
-	        this.usersSource = usersSource;
+	var MdBlockUIComponent = (function () {
+	    function MdBlockUIComponent() {
+	        this.visible = false;
 	    }
-	    UserListComponent.prototype.ngOnInit = function () {
-	        this.usersSource.pageSize = 3;
-	        this.usersSource.load();
-	    };
-	    UserListComponent = __decorate([
-	        core_1.Component({
-	            selector: "user-list",
-	            template: __webpack_require__(68),
-	            providers: [users_datasource_1.UserCollectionDataSource]
-	        }), 
-	        __metadata('design:paramtypes', [users_datasource_1.UserCollectionDataSource])
-	    ], UserListComponent);
-	    return UserListComponent;
+	    return MdBlockUIComponent;
 	}());
-	exports.UserListComponent = UserListComponent;
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean)
+	], MdBlockUIComponent.prototype, "visible", void 0);
+	MdBlockUIComponent = __decorate([
+	    core_1.Component({
+	        selector: 'md-block-ui',
+	        template: __webpack_require__(67),
+	        encapsulation: core_1.ViewEncapsulation.None
+	    })
+	], MdBlockUIComponent);
+	exports.MdBlockUIComponent = MdBlockUIComponent;
 
 
 /***/ },
 /* 67 */
+/***/ function(module, exports) {
+
+	module.exports = "<div fxLayout=\"row\" fxLayoutAlign=\"center center\"\r\n     [ngClass]=\"{ 'd-block-ui-container': true,\r\n                  'd-block-ui-visible': visible }\">\r\n\r\n    <md-progress-circle mode=\"indeterminate\"></md-progress-circle>\r\n\r\n</div>";
+
+/***/ },
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8364,10 +9176,467 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var material_1 = __webpack_require__(26);
+	var MdMessageBoxComponent = (function () {
+	    function MdMessageBoxComponent(_dialogRef) {
+	        this._dialogRef = _dialogRef;
+	        this.messages = [];
+	    }
+	    MdMessageBoxComponent.prototype.close = function (result) {
+	        this._dialogRef.close(result);
+	    };
+	    return MdMessageBoxComponent;
+	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdMessageBoxComponent.prototype, "title", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Array)
+	], MdMessageBoxComponent.prototype, "messages", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdMessageBoxComponent.prototype, "icon", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Array)
+	], MdMessageBoxComponent.prototype, "options", void 0);
+	MdMessageBoxComponent = __decorate([
+	    core_1.Component({
+	        selector: "md-message-box-host",
+	        template: __webpack_require__(69)
+	    }),
+	    __metadata("design:paramtypes", [material_1.MdDialogRef])
+	], MdMessageBoxComponent);
+	exports.MdMessageBoxComponent = MdMessageBoxComponent;
+	var MdMessageBoxOption = (function () {
+	    function MdMessageBoxOption(label, value, isDefault) {
+	        if (isDefault === void 0) { isDefault = false; }
+	        this.label = label;
+	        this.value = value;
+	        this.isDefault = isDefault;
+	    }
+	    return MdMessageBoxOption;
+	}());
+	exports.MdMessageBoxOption = MdMessageBoxOption;
+
+
+/***/ },
+/* 69 */
+/***/ function(module, exports) {
+
+	module.exports = "<div md-dialog>\r\n    <div md-dialog-title>{{title}}</div>\r\n    <div md-dialog-content>\r\n        <span *ngFor=\"let msg of messages\">{{msg}}</span>\r\n    </div>\r\n    <div md-dialog-actions>\r\n        <button md-button *ngFor=\"let option of options\" (click)=\"close(option.value)\">{{option.label}}</button>\r\n    </div>\r\n</div>";
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var material_1 = __webpack_require__(26);
+	var message_box_1 = __webpack_require__(68);
+	var MdMessageBoxService = (function () {
+	    function MdMessageBoxService(_dialog) {
+	        this._dialog = _dialog;
+	    }
+	    MdMessageBoxService.prototype.open = function (title, messages, icon, options) {
+	        var dialogRef = this._dialog.open(message_box_1.MdMessageBoxComponent, { disableClose: true });
+	        dialogRef.componentInstance.title = title;
+	        dialogRef.componentInstance.messages = messages;
+	        dialogRef.componentInstance.icon = icon;
+	        dialogRef.componentInstance.options = options;
+	        return dialogRef;
+	    };
+	    MdMessageBoxService.prototype.confirm = function (title, message) {
+	        return this.open(title, [message], null, [
+	            new message_box_1.MdMessageBoxOption("Yes", true),
+	            new message_box_1.MdMessageBoxOption("No", false)
+	        ]);
+	    };
+	    MdMessageBoxService.prototype.error = function (title, message) {
+	        return this.open(title, [message], null, [
+	            new message_box_1.MdMessageBoxOption("OK", true)
+	        ]);
+	    };
+	    return MdMessageBoxService;
+	}());
+	MdMessageBoxService = __decorate([
+	    core_1.Injectable(),
+	    __metadata("design:paramtypes", [material_1.MdDialog])
+	], MdMessageBoxService);
+	exports.MdMessageBoxService = MdMessageBoxService;
+
+
+/***/ },
+/* 71 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var message_box_1 = __webpack_require__(70);
+	var MdConfirmationBoxDirective = (function () {
+	    function MdConfirmationBoxDirective(_msgBoxService) {
+	        this._msgBoxService = _msgBoxService;
+	        this.ok = new core_1.EventEmitter();
+	        this.cancel = new core_1.EventEmitter();
+	    }
+	    MdConfirmationBoxDirective.prototype.show = function (data) {
+	        var _this = this;
+	        this._msgBoxService.confirm(this.title, this.message)
+	            .afterClosed()
+	            .subscribe(function (result) {
+	            if (result) {
+	                _this.ok.emit(data);
+	            }
+	            else {
+	                _this.cancel.emit(data);
+	            }
+	        });
+	    };
+	    return MdConfirmationBoxDirective;
+	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdConfirmationBoxDirective.prototype, "title", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdConfirmationBoxDirective.prototype, "message", void 0);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], MdConfirmationBoxDirective.prototype, "ok", void 0);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], MdConfirmationBoxDirective.prototype, "cancel", void 0);
+	MdConfirmationBoxDirective = __decorate([
+	    core_1.Directive({
+	        selector: "md-confirmation-box",
+	        exportAs: "mdConfirmationBox"
+	    }),
+	    __metadata("design:paramtypes", [message_box_1.MdMessageBoxService])
+	], MdConfirmationBoxDirective);
+	exports.MdConfirmationBoxDirective = MdConfirmationBoxDirective;
+
+
+/***/ },
+/* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var Observable_1 = __webpack_require__(58);
+	var message_box_1 = __webpack_require__(70);
+	var MdErrorBoxDirective = (function () {
+	    function MdErrorBoxDirective(_msgBoxService) {
+	        this._msgBoxService = _msgBoxService;
+	        this.ok = new core_1.EventEmitter();
+	    }
+	    Object.defineProperty(MdErrorBoxDirective.prototype, "errors", {
+	        set: function (values) {
+	            if (this._errorsSubscription)
+	                this._errorsSubscription.unsubscribe();
+	            if (values) {
+	                this._errorsSubscription = Observable_1.Observable.merge.apply(Observable_1.Observable, values).subscribe(this.onError.bind(this));
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    MdErrorBoxDirective.prototype.show = function () {
+	        var _this = this;
+	        this._errorDialog = this._msgBoxService.error(this.title, this.message);
+	        this._errorDialog.afterClosed()
+	            .subscribe(function (result) {
+	            _this._errorDialog = null;
+	        });
+	    };
+	    MdErrorBoxDirective.prototype.onError = function (error) {
+	        if (!this._errorDialog)
+	            this.show();
+	        this._errorDialog.componentInstance.messages.push(error.message);
+	    };
+	    MdErrorBoxDirective.prototype.ngOnDestroy = function () {
+	        if (this._errorsSubscription) {
+	            this._errorsSubscription.unsubscribe();
+	        }
+	    };
+	    return MdErrorBoxDirective;
+	}());
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdErrorBoxDirective.prototype, "title", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], MdErrorBoxDirective.prototype, "message", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Array),
+	    __metadata("design:paramtypes", [Array])
+	], MdErrorBoxDirective.prototype, "errors", null);
+	__decorate([
+	    core_1.Output(),
+	    __metadata("design:type", core_1.EventEmitter)
+	], MdErrorBoxDirective.prototype, "ok", void 0);
+	MdErrorBoxDirective = __decorate([
+	    core_1.Directive({
+	        selector: "md-error-box",
+	        exportAs: "mdErrorBox"
+	    }),
+	    __metadata("design:paramtypes", [message_box_1.MdMessageBoxService])
+	], MdErrorBoxDirective);
+	exports.MdErrorBoxDirective = MdErrorBoxDirective;
+
+
+/***/ },
+/* 73 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var Subject_1 = __webpack_require__(54);
+	var BehaviorSubject_1 = __webpack_require__(30);
+	var Model = (function () {
+	    function Model(service) {
+	        this._busy = new BehaviorSubject_1.BehaviorSubject(false);
+	        this.model = {};
+	        this.busy = this._busy.asObservable();
+	        this._service = service;
+	    }
+	    Model.prototype.load = function (key) {
+	        var _this = this;
+	        this._busy.next(true);
+	        this._service.get(key)
+	            .subscribe(function (data) {
+	            _this.model = data;
+	            _this._busy.next(false);
+	        }, function (error) {
+	            _this._busy.next(false);
+	        });
+	    };
+	    Model.prototype.save = function () {
+	        var _this = this;
+	        var result = new Subject_1.Subject();
+	        this._busy.next(true);
+	        this._service.post(this.model)
+	            .subscribe(function (model) {
+	            _this.model = model;
+	            result.next(model);
+	            _this._busy.next(false);
+	        }, function (error) {
+	            result.error(error);
+	            _this._busy.next(false);
+	        });
+	        return result;
+	    };
+	    Model.prototype.delete = function (key) {
+	        this._service.delete(key)
+	            .subscribe(function (result) {
+	        }, function (error) {
+	        });
+	    };
+	    return Model;
+	}());
+	exports.Model = Model;
+
+
+/***/ },
+/* 74 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var router_1 = __webpack_require__(75);
+	var home_component_1 = __webpack_require__(76);
+	var user_list_component_1 = __webpack_require__(78);
+	var user_edit_component_1 = __webpack_require__(81);
+	var appRoutes = [
+	    { path: "", redirectTo: "home", pathMatch: "full" },
+	    { path: "home", component: home_component_1.HomeComponent },
+	    { path: "security/users",
+	        children: [
+	            { path: "", component: user_list_component_1.UserListComponent },
+	            { path: ":id", component: user_edit_component_1.UserEditComponent },
+	            { path: "new", component: user_edit_component_1.UserEditComponent }
+	        ]
+	    }
+	];
+	var AppRoutingModule = (function () {
+	    function AppRoutingModule() {
+	    }
+	    return AppRoutingModule;
+	}());
+	AppRoutingModule = __decorate([
+	    core_1.NgModule({
+	        imports: [
+	            router_1.RouterModule.forRoot(appRoutes)
+	        ],
+	        exports: [
+	            router_1.RouterModule
+	        ]
+	    })
+	], AppRoutingModule);
+	exports.AppRoutingModule = AppRoutingModule;
+
+
+/***/ },
+/* 75 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(17))(304);
+
+/***/ },
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var HomeComponent = (function () {
+	    function HomeComponent() {
+	    }
+	    return HomeComponent;
+	}());
+	HomeComponent = __decorate([
+	    core_1.Component({
+	        selector: "app-home",
+	        template: __webpack_require__(77)
+	    })
+	], HomeComponent);
+	exports.HomeComponent = HomeComponent;
+
+
+/***/ },
+/* 77 */
+/***/ function(module, exports) {
+
+	module.exports = "<p></p>\r\nHome!\r\nSelect an option from the left panel...\r\n";
+
+/***/ },
+/* 78 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var core_1 = __webpack_require__(21);
+	var users_services_1 = __webpack_require__(79);
+	var md_core_1 = __webpack_require__(33);
+	var UserListComponent = (function () {
+	    function UserListComponent(userCollection) {
+	        //this.userSelection.keys.subscribe(u => {
+	        this.userCollection = userCollection;
+	        this.userSelection = new md_core_1.Selection();
+	        //    let k = "keys=" + JSON.stringify(u);
+	        //    window.history.replaceState(null, "Selection Change", "?" + k);
+	        //    let s = window.location.origin + window.location.pathname + "?" + k;
+	        //    window.history.replaceState(null, "SC", s);
+	        //});
+	    }
+	    UserListComponent.prototype.ngOnInit = function () {
+	        this.userCollection.params.pageSize = 5;
+	        this.userCollection.load();
+	    };
+	    return UserListComponent;
+	}());
+	UserListComponent = __decorate([
+	    core_1.Component({
+	        selector: "user-list",
+	        template: __webpack_require__(80),
+	        providers: [users_services_1.UserCollection, users_services_1.UserService]
+	    }),
+	    __metadata("design:paramtypes", [users_services_1.UserCollection])
+	], UserListComponent);
+	exports.UserListComponent = UserListComponent;
+
+
+/***/ },
+/* 79 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
 	var http_1 = __webpack_require__(25);
-	var core_module_1 = __webpack_require__(32);
-	var core_module_2 = __webpack_require__(32);
+	var md_core_1 = __webpack_require__(33);
 	var User = (function () {
 	    function User() {
 	    }
@@ -8380,50 +9649,55 @@
 	    return UserQuery;
 	}());
 	exports.UserQuery = UserQuery;
-	var UserCollectionDataSource = (function (_super) {
-	    __extends(UserCollectionDataSource, _super);
-	    function UserCollectionDataSource(http) {
-	        _super.call(this, http, "/api/users");
-	        this.orderBy = "name";
+	var UserService = (function (_super) {
+	    __extends(UserService, _super);
+	    function UserService(http) {
+	        return _super.call(this, http, "api/users") || this;
 	    }
-	    UserCollectionDataSource = __decorate([
-	        core_1.Injectable(), 
-	        __metadata('design:paramtypes', [http_1.Http])
-	    ], UserCollectionDataSource);
-	    return UserCollectionDataSource;
-	}(core_module_1.HttpRestCollectionDataSource));
-	exports.UserCollectionDataSource = UserCollectionDataSource;
-	var UserModelDataSource = (function (_super) {
-	    __extends(UserModelDataSource, _super);
-	    function UserModelDataSource(http) {
-	        _super.call(this, http, "api/users");
-	        this.requestParams.culture = "es-AR";
+	    return UserService;
+	}(md_core_1.EntityService));
+	UserService = __decorate([
+	    core_1.Injectable(),
+	    __metadata("design:paramtypes", [http_1.Http])
+	], UserService);
+	exports.UserService = UserService;
+	var UserCollection = (function (_super) {
+	    __extends(UserCollection, _super);
+	    function UserCollection(userService) {
+	        return _super.call(this, userService) || this;
 	    }
-	    UserModelDataSource = __decorate([
-	        core_1.Injectable(), 
-	        __metadata('design:paramtypes', [http_1.Http])
-	    ], UserModelDataSource);
-	    return UserModelDataSource;
-	}(core_module_2.HttpRestModelDataSource));
-	exports.UserModelDataSource = UserModelDataSource;
+	    return UserCollection;
+	}(md_core_1.Collection));
+	UserCollection = __decorate([
+	    core_1.Injectable(),
+	    __metadata("design:paramtypes", [UserService])
+	], UserCollection);
+	exports.UserCollection = UserCollection;
+	var UserModel = (function (_super) {
+	    __extends(UserModel, _super);
+	    function UserModel(userService) {
+	        return _super.call(this, userService) || this;
+	    }
+	    return UserModel;
+	}(md_core_1.Model));
+	UserModel = __decorate([
+	    core_1.Injectable(),
+	    __metadata("design:paramtypes", [UserService])
+	], UserModel);
+	exports.UserModel = UserModel;
 
 
 /***/ },
-/* 68 */
+/* 80 */
 /***/ function(module, exports) {
 
-	module.exports = "\r\n<md-card>\r\n    <md-card-title>Users List</md-card-title>\r\n    <md-card-subtitle>\r\n        <md-input-container>\r\n            <input md-input placeholder=\"search\" />\r\n            <md-icon md-prefix>search</md-icon>\r\n        </md-input-container>\r\n\r\n        <button md-raised-button [routerLink]=\"['/security/users/new']\"><md-icon>add</md-icon> New</button>\r\n\r\n    </md-card-subtitle>\r\n    <md-card-content>\r\n        <d-table [dataSource]=\"usersSource\">\r\n            <d-column property=\"id\" type=\"number\"></d-column>\r\n            <d-column property=\"name\" priority=\"0\"></d-column>\r\n            <d-column property=\"email\"></d-column>\r\n            <d-column property=\"address\"></d-column>\r\n            <d-column>\r\n                <template let-model=\"model\">\r\n                    <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                </template>\r\n            </d-column>\r\n        </d-table>\r\n\r\n        <md-card-actions>\r\n            <d-page-indicator [dataSource]=\"usersSource\"></d-page-indicator>\r\n        </md-card-actions>\r\n\r\n    </md-card-content>\r\n</md-card>\r\n\r\n\r\n\r\n\r\n"
+	module.exports = "<md-error-box [errors]=\"[userCollection.error]\"></md-error-box>\r\n\r\n<md-card>\r\n    <md-card-title>Users List</md-card-title>\r\n    <md-card-subtitle>\r\n        <div fxLayout=\"row\" fxLayoutAlign=\"stretch center\">\r\n            <md-input-container>\r\n                <input md-input placeholder=\"search\" [(ngModel)]=\"userCollection.searchText\" (ngModelChange)=\"userCollection.load()\" />\r\n                <md-icon md-prefix>search</md-icon>\r\n            </md-input-container>\r\n            <div fxFlex></div>\r\n            <button md-raised-button color=\"accent\" [routerLink]=\"['/security/users/new']\"><md-icon>add</md-icon> New</button>\r\n        </div>\r\n    </md-card-subtitle>\r\n    <md-card-content>\r\n        <md-data-table [collection]=\"userCollection\" [selection]=\"userSelection\">\r\n            <md-data-column property=\"id\" type=\"number\"></md-data-column>\r\n            <md-data-column property=\"name\" priority=\"0\"></md-data-column>\r\n            <md-data-column property=\"email\"></md-data-column>\r\n            <md-data-column property=\"address\"></md-data-column>\r\n            <md-data-column>\r\n                <template let-model=\"model\">\r\n                    <button md-icon-button [routerLink]=\"['/security/users/' + model.id]\"><md-icon>edit</md-icon></button>\r\n                </template>\r\n            </md-data-column>\r\n        </md-data-table>\r\n    </md-card-content>\r\n    <md-card-actions>\r\n        <md-page-indicator [(pageIndex)]=\"userCollection.params.pageIndex\"\r\n                           [pageCount]=\"userCollection.pageCount\"\r\n                           (pageIndexChange)=\"userCollection.load()\">\r\n        </md-page-indicator>\r\n    </md-card-actions>\r\n</md-card>";
 
 /***/ },
-/* 69 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8433,31 +9707,28 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var router_1 = __webpack_require__(63);
-	var users_datasource_1 = __webpack_require__(67);
-	var roles_datasource_1 = __webpack_require__(70);
-	var angular2localization_1 = __webpack_require__(31);
-	var UserEditComponent = (function (_super) {
-	    __extends(UserEditComponent, _super);
-	    function UserEditComponent(userSource, rolesSource, activatedRoute, localization) {
-	        _super.call(this, null, localization);
-	        this.userSource = userSource;
-	        this.rolesSource = rolesSource;
+	var router_1 = __webpack_require__(75);
+	var users_services_1 = __webpack_require__(79);
+	var md_core_1 = __webpack_require__(33);
+	var UserEditComponent = (function () {
+	    function UserEditComponent(userModel, activatedRoute, messageBoxService) {
+	        this.userModel = userModel;
 	        this.activatedRoute = activatedRoute;
-	        this.localization = localization;
+	        this.messageBoxService = messageBoxService;
 	    }
 	    UserEditComponent.prototype.ngOnInit = function () {
 	        var key = this.activatedRoute.snapshot.params["id"];
 	        if (key !== "new") {
-	            this.userSource.load(key);
+	            this.userModel.load(key);
 	        }
-	        this.rolesSource.load();
+	        //this.rolesSource.load();
 	    };
 	    UserEditComponent.prototype.save = function (frm) {
 	        var _this = this;
 	        if (frm.valid) {
-	            this.userSource.save()
+	            this.userModel.save()
 	                .subscribe(function (ok) { return _this.close(); }, function (error) {
 	                if (error.memberErrors) {
 	                    for (var member in error.memberErrors) {
@@ -8469,91 +9740,48 @@
 	        }
 	    };
 	    UserEditComponent.prototype.delete = function () {
-	        var _this = this;
-	        this.userSource.delete()
-	            .subscribe(function (ok) { return _this.close(); });
+	        //this.userSource.delete()
+	        //    .subscribe(ok => this.close());
 	    };
 	    UserEditComponent.prototype.close = function () {
 	        window.history.back();
 	    };
-	    UserEditComponent = __decorate([
-	        core_1.Component({
-	            selector: "user-edit",
-	            template: __webpack_require__(71),
-	            providers: [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource]
-	        }), 
-	        __metadata('design:paramtypes', [users_datasource_1.UserModelDataSource, roles_datasource_1.RoleCollectionDataSource, router_1.ActivatedRoute, angular2localization_1.LocalizationService])
-	    ], UserEditComponent);
 	    return UserEditComponent;
-	}(angular2localization_1.Locale));
+	}());
+	UserEditComponent = __decorate([
+	    core_1.Component({
+	        selector: "user-edit",
+	        template: __webpack_require__(82),
+	        providers: [users_services_1.UserModel, users_services_1.UserService, md_core_1.MdMessageBoxService]
+	    }),
+	    __metadata("design:paramtypes", [users_services_1.UserModel,
+	        router_1.ActivatedRoute,
+	        md_core_1.MdMessageBoxService])
+	], UserEditComponent);
 	exports.UserEditComponent = UserEditComponent;
 
 
 /***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var __metadata = (this && this.__metadata) || function (k, v) {
-	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-	};
-	var core_1 = __webpack_require__(21);
-	var http_1 = __webpack_require__(25);
-	var core_module_1 = __webpack_require__(32);
-	var Role = (function () {
-	    function Role() {
-	    }
-	    return Role;
-	}());
-	exports.Role = Role;
-	var RoleQuery = (function () {
-	    function RoleQuery() {
-	    }
-	    return RoleQuery;
-	}());
-	exports.RoleQuery = RoleQuery;
-	var RoleCollectionDataSource = (function (_super) {
-	    __extends(RoleCollectionDataSource, _super);
-	    function RoleCollectionDataSource(http) {
-	        _super.call(this, http, "/api/roles");
-	        this.sortBy = "name";
-	    }
-	    RoleCollectionDataSource = __decorate([
-	        core_1.Injectable(), 
-	        __metadata('design:paramtypes', [http_1.Http])
-	    ], RoleCollectionDataSource);
-	    return RoleCollectionDataSource;
-	}(core_module_1.HttpRestCollectionDataSource));
-	exports.RoleCollectionDataSource = RoleCollectionDataSource;
-
-
-/***/ },
-/* 71 */
+/* 82 */
 /***/ function(module, exports) {
 
-	module.exports = "<md-card style=\"max-width:800px;margin-left:auto;margin-right:auto;margin-top:10px\">\r\n    <md-card-title>Edit User</md-card-title>\r\n    <md-card-subtitle>This is an edit user card</md-card-subtitle>\r\n\r\n    <md-card-content>\r\n        <form id=\"userForm\" (ngSubmit)=\"save(frm)\" #frm=\"ngForm\" novalidate>\r\n            <md-input-container>\r\n                <input required md-input name=\"Name\" #nameCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.name\" placeholder=\"{{ 'security.users.user.name' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"nameCtrl\" fieldName=\"Name\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Email\" #mailCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.email\" placeholder=\"{{ 'security.users.user.mail' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"mailCtrl\" fieldName=\"Mail\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Address\" #addressCtrl=\"ngModel\" [(ngModel)]=\"userSource.model.address\" placeholder=\"{{ 'security.users.user.address' | translate:lang }}\" />\r\n                <md-hint [errormsg]=\"addressCtrl\" fieldName=\"Address\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <d-list [dataSource]=\"rolesSource\" [selection]=\"userSource.model.roles\" placeholder=\"roles\">\r\n                <template let-model=\"model\" let-index=\"index\">\r\n                    {{model.name}}\r\n                </template>\r\n            </d-list>\r\n        </form>\r\n    </md-card-content>\r\n\r\n    <md-card-actions>\r\n        <div fxLayout=\"row\">\r\n            <div fxFlex></div>\r\n            <button md-button (click)=\"save(frm)\">Save</button>\r\n            <button md-button (click)=\"close()\">Cancel</button>\r\n        </div>\r\n    </md-card-actions>\r\n</md-card>"
+	module.exports = "<md-confirmation-box #confirmDelete=\"mdConfirmationBox\"\r\n                     title=\"confirm\" \r\n                     message=\"Delete?\"\r\n                     (ok)=\"delete()\">\r\n</md-confirmation-box>\r\n\r\n<md-card style=\"max-width:800px;margin-left:auto;margin-right:auto;margin-top:10px\">\r\n    <md-card-title>Edit User</md-card-title>\r\n    <md-card-subtitle>This is an edit user card</md-card-subtitle>\r\n\r\n    <md-card-content>\r\n        <md-block-ui [visible]=\"userModel.busy | async\"></md-block-ui>\r\n\r\n        <form id=\"userForm\" (ngSubmit)=\"save(frm)\" #frm=\"ngForm\" novalidate>\r\n            <md-input-container>\r\n                <input required md-input name=\"Name\" #nameCtrl=\"ngModel\" [(ngModel)]=\"userModel.model.name\" placeholder=\"Name\" />\r\n                <md-hint [errormsg]=\"nameCtrl\" fieldName=\"Name\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Email\" #mailCtrl=\"ngModel\" [(ngModel)]=\"userModel.model.email\" placeholder=\"E-Mail\" />\r\n                <md-hint [errormsg]=\"mailCtrl\" fieldName=\"Mail\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <md-input-container>\r\n                <input md-input name=\"Address\" #addressCtrl=\"ngModel\" [(ngModel)]=\"userModel.model.address\" placeholder=\"Address\" />\r\n                <md-hint [errormsg]=\"addressCtrl\" fieldName=\"Address\"></md-hint>\r\n            </md-input-container>\r\n\r\n            <!--<d-list [dataSource]=\"rolesSource\" [(selection)]=\"userSource.model.roles\" placeholder=\"roles\">\r\n                <template let-model=\"model\" let-index=\"index\">\r\n                    <span>{{model.name}}</span>\r\n                </template>\r\n            </d-list>-->\r\n        </form>\r\n    </md-card-content>\r\n\r\n    <md-card-actions>\r\n        <div fxLayout=\"row\">\r\n            <div fxFlex></div>\r\n            <button md-button (click)=\"save(frm)\">Save</button>\r\n            <button md-button (click)=\"close()\">Cancel</button>\r\n            <button md-button (click)=\"confirmDelete.show()\"></button>\r\n        </div>\r\n    </md-card-actions>\r\n</md-card>";
 
 /***/ },
-/* 72 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
+	var __extends = (this && this.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
 	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
 	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8563,24 +9791,25 @@
 	var __metadata = (this && this.__metadata) || function (k, v) {
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var core_1 = __webpack_require__(21);
-	var angular2localization_1 = __webpack_require__(31);
+	var angular2localization_1 = __webpack_require__(32);
 	var AppComponent = (function (_super) {
 	    __extends(AppComponent, _super);
 	    function AppComponent(locale, localization) {
-	        var _this = this;
-	        _super.call(this, locale, localization);
-	        this.locale = locale;
-	        this.localization = localization;
-	        this.mode = "over";
-	        this.open = false;
-	        this.locale.addLanguages(["en", "es"]);
-	        this.locale.definePreferredLocale("en", "US", 30);
-	        this.locale.definePreferredCurrency("USD");
-	        this.localization.translationProvider("./lang/res_");
-	        this.localization.updateTranslation();
-	        this.adjustSideNav();
+	        var _this = _super.call(this, locale, localization) || this;
+	        _this.locale = locale;
+	        _this.localization = localization;
+	        _this.mode = "over";
+	        _this.open = false;
+	        _this.locale.addLanguages(["en", "es"]);
+	        _this.locale.definePreferredLocale("en", "US", 30);
+	        _this.locale.definePreferredCurrency("USD");
+	        _this.localization.translationProvider("./lang/res_");
+	        _this.localization.updateTranslation();
+	        _this.adjustSideNav();
 	        window.onresize = function () { return _this.adjustSideNav(); };
+	        return _this;
 	    }
 	    AppComponent.prototype.adjustSideNav = function () {
 	        if (window.innerWidth > 800) {
@@ -8592,34 +9821,41 @@
 	            this.open = false;
 	        }
 	    };
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', String)
-	    ], AppComponent.prototype, "mode", void 0);
-	    __decorate([
-	        core_1.Input(), 
-	        __metadata('design:type', Boolean)
-	    ], AppComponent.prototype, "open", void 0);
-	    AppComponent = __decorate([
-	        core_1.Component({
-	            selector: "app",
-	            template: __webpack_require__(73)
-	        }), 
-	        __metadata('design:paramtypes', [angular2localization_1.LocaleService, angular2localization_1.LocalizationService])
-	    ], AppComponent);
 	    return AppComponent;
 	}(angular2localization_1.Locale));
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", String)
+	], AppComponent.prototype, "mode", void 0);
+	__decorate([
+	    core_1.Input(),
+	    __metadata("design:type", Boolean)
+	], AppComponent.prototype, "open", void 0);
+	AppComponent = __decorate([
+	    core_1.Component({
+	        selector: "app",
+	        template: __webpack_require__(84)
+	    }),
+	    __metadata("design:paramtypes", [angular2localization_1.LocaleService, angular2localization_1.LocalizationService])
+	], AppComponent);
 	exports.AppComponent = AppComponent;
 
 
 /***/ },
-/* 73 */
+/* 84 */
 /***/ function(module, exports) {
 
-	module.exports = "<div fxLayout=\"column\" class=\"container\">\r\n    <md-toolbar color=\"primary\" class=\"app-toolbar\">\r\n        <button class=\"app-sidenav-button\" md-button (click)=\"sidenav.open()\"><md-icon>menu</md-icon></button>\r\n        <span>Detached</span>\r\n    </md-toolbar>\r\n    <md-sidenav-container fxFlex>\r\n        <md-sidenav #sidenav (click)=\"sidenav.close()\">\r\n            <md-list class=\"app-nav\" dense>\r\n                <md-list-item [routerLink]=\"['/home']\">\r\n                    <md-icon md-list-icon>home</md-icon>\r\n                    <span>Home</span>\r\n                </md-list-item>\r\n                <md-list-item [routerLink]=\"['/security/users']\">\r\n                    <md-icon md-list-icon>people</md-icon>\r\n                    <span>Users Example</span>\r\n                </md-list-item>\r\n            </md-list>\r\n        </md-sidenav>\r\n        <router-outlet></router-outlet>\r\n    </md-sidenav-container>\r\n</div>"
+	module.exports = "<div fxLayout=\"column\" class=\"container\">\r\n\r\n    <md-toolbar color=\"primary\" class=\"app-toolbar\">\r\n        <button class=\"app-sidenav-button\" md-raised-button (click)=\"sidenav.open()\" color=\"accent\"><md-icon>menu</md-icon></button>\r\n        <span>Detached</span>\r\n    </md-toolbar>\r\n\r\n    <md-sidenav-container fxFlex>\r\n        <md-sidenav #sidenav (click)=\"sidenav.close()\">\r\n            <md-list class=\"app-nav\" dense>\r\n                <md-list-item [routerLink]=\"['/home']\">\r\n                    <md-icon md-list-icon>home</md-icon>\r\n                    <span>Home</span>\r\n                </md-list-item>\r\n                <md-list-item [routerLink]=\"['/security/users']\">\r\n                    <md-icon md-list-icon>people</md-icon>\r\n                    <span>Users Example</span>\r\n                </md-list-item>\r\n            </md-list>\r\n        </md-sidenav>\r\n        <div style=\"position:relative\">\r\n            <router-outlet></router-outlet>\r\n        </div>\r\n\r\n    </md-sidenav-container>\r\n</div>";
 
 /***/ },
-/* 74 */
+/* 85 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 86 */,
+/* 87 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

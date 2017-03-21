@@ -1,0 +1,13 @@
+﻿@import './material/icons.scss';
+@import './material/theme.scss';
+
+md-input-container.ng-invalid:not(.ng-pristine) {
+    color: red;
+    .md-input-underline {
+        border-color: red;
+
+        .md-input-ripple {
+            background-color: red !important;
+        }
+    }
+}

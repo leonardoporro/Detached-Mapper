@@ -27,16 +27,16 @@ namespace Detached.Mvc.Validation
             }
             else
             {
-                ModelError apiError = new ModelError();
-                apiError.ErrorCode = ApiErrorCodes.InvalidModel;
+                ApiModelError apiError = new ApiModelError();
+                apiError.Code = ApiErrorCodes.InvalidModel;
 
                 foreach (var entry in context.ModelState)
                 {
                     if (entry.Value.Errors.Count > 0)
-                        apiError.MemberErrors[entry.Key] = entry.Value.Errors[0].ErrorMessage;
+                        apiError.Members[entry.Key] = entry.Value.Errors[0].ErrorMessage;
                 }
 
-                apiError.ErrorMessage =
+                apiError.Message =
                     _errorLocalizer.GetLocalizedErrorMessage(context.ActionDescriptor as ControllerActionDescriptor, 
                                                              ApiErrorCodes.InvalidModel);
 

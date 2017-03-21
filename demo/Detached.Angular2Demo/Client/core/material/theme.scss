@@ -1,34 +1,18 @@
-﻿@import '../../../node_modules/@angular/material/core/theming/all-theme';
-// Plus imports for other components in your app.
+﻿// material
+@import '../../../node_modules/@angular/material/core/_core';
+@import '../../../node_modules/@angular/material/core/theming/_palette';
+@import '../../../node_modules/@angular/material/core/theming/_theming';
+@import '../../../node_modules/@angular/material/core/theming/_all-theme';
+// custom controls
+@import './components/page-indicator/page-indicator.scss';
+@import './components/data-list/data-list.scss';
+@import './components/data-table/data-table.scss';
+@import './components/block-ui/block-ui.scss';
 
-// Include the base styles for Angular Material core. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
 @include md-core();
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue.
-$candy-app-primary: md-palette($md-grey, A700, A800, A900);
-$candy-app-accent:  md-palette($md-orange, A200, A300, A400);
+$primary: md-palette($md-grey, A700, A800, A900);
+$accent:  md-palette($md-orange, 800, 800, 900);
+$theme: md-light-theme($primary, $accent);
 
-// The warn palette is optional (defaults to red).
-$candy-app-warn:    md-palette($md-red);
-
-// Create the theme object (a Sass map containing all of the palettes).
-$candy-app-theme: md-light-theme($candy-app-primary, $candy-app-accent, $candy-app-warn);
-
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-@include angular-material-theme($candy-app-theme);
-
-md-input-container.ng-invalid:not(.ng-pristine) {
-    color: red;
-    .md-input-underline {
-        border-color: red;
-
-        .md-input-ripple {
-            background-color: red !important;
-        }
-    }
-}
+@include angular-material-theme($theme);

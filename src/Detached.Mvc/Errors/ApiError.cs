@@ -13,14 +13,14 @@ namespace Detached.Mvc.Errors
         /// <summary>
         /// The error code/key.
         /// ApiErrorCodes class contains some standard error codes, but any other
-        /// error code can be defined by the user.
+        /// error code can be defined by the developer.
         /// </summary>
-        public string ErrorCode { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// Formatted/localized error message.
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
         /// Debug information that will be sent in debug mode only.

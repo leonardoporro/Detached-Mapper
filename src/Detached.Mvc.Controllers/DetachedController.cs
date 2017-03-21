@@ -34,18 +34,24 @@ namespace Detached.Mvc.Controllers
         [HttpGet("{id}")]
         public virtual async Task<TEntity> FindById(string id)
         {
+            await Task.Delay(2000);
+
             return await _detachedService.FindById(id);
         }
 
         [HttpGet]
         public virtual async Task<IList<TEntity>> Get(TQuery query = default(TQuery))
         {
+            await Task.Delay(2000);
+
             return await _detachedService.Get(query);
         }
 
         [HttpGet("pages/{pageIndex:int}")]
         public virtual async Task<IPage<TEntity>> GetPage(int pageIndex, int pageSize = 5, bool noCount = false, TQuery query = default(TQuery))
         {
+            await Task.Delay(2000);
+
             return await _detachedService.GetPage(pageIndex, pageSize, noCount, query);
         }
 

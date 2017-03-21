@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // polyfills.
 require("core-js/es6/symbol");
 require("core-js/es6/object");
