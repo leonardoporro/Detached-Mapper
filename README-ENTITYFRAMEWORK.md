@@ -34,7 +34,7 @@ An in-memory instance is probably better for unit testing:
 ```csharp
     var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
-            .AddEntityFrameworkDetached()
+            .AddDetachedEntityFramework()
             .BuildServiceProvider();
 ```
 
