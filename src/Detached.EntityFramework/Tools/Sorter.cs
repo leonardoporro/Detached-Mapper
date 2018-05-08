@@ -71,7 +71,7 @@ namespace Detached.EntityFramework.Tools
             if (!string.IsNullOrEmpty(orderBy))
             {
                 Type entityType = typeof(TEntity);
-                Dictionary<string, PropertyInfo> entityProps = entityType.GetRuntimeProperties().ToDictionary(r => r.Name.ToLower(), r => r);
+                Dictionary<string, PropertyInfo> entityProps = entityType.GetRuntimeProperties().ToDictionary(r => r.Name, r => r);
 
                 string[] orderByProps = orderBy.Split(';', ',');
                 foreach (string orderByProp in orderByProps)
