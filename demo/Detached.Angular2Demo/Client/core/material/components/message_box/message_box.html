@@ -1,9 +1,0 @@
-﻿<div md-dialog>
-    <div md-dialog-title>{{title}}</div>
-    <div md-dialog-content>
-        <span *ngFor="let msg of messages">{{msg}}</span>
-    </div>
-    <div md-dialog-actions>
-        <button md-button *ngFor="let option of options" (click)="close(option.value)">{{option.label}}</button>
-    </div>
-</div>
