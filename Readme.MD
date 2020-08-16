@@ -1,4 +1,4 @@
-# Detached 2
+# Detached 5
 #### What is it
 Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of saving disconected entities in web services.
 It was heavily inspired by [GraphDiff](https://github.com/zzzprojects/GraphDiff), [AutoMapper](https://github.com/AutoMapper/AutoMapper) and other awesome libraries.
