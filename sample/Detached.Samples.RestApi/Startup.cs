@@ -1,4 +1,5 @@
 using Detached.EntityFramework;
+using Detached.Model;
 using Detached.Samples.RestApi.Models;
 using Detached.Samples.RestApi.Services;
 using Detached.Samples.RestApi.Stores;
@@ -35,7 +36,14 @@ namespace Detached.Samples.RestApi
 
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
+
+            services.Configure<ModelOptions>(m =>
+            {
+                m.Configure<User>().IsEntity();
+            });
         }
+
+        public class User {  }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MainDbContext mainDb)
