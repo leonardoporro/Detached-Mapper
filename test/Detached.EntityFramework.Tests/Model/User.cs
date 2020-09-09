@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Detached.EntityFramework.Tests.Model
 {
-    [Entity]
     public class User
     {
         [Key]

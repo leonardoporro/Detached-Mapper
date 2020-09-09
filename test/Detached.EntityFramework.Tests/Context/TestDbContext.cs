@@ -1,6 +1,6 @@
-﻿using Detached.EntityFramework.Queries;
-using Detached.EntityFramework.Tests.Model;
+﻿using Detached.EntityFramework.Tests.Model;
 using Detached.Mapping;
+using Detached.Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,8 +13,8 @@ namespace Detached.EntityFramework.Tests.Context
     {
         readonly IList<IDisposable> _resources = new List<IDisposable>();
 
-        public TestDbContext(DbContextOptions<TestDbContext> options, Mapper mapper, QueryProvider queryProvider)
-            : base(options, mapper, queryProvider)
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
         {
         }
 
@@ -29,6 +29,11 @@ namespace Detached.EntityFramework.Tests.Context
         public DbSet<UserType> UserTypes { get; set; }
 
         public DbSet<Address> Addresses { get; set; }
+
+        protected override void OnMapperCreating(ModelOptions options)
+        {
+            
+        }
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
@@ -61,7 +66,7 @@ namespace Detached.EntityFramework.Tests.Context
                     .UseSqlite(connection)
                     .Options;
 
-            var context = new TestDbContext(options, mapper, new QueryProvider(mapper));
+            var context = new TestDbContext(options);
             context._resources.Add(connection);
 
             await context.Database.EnsureCreatedAsync();

@@ -35,6 +35,7 @@ Detached can handle DTO-Entity, DTO-DTO and Entity-Entity mapping.
 There are important tasks when mapping entities, like checking back references
 and merging collections. So that, classes representing entities should be marked
 with the [Entity] attribute or configured with ```modelOptions.Configure<Entity>().IsEntity()```.
+For DetachedDbContext (EF) entities are marked automatically when the correspondng DbSet exists.
 More info on configuration, later in this doc.
 
 ###### Compositions and Aggregations

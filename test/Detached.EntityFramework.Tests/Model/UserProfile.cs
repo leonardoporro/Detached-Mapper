@@ -1,9 +1,7 @@
-﻿using Detached.Annotations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Detached.EntityFramework.Tests.Model
 {
-    [Entity]
     public class UserProfile
     {
         [Key]

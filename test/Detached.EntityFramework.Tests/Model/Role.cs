@@ -1,10 +1,8 @@
-﻿using Detached.Annotations;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Detached.EntityFramework.Tests.Model
 {
-    [Entity]
     public class Role
     {
         [Key]
