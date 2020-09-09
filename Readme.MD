@@ -5,6 +5,8 @@ Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of 
 It was heavily inspired by [GraphDiff](https://github.com/zzzprojects/GraphDiff), [AutoMapper](https://github.com/AutoMapper/AutoMapper) and other awesome libraries.
 Any fix or feedback is very welcome.
 
+**Note: It works with Preview 8 of .net 5.**
+
 #### What does it solve
 ###### Disconected entities
 
