@@ -2,7 +2,7 @@
 using Detached.Model.Conventions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Detached.EntityFramework.Convention
+namespace Detached.EntityFramework.Conventions
 {
     public class IsEntityConvention : ITypeOptionsConvention
     {

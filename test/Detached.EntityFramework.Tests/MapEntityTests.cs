@@ -2,6 +2,7 @@
 using Detached.EntityFramework.Tests.Model;
 using Detached.EntityFramework.Tests.Model.DTOs;
 using Detached.Mapping;
+using Detached.Mapping.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Detached.EntityFramework.Tests
     public class MapEntityTests
     {
         [Fact]
-        public async Task map_user()
+        public async Task map_entity()
         {
             Mapper mapper = new Mapper();
             TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync(mapper);
@@ -67,6 +68,30 @@ namespace Detached.EntityFramework.Tests
             Assert.Contains(user.Roles, r => r.Id == 2);
             Assert.NotNull(user.UserType);
             Assert.Equal(1, user.UserType.Id);
+        }
+
+        [Fact]
+        public async Task map_entity_not_found()
+        {
+            Mapper mapper = new Mapper();
+            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync(mapper);
+
+            db.Roles.Add(new Role { Id = 1, Name = "admin" });
+            db.Roles.Add(new Role { Id = 2, Name = "user" });
+            db.UserTypes.Add(new UserType { Id = 1, Name = "system" });
+            await db.SaveChangesAsync();
+
+            await Assert.ThrowsAsync<MapperException>(() =>
+                db.MapAsync<User>(new UserDTO
+                {
+                    Id = 1,
+                    Name = "cr",
+                },
+                new MapperOptions
+                {
+                    Upsert = false
+                })
+            );
         }
     }
 }

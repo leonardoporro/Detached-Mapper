@@ -4,6 +4,8 @@
 
     public interface IMapperContext
     {
+        MapperOptions MapperOptions { get; }
+
         TTarget OnMapperAction<TTarget, TSource, TKey>(TTarget entity, TSource source, TKey key, MapperActionType actionType)
             where TTarget : class
             where TSource : class

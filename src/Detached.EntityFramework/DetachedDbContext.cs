@@ -1,20 +1,17 @@
-﻿using Detached.EntityFramework.Convention;
+﻿using Detached.EntityFramework.Context;
+using Detached.EntityFramework.Conventions;
 using Detached.EntityFramework.Queries;
 using Detached.Mapping;
 using Detached.Mapping.Context;
 using Detached.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Detached.EntityFramework
 {
-    public class DetachedDbContext : DbContext, IMapperContext
+    public class DetachedDbContext : DbContext
     {
         public DetachedDbContext(DbContextOptions options)
             : base(options)
@@ -48,59 +45,21 @@ namespace Detached.EntityFramework
         {
         }
 
-        public Task<TEntity> MapAsync<TEntity>(object entityOrDTO)
+        public Task<TEntity> MapAsync<TEntity>(object entityOrDTO, MapperOptions mapperOptions = null)
             where TEntity : class
         {
-            return Task.Run(() => Map<TEntity>(entityOrDTO));
+            return Task.Run(() => Map<TEntity>(entityOrDTO, mapperOptions));
         }
 
-        public TEntity Map<TEntity>(object entityOrDTO)
+        public TEntity Map<TEntity>(object entityOrDTO, MapperOptions mapperOptions = null)
             where TEntity : class
         {
-            return (TEntity)Mapper.Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), this);
-        }
+            if (mapperOptions == null)
+                mapperOptions = new MapperOptions();
 
-        public TEntity OnMapperAction<TEntity, TSource, TKey>(TEntity entity, TSource source, TKey key, MapperActionType actionType)
-            where TEntity : class
-            where TSource : class
-            where TKey : IEntityKey
-        {
-            if (actionType == MapperActionType.Load)
-            {
-                return QueryProvider.Load(Set<TEntity>(), source);
-            }
-            else
-            {
-                IStateManager stateManager = this.GetService<IStateManager>();
+            var context = new EntityFrameworkMapperContext(this, QueryProvider, mapperOptions);
 
-                IEntityType entityType = Model.FindEntityType(typeof(TEntity));
-                IKey keyType = entityType.FindPrimaryKey();
-
-                InternalEntityEntry internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
-                EntityEntry<TEntity> entry;
-                if (internalEntry != null)
-                    entry = new EntityEntry<TEntity>(internalEntry);
-                else
-                    entry = Entry(entity);
-
-                switch (actionType)
-                {
-                    case MapperActionType.Attach:
-                        entry.State = EntityState.Unchanged;
-                        break;
-                    case MapperActionType.Create:
-                        entry.State = EntityState.Added;
-                        break;
-                    case MapperActionType.Delete:
-                        entry.State = EntityState.Deleted;
-                        break;
-                    case MapperActionType.Update:
-                        // Do nothing, as change tracking should detect the changes.
-                        break;
-                }
-
-                return entry.Entity;
-            }
+            return (TEntity)Mapper.Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }
     }
 }
