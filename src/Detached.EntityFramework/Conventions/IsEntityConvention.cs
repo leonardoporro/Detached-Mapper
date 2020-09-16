@@ -1,21 +1,22 @@
 ﻿using Detached.Model;
 using Detached.Model.Conventions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Detached.EntityFramework.Conventions
 {
     public class IsEntityConvention : ITypeOptionsConvention
     {
-        readonly DbContext _dbContext;
+        readonly IModel _model;
 
-        public IsEntityConvention(DbContext dbContext)
+        public IsEntityConvention(IModel model)
         {
-            _dbContext = dbContext;
+            _model = model;
         }
 
         public void Apply(ModelOptions modelOptions, ClassTypeOptions typeOptions)
         {
-            typeOptions.IsEntity = _dbContext.Model.FindEntityType(typeOptions.Type) != null;
+            typeOptions.IsEntity = _model.FindEntityType(typeOptions.Type) != null;
         }
     }
 }

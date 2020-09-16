@@ -5,10 +5,10 @@ namespace Detached.EntityFramework.Tests.Model
     public class Address
     {
         [Key]
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
-        public string Street { get; set; }
+        public virtual string Street { get; set; }
 
-        public string Number { get; set; }
+        public virtual string Number { get; set; }
     }
 }

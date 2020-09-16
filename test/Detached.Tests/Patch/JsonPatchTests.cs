@@ -3,6 +3,7 @@ using Detached.Model;
 using Detached.Patch;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Xunit;
 
@@ -21,9 +22,9 @@ namespace Detached.Tests.Patch
                 {
                     'Id': 1,
                     'Name': 'test name'
-                }";
+                }".Replace("'", "\"");
             
-            Entity entity = JsonSerializer.Deserialize<Entity>(json.Replace("'", "\""), jsonOptions);
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, jsonOptions);
 
             IPatch changeTracking = (IPatch)entity;
 
@@ -32,7 +33,36 @@ namespace Detached.Tests.Patch
             Assert.False(changeTracking.IsSet("Date"));
         }
 
-        [Patch]
+        [Fact]
+        public void deserialize_list_as_patch()
+        {
+            JsonSerializerOptions jsonOptions = new JsonSerializerOptions();
+            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new ModelOptions())));
+
+            string json = @"
+                [
+                    {
+                        'Id': 1,
+                        'Name': 'test name'
+                    },
+                    {
+                        'Id': 2,
+                        'Name': 'test name 2'
+                    }
+
+                ]".Replace("'", "\"");
+
+            List<Entity> entities = JsonSerializer.Deserialize<List<Entity>>(json, jsonOptions);
+
+            Assert.True(((IPatch)entities[0]).IsSet("Name"));
+            Assert.True(((IPatch)entities[0]).IsSet("Id"));
+            Assert.False(((IPatch)entities[0]).IsSet("Date"));
+
+            Assert.True(((IPatch)entities[1]).IsSet("Name"));
+            Assert.True(((IPatch)entities[1]).IsSet("Id"));
+            Assert.False(((IPatch)entities[1]).IsSet("Date"));
+        }
+
         public class Entity
         {
             public virtual int Id { get; set; }

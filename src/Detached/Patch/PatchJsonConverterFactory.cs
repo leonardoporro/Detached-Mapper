@@ -8,6 +8,8 @@ namespace Detached.Patch
 {
     public class PatchJsonConverterFactory : JsonConverterFactory
     {
+        readonly PatchProxyTypeFactory _factory = new PatchProxyTypeFactory();
+
         readonly ModelOptions _options;
 
         public PatchJsonConverterFactory(IOptions<ModelOptions> options)
@@ -17,7 +19,8 @@ namespace Detached.Patch
 
         public override bool CanConvert(Type typeToConvert)
         {
-            return _options.GetTypeOptions(typeToConvert).UsePatchProxy;
+            return _options.GetTypeOptions(typeToConvert).IsComplexType 
+                && !typeof(IPatch).IsAssignableFrom(typeToConvert);
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)

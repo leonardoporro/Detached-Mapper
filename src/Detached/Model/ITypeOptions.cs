@@ -23,8 +23,6 @@ namespace Detached.Model
         IEnumerable<string> MemberNames { get; }
         
         Type Type { get; }
-        
-        bool UsePatchProxy { get; }
 
         Expression Construct(Expression context);
 

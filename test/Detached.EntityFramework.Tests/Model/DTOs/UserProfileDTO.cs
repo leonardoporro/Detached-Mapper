@@ -4,10 +4,10 @@ namespace Detached.EntityFramework.Tests.Model.DTOs
 {
     public class UserProfileDTO
     {
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
-        public string FirstName { get; set; }
+        public virtual string FirstName { get; set; }
 
-        public string LastName { get; set; }
+        public virtual string LastName { get; set; }
     }
 }

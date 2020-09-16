@@ -4,16 +4,16 @@ namespace Detached.EntityFramework.Tests.Model.DTOs
 {
     public class UserDTO
     {
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
-        public List<RoleDTO> Roles { get; set; }
+        public virtual List<RoleDTO> Roles { get; set; }
 
-        public List<AddressDTO> Addresses { get; set; }
+        public virtual List<AddressDTO> Addresses { get; set; }
 
-        public UserTypeDTO UserType { get; set; }
+        public virtual UserTypeDTO UserType { get; set; }
 
-        public UserProfileDTO Profile { get; set; }
+        public virtual UserProfileDTO Profile { get; set; }
     }
 }

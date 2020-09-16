@@ -34,8 +34,6 @@ namespace Detached.Model
 
         public virtual bool IsFragment { get; set; }
 
-        public virtual bool UsePatchProxy { get; internal set; }
-
         public virtual LambdaExpression Constructor { get; set; }
 
         public virtual Expression Construct(Expression context)

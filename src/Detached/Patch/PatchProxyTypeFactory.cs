@@ -27,7 +27,7 @@ namespace Detached.Patch
             if (type.GetConstructor(new Type[0]) == null)
                 throw new PatchProxyTypeException($"Type {type} doesn't have an empty constructor.");
 
-            RuntimeTypeBuilder proxyBuilder = new RuntimeTypeBuilder($"{{Guid.NewGuid()}}.{type.FullName}Patch", type);
+            RuntimeTypeBuilder proxyBuilder = new RuntimeTypeBuilder($"{Guid.NewGuid()}.{type.FullName}Patch", type);
 
             FieldBuilder modified = proxyBuilder.DefineField("_modified", typeof(HashSet<string>), FieldAttributes.Private);
             var modifiedField = Field(proxyBuilder.This, modified);

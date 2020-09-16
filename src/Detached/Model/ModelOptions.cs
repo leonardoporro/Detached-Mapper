@@ -83,8 +83,7 @@ namespace Detached.Model
             { typeof(AggregationAttribute), new AssociationAnnotationHandler() },
             { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
             { typeof(EntityAttribute), new EntityAnnotationHandler() },
-            { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
-            { typeof(PatchAttribute), new PatchAnnotationHandler() }
+            { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() }
         };
 
         public virtual IEnumerable<ITypeOptions> TypeOptions => _options.Values;
