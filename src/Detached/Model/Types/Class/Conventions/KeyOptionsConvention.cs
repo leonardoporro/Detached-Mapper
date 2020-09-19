@@ -4,7 +4,7 @@ namespace Detached.Model.Conventions
 {
     public class KeyOptionsConvention : ITypeOptionsConvention
     {
-        public void Apply(ModelOptions modelOptions, ClassTypeOptions typeOptions)
+        public void Apply(MapperModelOptions modelOptions, ClassTypeOptions typeOptions)
         {
             if (!typeOptions.Members.Any(m => m.IsKey))
             {

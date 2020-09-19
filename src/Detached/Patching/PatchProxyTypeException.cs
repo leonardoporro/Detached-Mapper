@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Detached.Patch
+namespace Detached.Patching
 {
     public class PatchProxyTypeException : Exception
     {

@@ -1,4 +1,4 @@
-﻿namespace Detached.Patch
+﻿namespace Detached.Patching
 {
     public interface IPatch
     {

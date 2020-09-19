@@ -12,14 +12,14 @@ namespace Detached.EntityFramework.Context
 {
     public class EntityFrameworkMapperContext : IMapperContext
     {
-        public EntityFrameworkMapperContext(DbContext dbContext, QueryProvider queryProvider, MapperOptions mapperOptions)
+        public EntityFrameworkMapperContext(DbContext dbContext, QueryProvider queryProvider, MappingOptions mapperOptions)
         {
             QueryProvider = queryProvider;
             MapperOptions = mapperOptions;
             DbContext = dbContext;
         }
 
-        public MapperOptions MapperOptions { get; }
+        public MappingOptions MapperOptions { get; }
 
         public QueryProvider QueryProvider { get; }
 
@@ -33,36 +33,28 @@ namespace Detached.EntityFramework.Context
             if (actionType == MapperActionType.Load)
             {
                 TTarget loadedEntity = QueryProvider.Load(DbContext.Set<TTarget>(), source);
-                if (loadedEntity == null && !MapperOptions.Upsert)
-                {
+                
+                if (loadedEntity == null)
+                    loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
+
+                if (loadedEntity == null && !MapperOptions.RootUpsert)
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
-                }
+                
                 return loadedEntity;
             }
             else
             {
-                IStateManager stateManager = DbContext.GetService<IStateManager>();
-
-                IEntityType entityType = DbContext.Model.FindEntityType(typeof(TTarget));
-                IKey keyType = entityType.FindPrimaryKey();
-
-                InternalEntityEntry internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
-                EntityEntry<TTarget> entry;
-
-                bool detached = internalEntry == null;
-
-                if (detached)
+                EntityEntry<TTarget> entry = GetExistingEntry<TTarget, TKey>(key);
+                if (entry == null)
                     entry = DbContext.Entry(entity);
-                else
-                    entry = new EntityEntry<TTarget>(internalEntry);
 
                 switch (actionType)
                 {
                     case MapperActionType.Attach:
-                        if (detached)
-                        {
+                        if (MapperOptions.CreateAggregations && entry.GetDatabaseValues() == null)
+                            entry.State = EntityState.Added;
+                        else
                             entry.State = EntityState.Unchanged;
-                        }
                         break;
                     case MapperActionType.Create:
                         entry.State = EntityState.Added;
@@ -77,6 +69,22 @@ namespace Detached.EntityFramework.Context
 
                 return entry.Entity;
             }
+        }
+
+        public EntityEntry<TEntity> GetExistingEntry<TEntity, TKey>(TKey key)
+            where TEntity : class
+            where TKey : IEntityKey
+        {
+            IStateManager stateManager = DbContext.GetService<IStateManager>();
+
+            IEntityType entityType = DbContext.Model.FindEntityType(typeof(TEntity));
+            IKey keyType = entityType.FindPrimaryKey();
+
+            InternalEntityEntry internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
+            if (internalEntry != null)
+                return new EntityEntry<TEntity>(internalEntry);
+            else
+                return null;
         }
     }
 }

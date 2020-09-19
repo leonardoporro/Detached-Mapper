@@ -14,7 +14,7 @@ namespace Detached.EntityFramework.Conventions
             _model = model;
         }
 
-        public void Apply(ModelOptions modelOptions, ClassTypeOptions typeOptions)
+        public void Apply(MapperModelOptions modelOptions, ClassTypeOptions typeOptions)
         {
             typeOptions.IsEntity = _model.FindEntityType(typeOptions.Type) != null;
         }

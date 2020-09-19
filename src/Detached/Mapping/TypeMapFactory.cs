@@ -9,7 +9,7 @@ namespace Detached.Mapping
 {
     public class TypeMapFactory
     {
-        public TypeMap Create(Mapper mapper, ModelOptions options, TypeMap parentMap, Type sourceType, Type targetType, bool owned)
+        public TypeMap Create(Mapper mapper, MapperModelOptions options, TypeMap parentMap, Type sourceType, Type targetType, bool owned)
         {
             TypeMap typeMap = new TypeMap();
             typeMap.Parent = parentMap;
@@ -90,7 +90,7 @@ namespace Detached.Mapping
         }
 
         public bool IsBackReference(
-            ModelOptions options,
+            MapperModelOptions options,
             TypeMap typeMap,
             IMemberOptions memberOptions,
             out BackReferenceMap backReferenceMap)

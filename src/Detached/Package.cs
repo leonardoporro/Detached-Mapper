@@ -1,6 +1,6 @@
 ﻿using Detached.Mapping;
 using Detached.Model;
-using Detached.Patch;
+using Detached.Patching;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -10,10 +10,9 @@ namespace Detached
     {
         public static void AddDetached(this IServiceCollection services)
         {
-            services.AddOptions<ModelOptions>();
+            services.AddOptions<MapperModelOptions>();
             services.TryAddSingleton<Mapper>();
             services.TryAddSingleton<TypeMapFactory>();
-            services.TryAddSingleton<PatchProxyTypeFactory>();
             services.TryAddSingleton<PatchJsonConverterFactory>();
         }
     }

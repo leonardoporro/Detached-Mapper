@@ -17,7 +17,7 @@ namespace Detached.EntityFramework.Tests
         public async Task map_entity()
         {
             Mapper mapper = new Mapper();
-            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync(mapper);
+            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -73,8 +73,7 @@ namespace Detached.EntityFramework.Tests
         [Fact]
         public async Task map_entity_not_found()
         {
-            Mapper mapper = new Mapper();
-            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync(mapper);
+            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -87,9 +86,9 @@ namespace Detached.EntityFramework.Tests
                     Id = 1,
                     Name = "cr",
                 },
-                new MapperOptions
+                new MappingOptions
                 {
-                    Upsert = false
+                    RootUpsert = false
                 })
             );
         }

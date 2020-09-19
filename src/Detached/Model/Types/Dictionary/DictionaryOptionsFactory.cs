@@ -8,7 +8,7 @@ namespace Detached.Model.Types.Dictionary
     {
         readonly DictionaryTypeOptions _typeOptions = new DictionaryTypeOptions();
 
-        public ITypeOptions Create(ModelOptions options, Type type)
+        public ITypeOptions Create(MapperModelOptions options, Type type)
         {
             ITypeOptions result = null;
 

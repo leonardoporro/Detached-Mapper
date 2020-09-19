@@ -13,11 +13,11 @@ using AggregationAttribute = Detached.Annotations.AggregationAttribute;
 
 namespace Detached.Model
 {
-    public class ModelOptions
+    public class MapperModelOptions
     {
         readonly ConcurrentDictionary<Type, ITypeOptions> _options;
 
-        public ModelOptions()
+        public MapperModelOptions()
         {
             _options = new ConcurrentDictionary<Type, ITypeOptions>();
         }

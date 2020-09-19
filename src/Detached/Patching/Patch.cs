@@ -8,26 +8,48 @@ using System.Reflection.Emit;
 using static Detached.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Patch
+namespace Detached.Patching
 {
-    public class PatchProxyTypeFactory
+    public static class Patch
     {
-        readonly ConcurrentDictionary<Type, Type> _proxyTypes
+        readonly static ConcurrentDictionary<Type, Type> _proxyTypes
             = new ConcurrentDictionary<Type, Type>();
 
-        public Type Create(Type type)
+        readonly static ConcurrentDictionary<Type, object> _typedFactories
+           = new ConcurrentDictionary<Type, object>();
+
+        readonly static ConcurrentDictionary<Type, Func<object>> _factories
+           = new ConcurrentDictionary<Type, Func<object>>();
+
+        public static TModel Create<TModel>()
         {
-            return _proxyTypes.GetOrAdd(type, CreateProxyType);
+            return ((Func<TModel>)_typedFactories.GetOrAdd(typeof(TModel), type =>
+            {
+                Type patchType = GetType(typeof(TModel));
+                return Lambda<Func<TModel>>(Convert(Expression.New(patchType), type)).Compile();
+            }))();
         }
 
-        public Type Create<TModel>() => Create(typeof(TModel));
+        public static object Create(Type type)
+        {
+            return _factories.GetOrAdd(type, t =>
+            {
+                Type patchType = GetType(t);
+                return Lambda<Func<object>>(Convert(Expression.New(patchType), typeof(object))).Compile();
+            })();
+        }
 
-        protected Type CreateProxyType(Type type)
+        public static Type GetType(Type type)
+        {
+            return _proxyTypes.GetOrAdd(type, CreateType);
+        }
+ 
+        static Type CreateType(Type type)
         {
             if (type.GetConstructor(new Type[0]) == null)
                 throw new PatchProxyTypeException($"Type {type} doesn't have an empty constructor.");
 
-            RuntimeTypeBuilder proxyBuilder = new RuntimeTypeBuilder($"{Guid.NewGuid()}.{type.FullName}Patch", type);
+            RuntimeTypeBuilder proxyBuilder = new RuntimeTypeBuilder($"PatchProxyTypeFactory.{type.FullName}Patch", type);
 
             FieldBuilder modified = proxyBuilder.DefineField("_modified", typeof(HashSet<string>), FieldAttributes.Private);
             var modifiedField = Field(proxyBuilder.This, modified);

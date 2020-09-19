@@ -1,18 +1,15 @@
-﻿using Detached.Patch;
+﻿using Detached.Patching;
 using System;
 using Xunit;
 
-namespace Detached.Tests.Patch
+namespace Detached.Tests.Patching
 {
     public class PatchTests
     {
-        readonly PatchProxyTypeFactory _proxyFactory = new PatchProxyTypeFactory();
-
         [Fact]
         public void create_proxy_patch()
         {
-            Type proxyType = _proxyFactory.Create<Entity>();
-            Entity entity = (Entity)Activator.CreateInstance(proxyType);
+            Entity entity = Patch.Create<Entity>();
 
             entity.Name = "newName";
 
@@ -39,7 +36,7 @@ namespace Detached.Tests.Patch
         [Fact]
         public void fail_create_when_no_constructor()
         {
-            Assert.Throws<PatchProxyTypeException>(() =>_proxyFactory.Create<EntityWithConstructor>());
+            Assert.Throws<PatchProxyTypeException>(() => Patch.Create<EntityWithConstructor>());
         }
          
         public class EntityWithConstructor

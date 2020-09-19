@@ -10,7 +10,7 @@ namespace Detached.Tests.Model
         [Fact]
         public void customize_constructor()
         {
-            ModelOptions modelOptions = new ModelOptions();
+            MapperModelOptions modelOptions = new MapperModelOptions();
             modelOptions.Configure<TargetEntity>().Constructor(c => new TargetEntity(1));
 
             Mapper mapper = new Mapper(

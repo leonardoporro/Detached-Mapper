@@ -7,7 +7,7 @@ namespace Detached.Mapping.Context
         readonly ConcurrentDictionary<MapperContextKey, MapperContextEntry> _entries =
             new ConcurrentDictionary<MapperContextKey, MapperContextEntry>();
 
-        public MapperOptions MapperOptions { get; } = new MapperOptions();
+        public MappingOptions MapperOptions { get; } = new MappingOptions();
 
         public TEntity OnMapperAction<TEntity, TSource, TKey>(TEntity entity, TSource source, TKey key, MapperActionType actionType)
             where TEntity : class

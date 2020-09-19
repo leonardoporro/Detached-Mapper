@@ -4,15 +4,13 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Detached.Patch
+namespace Detached.Patching
 {
     public class PatchJsonConverterFactory : JsonConverterFactory
     {
-        readonly PatchProxyTypeFactory _factory = new PatchProxyTypeFactory();
+        readonly MapperModelOptions _options;
 
-        readonly ModelOptions _options;
-
-        public PatchJsonConverterFactory(IOptions<ModelOptions> options)
+        public PatchJsonConverterFactory(IOptions<MapperModelOptions> options)
         {
             _options = options.Value;
         }

@@ -3,7 +3,7 @@ using Detached.EntityFramework.Conventions;
 using Detached.EntityFramework.Queries;
 using Detached.Mapping;
 using Detached.Model;
-using Detached.Patch;
+using Detached.Patching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
@@ -45,7 +45,7 @@ namespace Detached.EntityFramework
 
         protected virtual (Mapper, QueryProvider, JsonSerializerOptions) CreateDependencies(Type type)
         {
-            ModelOptions modelOptions = new ModelOptions();
+            MapperModelOptions modelOptions = new MapperModelOptions();
             modelOptions.Conventions.Add(new IsEntityConvention(Model));
             OnMapperCreating(modelOptions);
             var injectableModelOptions = Options.Create(modelOptions);
@@ -53,32 +53,32 @@ namespace Detached.EntityFramework
             Mapper mapper = new Mapper(injectableModelOptions, new TypeMapFactory());
             QueryProvider queryProvider = new QueryProvider(mapper);
             JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
-            //jsonSerializerOptions.AllowTrailingCommas = true;
-            //jsonSerializerOptions.IgnoreReadOnlyProperties = true;
-            //jsonSerializerOptions.IgnoreReadOnlyFields = true;
-            ////jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            //jsonSerializerOptions.PropertyNameCaseInsensitive = false;
-            //jsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+            jsonSerializerOptions.AllowTrailingCommas = true;
+            jsonSerializerOptions.IgnoreReadOnlyProperties = true;
+            jsonSerializerOptions.IgnoreReadOnlyFields = true;
+            jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            jsonSerializerOptions.PropertyNameCaseInsensitive = false;
+            jsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
             jsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory(injectableModelOptions));
 
             return (mapper, queryProvider, jsonSerializerOptions);
         }
 
-        protected virtual void OnMapperCreating(ModelOptions options)
+        protected virtual void OnMapperCreating(MapperModelOptions options)
         {
         }
 
-        public Task<TEntity> MapAsync<TEntity>(object entityOrDTO, MapperOptions mapperOptions = null)
+        public Task<TEntity> MapAsync<TEntity>(object entityOrDTO, MappingOptions mapperOptions = null)
             where TEntity : class
         {
             return Task.Run(() => Map<TEntity>(entityOrDTO, mapperOptions));
         }
 
-        public TEntity Map<TEntity>(object entityOrDTO, MapperOptions mapperOptions = null)
+        public TEntity Map<TEntity>(object entityOrDTO, MappingOptions mapperOptions = null)
             where TEntity : class
         {
             if (mapperOptions == null)
-                mapperOptions = new MapperOptions();
+                mapperOptions = new MappingOptions();
 
             var context = new EntityFrameworkMapperContext(this, QueryProvider, mapperOptions);
 
@@ -92,7 +92,7 @@ namespace Detached.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(entity);
+                    await MapAsync<TEntity>(entity, new MappingOptions { CreateAggregations = true });
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace Detached.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(entity);
+                    await MapAsync<TEntity>(entity, new MappingOptions { CreateAggregations = true });
                 }
             }
         }

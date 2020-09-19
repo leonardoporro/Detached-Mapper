@@ -1,13 +1,12 @@
-﻿using Detached.Annotations;
-using Detached.Model;
-using Detached.Patch;
+﻿using Detached.Model;
+using Detached.Patching;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Xunit;
 
-namespace Detached.Tests.Patch
+namespace Detached.Tests.Patching
 {
     public class JsonPatchTests
     {
@@ -15,7 +14,7 @@ namespace Detached.Tests.Patch
         public void deserialize_as_patch()
         {
             JsonSerializerOptions jsonOptions = new JsonSerializerOptions();
-            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new ModelOptions())));
+            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new MapperModelOptions())));
             jsonOptions.IgnoreReadOnlyProperties = true;
 
             string json = @"
@@ -37,7 +36,7 @@ namespace Detached.Tests.Patch
         public void deserialize_list_as_patch()
         {
             JsonSerializerOptions jsonOptions = new JsonSerializerOptions();
-            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new ModelOptions())));
+            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new MapperModelOptions())));
 
             string json = @"
                 [

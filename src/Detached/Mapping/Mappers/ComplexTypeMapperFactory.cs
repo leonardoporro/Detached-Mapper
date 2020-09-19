@@ -1,5 +1,5 @@
 ﻿using Detached.Expressions;
-using Detached.Patch;
+using Detached.Patching;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;

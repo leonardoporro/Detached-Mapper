@@ -1,7 +1,7 @@
 ﻿using Detached.Mapping;
 using Detached.Mapping.Context;
 using Detached.Model;
-using Detached.Patch;
+using Detached.Patching;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -16,7 +16,7 @@ namespace Detached.Tests.Model
         [Fact]
         public void customize_property()
         {
-            ModelOptions modelOptions = new ModelOptions();
+            MapperModelOptions modelOptions = new MapperModelOptions();
             modelOptions.Configure<TargetEntity>()
                         .Member(m => m.Value)
                         .Setter(Lambda(

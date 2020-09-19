@@ -37,7 +37,7 @@ namespace Detached.Samples.RestApi
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
 
-            services.Configure<ModelOptions>(m =>
+            services.Configure<MapperModelOptions>(m =>
             {
                 m.Configure<User>().IsEntity();
             });

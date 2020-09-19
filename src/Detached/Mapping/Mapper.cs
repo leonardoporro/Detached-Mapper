@@ -23,16 +23,16 @@ namespace Detached.Mapping
         readonly ConcurrentDictionary<(Type, Type), MapperDelegate> _typedCalls
             = new ConcurrentDictionary<(Type, Type), MapperDelegate>();
 
-        readonly ModelOptions _options;
+        readonly MapperModelOptions _options;
 
         public Mapper()
         {
-            _options = new ModelOptions();
+            _options = new MapperModelOptions();
             _typeMapFactory = new TypeMapFactory();
         }
 
         public Mapper(
-            IOptions<ModelOptions> options,
+            IOptions<MapperModelOptions> options,
             TypeMapFactory typeMapFactory)
         {
             _options = options.Value;

@@ -1,5 +1,4 @@
 ﻿using Detached.EntityFramework.Tests.Model;
-using Detached.Mapping;
 using Detached.Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +29,7 @@ namespace Detached.EntityFramework.Tests.Context
 
         public DbSet<Address> Addresses { get; set; }
 
-        protected override void OnMapperCreating(ModelOptions options)
+        protected override void OnMapperCreating(MapperModelOptions options)
         {
             
         }
@@ -56,7 +55,7 @@ namespace Detached.EntityFramework.Tests.Context
             base.Dispose();
         }
 
-        public static async Task<TestDbContext> CreateInMemorySqliteAsync(Mapper mapper)
+        public static async Task<TestDbContext> CreateInMemorySqliteAsync()
         {
             var connection = new SqliteConnection($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared");
 

@@ -1,6 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Model.Conventions;
-using Detached.Patch;
+using Detached.Patching;
 using Detached.Reflection;
 using System;
 using System.Linq.Expressions;
@@ -12,7 +12,7 @@ namespace Detached.Model
 {
     public class ClassOptionsFactory : ITypeOptionsFactory
     {
-        public ITypeOptions Create(ModelOptions options, Type type)
+        public ITypeOptions Create(MapperModelOptions options, Type type)
         {
             ClassTypeOptions typeOptions = new ClassTypeOptions();
             typeOptions.Type = type;
@@ -107,7 +107,7 @@ namespace Detached.Model
             return result;
         }
 
-        protected virtual void CreateConstructor(ModelOptions options, Type type, ClassTypeOptions typeOptions)
+        protected virtual void CreateConstructor(MapperModelOptions options, Type type, ClassTypeOptions typeOptions)
         {
             if (type.IsInterface)
             {
@@ -132,7 +132,7 @@ namespace Detached.Model
             }
         }
 
-        protected virtual bool IsPrimitive(ModelOptions options, Type type)
+        protected virtual bool IsPrimitive(MapperModelOptions options, Type type)
         {
             if (type.IsGenericType)
                 return options.Primitives.Contains(type.GetGenericTypeDefinition());

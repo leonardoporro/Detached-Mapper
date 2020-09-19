@@ -1,8 +1,7 @@
 ﻿using Detached.EntityFramework.Tests.Context;
 using Detached.EntityFramework.Tests.Model;
-using Detached.Mapping;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,8 +13,7 @@ namespace Detached.EntityFramework.Tests
         [Fact]
         public async Task map_input()
         {
-            Mapper mapper = new Mapper();
-            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync(mapper);
+            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2, Name = "user" });
