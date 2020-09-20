@@ -92,7 +92,7 @@ namespace Detached.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(entity, new MappingOptions { CreateAggregations = true });
+                    await MapAsync<TEntity>(entity, new MappingOptions { EnsureAggregations = true });
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace Detached.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(entity, new MappingOptions { CreateAggregations = true });
+                    await MapAsync<TEntity>(entity, new MappingOptions { EnsureAggregations = true });
                 }
             }
         }

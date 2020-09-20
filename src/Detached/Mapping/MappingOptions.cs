@@ -10,6 +10,6 @@
         /// <summary>
         /// If true, non-existing aggregtions are created.
         /// </summary>
-        public bool CreateAggregations { get; set; } = false;
+        public bool EnsureAggregations { get; set; } = false;
     }
 }

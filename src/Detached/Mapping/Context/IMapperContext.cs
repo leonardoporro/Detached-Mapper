@@ -4,7 +4,7 @@
 
     public interface IMapperContext
     {
-        MappingOptions MapperOptions { get; }
+        MappingOptions MappingOptions { get; }
 
         TTarget OnMapperAction<TTarget, TSource, TKey>(TTarget entity, TSource source, TKey key, MapperActionType actionType)
             where TTarget : class

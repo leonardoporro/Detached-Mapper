@@ -15,11 +15,11 @@ namespace Detached.EntityFramework.Context
         public EntityFrameworkMapperContext(DbContext dbContext, QueryProvider queryProvider, MappingOptions mapperOptions)
         {
             QueryProvider = queryProvider;
-            MapperOptions = mapperOptions;
+            MappingOptions = mapperOptions;
             DbContext = dbContext;
         }
 
-        public MappingOptions MapperOptions { get; }
+        public MappingOptions MappingOptions { get; }
 
         public QueryProvider QueryProvider { get; }
 
@@ -33,40 +33,58 @@ namespace Detached.EntityFramework.Context
             if (actionType == MapperActionType.Load)
             {
                 TTarget loadedEntity = QueryProvider.Load(DbContext.Set<TTarget>(), source);
-                
+
                 if (loadedEntity == null)
                     loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
 
-                if (loadedEntity == null && !MapperOptions.RootUpsert)
+                if (loadedEntity == null && !MappingOptions.RootUpsert)
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
-                
+
                 return loadedEntity;
             }
             else
             {
                 EntityEntry<TTarget> entry = GetExistingEntry<TTarget, TKey>(key);
                 if (entry == null)
+                {
                     entry = DbContext.Entry(entity);
 
-                switch (actionType)
-                {
-                    case MapperActionType.Attach:
-                        if (MapperOptions.CreateAggregations && entry.GetDatabaseValues() == null)
+                    switch (actionType)
+                    {
+                        case MapperActionType.Attach:
+                            if (MappingOptions.EnsureAggregations)
+                            {
+                                if (entry.GetDatabaseValues() == null)
+                                {
+                                    entry.State = EntityState.Added;
+                                }
+                            }
+                            else
+                            {
+                                entry.State = EntityState.Unchanged;
+                            }
+                            break;
+                        case MapperActionType.Create:
                             entry.State = EntityState.Added;
-                        else
-                            entry.State = EntityState.Unchanged;
-                        break;
-                    case MapperActionType.Create:
-                        entry.State = EntityState.Added;
-                        break;
-                    case MapperActionType.Delete:
-                        entry.State = EntityState.Deleted;
-                        break;
-                    case MapperActionType.Update:
-                        // Do nothing, as change tracking should detect the changes.
-                        break;
+                            break;
+                        case MapperActionType.Delete:
+                            entry.State = EntityState.Deleted;
+                            break;
+                    }
                 }
-
+                else
+                {
+                    switch (actionType)
+                    {
+                        case MapperActionType.Create:
+                            entry.State = EntityState.Added;
+                            break;
+                        case MapperActionType.Delete:
+                            entry.State = EntityState.Deleted;
+                            break;
+                    }
+                }
+                 
                 return entry.Entity;
             }
         }
