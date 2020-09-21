@@ -23,7 +23,7 @@ namespace Detached.Model.Types.Dictionary
 
         public string Name => _name;
 
-        public bool Owned => false;
+        public bool IsComposition => false;
 
         public Type Type => typeof(object);
 

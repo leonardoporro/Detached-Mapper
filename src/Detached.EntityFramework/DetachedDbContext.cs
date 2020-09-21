@@ -51,7 +51,7 @@ namespace Detached.EntityFramework
             var injectableModelOptions = Options.Create(modelOptions);
 
             Mapper mapper = new Mapper(injectableModelOptions, new TypeMapFactory());
-            QueryProvider queryProvider = new QueryProvider(mapper);
+            QueryProvider queryProvider = new QueryProvider(mapper, Model);
             JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
             jsonSerializerOptions.AllowTrailingCommas = true;
             jsonSerializerOptions.IgnoreReadOnlyProperties = true;
@@ -92,7 +92,7 @@ namespace Detached.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(entity, new MappingOptions { EnsureAggregations = true });
+                    var result = await MapAsync<TEntity>(entity, new MappingOptions { EnsureAggregations = true });
                 }
             }
         }

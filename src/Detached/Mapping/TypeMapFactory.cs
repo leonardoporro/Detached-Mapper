@@ -76,7 +76,7 @@ namespace Detached.Mapping
                                         typeMap,
                                         memberMap.SourceOptions.Type,
                                         memberMap.TargetOptions.Type,
-                                        targetMemberOptions.Owned);
+                                        targetMemberOptions.IsComposition);
 
                                     typeMap.Members.Add(memberMap);
                                 }

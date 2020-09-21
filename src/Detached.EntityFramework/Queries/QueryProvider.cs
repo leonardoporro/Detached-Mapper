@@ -1,5 +1,6 @@
 ﻿using Detached.Mapping;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,18 +16,31 @@ namespace Detached.EntityFramework.Queries
     public class QueryProvider
     {
         readonly ConcurrentDictionary<(Type, Type), object> _templates = new ConcurrentDictionary<(Type, Type), object>();
-        readonly Mapper _mapper;
+        readonly ConcurrentDictionary<(Type, Type), object> _projections = new ConcurrentDictionary<(Type, Type), object>();
 
-        public QueryProvider(Mapper mapper)
+        readonly Mapper _mapper;
+        readonly IModel _model;
+
+        public QueryProvider(Mapper mapper, IModel model)
         {
             _mapper = mapper;
+            _model = model;
         }
 
         public IQueryable<TSource> Project<TSource, TTarget>(IQueryable<TTarget> query)
             where TTarget : class
             where TSource : class
         {
-            return query.Select(GetTemplate<TSource, TTarget>().ProjectExpression);
+            var filter = (Expression<Func<TTarget, TSource>>)_projections.GetOrAdd((typeof(TSource), typeof(TTarget)), k =>
+            {
+                TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
+                var param = Parameter(typeMap.TargetOptions.Type, "e");
+                Expression projection = ToLambda(typeMap.TargetOptions.Type, param, CreateSelectProjection(typeMap, param));
+
+                return (Expression<Func<TTarget, TSource>>)projection;
+            });
+
+            return query.Select(filter);
         }
 
         public Task<TTarget> LoadAsync<TSource, TTarget>(IQueryable<TTarget> queryable, TSource source)
@@ -56,7 +70,6 @@ namespace Detached.EntityFramework.Queries
                 queryTemplate.SourceConstant = Constant(null, typeMap.SourceOptions.Type);
                 queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(typeMap, queryTemplate.SourceConstant);
                 GetIncludes(typeMap, queryTemplate.Includes, null);
-                queryTemplate.ProjectExpression = CreateSelectProjection<TSource, TTarget>(typeMap);
 
                 return queryTemplate;
             });
@@ -99,7 +112,8 @@ namespace Detached.EntityFramework.Queries
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
-                        if (memberMap.Owned)
+
+                        if (memberMap.IsComposition)
                         {
                             GetIncludes(memberMap.TypeMap, includes, name + ".");
                         }
@@ -108,21 +122,13 @@ namespace Detached.EntityFramework.Queries
             }
         }
 
-        Expression<Func<TTarget, TSource>> CreateSelectProjection<TSource, TTarget>(TypeMap typeMap)
-        {
-            var param = Parameter(typeMap.TargetOptions.Type, "e");
-            Expression projection = ToLambda(typeMap.TargetOptions.Type, param, CreateSelectProjectionInternal(typeMap, param));
-
-            return (Expression<Func<TTarget, TSource>>)projection;
-        }
-
-        Expression CreateSelectProjectionInternal(TypeMap typeMap, Expression targetExpr)
+        Expression CreateSelectProjection(TypeMap typeMap, Expression targetExpr)
         {
             if (typeMap.SourceOptions.IsCollection)
             {
                 var itemType = typeMap.ItemMap.TargetOptions.Type;
                 var param = Parameter(itemType, "e");
-                var itemMap = CreateSelectProjectionInternal(typeMap.ItemMap, param);
+                var itemMap = CreateSelectProjection(typeMap.ItemMap, param);
 
                 LambdaExpression lambda = ToLambda(itemType, param, itemMap);
 
@@ -133,12 +139,15 @@ namespace Detached.EntityFramework.Queries
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 foreach (MemberMap memberMap in typeMap.Members)
                 {
-                    PropertyInfo propInfo = typeMap.SourceOptions.Type.GetProperty(memberMap.SourceOptions.Name);
-                    if (propInfo != null)
+                    if (!memberMap.IsBackReference)
                     {
-                        Expression map = memberMap.TargetOptions.GetValue(targetExpr, null);
-                        map = CreateSelectProjectionInternal(memberMap.TypeMap, map);
-                        bindings.Add(Bind(propInfo, map));
+                        PropertyInfo propInfo = typeMap.SourceOptions.Type.GetProperty(memberMap.SourceOptions.Name);
+                        if (propInfo != null)
+                        {
+                            Expression map = memberMap.TargetOptions.GetValue(targetExpr, null);
+                            map = CreateSelectProjection(memberMap.TypeMap, map);
+                            bindings.Add(Bind(propInfo, map));
+                        }
                     }
                 }
 

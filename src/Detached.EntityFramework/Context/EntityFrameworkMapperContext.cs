@@ -94,7 +94,6 @@ namespace Detached.EntityFramework.Context
             where TKey : IEntityKey
         {
             IStateManager stateManager = DbContext.GetService<IStateManager>();
-
             IEntityType entityType = DbContext.Model.FindEntityType(typeof(TEntity));
             IKey keyType = entityType.FindPrimaryKey();
 

@@ -6,7 +6,7 @@ namespace Detached.Annotations
     {
         public override void Apply(AggregationAttribute annotation, MapperModelOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
-            memberOptions.Owned = false;
+            memberOptions.IsComposition = false;
         }
     }
 }

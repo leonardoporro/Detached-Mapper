@@ -6,7 +6,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mapping.Mappers
 {
-    public class EntityAssociatedMapperFactory : EntityMapperFactory
+    public class EntityAggregatedMapperFactory : EntityMapperFactory
     {
         public override bool CanMap(TypeMap typeMap)
         {

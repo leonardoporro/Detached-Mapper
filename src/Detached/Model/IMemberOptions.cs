@@ -14,7 +14,7 @@ namespace Detached.Model
         
         string Name { get; }
         
-        bool Owned { get; }
+        bool IsComposition { get; }
         
         Type Type { get; }
 

@@ -16,13 +16,13 @@ namespace Detached.Model.Builder
 
         public ClassMemberOptionsBuilder<TType, TMember> Composition()
         {
-            MemberOptions.Owned = true;
+            MemberOptions.IsComposition = true;
             return this;
         }
 
         public ClassMemberOptionsBuilder<TType, TMember> Aggregation()
         {
-            MemberOptions.Owned = false;
+            MemberOptions.IsComposition = false;
             return this;
         }
 

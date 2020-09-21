@@ -351,5 +351,20 @@ namespace Detached.Reflection
 
             return null;
         }
+
+        public static bool ImplementsGenericInterface(this Type type, Type ifaceType, out Type[] args)
+        {
+            foreach (Type implType in type.GetInterfaces())
+            {
+                if (implType.IsGenericType && implType.GetGenericTypeDefinition() == ifaceType)
+                {
+                    args = implType.GetGenericArguments();
+                    return true;
+                }
+            }
+
+            args = null;
+            return false;
+        }
     }
 }

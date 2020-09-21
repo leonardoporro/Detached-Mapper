@@ -13,7 +13,7 @@ namespace Detached.Model
 
         public virtual Type Type { get; set; }
 
-        public virtual bool Owned { get; set; }
+        public virtual bool IsComposition { get; set; }
 
         public virtual bool Ignored { get; set; }
 

@@ -11,7 +11,7 @@ namespace Detached.Mapping
 
         public TypeMap TypeMap { get; set; }
 
-        public bool Owned => TargetOptions.Owned;
+        public bool IsComposition => TargetOptions.IsComposition;
 
         public bool IsKey => TargetOptions.IsKey;
 

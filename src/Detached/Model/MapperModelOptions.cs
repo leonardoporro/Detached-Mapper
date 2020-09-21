@@ -58,8 +58,8 @@ namespace Detached.Model
             new NullableTypeMapperFactory(),
             new ObjectMapperFactory(),
             new ObjectToObjectMapperFactory(),
-            new EntityOwnedMapperFactory(),
-            new EntityAssociatedMapperFactory(),
+            new EntityComposedMapperFactory(),
+            new EntityAggregatedMapperFactory(),
             new EntityListMapperFactory(),
             new EntityRootMapperFactory()
         };

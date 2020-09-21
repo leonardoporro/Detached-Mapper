@@ -6,7 +6,7 @@ namespace Detached.Annotations
     {
         public override void Apply(CompositionAttribute annotation, MapperModelOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
-            memberOptions.Owned = true;
+            memberOptions.IsComposition = true;
         }
     }
 }
