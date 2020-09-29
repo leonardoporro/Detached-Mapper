@@ -1,4 +1,4 @@
-﻿namespace Detached.Samples.RestApi.Models.Core
+﻿namespace Detached.Mappers.Samples.RestApi.Models.Core
 {
     public class Item : Identity
     {

@@ -1,8 +1,8 @@
-using Detached.EntityFramework;
-using Detached.Model;
-using Detached.Samples.RestApi.Models;
-using Detached.Samples.RestApi.Services;
-using Detached.Samples.RestApi.Stores;
+using Detached.Mappers.EntityFramework;
+using Detached.Mappers.Model;
+using Detached.Mappers.Samples.RestApi.Models;
+using Detached.Mappers.Samples.RestApi.Services;
+using Detached.Mappers.Samples.RestApi.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Detached.Samples.RestApi
+namespace Detached.Mappers.Samples.RestApi
 {
     public class Startup
     {

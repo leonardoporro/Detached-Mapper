@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Detached.Samples.RestApi.Models.Inputs
+namespace Detached.Mappers.Samples.RestApi.Models.Inputs
 {
     public class SaveInvoiceInput
     {

@@ -1,10 +1,10 @@
-﻿using Detached.Samples.RestApi.Models.Inputs;
-using Detached.Samples.RestApi.Models.Outputs;
-using Detached.Samples.RestApi.Stores;
+﻿using Detached.Mappers.Samples.RestApi.Models.Inputs;
+using Detached.Mappers.Samples.RestApi.Models.Outputs;
+using Detached.Mappers.Samples.RestApi.Stores;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Detached.Samples.RestApi.Services
+namespace Detached.Mappers.Samples.RestApi.Services
 {
     public class InvoiceService
     {

@@ -1,11 +1,11 @@
-﻿using Detached.Samples.RestApi.Models.Inputs;
-using Detached.Samples.RestApi.Models.Outputs;
-using Detached.Samples.RestApi.Services;
+﻿using Detached.Mappers.Samples.RestApi.Models.Inputs;
+using Detached.Mappers.Samples.RestApi.Models.Outputs;
+using Detached.Mappers.Samples.RestApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Detached.Samples.RestApi.Controllers
+namespace Detached.Mappers.Samples.RestApi.Controllers
 {
     [ApiController]
     [Route("api/invoices")]

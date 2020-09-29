@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Detached.Samples.RestApi": {
+    "Detached.Mappers.Samples.RestApi": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

@@ -1,7 +1,8 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace Detached.Samples.RestApi.Models
+namespace Detached.Mappers.Samples.RestApi.Models
 {
     [Entity]
     public class StockUnit

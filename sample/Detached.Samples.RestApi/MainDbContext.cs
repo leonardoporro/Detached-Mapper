@@ -1,8 +1,8 @@
-﻿using Detached.EntityFramework;
-using Detached.Samples.RestApi.Models;
+﻿using Detached.Mappers.EntityFramework;
+using Detached.Mappers.Samples.RestApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Detached.Samples.RestApi
+namespace Detached.Mappers.Samples.RestApi
 {
     public class MainDbContext : DetachedDbContext
     {

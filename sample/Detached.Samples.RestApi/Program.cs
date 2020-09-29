@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Detached.Samples.RestApi
+namespace Detached.Mappers.Samples.RestApi
 {
     public class Program
     {

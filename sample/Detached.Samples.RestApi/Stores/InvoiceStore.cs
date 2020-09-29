@@ -1,11 +1,11 @@
-﻿using Detached.Samples.RestApi.Models;
-using Detached.Samples.RestApi.Models.Inputs;
-using Detached.Samples.RestApi.Models.Outputs;
+﻿using Detached.Mappers.Samples.RestApi.Models;
+using Detached.Mappers.Samples.RestApi.Models.Inputs;
+using Detached.Mappers.Samples.RestApi.Models.Outputs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Detached.Samples.RestApi.Stores
+namespace Detached.Mappers.Samples.RestApi.Stores
 {
     public class InvoiceStore
     {

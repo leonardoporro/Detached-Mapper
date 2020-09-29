@@ -1,7 +1,7 @@
-﻿using Detached.Samples.RestApi.Models.Core;
+﻿using Detached.Mappers.Samples.RestApi.Models.Core;
 using System;
 
-namespace Detached.Samples.RestApi.Models.Outputs
+namespace Detached.Mappers.Samples.RestApi.Models.Outputs
 {
     public class InvoiceListItemOutput
     {
