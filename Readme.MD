@@ -1,4 +1,4 @@
-# Detached 5
+# Detached Mapper
 #### What is it
 
 Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of saving disconected entities in web services.
