@@ -1,41 +1,41 @@
 ﻿using Detached.Mappers.TypeMaps;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using static System.Linq.Expressions.Expression;
 using static Detached.Mappers.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.EntityFramework.Queries
 {
-    public class QueryProvider
+    public class DetachedQueryProvider
     {
-        readonly ConcurrentDictionary<(Type, Type), object> _templates = new ConcurrentDictionary<(Type, Type), object>();
-        readonly ConcurrentDictionary<(Type, Type), object> _projections = new ConcurrentDictionary<(Type, Type), object>();
-
         readonly Mapper _mapper;
-        readonly IModel _model;
+        IMemoryCache _memoryCache;
 
-        public QueryProvider(Mapper mapper, IModel model)
+        public DetachedQueryProvider(Mapper mapper, IMemoryCache memoryCache)
         {
             _mapper = mapper;
-            _model = model;
+            _memoryCache = memoryCache;
         }
 
         public IQueryable<TSource> Project<TSource, TTarget>(IQueryable<TTarget> query)
             where TTarget : class
             where TSource : class
         {
-            var filter = (Expression<Func<TTarget, TSource>>)_projections.GetOrAdd((typeof(TSource), typeof(TTarget)), k =>
+            var key = new DetachedQueryCacheKey(typeof(TSource), typeof(TTarget), QueryType.Projection);
+
+            var filter = _memoryCache.GetOrCreate(key, entry =>
             {
                 TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
                 var param = Parameter(typeMap.TargetOptions.Type, "e");
                 Expression projection = ToLambda(typeMap.TargetOptions.Type, param, CreateSelectProjection(typeMap, param));
+
+                entry.SetSize(1);
 
                 return (Expression<Func<TTarget, TSource>>)projection;
             });
@@ -57,19 +57,23 @@ namespace Detached.Mappers.EntityFramework.Queries
             return GetTemplate<TSource, TTarget>().Render(queryable, source).FirstOrDefault();
         }
 
-        QueryTemplate<TSource, TTarget> GetTemplate<TSource, TTarget>()
+        DetachedQueryTemplate<TSource, TTarget> GetTemplate<TSource, TTarget>()
             where TSource : class
             where TTarget : class
         {
-            return (QueryTemplate<TSource, TTarget>)_templates.GetOrAdd((typeof(TSource), typeof(TTarget)), key =>
+            var key = new DetachedQueryCacheKey(typeof(TSource), typeof(TTarget), QueryType.Load);
+
+            return _memoryCache.GetOrCreate(key, entry =>
             {
                 TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
 
-                QueryTemplate<TSource, TTarget> queryTemplate = new QueryTemplate<TSource, TTarget>();
+                DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
                 queryTemplate.SourceConstant = Constant(null, typeMap.SourceOptions.Type);
                 queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(typeMap, queryTemplate.SourceConstant);
                 GetIncludes(typeMap, queryTemplate.Includes, null);
+
+                entry.SetSize(1);
 
                 return queryTemplate;
             });

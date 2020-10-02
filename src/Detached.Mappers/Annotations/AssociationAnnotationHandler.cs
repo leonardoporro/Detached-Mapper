@@ -7,7 +7,7 @@ namespace Detached.Mappers.Annotations
 {
     public class AssociationAnnotationHandler : AnnotationHandler<AggregationAttribute>
     {
-        public override void Apply(AggregationAttribute annotation, MapperModelOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(AggregationAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
             memberOptions.IsComposition = false;
         }

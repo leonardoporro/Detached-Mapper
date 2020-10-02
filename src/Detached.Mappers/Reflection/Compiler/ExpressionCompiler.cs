@@ -1974,7 +1974,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 var leftType = left.Type;
                 if (leftType.IsValueType()) // Nullable -> It's the only ValueType comparable to null
                 {
-                    var varIndex = EmitStoreLocalVariableAndLoadItsAddress(il, leftType);
+                    var varIndex = EmitRepositoryLocalVariableAndLoadItsAddress(il, leftType);
                     il.Emit(OpCodes.Call, leftType.FindNullableHasValueGetterMethod());
 
                     il.Emit(OpCodes.Brfalse, labelFalse);
@@ -2066,7 +2066,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 var resultVarIndex = -1;
 
                 if (returnsResult)
-                    EmitStoreLocalVariable(il, resultVarIndex = il.GetNextLocalVarIndex(exprType));
+                    EmitRepositoryLocalVariable(il, resultVarIndex = il.GetNextLocalVarIndex(exprType));
 
                 var catchBlocks = tryExpr.Handlers;
                 for (var i = 0; i < catchBlocks.Count; i++)
@@ -2084,7 +2084,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     {
                         var exVarIndex = il.GetNextLocalVarIndex(exVarExpr.Type);
                         closure.PushBlockWithVars(exVarExpr, exVarIndex);
-                        EmitStoreLocalVariable(il, exVarIndex);
+                        EmitRepositoryLocalVariable(il, exVarIndex);
                     }
 
                     if (!TryEmit(catchBlock.Body, paramExprs, il, ref closure, parent))
@@ -2094,7 +2094,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         closure.PopBlock();
 
                     if (returnsResult)
-                        EmitStoreLocalVariable(il, resultVarIndex);
+                        EmitRepositoryLocalVariable(il, resultVarIndex);
                 }
 
                 var finallyExpr = tryExpr.Finally;
@@ -2376,7 +2376,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         return false;
 
                     if (!closure.LastEmitIsAddress)
-                        EmitStoreLocalVariableAndLoadItsAddress(il, sourceType);
+                        EmitRepositoryLocalVariableAndLoadItsAddress(il, sourceType);
 
                     il.Emit(OpCodes.Call, sourceType.FindValueGetterMethod());
 
@@ -2433,7 +2433,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     {
                         if (sourceTypeIsNullable)
                         {
-                            EmitStoreLocalVariableAndLoadItsAddress(il, sourceType);
+                            EmitRepositoryLocalVariableAndLoadItsAddress(il, sourceType);
                             il.Emit(OpCodes.Call, sourceType.FindValueGetterMethod());
                         }
 
@@ -2455,7 +2455,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     {
                         if (sourceTypeIsNullable)
                         {
-                            EmitStoreLocalVariableAndLoadItsAddress(il, sourceType);
+                            EmitRepositoryLocalVariableAndLoadItsAddress(il, sourceType);
                             il.Emit(OpCodes.Call, sourceType.FindValueGetterMethod());
                         }
 
@@ -2500,7 +2500,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     }
                     else
                     {
-                        var sourceVarIndex = EmitStoreLocalVariableAndLoadItsAddress(il, sourceType);
+                        var sourceVarIndex = EmitRepositoryLocalVariableAndLoadItsAddress(il, sourceType);
                         il.Emit(OpCodes.Call, sourceType.FindNullableHasValueGetterMethod());
 
                         var labelSourceHasValue = il.DefineLabel();
@@ -2539,7 +2539,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     // fixes #159
                     if (sourceTypeIsNullable)
                     {
-                        EmitStoreLocalVariableAndLoadItsAddress(il, sourceType);
+                        EmitRepositoryLocalVariableAndLoadItsAddress(il, sourceType);
                         il.Emit(OpCodes.Call, sourceType.FindValueGetterMethod());
                     }
 
@@ -2754,7 +2754,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 // Load constants array field from Closure and store it into the variable
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, ArrayClosureArrayField);
-                EmitStoreLocalVariable(il, il.GetNextLocalVarIndex(typeof(object[])));
+                EmitRepositoryLocalVariable(il, il.GetNextLocalVarIndex(typeof(object[])));
 
                 var constItems = closure.Constants.Items;
                 var constCount = closure.Constants.Count;
@@ -2775,7 +2775,7 @@ namespace Detached.Mappers.Reflection.Compiler
 
                         varIndex = il.GetNextLocalVarIndex(varType);
                         constUsage[i] = varIndex + 1; // to distinguish from the default 1
-                        EmitStoreLocalVariable(il, varIndex);
+                        EmitRepositoryLocalVariable(il, varIndex);
                     }
                 }
 
@@ -2790,7 +2790,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         il.Emit(OpCodes.Ldelem_Ref);
                         varIndex = il.GetNextLocalVarIndex(nestedLambda.Lambda.GetType());
                         nestedLambda.UsageCountOrVarIndex = varIndex + 1;
-                        EmitStoreLocalVariable(il, varIndex);
+                        EmitRepositoryLocalVariable(il, varIndex);
                     }
                 }
             }
@@ -3047,11 +3047,11 @@ namespace Detached.Mappers.Reflection.Compiler
                     case ExpressionType.PreIncrementAssign:
                         il.Emit(OpCodes.Ldc_I4_1);
                         il.Emit(OpCodes.Add);
-                        StoreIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
+                        RepositoryIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
                         break;
 
                     case ExpressionType.PostIncrementAssign:
-                        StoreIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
+                        RepositoryIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
                         il.Emit(OpCodes.Ldc_I4_1);
                         il.Emit(OpCodes.Add);
                         break;
@@ -3059,11 +3059,11 @@ namespace Detached.Mappers.Reflection.Compiler
                     case ExpressionType.PreDecrementAssign:
                         il.Emit(OpCodes.Ldc_I4_1);
                         il.Emit(OpCodes.Sub);
-                        StoreIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
+                        RepositoryIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
                         break;
 
                     case ExpressionType.PostDecrementAssign:
-                        StoreIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
+                        RepositoryIncDecValue(il, usesResult, isParameterOrVariable, localVarIndex);
                         il.Emit(OpCodes.Ldc_I4_1);
                         il.Emit(OpCodes.Sub);
                         break;
@@ -3072,7 +3072,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 if (isParameterOrVariable && paramIndex != -1)
                     il.Emit(OpCodes.Starg_S, paramIndex + 1);
                 else if (isParameterOrVariable || useLocalVar && !usesResult)
-                    EmitStoreLocalVariable(il, localVarIndex);
+                    EmitRepositoryLocalVariable(il, localVarIndex);
 
                 if (isParameterOrVariable)
                     return true;
@@ -3089,7 +3089,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 return true;
             }
 
-            private static void StoreIncDecValue(ILGenerator il, bool usesResult, bool isVar, int localVarIndex)
+            private static void RepositoryIncDecValue(ILGenerator il, bool usesResult, bool isVar, int localVarIndex)
             {
                 if (!usesResult)
                     return;
@@ -3098,7 +3098,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     il.Emit(OpCodes.Dup);
                 else
                 {
-                    EmitStoreLocalVariable(il, localVarIndex);
+                    EmitRepositoryLocalVariable(il, localVarIndex);
                     EmitLoadLocalVariable(il, localVarIndex);
                 }
             }
@@ -3203,7 +3203,7 @@ namespace Detached.Mappers.Reflection.Compiler
                                 il.Emit(OpCodes.Dup); // duplicate value to assign and return
 
                             if (leftParamExpr.IsByRef)
-                                EmitByRefStore(il, leftParamExpr.Type);
+                                EmitByRefRepository(il, leftParamExpr.Type);
                             else
                                 il.Emit(OpCodes.Starg_S, paramIndex);
 
@@ -3217,7 +3217,7 @@ namespace Detached.Mappers.Reflection.Compiler
                                 if (!TryEmitArithmetic(expr, arithmeticNodeType, paramExprs, il, ref closure, parent))
                                     return false;
 
-                                EmitStoreLocalVariable(il, localVarIdx);
+                                EmitRepositoryLocalVariable(il, localVarIdx);
                                 return true;
                             }
                         }
@@ -3237,7 +3237,7 @@ namespace Detached.Mappers.Reflection.Compiler
                             if ((parent & ParentFlags.IgnoreResult) == 0) // if we have to push the result back, duplicate the right value
                                 il.Emit(OpCodes.Dup);
 
-                            EmitStoreLocalVariable(il, localVariableIdx);
+                            EmitRepositoryLocalVariable(il, localVariableIdx);
                             return true;
                         }
 
@@ -3258,7 +3258,7 @@ namespace Detached.Mappers.Reflection.Compiler
                                 return false;
 
                             var valueVarIndex = il.GetNextLocalVarIndex(expr.Type); // store left value in variable
-                            EmitStoreLocalVariable(il, valueVarIndex);
+                            EmitRepositoryLocalVariable(il, valueVarIndex);
 
                             // load array field and param item index
                             il.Emit(OpCodes.Ldfld, ArrayClosureWithNonPassedParamsField);
@@ -3296,7 +3296,7 @@ namespace Detached.Mappers.Reflection.Compiler
                             if (!TryEmit(right, paramExprs, il, ref closure, ParentFlags.Empty))
                                 return false;
 
-                            EmitStoreLocalVariable(il, resultLocalVarIndex);
+                            EmitRepositoryLocalVariable(il, resultLocalVarIndex);
                         }
 
                         var memberExpr = (MemberExpression)left;
@@ -3317,7 +3317,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         il.Emit(OpCodes.Dup);
 
                         var rightVarIndex = il.GetNextLocalVarIndex(expr.Type); // store right value in variable
-                        EmitStoreLocalVariable(il, rightVarIndex);
+                        EmitRepositoryLocalVariable(il, rightVarIndex);
 
                         if (!EmitMemberAssign(il, member))
                             return false;
@@ -3345,7 +3345,7 @@ namespace Detached.Mappers.Reflection.Compiler
 
                         var varIndex = il.GetNextLocalVarIndex(expr.Type); // store value in variable to return
                         il.Emit(OpCodes.Dup);
-                        EmitStoreLocalVariable(il, varIndex);
+                        EmitRepositoryLocalVariable(il, varIndex);
 
                         if (!TryEmitIndexAssign(indexExpr, obj?.Type, expr.Type, il))
                             return false;
@@ -3358,7 +3358,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 }
             }
 
-            private static void EmitByRefStore(ILGenerator il, Type type)
+            private static void EmitByRefRepository(ILGenerator il, Type type)
             {
                 if (type == typeof(int) || type == typeof(uint))
                     il.Emit(OpCodes.Stind_I4);
@@ -3414,7 +3414,7 @@ namespace Detached.Mappers.Reflection.Compiler
 
                     objIsValueType = objExpr.Type.IsValueType();
                     if (objIsValueType && objExpr.NodeType != ExpressionType.Parameter && !closure.LastEmitIsAddress)
-                        EmitStoreLocalVariableAndLoadItsAddress(il, objExpr.Type);
+                        EmitRepositoryLocalVariableAndLoadItsAddress(il, objExpr.Type);
                 }
 
 #if LIGHT_EXPRESSION
@@ -3506,7 +3506,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         // And for field access no need to load address, cause the field stored on stack nearby
                         if (!closure.LastEmitIsAddress &&
                             instanceExpr.NodeType != ExpressionType.Parameter && instanceExpr.Type.IsValueType())
-                            EmitStoreLocalVariableAndLoadItsAddress(il, instanceExpr.Type);
+                            EmitRepositoryLocalVariableAndLoadItsAddress(il, instanceExpr.Type);
                     }
 
                     closure.LastEmitIsAddress = false;
@@ -3601,7 +3601,7 @@ namespace Detached.Mappers.Reflection.Compiler
                 else
                 {
                     var nestedLambdaAndClosureItemsVarIndex = il.GetNextLocalVarIndex(typeof(NestedLambdaWithConstantsAndNestedLambdas));
-                    EmitStoreLocalVariable(il, nestedLambdaAndClosureItemsVarIndex);
+                    EmitRepositoryLocalVariable(il, nestedLambdaAndClosureItemsVarIndex);
 
                     // - load the `NestedLambda` field
                     EmitLoadLocalVariable(il, nestedLambdaAndClosureItemsVarIndex);
@@ -3670,7 +3670,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         }
                     }
 
-                    // Store the item into nested lambda array
+                    // Repository the item into nested lambda array
                     il.Emit(OpCodes.Stelem_Ref);
                 }
 
@@ -3776,7 +3776,7 @@ namespace Detached.Mappers.Reflection.Compiler
 
                 if (leftIsNullable)
                 {
-                    lVarIndex = EmitStoreLocalVariableAndLoadItsAddress(il, leftOpType);
+                    lVarIndex = EmitRepositoryLocalVariableAndLoadItsAddress(il, leftOpType);
                     il.Emit(OpCodes.Call, leftOpType.FindNullableGetValueOrDefaultMethod());
                     leftOpType = Nullable.GetUnderlyingType(leftOpType);
                 }
@@ -3813,7 +3813,7 @@ namespace Detached.Mappers.Reflection.Compiler
 
                 if (rightOpType.IsNullable())
                 {
-                    rVarIndex = EmitStoreLocalVariableAndLoadItsAddress(il, rightOpType);
+                    rVarIndex = EmitRepositoryLocalVariableAndLoadItsAddress(il, rightOpType);
                     il.Emit(OpCodes.Call, rightOpType.FindNullableGetValueOrDefaultMethod());
                     // ReSharper disable once AssignNullToNotNullAttribute
                     rightOpType = Nullable.GetUnderlyingType(rightOpType);
@@ -3978,7 +3978,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         return false;
 
                     if (!closure.LastEmitIsAddress)
-                        EmitStoreLocalVariableAndLoadItsAddress(il, lefType);
+                        EmitRepositoryLocalVariableAndLoadItsAddress(il, lefType);
 
                     il.Emit(OpCodes.Dup);
                     il.Emit(OpCodes.Call, lefType.FindNullableHasValueGetterMethod());
@@ -4000,7 +4000,7 @@ namespace Detached.Mappers.Reflection.Compiler
                         return false;
 
                     if (!closure.LastEmitIsAddress)
-                        EmitStoreLocalVariableAndLoadItsAddress(il, rightType);
+                        EmitRepositoryLocalVariableAndLoadItsAddress(il, rightType);
 
                     il.Emit(OpCodes.Dup);
                     il.Emit(OpCodes.Call, rightType.FindNullableHasValueGetterMethod());
@@ -4372,7 +4372,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     il.Emit(OpCodes.Ldloc, location);
             }
 
-            private static void EmitStoreLocalVariable(ILGenerator il, int location)
+            private static void EmitRepositoryLocalVariable(ILGenerator il, int location)
             {
                 if (location == 0)
                     il.Emit(OpCodes.Stloc_0);
@@ -4388,7 +4388,7 @@ namespace Detached.Mappers.Reflection.Compiler
                     il.Emit(OpCodes.Stloc, location);
             }
 
-            private static int EmitStoreLocalVariableAndLoadItsAddress(ILGenerator il, Type type)
+            private static int EmitRepositoryLocalVariableAndLoadItsAddress(ILGenerator il, Type type)
             {
                 var varIndex = il.GetNextLocalVarIndex(type);
                 if (varIndex == 0)

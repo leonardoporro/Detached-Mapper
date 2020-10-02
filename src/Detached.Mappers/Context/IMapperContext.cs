@@ -6,7 +6,7 @@ namespace Detached.Mappers.Context
 
     public interface IMapperContext
     {
-        MappingOptions MappingOptions { get; }
+        MapperParameters Parameters { get; }
 
         TTarget OnMapperAction<TTarget, TSource, TKey>(TTarget entity, TSource source, TKey key, MapperActionType actionType)
             where TTarget : class

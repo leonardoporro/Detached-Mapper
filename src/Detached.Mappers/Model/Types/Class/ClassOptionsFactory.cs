@@ -12,7 +12,7 @@ namespace Detached.Mappers.Model.Types.Class
 {
     public class ClassOptionsFactory : ITypeOptionsFactory
     {
-        public ITypeOptions Create(MapperModelOptions options, Type type)
+        public ITypeOptions Create(MapperOptions options, Type type)
         {
             ClassTypeOptions typeOptions = new ClassTypeOptions();
             typeOptions.Type = type;
@@ -107,7 +107,7 @@ namespace Detached.Mappers.Model.Types.Class
             return result;
         }
 
-        protected virtual void CreateConstructor(MapperModelOptions options, Type type, ClassTypeOptions typeOptions)
+        protected virtual void CreateConstructor(MapperOptions options, Type type, ClassTypeOptions typeOptions)
         {
             if (type.IsInterface)
             {
@@ -132,7 +132,7 @@ namespace Detached.Mappers.Model.Types.Class
             }
         }
 
-        protected virtual bool IsPrimitive(MapperModelOptions options, Type type)
+        protected virtual bool IsPrimitive(MapperOptions options, Type type)
         {
             if (type.IsGenericType)
                 return options.Primitives.Contains(type.GetGenericTypeDefinition());

@@ -16,11 +16,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers.Model
 {
-    public class MapperModelOptions
+    public class MapperOptions
     {
         readonly ConcurrentDictionary<Type, ITypeOptions> _options;
 
-        public MapperModelOptions()
+        public MapperOptions()
         {
             _options = new ConcurrentDictionary<Type, ITypeOptions>();
         }

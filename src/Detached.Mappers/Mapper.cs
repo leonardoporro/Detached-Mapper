@@ -1,11 +1,12 @@
 ﻿using AgileObjects.ReadableExpressions;
+using Detached.Mappers.Cache;
 using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.Model;
 using Detached.Mappers.TypeMaps;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using static Detached.Mappers.Expressions.ExtendedExpression;
@@ -16,55 +17,58 @@ namespace Detached.Mappers
     public class Mapper
     {
         readonly TypeMapFactory _typeMapFactory;
-
-        readonly ConcurrentDictionary<(Type, Type), Delegate> _mappers
-            = new ConcurrentDictionary<(Type, Type), Delegate>();
-
-        readonly ConcurrentDictionary<(Type, Type), MapperDelegate> _typedCalls
-            = new ConcurrentDictionary<(Type, Type), MapperDelegate>();
-
-        readonly MapperModelOptions _options;
+        readonly MapperOptions _options;
+        readonly IMemoryCache _memoryCache;
 
         public Mapper()
         {
-            _options = new MapperModelOptions();
+            _options = new MapperOptions();
+            _typeMapFactory = new TypeMapFactory();;
+            _memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null }));
+        }
+
+        public Mapper(MapperOptions options)
+        {
+            _options = options;
             _typeMapFactory = new TypeMapFactory();
+            _memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null }));
         }
 
         public Mapper(
-            IOptions<MapperModelOptions> options,
-            TypeMapFactory typeMapFactory)
+            MapperOptions options,
+            TypeMapFactory typeMapFactory,
+            IMemoryCache memoryCache)
         {
-            _options = options.Value;
+            _options = options;
             _typeMapFactory = typeMapFactory;
-        }
-
-        public void Configure(Action<MapperModelOptions> config)
-        {
-            config(_options);
-            _mappers.Clear();
-            _typedCalls.Clear();
+            _memoryCache = memoryCache;
         }
 
         public TTarget Map<TSource, TTarget>(TSource source, TTarget target = default, IMapperContext context = default)
         {
-            var mapper = (MapperDelegate<TSource, TTarget>)_mappers.GetOrAdd((typeof(TSource), typeof(TTarget)), key =>
+            MapperCacheKey key = new MapperCacheKey(typeof(TSource), typeof(TTarget), true);
+
+            return ((MapperDelegate<TSource, TTarget>)_memoryCache.GetOrCreate(key, entry =>
             {
+                entry.SetSize(1);
+
                 TypeMap typeMap = GetTypeMap(typeof(TSource), typeof(TTarget));
                 LambdaExpression map = GetFactory(typeMap).Create(typeMap);
 
                 Debug.WriteLine(map.ToReadableString());
 
                 return map.Compile();
-            });
-
-            return mapper(source, target, context);
+            }))(source, target, context);
         }
 
         public object Map(object source, Type sourceType, object target, Type targetType, IMapperContext context = default)
         {
-            return _typedCalls.GetOrAdd((sourceType, targetType), k =>
+            MapperCacheKey key = new MapperCacheKey(sourceType, targetType, false);
+
+            return _memoryCache.GetOrCreate(key, entry =>
             {
+                entry.SetSize(1);
+
                 ITypeOptions sourceOptions = _options.GetTypeOptions(sourceType);
                 ITypeOptions targetOptions = _options.GetTypeOptions(targetType);
 
@@ -97,6 +101,7 @@ namespace Detached.Mappers
                           Result(sourceObjExpr)
                       ).Compile() as MapperDelegate;
                 }
+               
             })(source, target, context);
         }
 
@@ -120,7 +125,7 @@ namespace Detached.Mappers
 
         public ITypeOptions GetTypeOptions(Type type) => _options.GetTypeOptions(type);
 
-        public TypeMap GetTypeMap(Type sourceType, Type targetType) 
+        public TypeMap GetTypeMap(Type sourceType, Type targetType)
             => _typeMapFactory.Create(this, _options, null, sourceType, targetType, true);
     }
 }

@@ -6,7 +6,7 @@ namespace Detached.Mappers.Annotations
 {
     public class CompositionAnnotationHandler : AnnotationHandler<CompositionAttribute>
     {
-        public override void Apply(CompositionAttribute annotation, MapperModelOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(CompositionAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
             memberOptions.IsComposition = true;
         }

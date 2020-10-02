@@ -14,7 +14,7 @@ namespace Detached.Mappers.Tests.Patching
         public void deserialize_as_patch()
         {
             JsonSerializerOptions jsonOptions = new JsonSerializerOptions();
-            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new MapperModelOptions())));
+            jsonOptions.Converters.Add(new PatchJsonConverterFactory(new MapperOptions()));
             jsonOptions.IgnoreReadOnlyProperties = true;
 
             string json = @"
@@ -36,7 +36,7 @@ namespace Detached.Mappers.Tests.Patching
         public void deserialize_list_as_patch()
         {
             JsonSerializerOptions jsonOptions = new JsonSerializerOptions();
-            jsonOptions.Converters.Add(new PatchJsonConverterFactory(Options.Create(new MapperModelOptions())));
+            jsonOptions.Converters.Add(new PatchJsonConverterFactory(new MapperOptions()));
 
             string json = @"
                 [
