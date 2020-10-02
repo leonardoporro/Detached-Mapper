@@ -70,51 +70,26 @@ More info on configuration, later in this doc.
 ```cs
 Install-Package Detached.Mappers.EntityFramework -Version 5.0.0
 ```
-###### Inherit from DetachedDbContext
-```cs
-public class TestDbContext : DetachedDbContext
-{
-    ...
-}
-```
+
 ###### Register dependencies
 DetachedDbContext needs a QueryProvider instance, that helps loading the current status of the entities to save
 and a Mapper instance that copies the given DTO/Entity state over the current entities.
+These dependencies are added as a DbContextOptionsExtension using the UseDetached method.
 If working on ASP.NET, this is usually configured in the DI container at the beggining (Startup.cs).
+
 ```cs
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddDetachedEntityFramework(); // Mapper & QueryBuilder.
     services.AddDbContext<MainDbContext>(cfg =>
     {
         ...
+        cfg.UseDetached();
     });
 }
-```
-###### Define model and DTO
-As mentioned before, entities (the classes associated to the DbContext) should be tagged.
-That can be done by adding the [Entity] attribute to the class, or configuring the mapper options.
-```cs
-[Entity]
-public class User
-{
-    public Guid Id { get; set; }
-}
-```
-
-```cs
-public void ConfigureServices(IServiceCollection services)
-{
-    services.Configure<ModelOptions>(m =>
-    {
-        m.Configure<User>().IsEntity();
-    });
-}
-```
-DTOs don't need any special configuration and are mapped by convention using the same property names.
+``` 
 
 ###### Perform a Map
-Once the DetachedDbContext is configured and initialized somewhere, the MapAsync method can be called to
+Once the DetachedDbContext is configured and initialized somewhere, the MapAsync extension method can be called to
 load current state and copy DTO values.
 MapAsync returns the persisted entity (that comes from the DB) with the updated values. No updates are persisted
 until SaveChanges is called().
@@ -125,5 +100,22 @@ await dbContext.SaveChangesAsync();
 ```
 
 ###### Configure Entities
+Associations should be specified as Compositions or Aggregations, so Detached can decide how to map them.
+This can be done by adding [Aggregation] or [Composition] attributes to the property itself:
 
-// TODO:
+```cs
+class Invoice
+{
+    [Composition]
+    public List<Row> Rows { get; set; }
+}
+```
+
+Or using UseDetached(Action&lt;MapperOptions&gt;) overload:
+
+```cs
+cfg.UseDetached(options =>
+{
+    options.Configure<Invoice>().Member(u => u.Rows).Composition();
+});
+```

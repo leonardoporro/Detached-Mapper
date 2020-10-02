@@ -30,19 +30,15 @@ namespace Detached.Mappers.Samples.RestApi
             services.AddDbContext<MainDbContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("MainDb"));
-                cfg.UseDetached();
+                cfg.UseDetached(options =>
+                {
+                    options.Configure<Invoice>().Member(u => u.Rows).Composition();
+                });
             });
 
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
-
-            services.Configure<MapperOptions>(m =>
-            {
-                m.Configure<User>().IsEntity();
-            });
         }
-
-        public class User {  }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MainDbContext mainDb)
