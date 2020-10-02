@@ -15,7 +15,6 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            Mapper mapper = new Mapper();
             TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
@@ -85,7 +84,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                     Id = 1,
                     Name = "cr",
                 },
-                new MappingOptions
+                new MapperParameters
                 {
                     RootUpsert = false
                 })

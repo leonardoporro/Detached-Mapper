@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Model;
-using Microsoft.Extensions.Options;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,11 +7,11 @@ namespace Detached.Mappers.Patching
 {
     public class PatchJsonConverterFactory : JsonConverterFactory
     {
-        readonly MapperModelOptions _options;
+        readonly MapperOptions _options;
 
-        public PatchJsonConverterFactory(IOptions<MapperModelOptions> options)
+        public PatchJsonConverterFactory(MapperOptions options)
         {
-            _options = options.Value;
+            _options = options;
         }
 
         public override bool CanConvert(Type typeToConvert)

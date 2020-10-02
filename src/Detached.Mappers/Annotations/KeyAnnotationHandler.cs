@@ -6,7 +6,7 @@ namespace Detached.Mappers.Annotations
 {
     public class KeyAnnotationHandler : AnnotationHandler<KeyAttribute>
     {
-        public override void Apply(KeyAttribute annotation, MapperModelOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(KeyAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
             memberOptions.IsKey = true;
         }

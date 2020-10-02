@@ -10,12 +10,10 @@ namespace Detached.Mappers.Tests.Model
         [Fact]
         public void customize_constructor()
         {
-            MapperModelOptions modelOptions = new MapperModelOptions();
+            MapperOptions modelOptions = new MapperOptions();
             modelOptions.Configure<TargetEntity>().Constructor(c => new TargetEntity(1));
 
-            Mapper mapper = new Mapper(
-                Options.Create(modelOptions), 
-                new TypeMapFactory());
+            Mapper mapper = new Mapper(modelOptions);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 

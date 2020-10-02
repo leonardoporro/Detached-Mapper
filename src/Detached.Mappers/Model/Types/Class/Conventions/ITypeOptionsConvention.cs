@@ -2,6 +2,6 @@
 {
     public interface ITypeOptionsConvention
     {
-        void Apply(MapperModelOptions modelOptions, ClassTypeOptions typeOptions);
+        void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions);
     }
 }

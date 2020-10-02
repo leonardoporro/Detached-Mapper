@@ -1,10 +1,9 @@
-﻿using Detached.Mappers.EntityFramework;
-using Detached.Mappers.Samples.RestApi.Models;
+﻿using Detached.Mappers.Samples.RestApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Detached.Mappers.Samples.RestApi
 {
-    public class MainDbContext : DetachedDbContext
+    public class MainDbContext : DbContext
     {
         public MainDbContext(DbContextOptions<MainDbContext> options) 
             : base(options)

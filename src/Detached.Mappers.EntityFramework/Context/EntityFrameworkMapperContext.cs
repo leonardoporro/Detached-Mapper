@@ -12,16 +12,16 @@ namespace Detached.Mappers.EntityFramework.Context
 {
     public class EntityFrameworkMapperContext : IMapperContext
     {
-        public EntityFrameworkMapperContext(DbContext dbContext, QueryProvider queryProvider, MappingOptions mapperOptions)
+        public EntityFrameworkMapperContext(DbContext dbContext, DetachedQueryProvider queryProvider, MapperParameters parameters)
         {
             QueryProvider = queryProvider;
-            MappingOptions = mapperOptions;
+            Parameters = parameters;
             DbContext = dbContext;
         }
 
-        public MappingOptions MappingOptions { get; }
+        public MapperParameters Parameters { get; }
 
-        public QueryProvider QueryProvider { get; }
+        public DetachedQueryProvider QueryProvider { get; }
 
         public DbContext DbContext { get; }
 
@@ -37,7 +37,7 @@ namespace Detached.Mappers.EntityFramework.Context
                 if (loadedEntity == null)
                     loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
 
-                if (loadedEntity == null && !MappingOptions.RootUpsert)
+                if (loadedEntity == null && !Parameters.RootUpsert)
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
 
                 return loadedEntity;
@@ -52,7 +52,7 @@ namespace Detached.Mappers.EntityFramework.Context
                     switch (actionType)
                     {
                         case MapperActionType.Attach:
-                            if (MappingOptions.EnsureAggregations)
+                            if (Parameters.EnsureAggregations)
                             {
                                 if (entry.GetDatabaseValues() == null)
                                 {

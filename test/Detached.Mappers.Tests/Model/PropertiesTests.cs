@@ -16,7 +16,7 @@ namespace Detached.Mappers.Tests.Model
         [Fact]
         public void customize_property()
         {
-            MapperModelOptions modelOptions = new MapperModelOptions();
+            MapperOptions modelOptions = new MapperOptions();
             modelOptions.Configure<TargetEntity>()
                         .Member(m => m.Value)
                         .Setter(Lambda(
@@ -29,9 +29,7 @@ namespace Detached.Mappers.Tests.Model
                                 )
                             ));
 
-            Mapper mapper = new Mapper(
-                Options.Create(modelOptions),
-                new TypeMapFactory());
+            Mapper mapper = new Mapper(modelOptions);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 

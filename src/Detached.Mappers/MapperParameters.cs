@@ -1,6 +1,6 @@
 ﻿namespace Detached.Mappers
 {
-    public class MappingOptions
+    public class MapperParameters
     {
         /// <summary>
         /// If true, non-existing root entities are created; otherwise, an exception is thrown.

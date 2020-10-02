@@ -27,17 +27,16 @@ namespace Detached.Mappers.Samples.RestApi
             services.AddControllers();
             services.AddSwaggerGen();
 
-
-            services.AddDetachedEntityFramework();
             services.AddDbContext<MainDbContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("MainDb"));
+                cfg.UseDetached();
             });
 
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
 
-            services.Configure<MapperModelOptions>(m =>
+            services.Configure<MapperOptions>(m =>
             {
                 m.Configure<User>().IsEntity();
             });

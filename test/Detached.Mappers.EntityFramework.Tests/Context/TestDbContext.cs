@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Tests.Context
 {
-    public class TestDbContext : DetachedDbContext
+    public class TestDbContext : DbContext
     {
         readonly IList<IDisposable> _resources = new List<IDisposable>();
 
@@ -29,11 +29,6 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
         public DbSet<Address> Addresses { get; set; }
 
-        protected override void OnMapperCreating(MapperModelOptions options)
-        {
-            
-        }
-
         protected override void OnModelCreating(ModelBuilder mb)
         {
             mb.Entity<User>()
@@ -43,6 +38,11 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                    ur => ur.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId),
                    ur => ur.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId))
                .HasKey(ur => new { ur.UserId, ur.RoleId });
+        }
+
+        public void OnMapperCreating(MapperOptions options)
+        {
+
         }
 
         public override void Dispose()
@@ -63,6 +63,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
             var options = new DbContextOptionsBuilder<TestDbContext>()
                     .UseSqlite(connection)
+                    .UseDetached()
                     .Options;
 
             var context = new TestDbContext(options);
