@@ -4,6 +4,7 @@ using Detached.Mappers.Samples.RestApi.Models.Outputs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Detached.Mappers.EntityFramework;
 
 namespace Detached.Mappers.Samples.RestApi.Stores
 {

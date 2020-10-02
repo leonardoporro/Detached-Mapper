@@ -4,6 +4,6 @@ namespace Detached.Mappers.Model
 {
     public interface ITypeOptionsFactory
     {
-        ITypeOptions Create(MapperModelOptions options, Type type);
+        ITypeOptions Create(MapperOptions options, Type type);
     }
 }

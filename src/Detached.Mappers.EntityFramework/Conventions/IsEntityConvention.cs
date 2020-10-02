@@ -15,7 +15,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
             _model = model;
         }
 
-        public void Apply(MapperModelOptions modelOptions, ClassTypeOptions typeOptions)
+        public void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions)
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.Type);
 

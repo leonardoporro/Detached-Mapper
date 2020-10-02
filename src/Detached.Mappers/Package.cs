@@ -11,7 +11,7 @@ namespace Detached
     {
         public static void AddDetached(this IServiceCollection services)
         {
-            services.AddOptions<MapperModelOptions>();
+            services.AddOptions<MapperOptions>();
             services.TryAddSingleton<Mapper>();
             services.TryAddSingleton<TypeMapFactory>();
             services.TryAddSingleton<PatchJsonConverterFactory>();
