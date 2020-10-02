@@ -80,41 +80,22 @@ public class TestDbContext : DetachedDbContext
 ###### Register dependencies
 DetachedDbContext needs a QueryProvider instance, that helps loading the current status of the entities to save
 and a Mapper instance that copies the given DTO/Entity state over the current entities.
+These services are added by calling UseDetached on DbContextBuilderOptions.
+
 If working on ASP.NET, this is usually configured in the DI container at the beggining (Startup.cs).
+
 ```cs
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddDetachedEntityFramework(); // Mapper & QueryBuilder.
     services.AddDbContext<MainDbContext>(cfg =>
     {
         ...
+        cfg.UseDetached();
     });
-}
-```
-###### Define model and DTO
-As mentioned before, entities (the classes associated to the DbContext) should be tagged.
-That can be done by adding the [Entity] attribute to the class, or configuring the mapper options.
-```cs
-[Entity]
-public class User
-{
-    public Guid Id { get; set; }
-}
-```
-
-```cs
-public void ConfigureServices(IServiceCollection services)
-{
-    services.Configure<ModelOptions>(m =>
-    {
-        m.Configure<User>().IsEntity();
-    });
-}
-```
-DTOs don't need any special configuration and are mapped by convention using the same property names.
-
+} 
+  
 ###### Perform a Map
-Once the DetachedDbContext is configured and initialized somewhere, the MapAsync method can be called to
+Once the DetachedDbContext is configured and initialized somewhere, the MapAsync extension method can be called to
 load current state and copy DTO values.
 MapAsync returns the persisted entity (that comes from the DB) with the updated values. No updates are persisted
 until SaveChanges is called().
@@ -124,6 +105,27 @@ User attachedUser = await dbContext.MapAsync<User>(new UserDTO { Id = 1, Name = 
 await dbContext.SaveChangesAsync();
 ```
 
-###### Configure Entities
+###### Configuration
+Associations must be configured as aggregations or compositions, so Detached can choose how to load and map them.
+In order to do this, use [Aggregation] or [Composition] attributes:
 
-// TODO:
+```cs
+class Invoice
+{
+    [Composition]
+    public List<Row> Rows { get; set; }
+}
+```
+
+Or use MappingOptions when calling UseDetached to configure it:
+
+```cs
+services.AddDbContext<MainDbContext>(cfg =>
+    {
+        ...
+        cfg.UseDetached(options => {
+            options.Configure<Invoice>().Member(i => i.Rows).Composition();
+        });
+    });
+
+```
