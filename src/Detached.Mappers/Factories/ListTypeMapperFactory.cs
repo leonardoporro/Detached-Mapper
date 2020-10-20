@@ -1,8 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using Detached.Mappers.TypeMaps;
+using System.Linq.Expressions;
 using static Detached.Mappers.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
-using static Detached.Mappers.Expressions.ExtendedExpression;
-using Detached.Mappers.TypeMaps;
 
 namespace Detached.Mappers.Factories
 {
