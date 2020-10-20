@@ -9,7 +9,7 @@
     <Description>A general purpose object-oriented mapper.</Description>
     <Copyright>2017</Copyright>
     <PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
-    <PackageLicenseUrl>https://licenses.nuget.org/Apache-2.0</PackageLicenseUrl>
+    <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
     <NeutralLanguage />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>

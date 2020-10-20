@@ -4,31 +4,25 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>5.0.0-rc.1.20451.13</Version>
+    <Version>5.0.0-rc.2.20475.6</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
     <Description>A general purpose object-oriented mapper.</Description>
     <Copyright>2017</Copyright>
     <PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
-    <PackageLicenseUrl>https://licenses.nuget.org/Apache-2.0</PackageLicenseUrl>
     <NeutralLanguage />
+    <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Factories\EntityAssociatedMapperFactory.cs" />
-    <Compile Remove="Factories\EntityCollectionMapperFactory.cs" />
-    <Compile Remove="Factories\EntityOwnedMapperFactory.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.2.20475.5" />
   </ItemGroup>
 
   <ItemGroup>
