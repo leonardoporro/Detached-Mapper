@@ -18,11 +18,11 @@ namespace Detached.Mappers.Context
             MapperContextKey mapperKey = new MapperContextKey(typeof(TEntity), key);
 
             _entries.AddOrUpdate(mapperKey,
-                key =>
+                k =>
                 {
                     return new MapperContextEntry { Entity = entity, ActionType = actionType };
                 },
-                (key, entry) =>
+                (k, entry) =>
                 {
                     entry.ActionType = actionType;
                     return entry;

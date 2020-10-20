@@ -263,7 +263,7 @@ namespace Detached.Mappers.Reflection
             return result;
         }
          
-        public Type Create() => TypeBuilder.CreateType();
+        public Type Create() => TypeBuilder.CreateTypeInfo();
 
         public static MethodInfo[] GetDeclaredMethods(TypeBuilder tb)
         {

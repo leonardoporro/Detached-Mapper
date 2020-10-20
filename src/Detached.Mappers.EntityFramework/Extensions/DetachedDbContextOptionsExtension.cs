@@ -64,7 +64,7 @@ namespace Detached.Mappers.EntityFramework.Extensions
                 JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
                 jsonSerializerOptions.AllowTrailingCommas = true;
                 jsonSerializerOptions.IgnoreReadOnlyProperties = true;
-                jsonSerializerOptions.IgnoreReadOnlyFields = true;
+                //jsonSerializerOptions.IgnoreReadOnlyFields = true;
                 jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 jsonSerializerOptions.PropertyNameCaseInsensitive = false;
                 jsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
