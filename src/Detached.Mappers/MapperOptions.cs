@@ -27,6 +27,7 @@ namespace Detached.Mappers.Model
 
         public virtual HashSet<Type> Primitives { get; } = new HashSet<Type>
         {
+            typeof(bool),
             typeof(string),
             typeof(char),
             typeof(int),
