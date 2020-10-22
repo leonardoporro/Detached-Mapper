@@ -7,22 +7,22 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.Mapping.Entity
 {
-    public class EntityListOwnedMapperTests
+    public class EntityListCompositionMapperTests
     {
         readonly Mapper mapper = new Mapper();
 
         [Fact]
-        public void map_owned_collection()
+        public void map_composition_collection()
         {
             TargetEntity target = new TargetEntity
             {
                 Id = 1,
                 Name = "target_root",
-                OwnedList = new List<TargetOwnedItem>
+                CompositionList = new List<TargetCompositionItem>
                 {
-                    new TargetOwnedItem { Id = 1, Name = "Item 1"},
-                    new TargetOwnedItem { Id = 2, Name = "Item 2"},
-                    new TargetOwnedItem { Id = 3, Name = "Item 3"},
+                    new TargetCompositionItem { Id = 1, Name = "Item 1"},
+                    new TargetCompositionItem { Id = 2, Name = "Item 2"},
+                    new TargetCompositionItem { Id = 3, Name = "Item 3"},
                 }
             };
 
@@ -30,10 +30,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "target_root",
-                OwnedList = new List<SourceOwnedItem>
+                CompositionList = new List<SourceCompositionItem>
                 {
-                    new SourceOwnedItem { Id = 2, Name = "Item 2"},
-                    new SourceOwnedItem { Id = 4, Name = "Item 4"},
+                    new SourceCompositionItem { Id = 2, Name = "Item 2"},
+                    new SourceCompositionItem { Id = 4, Name = "Item 4"},
                 }
             };
 
@@ -41,34 +41,34 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             TargetEntity mapped = mapper.Map(source, target, context);
  
-            Assert.NotNull(mapped.OwnedList);
-            Assert.Equal(2, mapped.OwnedList.Count);
+            Assert.NotNull(mapped.CompositionList);
+            Assert.Equal(2, mapped.CompositionList.Count);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
             Assert.Equal(MapperActionType.Delete, entry1.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
             Assert.Equal(MapperActionType.Update, entry2.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
             Assert.Equal(MapperActionType.Delete, entry3.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(4), out MapperContextEntry entry4));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(4), out MapperContextEntry entry4));
             Assert.Equal(MapperActionType.Create, entry4.ActionType);
         }
 
         [Fact]
-        public void map_owned_collection_null_keys()
+        public void map_composition_collection_null_keys()
         {
             TargetEntity target = new TargetEntity
             {
                 Id = 1,
                 Name = "target_root",
-                OwnedList = new List<TargetOwnedItem>
+                CompositionList = new List<TargetCompositionItem>
                 {
-                    new TargetOwnedItem { Id = 1, Name = "Item 1"},
-                    new TargetOwnedItem { Id = 2, Name = "Item 2"},
-                    new TargetOwnedItem { Id = 3, Name = "Item 3"},
+                    new TargetCompositionItem { Id = 1, Name = "Item 1"},
+                    new TargetCompositionItem { Id = 2, Name = "Item 2"},
+                    new TargetCompositionItem { Id = 3, Name = "Item 3"},
                 }
             };
 
@@ -76,10 +76,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = "1",
                 Name = "target_root",
-                OwnedList = new List<SourceOwnedItemStringKey>
+                CompositionList = new List<SourceCompositionItemStringKey>
                 {
-                    new SourceOwnedItemStringKey { Id = "2", Name = "Item 2"},
-                    new SourceOwnedItemStringKey { Name = "Item 4"}, // new has null key.
+                    new SourceCompositionItemStringKey { Id = "2", Name = "Item 2"},
+                    new SourceCompositionItemStringKey { Name = "Item 4"}, // new has null key.
                 }
             };
 
@@ -87,19 +87,19 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             TargetEntity mapped = mapper.Map(source, target, context);
 
-            Assert.NotNull(mapped.OwnedList);
-            Assert.Equal(2, mapped.OwnedList.Count);
+            Assert.NotNull(mapped.CompositionList);
+            Assert.Equal(2, mapped.CompositionList.Count);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
             Assert.Equal(MapperActionType.Delete, entry1.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
             Assert.Equal(MapperActionType.Update, entry2.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
             Assert.Equal(MapperActionType.Delete, entry3.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetOwnedItem>(new EntityKey<int>(0), out MapperContextEntry entry4));
+            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(0), out MapperContextEntry entry4));
             Assert.Equal(MapperActionType.Create, entry4.ActionType);
         }
 
@@ -111,11 +111,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public string Name { get; set; }
 
             [Composition]
-            public List<TargetOwnedItem> OwnedList { get; set; }
+            public List<TargetCompositionItem> CompositionList { get; set; }
         }
 
         [Entity]
-        public class TargetOwnedItem
+        public class TargetCompositionItem
         {
             public int Id { get; set; }
 
@@ -128,10 +128,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string Name { get; set; }
 
-            public List<SourceOwnedItem> OwnedList { get; set; }
+            public List<SourceCompositionItem> CompositionList { get; set; }
         }
 
-        public class SourceOwnedItem
+        public class SourceCompositionItem
         {
             public int Id { get; set; }
 
@@ -144,10 +144,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string Name { get; set; }
 
-            public List<SourceOwnedItemStringKey> OwnedList { get; set; }
+            public List<SourceCompositionItemStringKey> CompositionList { get; set; }
         }
 
-        public class SourceOwnedItemStringKey
+        public class SourceCompositionItemStringKey
         {
             public string Id { get; set; }
 

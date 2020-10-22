@@ -29,7 +29,7 @@ namespace Detached.Mappers.TypeMaps
 
         public Expression TargetKey { get; set; }
 
-        public bool Owned { get; set; }
+        public bool IsComposition { get; set; }
 
         public TypeMap ItemMap { get; set; }
 

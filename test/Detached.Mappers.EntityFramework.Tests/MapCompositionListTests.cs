@@ -8,10 +8,10 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    public class MapOwnedListTests
+    public class MapCompositionListTests
     {
         [Fact]
-        public async Task map_owned_list()
+        public async Task map_composition_list()
         {
             TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
 
