@@ -16,11 +16,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "target_root",
-                OwnedList = new List<TargetOwnedItem>
+                CompositionList = new List<TargetCompositionItem>
                 {
-                    new TargetOwnedItem { Id = 1, Name = "Item 1"},
-                    new TargetOwnedItem { Id = 2, Name = "Item 2"},
-                    new TargetOwnedItem { Id = 3, Name = "Item 3"},
+                    new TargetCompositionItem { Id = 1, Name = "Item 1"},
+                    new TargetCompositionItem { Id = 2, Name = "Item 2"},
+                    new TargetCompositionItem { Id = 3, Name = "Item 3"},
                 }
             };
 
@@ -28,11 +28,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "target_root",
-                OwnedList = new List<SourceOwnedItem>
+                CompositionList = new List<SourceCompositionItem>
                 {
-                    new SourceOwnedItem { Id = 1, Name = "Item 1"},
-                    new SourceOwnedItem { Id = 2, Name = "Item 2"},
-                    new SourceOwnedItem { Id = 3, Name = "Item 3"},
+                    new SourceCompositionItem { Id = 1, Name = "Item 1"},
+                    new SourceCompositionItem { Id = 2, Name = "Item 2"},
+                    new SourceCompositionItem { Id = 3, Name = "Item 3"},
                 }
             };
 
@@ -40,9 +40,9 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             var mapped = mapper.Map(source, target, context);
 
-            Assert.Equal(mapped, mapped.OwnedList[0].Parent);
-            Assert.Equal(mapped, mapped.OwnedList[1].Parent);
-            Assert.Equal(mapped, mapped.OwnedList[2].Parent);
+            Assert.Equal(mapped, mapped.CompositionList[0].Parent);
+            Assert.Equal(mapped, mapped.CompositionList[1].Parent);
+            Assert.Equal(mapped, mapped.CompositionList[2].Parent);
         }
 
         [Entity]
@@ -53,11 +53,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public string Name { get; set; }
 
             [Composition]
-            public List<TargetOwnedItem> OwnedList { get; set; }
+            public List<TargetCompositionItem> CompositionList { get; set; }
         }
 
         [Entity]
-        public class TargetOwnedItem
+        public class TargetCompositionItem
         {
             public TargetEntity Parent { get; set; }
 
@@ -73,10 +73,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public string Name { get; set; }
 
             [Composition]
-            public List<SourceOwnedItem> OwnedList { get; set; }
+            public List<SourceCompositionItem> CompositionList { get; set; }
         }
 
-        public class SourceOwnedItem
+        public class SourceCompositionItem
         {
             public int Id { get; set; }
 
