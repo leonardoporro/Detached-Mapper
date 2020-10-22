@@ -97,6 +97,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "target",
+                Flag = true,
                 Associated = new TargetAssociated
                 {
                     Id = 1,
@@ -110,6 +111,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "source",
+                Flag = true,
                 Associated = new SourceAssociated
                 {
                     Id = 1,
@@ -135,6 +137,8 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string Name { get; set; }
 
+            public bool Flag { get; set; }
+
             public TargetAssociated Associated { get; set; }
         }
 
@@ -152,6 +156,8 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public int Id { get; set; }
 
             public string Name { get; set; }
+
+            public bool Flag { get; set; }
 
             public SourceAssociated Associated { get; set; }
         }
