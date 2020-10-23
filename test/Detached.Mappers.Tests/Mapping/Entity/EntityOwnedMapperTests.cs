@@ -163,6 +163,9 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Id = 1,
                 Name = "dto",
+                Flag = true,
+                Enum = TestEnum.Value1,
+                Owned = null
                 Composition = null
             };
 
@@ -205,6 +208,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string ExtraProperty { get; set; }
 
+            public bool Flag { get; set; }
+
+            public TestEnum Enum { get; set; }
+
             [Composition]
             public CompositionEntity Composition { get; set; }
         }
@@ -223,6 +230,12 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string Name { get; set; }
 
+            public bool Flag { get; set; }
+
+            public TestEnum Enum { get; set; }
+
+            public OwnedDTO Owned { get; set; }
+
             public CompositionDTO Composition { get; set; }
         }
 
@@ -232,5 +245,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             public string Name { get; set; }
         }
+
+        public enum TestEnum { Value1, Value2, Value3 }
     }
 }
