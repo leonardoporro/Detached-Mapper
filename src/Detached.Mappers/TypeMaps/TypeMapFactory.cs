@@ -9,7 +9,7 @@ namespace Detached.Mappers.TypeMaps
 {
     public class TypeMapFactory
     {
-        public TypeMap Create(Mapper mapper, MapperOptions options, TypeMap parentMap, Type sourceType, Type targetType, bool owned)
+        public TypeMap Create(Mapper mapper, MapperOptions options, TypeMap parentMap, Type sourceType, Type targetType, bool isComposition)
         {
             TypeMap typeMap = new TypeMap();
             typeMap.Parent = parentMap;
@@ -18,7 +18,7 @@ namespace Detached.Mappers.TypeMaps
             typeMap.Source = Parameter(sourceType, "source_" + sourceType.Name);
             typeMap.TargetOptions = options.GetTypeOptions(targetType);
             typeMap.Target = Parameter(targetType, "target_" + targetType.Name);
-            typeMap.Owned = owned;
+            typeMap.IsComposition = isComposition;
 
             if (parentMap == null)
                 typeMap.Context = Parameter(typeof(IMapperContext), "context");
@@ -29,7 +29,7 @@ namespace Detached.Mappers.TypeMaps
             {
                 if (typeMap.TargetOptions == parentMap.TargetOptions
                     && typeMap.SourceOptions == parentMap.SourceOptions
-                    && typeMap.Owned == parentMap.Owned)
+                    && typeMap.IsComposition == parentMap.IsComposition)
                 {
                     return parentMap;
                 }
@@ -44,7 +44,7 @@ namespace Detached.Mappers.TypeMaps
                 if (typeMap.SourceOptions.Type == typeof(object))
                     sourceItemType = typeof(object);
 
-                typeMap.ItemMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, owned);
+                typeMap.ItemMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, isComposition);
             }
             else if (typeMap.TargetOptions.IsComplexType)
             {

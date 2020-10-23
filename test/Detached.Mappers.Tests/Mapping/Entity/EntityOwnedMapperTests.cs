@@ -6,22 +6,22 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.Mapping.Entity
 {
-    public class EntityOwnedMapperTests
+    public class EntityCompositionMapperTests
     {
         Mapper mapper = new Mapper();
 
         [Fact]
-        public void create_owned_entity_when_target_is_null()
+        public void create_composition_entity_when_target_is_null()
         {
             // GIVEN models
             SourceDTO source = new SourceDTO
             {
                 Id = 1,
                 Name = "dto",
-                Owned = new OwnedDTO
+                Composition = new CompositionDTO
                 {
                     Id = 2,
-                    Name = "owned_dto"
+                    Name = "composition_dto"
                 }
             };
 
@@ -30,7 +30,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Id = 1,
                 Name = "entity",
                 ExtraProperty = "extra_prop_not_mapped",
-                Owned = null
+                Composition = null
             };
 
             MapperContext context = new MapperContext();
@@ -45,26 +45,26 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.Equal(1, mapped.Id);
             Assert.Equal("dto", mapped.Name);
             Assert.Equal("extra_prop_not_mapped", mapped.ExtraProperty);
-            Assert.NotNull(mapped.Owned);
-            Assert.Equal(2, mapped.Owned.Id);
-            Assert.Equal("owned_dto", mapped.Owned.Name);
+            Assert.NotNull(mapped.Composition);
+            Assert.Equal(2, mapped.Composition.Id);
+            Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<OwnedEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
+            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
             Assert.Equal(MapperActionType.Create, entry.ActionType);
         }
 
         [Fact]
-        public void update_owned_entity_when_key_matches()
+        public void update_composition_entity_when_key_matches()
         {
             // GIVEN models
             SourceDTO source = new SourceDTO
             {
                 Id = 1,
                 Name = "dto",
-                Owned = new OwnedDTO
+                Composition = new CompositionDTO
                 {
                     Id = 2,
-                    Name = "owned_dto"
+                    Name = "composition_dto"
                 }
             };
 
@@ -73,17 +73,17 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Id = 1,
                 Name = "entity",
                 ExtraProperty = "extra_prop_not_mapped",
-                Owned = new OwnedEntity
+                Composition = new CompositionEntity
                 {
                     Id = 2,
-                    Name = "owned_entity"
+                    Name = "composition_entity"
                 }
             };
 
             MapperContext context = new MapperContext();
 
             int targetCheck = target.GetHashCode();
-            int ownedCheck = target.Owned.GetHashCode();
+            int compositionCheck = target.Composition.GetHashCode();
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);
@@ -93,27 +93,27 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.Equal(1, mapped.Id);
             Assert.Equal("dto", mapped.Name);
             Assert.Equal("extra_prop_not_mapped", mapped.ExtraProperty);
-            Assert.NotNull(mapped.Owned);
-            Assert.Equal(ownedCheck, mapped.Owned.GetHashCode()); // owned is merged
-            Assert.Equal(2, mapped.Owned.Id);
-            Assert.Equal("owned_dto", mapped.Owned.Name);
+            Assert.NotNull(mapped.Composition);
+            Assert.Equal(compositionCheck, mapped.Composition.GetHashCode()); // composition is merged
+            Assert.Equal(2, mapped.Composition.Id);
+            Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<OwnedEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
+            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
             Assert.Equal(MapperActionType.Update, entry.ActionType);
         }
 
         [Fact]
-        public void replace_owned_entity_when_key_not_matching()
+        public void replace_composition_entity_when_key_not_matching()
         {
             // GIVEN models
             SourceDTO source = new SourceDTO
             {
                 Id = 1,
                 Name = "dto",
-                Owned = new OwnedDTO
+                Composition = new CompositionDTO
                 {
                     Id = 2,
-                    Name = "owned_dto"
+                    Name = "composition_dto"
                 }
             };
 
@@ -122,15 +122,15 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Id = 1,
                 Name = "entity",
                 ExtraProperty = "extra_prop_not_mapped",
-                Owned = new OwnedEntity
+                Composition = new CompositionEntity
                 {
                     Id = 3,
-                    Name = "owned_entity"
+                    Name = "composition_entity"
                 }
             };
 
             int targetCheck = target.GetHashCode();
-            int ownedCheck = target.Owned.GetHashCode();
+            int compositionCheck = target.Composition.GetHashCode();
 
             MapperContext context = new MapperContext();
 
@@ -143,20 +143,20 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.Equal("dto", mapped.Name);
             Assert.Equal("extra_prop_not_mapped", mapped.ExtraProperty); // extra property is not overwritten
 
-            Assert.NotNull(mapped.Owned);
-            Assert.NotEqual(ownedCheck, target.Owned.GetHashCode()); // owned is replaced
-            Assert.Equal(2, mapped.Owned.Id);
-            Assert.Equal("owned_dto", mapped.Owned.Name);
+            Assert.NotNull(mapped.Composition);
+            Assert.NotEqual(compositionCheck, target.Composition.GetHashCode()); // composition is replaced
+            Assert.Equal(2, mapped.Composition.Id);
+            Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<OwnedEntity>(new EntityKey<int>(2), out MapperContextEntry createdEntry));
+            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry createdEntry));
             Assert.Equal(MapperActionType.Create, createdEntry.ActionType);
 
-            Assert.True(context.TryGetEntry<OwnedEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
+            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
             Assert.Equal(MapperActionType.Delete, deletedEntry.ActionType);
         }
 
         [Fact]
-        public void delete_owned_entity_when_source_is_null()
+        public void delete_composition_entity_when_source_is_null()
         {
             // GIVEN model
             SourceDTO source = new SourceDTO
@@ -166,6 +166,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Flag = true,
                 Enum = TestEnum.Value1,
                 Owned = null
+                Composition = null
             };
 
             TargetEntity target = new TargetEntity
@@ -173,10 +174,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Id = 1,
                 Name = "entity",
                 ExtraProperty = "extra_prop_not_mapped",
-                Owned = new OwnedEntity
+                Composition = new CompositionEntity
                 {
                     Id = 3,
-                    Name = "owned_entity"
+                    Name = "composition_entity"
                 }
             };
 
@@ -192,9 +193,9 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.Equal(1, mapped.Id);
             Assert.Equal("dto", mapped.Name);
             Assert.Equal("extra_prop_not_mapped", mapped.ExtraProperty);
-            Assert.Null(mapped.Owned); // owned is deleted
+            Assert.Null(mapped.Composition); // composition is deleted
 
-            Assert.True(context.TryGetEntry<OwnedEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
+            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
             Assert.Equal(MapperActionType.Delete, deletedEntry.ActionType);
         }
 
@@ -212,11 +213,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public TestEnum Enum { get; set; }
 
             [Composition]
-            public OwnedEntity Owned { get; set; }
+            public CompositionEntity Composition { get; set; }
         }
 
         [Entity]
-        public class OwnedEntity
+        public class CompositionEntity
         {
             public int Id { get; set; }
 
@@ -234,9 +235,11 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public TestEnum Enum { get; set; }
 
             public OwnedDTO Owned { get; set; }
+
+            public CompositionDTO Composition { get; set; }
         }
 
-        public class OwnedDTO
+        public class CompositionDTO
         {
             public int Id { get; set; }
 
