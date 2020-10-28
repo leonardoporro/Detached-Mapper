@@ -136,6 +136,8 @@ namespace Detached.Mappers.Model.Types.Class
         {
             if (type.IsEnum)
                 return true;
+            else if (type.IsEnumerable(out Type elementType) && IsPrimitive(options, elementType))
+                return true;
             else if (type.IsGenericType)
                 return options.Primitives.Contains(type.GetGenericTypeDefinition());
             else
