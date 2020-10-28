@@ -165,7 +165,6 @@ namespace Detached.Mappers.Tests.Mapping.Entity
                 Name = "dto",
                 Flag = true,
                 Enum = TestEnum.Value1,
-                Owned = null
                 Composition = null
             };
 
@@ -233,8 +232,6 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             public bool Flag { get; set; }
 
             public TestEnum Enum { get; set; }
-
-            public OwnedDTO Owned { get; set; }
 
             public CompositionDTO Composition { get; set; }
         }
