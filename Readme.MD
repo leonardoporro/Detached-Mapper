@@ -46,7 +46,7 @@ Compositions are the strong (B cannot exists without A), also known as "Owns a".
 
 This can be configured using the [Aggregation] and [Composition] attributes on the corresponding properties
 or fluently using 
-```modelOptions.Configure<Entity>().Member(e => e.Member).Composition()```.
+```cs modelOptions.Configure<Entity>().Member(e => e.Member).Composition()```.
 More info on configuration, later in this doc.
 
 When mapping, detached **will only modify** the root entity (the one passed as a parameter) and
@@ -93,7 +93,8 @@ public void ConfigureServices(IServiceCollection services)
         cfg.UseDetached();
     });
 } 
-  
+```
+
 ###### Perform a Map
 Once the DetachedDbContext is configured and initialized somewhere, the MapAsync extension method can be called to
 load current state and copy DTO values.
