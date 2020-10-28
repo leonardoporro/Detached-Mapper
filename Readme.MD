@@ -1,4 +1,5 @@
-![Logo](https://github.com/leonardoporro/Detached-Mapper/blob/main/logo.png 300)
+![logo](https://github.com/leonardoporro/Detached-Mapper/blob/main/logo.png?raw=true =125x125)
+
 # Detached Mapper
 #### What is it
 
