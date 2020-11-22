@@ -1,5 +1,17 @@
 ﻿namespace Detached.Mappers
 {
+    public enum AggregationAction
+    {
+        /// <summary>
+        /// Set entity status as Unchanged.
+        /// </summary>
+        Attach,
+        /// <summary>
+        /// Reload from the database, if exists, sets as Unchanged, otherwise, set as Added.
+        /// </summary>
+        Map
+    }
+
     public class MapperParameters
     {
         /// <summary>
@@ -8,8 +20,8 @@
         public bool RootUpsert { get; set; } = true;
 
         /// <summary>
-        /// If true, non-existing aggregtions are created.
+        /// Action to apply when an aggregated entity is processed.
         /// </summary>
-        public bool EnsureAggregations { get; set; } = false;
+        public AggregationAction AggregationAction { get; set; } = AggregationAction.Map;
     }
 }
