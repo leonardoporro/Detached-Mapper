@@ -50,7 +50,7 @@ namespace Detached.Mappers.EntityFramework
             {
                 if (entity != null)
                 {
-                    var result = await MapAsync<TEntity>(dbContext, entity, new MapperParameters { EnsureAggregations = true });
+                    var result = await MapAsync<TEntity>(dbContext, entity, new MapperParameters { AggregationAction = AggregationAction.Map });
                 }
             }
         }
@@ -64,7 +64,7 @@ namespace Detached.Mappers.EntityFramework
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(dbContext, entity, new MapperParameters { EnsureAggregations = true });
+                    await MapAsync<TEntity>(dbContext, entity, new MapperParameters { AggregationAction = AggregationAction.Map });
                 }
             }
         }
