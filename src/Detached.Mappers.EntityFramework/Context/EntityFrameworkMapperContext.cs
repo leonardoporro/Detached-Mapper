@@ -52,12 +52,11 @@ namespace Detached.Mappers.EntityFramework.Context
                     switch (actionType)
                     {
                         case MapperActionType.Attach:
-                            if (Parameters.EnsureAggregations)
+                            if (Parameters.AggregationAction == AggregationAction.Map)
                             {
-                                if (entry.GetDatabaseValues() == null)
-                                {
+                                entry.Reload();
+                                if (entry.State == EntityState.Detached)
                                     entry.State = EntityState.Added;
-                                }
                             }
                             else
                             {
@@ -84,7 +83,7 @@ namespace Detached.Mappers.EntityFramework.Context
                             break;
                     }
                 }
-                 
+
                 return entry.Entity;
             }
         }
