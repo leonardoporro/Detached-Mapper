@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_associated_list()
         {
-            TestDbContext db = await TestDbContext.CreateInMemorySqliteAsync();
+            TestDbContext db = await TestDbContext.CreateAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2,  Name = "user" });

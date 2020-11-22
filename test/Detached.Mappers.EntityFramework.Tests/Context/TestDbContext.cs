@@ -1,17 +1,13 @@
 ﻿using Detached.Mappers.EntityFramework.Tests.Model;
-using Detached.Mappers.Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Tests.Context
 {
     public class TestDbContext : DbContext
     {
-        readonly IList<IDisposable> _resources = new List<IDisposable>();
-
         public TestDbContext(DbContextOptions<TestDbContext> options)
             : base(options)
         {
@@ -29,6 +25,12 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
         public DbSet<Address> Addresses { get; set; }
 
+        public DbSet<Invoice> Invoices { get; set; }
+
+        public DbSet<InvoiceRow> InvoiceRows { get; set; }
+
+        public DbSet<InvoiceType> InvoiceTypes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder mb)
         {
             mb.Entity<User>()
@@ -40,37 +42,22 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                .HasKey(ur => new { ur.UserId, ur.RoleId });
         }
 
-        public void OnMapperCreating(MapperOptions options)
+        public static async Task<DbContextOptions<TestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)
         {
-
-        }
-
-        public override void Dispose()
-        {
-            foreach (IDisposable resource in _resources)
-            {
-                resource.Dispose();
-            }
-
-            base.Dispose();
-        }
-
-        public static async Task<TestDbContext> CreateInMemorySqliteAsync()
-        {
-            var connection = new SqliteConnection($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared");
+            var connection = new SqliteConnection($"DataSource=file:{dbName}?mode=memory&cache=shared");
 
             await connection.OpenAsync();
 
-            var options = new DbContextOptionsBuilder<TestDbContext>()
+            return new DbContextOptionsBuilder<TestDbContext>()
                     .UseSqlite(connection)
                     .UseDetached()
                     .Options;
+        }
 
-            var context = new TestDbContext(options);
-            context._resources.Add(connection);
-
+        public static async Task<TestDbContext> CreateAsync([CallerMemberName] string dbName = null)
+        {
+            var context = new TestDbContext(await CreateOptionsAsync(dbName));
             await context.Database.EnsureCreatedAsync();
-
             return context;
         }
     }
