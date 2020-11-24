@@ -71,7 +71,7 @@ More info on configuration, later in this doc.
 
 ###### Install Nu-Get package
 ```cs
-Install-Package Detached.Mappers.EntityFramework -Version 3.1.11
+Install-Package Detached.Mappers.EntityFramework -Version 5.0.12
 ```
 ###### Inherit from DetachedDbContext
 ```cs
