@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>5.0.10</Version>
+    <Version>5.0.12</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
