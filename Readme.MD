@@ -10,7 +10,7 @@ Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of 
 It was heavily inspired by [GraphDiff](https://github.com/zzzprojects/GraphDiff), [AutoMapper](https://github.com/AutoMapper/AutoMapper) and other awesome libraries.
 Any fix or feedback is very welcome.
 
-#### What does it solve
+## What does it solve
 ###### Disconected entities
 
 When working with EntityFramework, NHibernate, or practically any other ORM that tracks entity states, 
@@ -23,24 +23,24 @@ To reduce data traffic and, improve the security and the readability of swagger 
 to the original entity. 
 
 A manual mapping or a tool like AutoMapper is needed to convert the
-DTOs to an entity, before attach them to the ORM context/session.
+DTOs to entities, before attach them to the ORM context/session.
 
 ###### Partial updates
 C# does not support an "Undefined" value, like JavaScript, that's why for partial 
 updates, Null may be used for optional values. But in some cases, null needs to be persisted, to remove 
 a previous field value or disconnect an existing relationship.
 
-#### How it works
+### How it works
 The main method of Detached is MapAsync. It receives an object or dictionary as a parameter,
-then loads the corresponding entity from the database (like GraphDiff and Merge),
-copies the values from the given DTO and set the correct states.
+then loads the corresponding entity graph from the database (like GraphDiff does),
+and then copies the values from the given DTO and set the correct states.
 
 ###### Entities and DTOs
 Detached can handle DTO-Entity, DTO-DTO and Entity-Entity mapping.
 There are important tasks when mapping entities, like checking back references
 and merging collections. So that, classes representing entities should be marked
 with the [Entity] attribute or configured with ```modelOptions.Configure<Entity>().IsEntity()```.
-For DetachedDbContext (EF) entities are marked automatically when the correspondng DbSet exists.
+For EntityFramework, entities are marked automatically when the correspondng DbSet exists.
 More info on configuration, later in this doc.
 
 ###### Compositions and Aggregations
@@ -54,6 +54,8 @@ More info on configuration, later in this doc.
 
 When mapping, detached **will only modify** the root entity (the one passed as a parameter) and
 all the related entities marked as compositions. Associations are just attached an marked as Unmodified.
+(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
+this is used to import complex graphs from json without having to order by dependency).
 
 ###### Partial updates
 Detached copies only the properties that match (or are configured) from the DTO to the Entity,
@@ -73,15 +75,15 @@ More info on configuration, later in this doc.
 ```cs
 Install-Package Detached.Mappers.EntityFramework -Version 5.0.12
 ```
-###### Inherit from DetachedDbContext
+###### Create your regular DbContext
 ```cs
-public class TestDbContext : DetachedDbContext
+public class TestDbContext : DbContext
 {
     ...
 }
 ```
 ###### Register dependencies
-DetachedDbContext needs a QueryProvider instance, that helps loading the current status of the entities to save
+Detached needs a QueryProvider instance, that helps loading the current status of the entities to save
 and a Mapper instance that copies the given DTO/Entity state over the current entities.
 These services are added by calling UseDetached on DbContextBuilderOptions.
 
@@ -99,8 +101,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ###### Perform a Map
-Once the DetachedDbContext is configured and initialized somewhere, the MapAsync extension method can be called to
-load current state and copy DTO values.
+The MapAsync extension method can be called to load current state and copy DTO values.
 MapAsync returns the persisted entity (that comes from the DB) with the updated values. No updates are persisted
 until SaveChanges is called().
 
@@ -133,3 +134,22 @@ services.AddDbContext<MainDbContext>(cfg =>
     });
 
 ```
+###### Partial Updates
+
+- Use a DTO or a Dictionary or an Anonymous class that contains only the field to update
+Mapper will copy only matching properties.
+
+- Implement IPatch interface, that allows to mark properties as dirty.
+Mapper will check IPatch.IsSet before copying the property value.
+The Patch Type Proxy generator (Patch.Create) can be used to generate a type inheriting from the given type that automatically implements IPatch (NOTE: properties must be marked as virtual).
+PatchJsonConverter deserializes json into a graph of patch proxies. This is used by Import feature to write only the fields that exist in the json data.
+
+
+
+
+
+
+
+
+
+
