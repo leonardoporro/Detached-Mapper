@@ -3,7 +3,7 @@
 - Attach graph of anonymous objects: [link](https://dotnetfiddle.net/l7q6wA) 
 - Import json graph: [link](https://dotnetfiddle.net/Mn8mYU)
 
-# Detached Mapper
+# Mappers
 #### What is it
 
 Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of saving disconected entities in web services.
