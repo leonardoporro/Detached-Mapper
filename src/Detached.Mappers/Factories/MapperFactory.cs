@@ -1,11 +1,11 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.Expressions;
+using Detached.RuntimeTypes.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using static Detached.Mappers.Expressions.ExtendedExpression;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.TypeMaps

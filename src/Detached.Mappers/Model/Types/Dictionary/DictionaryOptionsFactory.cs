@@ -1,5 +1,5 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Mappers.Reflection;
+using Detached.RuntimeTypes.Reflection;
 using System;
 
 namespace Detached.Mappers.Model.Types.Dictionary
