@@ -2,7 +2,7 @@
 using Detached.Mappers.Model;
 using System;
 using System.Collections.Generic;
-using static Detached.Mappers.Expressions.ExtendedExpression;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.TypeMaps

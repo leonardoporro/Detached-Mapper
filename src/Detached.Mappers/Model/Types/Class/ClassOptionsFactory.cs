@@ -1,11 +1,11 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Model.Types.Class.Conventions;
-using Detached.Mappers.Patching;
-using Detached.Mappers.Reflection;
+using Detached.PatchTypes;
+using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using static Detached.Mappers.Expressions.ExtendedExpression;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Model.Types.Class

@@ -1,12 +1,10 @@
 ﻿using Detached.Mappers.Context;
 using Detached.Mappers.Model;
-using Detached.Mappers.Patching;
-using Detached.Mappers.TypeMaps;
-using Microsoft.Extensions.Options;
+using Detached.PatchTypes;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xunit;
-using static Detached.Mappers.Expressions.ExtendedExpression;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Tests.Model

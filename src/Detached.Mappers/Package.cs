@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers;
 using Detached.Mappers.Model;
-using Detached.Mappers.Patching;
 using Detached.Mappers.TypeMaps;
+using Detached.PatchTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
