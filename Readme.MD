@@ -1,5 +1,7 @@
 ![Detached Banner](banner.png?raw=true)
 ###### [Play with Detached in dotNetFiddle!](https://dotnetfiddle.net/l7q6wA) 
+###### [Runtime Types Tool](https://github.com/leonardoporro/Detached-RuntimeTypes)
+###### [Patch Types Tool](https://github.com/leonardoporro/Detached-PatchTypes)
 
 # Mappers
 #### What is it
