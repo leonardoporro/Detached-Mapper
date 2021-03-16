@@ -1,7 +1,7 @@
 ![Detached Banner](banner.png?raw=true)
 ###### [Play with Detached in dotNetFiddle!](https://dotnetfiddle.net/l7q6wA) 
 
-# Detached Mapper
+# Mappers
 #### What is it
 
 Hi!, I'm trying to build a fast, object-oriented mapper to simplify the task of saving disconected entities in web services.
