@@ -14,7 +14,7 @@ namespace Detached
             services.AddOptions<MapperOptions>();
             services.TryAddSingleton<Mapper>();
             services.TryAddSingleton<TypeMapFactory>();
-            services.TryAddSingleton<PatchJsonConverterFactory>();
+            services.TryAddSingleton(sp => new PatchJsonConverterFactory(sp.GetRequiredService<Mapper>()));
         }
     }
 }

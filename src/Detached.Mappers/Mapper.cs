@@ -4,6 +4,7 @@ using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.Model;
 using Detached.Mappers.TypeMaps;
+using Detached.PatchTypes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
@@ -14,7 +15,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers
 {
-    public class Mapper
+    public class Mapper : IPatchTypeInfoProvider
     {
         readonly TypeMapFactory _typeMapFactory;
         readonly MapperOptions _options;
@@ -127,5 +128,10 @@ namespace Detached.Mappers
 
         public TypeMap GetTypeMap(Type sourceType, Type targetType)
             => _typeMapFactory.Create(this, _options, null, sourceType, targetType, true);
+
+        bool IPatchTypeInfoProvider.ShouldPatch(Type type)
+        {
+            return !typeof(IPatch).IsAssignableFrom(type) && GetTypeOptions(type).IsComplexType;
+        }
     }
 }
