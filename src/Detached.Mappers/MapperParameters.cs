@@ -22,6 +22,6 @@
         /// <summary>
         /// Action to apply when an aggregated entity is processed.
         /// </summary>
-        public AggregationAction AggregationAction { get; set; } = AggregationAction.Map;
+        public AggregationAction AggregationAction { get; set; } = AggregationAction.Attach;
     }
 }

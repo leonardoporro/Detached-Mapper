@@ -14,13 +14,17 @@ namespace Detached.Mappers.EntityFramework.Tests
         public async Task map_entity_nokey_dto()
         {
             TestDbContext db = await TestDbContext.CreateAsync();
+            db.Roles.Add(new Role { Id = 1, Name = "admin" });
+            db.Roles.Add(new Role { Id = 2, Name = "user" });
+            await db.SaveChangesAsync();
 
             User user = await db.MapAsync<User>(new NoKeyUserDTO
             {
                 Name = "nokeyuser",
-                Roles = new List<NoKeyUserRole>
+                Roles = new List<Role>
                 {
-                    new NoKeyUserRole{ Name = "Admin" }
+                    new Role { Id = 1 },
+                    new Role { Id = 2 }
                 }
             });
 
@@ -39,12 +43,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             public string Name { get; set; }
 
-            public virtual List<NoKeyUserRole> Roles { get; set; }
-        }
-
-        public class NoKeyUserRole
-        {
-            public string Name { get; set; }
+            public virtual List<Role> Roles { get; set; }
         }
     }
 }
