@@ -2,6 +2,7 @@
 using Detached.Mappers.TypeMaps;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
@@ -43,6 +44,11 @@ namespace Detached.Mappers.Factories.Entity
             }
         }
 
+        protected virtual bool CanMapKey(TypeMap typeMap)
+        {
+            return typeMap.Members.Where(m => m.IsKey).Any();
+        }
+
         protected virtual Expression CreateKey(TypeMap typeMap)
         {
             if (typeMap.TargetKey == null || typeMap.SourceKey == null)
@@ -56,28 +62,24 @@ namespace Detached.Mappers.Factories.Entity
 
                 if (keyMembers.Count == 0)
                 {
-                    throw new MapperException($"Entity '{typeMap.TargetOptions.Type}' doesn't have a Key defined.");
-                }
-
-                Expression[] sourceKeyMembers = new Expression[keyMembers.Count];
-                Expression[] targetKeyMembers = new Expression[keyMembers.Count];
-                Type[] keyMemberTypes = new Type[keyMembers.Count];
-
-                for (int i = 0; i < keyMembers.Count; i++)
-                {
-                    MemberMap keyMember = keyMembers[i];
-                    sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.Source, typeMap.Context);
-                    targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.Target, typeMap.Context);
-                    sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
-                    keyMemberTypes[i] = keyMembers[i].TargetOptions.Type;
-                }
-
-                if (keyMembers.Count == 0)
-                {
-                    throw new InvalidOperationException($"Map {typeMap} doesn't have a key.");
+                    typeMap.SourceKey = Constant(NoKey.Instance);
+                    typeMap.TargetKey = Constant(NoKey.Instance);
                 }
                 else
                 {
+                    Expression[] sourceKeyMembers = new Expression[keyMembers.Count];
+                    Expression[] targetKeyMembers = new Expression[keyMembers.Count];
+                    Type[] keyMemberTypes = new Type[keyMembers.Count];
+
+                    for (int i = 0; i < keyMembers.Count; i++)
+                    {
+                        MemberMap keyMember = keyMembers[i];
+                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.Source, typeMap.Context);
+                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.Target, typeMap.Context);
+                        sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
+                        keyMemberTypes[i] = keyMembers[i].TargetOptions.Type;
+                    }
+
                     Type keyType = GetKeyType(keyMemberTypes);
                     typeMap.SourceKey = New(keyType, sourceKeyMembers);
                     typeMap.TargetKey = New(keyType, targetKeyMembers);

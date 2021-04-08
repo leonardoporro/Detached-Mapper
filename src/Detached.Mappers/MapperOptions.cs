@@ -56,16 +56,16 @@ namespace Detached.Mappers.Model
 
         public virtual List<MapperFactory> MapperFactories { get; set; } = new List<MapperFactory>
         {
+            new ValueMapperFactory(),
             new ComplexTypeMapperFactory(),
             new ListMapperFactory(),
-            new ValueMapperFactory(),
-            new NullableTypeMapperFactory(),
-            new ObjectMapperFactory(),
-            new ObjectToObjectMapperFactory(),
+            new EntityRootMapperFactory(),
+            new EntityListMapperFactory(),
             new EntityComposedMapperFactory(),
             new EntityAggregatedMapperFactory(),
-            new EntityListMapperFactory(),
-            new EntityRootMapperFactory()
+            new NullableTypeMapperFactory(),
+            new ObjectMapperFactory(),
+            new ObjectToObjectMapperFactory()
         };
 
         public virtual List<ITypeOptionsConvention> Conventions { get; set; }

@@ -7,6 +7,27 @@ namespace Detached.Mappers.TypeMaps
         object[] ToObject();
     }
 
+    public struct NoKey : IEntityKey
+    {
+        public static NoKey Instance { get; } = new NoKey();
+
+        public object[] ToObject()
+        {
+            return new object[0];
+        }
+
+        public override bool Equals(object obj) => false;
+
+        public override int GetHashCode()
+        {
+            return new Random().Next(int.MaxValue);
+        }
+
+        public static bool operator ==(NoKey a, NoKey b) => false;
+
+        public static bool operator !=(NoKey a, NoKey b) => true;
+    }
+
     public struct EntityKey<T1> : IEntityKey
     {
         public EntityKey(T1 value1)

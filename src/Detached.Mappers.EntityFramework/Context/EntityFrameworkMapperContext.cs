@@ -32,6 +32,11 @@ namespace Detached.Mappers.EntityFramework.Context
         {
             if (actionType == MapperActionType.Load)
             {
+                if (typeof(TKey) == typeof(NoKey))
+                {
+                    return DbContext.Add(entity).Entity;
+                }
+
                 TTarget loadedEntity = QueryProvider.Load(DbContext.Set<TTarget>(), source);
 
                 if (loadedEntity == null)
@@ -92,6 +97,9 @@ namespace Detached.Mappers.EntityFramework.Context
             where TEntity : class
             where TKey : IEntityKey
         {
+            if (typeof(TKey) == typeof(NoKey))
+                return null;
+
             IStateManager stateManager = DbContext.GetService<IStateManager>();
             IEntityType entityType = DbContext.Model.FindEntityType(typeof(TEntity));
             IKey keyType = entityType.FindPrimaryKey();
