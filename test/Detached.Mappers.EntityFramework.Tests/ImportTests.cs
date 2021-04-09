@@ -25,7 +25,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             await db.SaveChangesAsync();
 
-            await db.ImportJsonAsync<User>(Json(@"[ { 'id': 1, 'name': 'test user 2' } ]"));
+            await db.MapJsonAsync<User>(Json(@"[ { 'id': 1, 'name': 'test user 2' } ]"));
 
             await db.SaveChangesAsync();
 
@@ -39,7 +39,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             TestDbContext db = await TestDbContext.CreateAsync();
 
-            await db.ImportJsonAsync<Role>(
+            await db.MapJsonAsync<Role>(
                 Json(@"[
                             { 
                                 'id': 1, 
@@ -52,7 +52,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                        ]"
                 ));
 
-            await db.ImportJsonAsync<User>(
+            await db.MapJsonAsync<User>(
                 Json(@"[
                            { 
                                'id': 1, 
@@ -79,7 +79,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             TestDbContext db = await TestDbContext.CreateAsync();
 
-            await db.ImportJsonAsync<User>(
+            await db.MapJsonAsync<User>(
                  Json(@"[
                                { 
                                    'id': 1, 
@@ -92,7 +92,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                            ]"
                  ));
 
-            await db.ImportJsonAsync<Role>(
+            await db.MapJsonAsync<Role>(
                 Json(@"[
                             { 
                                 'id': 1, 
@@ -150,7 +150,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 			                            }]");
 
                 // create an invoice by using Map method, passing an anonymous class.
-                await context.ImportJsonAsync<Invoice>(jsonCreate);
+                await context.MapJsonAsync<Invoice>(jsonCreate);
                 await context.SaveChangesAsync();
             }
 
@@ -178,7 +178,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 			                            }]");
 
                 // create an invoice by using Map method, passing an anonymous class.
-                await context.ImportJsonAsync<Invoice>(jsonUpdate);
+                await context.MapJsonAsync<Invoice>(jsonUpdate);
                 await context.SaveChangesAsync();
             }
 

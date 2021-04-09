@@ -83,7 +83,7 @@ namespace Detached.Mappers.EntityFramework
         {
             using (Stream fileStream = File.OpenRead(filePath))
             {
-                await ImportJsonAsync<TEntity>(dbContext, fileStream, mapperParameters);
+                await MapJsonAsync<TEntity>(dbContext, fileStream, mapperParameters);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Detached.Mappers.EntityFramework
 
             using (Stream fileStream = assembly.GetManifestResourceStream(resourceName))
             {
-                await ImportJsonAsync<TEntity>(dbContext, fileStream, mapperParameters);
+                await MapJsonAsync<TEntity>(dbContext, fileStream, mapperParameters);
             }
         }
     }
