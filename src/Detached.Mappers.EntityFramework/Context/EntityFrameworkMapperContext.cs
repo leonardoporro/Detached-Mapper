@@ -32,12 +32,12 @@ namespace Detached.Mappers.EntityFramework.Context
         {
             if (actionType == MapperActionType.Load)
             {
-                if (typeof(TKey) == typeof(NoKey))
-                {
-                    return DbContext.Add(entity).Entity;
-                }
+                TTarget loadedEntity = null;
 
-                TTarget loadedEntity = QueryProvider.Load(DbContext.Set<TTarget>(), source);
+                if (!key.IsEmpty)
+                {
+                    QueryProvider.Load(DbContext.Set<TTarget>(), source);
+                }
 
                 if (loadedEntity == null)
                     loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;

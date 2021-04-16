@@ -31,6 +31,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
         public DbSet<InvoiceType> InvoiceTypes { get; set; }
 
+        public DbSet<Customer> Customers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder mb)
         {
             mb.Entity<User>()

@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeMaps;
+using Detached.RuntimeTypes.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -91,6 +92,11 @@ namespace Detached.Mappers.EntityFramework.Queries
                 {
                     var targetExpr = memberMap.TargetOptions.GetValue(targetParam, null);
                     var sourceExpr = memberMap.SourceOptions.GetValue(sourceConstant, null);
+
+                    if (sourceExpr.Type.IsNullable(out _))
+                    {
+                        sourceExpr = Property(sourceExpr, "Value");
+                    }
 
                     if (expression == null)
                     {

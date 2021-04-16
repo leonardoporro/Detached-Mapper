@@ -5,11 +5,15 @@ namespace Detached.Mappers.TypeMaps
     public interface IEntityKey
     {
         object[] ToObject();
+
+        bool IsEmpty { get; }
     }
 
     public struct NoKey : IEntityKey
     {
         public static NoKey Instance { get; } = new NoKey();
+
+        public bool IsEmpty => true;
 
         public object[] ToObject()
         {
@@ -36,6 +40,8 @@ namespace Detached.Mappers.TypeMaps
         }
 
         public T1 Value1 { get; set; }
+
+        public bool IsEmpty => Equals(default(T1), Value1);
 
         public override bool Equals(object obj)
             => obj is EntityKey<T1> ek && Equals(ek.Value1, Value1);
@@ -67,6 +73,8 @@ namespace Detached.Mappers.TypeMaps
 
         public T2 Value2 { get; set; }
 
+        public bool IsEmpty => Equals(default(T1), Value1) || Equals(default(T2), Value2);
+
         public override bool Equals(object obj)
             => obj is EntityKey<T1, T2> ek
                 && Equals(ek.Value1, Value1)
@@ -95,6 +103,8 @@ namespace Detached.Mappers.TypeMaps
             Value2 = value2;
             Value3 = value3;
         }
+
+        public bool IsEmpty => Equals(default(T1), Value1) || Equals(default(T2), Value2) || Equals(default(T3), Value3);
 
         public T1 Value1 { get; set; }
 
@@ -141,6 +151,8 @@ namespace Detached.Mappers.TypeMaps
 
         public T4 Value4 { get; set; }
 
+        public bool IsEmpty => Equals(default(T1), Value1) || Equals(default(T2), Value2) || Equals(default(T3), Value3) || Equals(default(T4), Value4);
+
         public override bool Equals(object obj)
             => obj is EntityKey<T1, T2, T3, T4> ek
                 && Equals(ek.Value1, Value1)
@@ -183,6 +195,8 @@ namespace Detached.Mappers.TypeMaps
         public T4 Value4 { get; set; }
 
         public T5 Value5 { get; set; }
+
+        public bool IsEmpty => Equals(default(T1), Value1) || Equals(default(T2), Value2) || Equals(default(T3), Value3) || Equals(default(T4), Value4) || Equals(default(T5), Value5);
 
         public override bool Equals(object obj)
             => obj is EntityKey<T1, T2, T3, T4, T5> ek

@@ -12,5 +12,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
 
         [Composition]
         public virtual List<InvoiceRow> Rows { get; set; }
+
+        public virtual ShippingAddress ShippingAddress { get; set; }
     }
 }
