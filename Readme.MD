@@ -1,5 +1,5 @@
 ![Detached Banner](banner.png?raw=true)
-##### Play with Detached in .Net Fiddle!
+##### Play with Mapper in .Net Fiddle!
 - Attach graph of anonymous objects: [link](https://dotnetfiddle.net/l7q6wA) 
 - Import json graph: [link](https://dotnetfiddle.net/Mn8mYU)
 
