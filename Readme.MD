@@ -7,6 +7,10 @@
 - [Runtime Types](https://github.com/leonardoporro/Detached-RuntimeTypes)
 - [Patch Types](https://github.com/leonardoporro/Detached-PatchTypes)
 
+##### Let me know if it works for you!
+[LinkedIn](https://www.linkedin.com/in/leonardoporro/)
+[E-mail](mailto:mail@leonardoporro.com.ar)
+
 # Mappers
 #### What is it
 
