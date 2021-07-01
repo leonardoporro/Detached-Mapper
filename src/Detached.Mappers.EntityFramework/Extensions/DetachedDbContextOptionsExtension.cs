@@ -13,10 +13,13 @@ namespace Detached.Mappers.EntityFramework.Extensions
 {
     public class DetachedDbContextOptionsExtension : IDbContextOptionsExtension
     {
-        public DetachedDbContextOptionsExtension(MapperOptions mapperOptions)
+        readonly Action<MapperOptions> _configure;
+
+        public DetachedDbContextOptionsExtension(MapperOptions mapperOptions, Action<MapperOptions> configure)
         {
             Info = new DetachedDbContextOptionsExtensionInfo(this);
             MapperOptions = mapperOptions;
+            _configure = configure;
         }
 
         public DbContextOptionsExtensionInfo Info { get; }
@@ -32,9 +35,11 @@ namespace Detached.Mappers.EntityFramework.Extensions
                 if (!IsConfigured)
                 {
                     ICurrentDbContext currentDbContext = sp.GetRequiredService<ICurrentDbContext>();
-                    MapperOptions.Conventions.Add(new IsEntityConvention(currentDbContext.Context.Model));
+                    MapperOptions.Conventions.Add(new EntityFrameworkConvention(currentDbContext.Context.Model));
 
-                    foreach(IMapperCustomizer customizer in  sp.GetServices<IMapperCustomizer>())
+                    _configure?.Invoke(MapperOptions);
+
+                    foreach (IMapperCustomizer customizer in  sp.GetServices<IMapperCustomizer>())
                     {
                         customizer.Customize(currentDbContext.Context, MapperOptions);
                     }

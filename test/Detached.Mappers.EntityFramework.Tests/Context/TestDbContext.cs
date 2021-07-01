@@ -33,6 +33,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
         public DbSet<Customer> Customers { get; set; }
 
+        public DbSet<ConventionTestClass> ConventionTests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder mb)
         {
             mb.Entity<User>()
@@ -42,6 +44,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                    ur => ur.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId),
                    ur => ur.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId))
                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            mb.Entity<ConventionTestClass>().HasKey(c => new { c.CustomizedKey1, c.CustomizedKey2 });
         }
 
         public static async Task<DbContextOptions<TestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)
@@ -52,7 +56,10 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
             return new DbContextOptionsBuilder<TestDbContext>()
                     .UseSqlite(connection)
-                    .UseDetached()
+                    .UseDetached(cfg =>
+                    {
+                        ConventionTestClass.Configure(cfg);
+                    })
                     .Options;
         }
 

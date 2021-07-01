@@ -11,9 +11,7 @@ namespace Detached.Mappers.EntityFramework
         public static DbContextOptionsBuilder UseDetached(this DbContextOptionsBuilder builder, Action<MapperOptions> configure = null)
         {
             MapperOptions mapperOptions = new MapperOptions();
-            configure?.Invoke(mapperOptions);
-
-            ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(mapperOptions));
+            ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(mapperOptions, configure));
             return builder;
         }
 
@@ -22,9 +20,7 @@ namespace Detached.Mappers.EntityFramework
         {
 
             MapperOptions mapperOptions = new MapperOptions();
-            configure?.Invoke(mapperOptions);
-
-            ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(mapperOptions));
+            ((IDbContextOptionsBuilderInfrastructure)builder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(mapperOptions, configure));
             return builder;
         }
     }
