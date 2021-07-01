@@ -1,11 +1,18 @@
 ![Detached Banner](banner.png?raw=true)
-##### Play with Detached in .Net Fiddle!
+
+Map your DTOs directly to the DbContext
+
+##### Play with Mapper in .Net Fiddle!
 - Attach graph of anonymous objects: [link](https://dotnetfiddle.net/l7q6wA) 
 - Import json graph: [link](https://dotnetfiddle.net/Mn8mYU)
 
 ##### Check related tools
 - [Runtime Types](https://github.com/leonardoporro/Detached-RuntimeTypes)
 - [Patch Types](https://github.com/leonardoporro/Detached-PatchTypes)
+
+##### Let me know if it works for you (or doesn't)!
+- [LinkedIn](https://www.linkedin.com/in/leonardoporro/)
+- [E-mail](mailto:mail@leonardoporro.com.ar)
 
 # Mappers
 #### What is it
@@ -57,9 +64,14 @@ or fluently using
 More info on configuration, later in this doc.
 
 When mapping, detached **will only modify** the root entity (the one passed as a parameter) and
-all the related entities marked as compositions. Associations are just attached an marked as Unmodified.
-(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
-this is used to import complex graphs from json without having to order by dependency).
+all the related entities marked as compositions. Associations are just attached an marked as Unmodified. 
+Assuming that associations exist, also helps reducing the ammount of data loaded for the comparison.
+
+**[Aggregation]** -> Link to an existing entity
+**[Composition]** -> Create or update the entity
+
+**(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
+this is used to import complex graphs from json without having to order by dependency)**.
 
 ###### Partial updates
 Detached copies only the properties that match (or are configured) from the DTO to the Entity,
@@ -139,15 +151,23 @@ services.AddDbContext<MainDbContext>(cfg =>
 
 ```
 ###### Partial Updates
+Approaches to perform partial updates:
 
-- Use a DTO or a Dictionary or an Anonymous class that contains only the field to update
-Mapper will copy only matching properties.
+1 - Use a DTO or a Dictionary or an Anonymous class that contains only the properties to update
+Mapper will copy only matching properties, as the other ones do not exist.
 
-- Implement IPatch interface, that allows to mark properties as dirty.
-Mapper will check IPatch.IsSet before copying the property value.
-The Patch Type Proxy generator (Patch.Create) can be used to generate a type inheriting from the given type that automatically implements IPatch (NOTE: properties must be marked as virtual).
-PatchJsonConverter deserializes json into a graph of patch proxies. This is used by Import feature to write only the fields that exist in the json data.
+2 - Programatically implement IPatch interface, that allows to mark properties as dirty.
+Mapper will check the value of IPatch.IsSet before copying the property value.
 
+3 - The Patch Type Proxy factory (Patch.Create) can be used to generate a new runtime type that inherits your class and implements IPatch automatically.
+This is done by overriding all property setters and adding an internal HashSet<string> to keep the values, so that, 
+**All properties must be marked as Virtual; otherwise, the proxy factory wont't be able to override them**.
+ 
+When sending a JSON with undefined properties, serializer leave them with their default values and the "undefined" state is lost during deserialization.
+That's why PatchJsonConverter allows to automatically deserialize some classes into Patch Proxy types directly, tracking the "undefined" information in the 
+form of IsSet() true/false calls.
+
+See this library for source code and more info and samples: [Patch Types](https://github.com/leonardoporro/Detached-PatchTypes)
 
 
 
