@@ -23,6 +23,8 @@ It was heavily inspired by [GraphDiff](https://github.com/zzzprojects/GraphDiff)
 Any fix or feedback is very welcome.
 
 #### What does it solve
+If you worked with .net apis long enought you have seen one or all of these situations:
+
 ###### Problem 1: Disconected entities state
 
 When working with EntityFramework, NHibernate, or practically any other ORM that tracks entity states, 
