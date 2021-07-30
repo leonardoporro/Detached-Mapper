@@ -35,7 +35,7 @@ To reduce data traffic and, improve the security and the readability of swagger 
 to the original entity. 
 
 A manual mapping or a tool like AutoMapper is needed to convert the
-DTOs to entities, before attach them to the ORM context/session.
+DTOs to entities, before attach them to the ORM context/session, but this library aims to do it automatically and save steps.
 
 ###### Problem 3: Patches (partial updates)
 C# does not support an "Undefined" value, like JavaScript, that's why for partial 
