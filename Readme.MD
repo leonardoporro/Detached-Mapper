@@ -13,6 +13,7 @@ Map your DTOs directly to the DbContext
 ##### Let me know if it works for you (or doesn't)!
 - [LinkedIn](https://www.linkedin.com/in/leonardoporro/)
 - [E-mail](mailto:mail@leonardoporro.com.ar)
+(Or hire me! ;) )
 
 # Mappers
 #### What is it
@@ -22,21 +23,21 @@ It was heavily inspired by [GraphDiff](https://github.com/zzzprojects/GraphDiff)
 Any fix or feedback is very welcome.
 
 #### What does it solve
-###### Disconected entities
+###### Problem 1: Disconected entities state
 
 When working with EntityFramework, NHibernate, or practically any other ORM that tracks entity states, 
 there is a problem when persinsing non-tracked entities that comes usually from a deserialization (request, response, a file, another db, etc.)
 EF has the TrackGraph method, but the state of each entity needs to be specified manually.
 NHibernate has a Merge feature, but it merges everything, and sometimes there are associated entities that should not be modified.
 
-###### Data transfer objects (DTOs)
+###### Problem 2: Mapping Data transfer objects (DTOs) to Entities
 To reduce data traffic and, improve the security and the readability of swagger models, many times DTOs are used, and often they are very similar
 to the original entity. 
 
 A manual mapping or a tool like AutoMapper is needed to convert the
 DTOs to entities, before attach them to the ORM context/session.
 
-###### Partial updates
+###### Problem 3: Patches (partial updates)
 C# does not support an "Undefined" value, like JavaScript, that's why for partial 
 updates, Null may be used for optional values. But in some cases, null needs to be persisted, to remove 
 a previous field value or disconnect an existing relationship.
@@ -46,7 +47,7 @@ The main method of Detached is MapAsync. It receives an object or dictionary as 
 then loads the corresponding entity graph from the database (like GraphDiff does),
 and then copies the values from the given DTO and set the correct states.
 
-###### Entities and DTOs
+###### Solution 1: Mapping DTOs to Entities
 Detached can handle DTO-Entity, DTO-DTO and Entity-Entity mapping.
 There are important tasks when mapping entities, like checking back references
 and merging collections. So that, classes representing entities should be marked
@@ -54,7 +55,7 @@ with the [Entity] attribute or configured with ```modelOptions.Configure<Entity>
 For EntityFramework, entities are marked automatically when the correspondng DbSet exists.
 More info on configuration, later in this doc.
 
-###### Compositions and Aggregations
+###### Solution 2: Setting states - Compositions and Aggregations
 Aggregations are the weak relations (B and A are independent), also known as "Has a".
 Compositions are the strong (B cannot exists without A), also known as "Owns a".
 
@@ -67,13 +68,13 @@ When mapping, detached **will only modify** the root entity (the one passed as a
 all the related entities marked as compositions. Associations are just attached an marked as Unmodified. 
 Assuming that associations exist, also helps reducing the ammount of data loaded for the comparison.
 
-**[Aggregation]** -> Link to an existing entity
-**[Composition]** -> Create or update the entity
+**[Aggregation]** -> Link to an existing entity, is marked as Unmodified.
+**[Composition]** -> Create or update the entity, is marked as Created/Updated/Deleted.
 
 **(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
 this is used to import complex graphs from json without having to order by dependency)**.
 
-###### Partial updates
+###### Solution 3: DTOs and IPatch
 Detached copies only the properties that match (or are configured) from the DTO to the Entity,
 other properties are not overwritten.
 For partial updates, a DTO with the needed properties may be created, or a Dictionary&lt;string, object&gt;
@@ -150,7 +151,7 @@ services.AddDbContext<MainDbContext>(cfg =>
     });
 
 ```
-###### Partial Updates
+###### Solution 3: Different approaches for Partial Updates
 Approaches to perform partial updates:
 
 1 - Use a DTO or a Dictionary or an Anonymous class that contains only the properties to update
