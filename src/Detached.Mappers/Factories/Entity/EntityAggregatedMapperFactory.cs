@@ -36,8 +36,7 @@ namespace Detached.Mappers.Factories.Entity
                                         CreateMembers(typeMap, m => m.IsKey),
                                         Assign(typeMap.Target, OnMapperAction(typeMap, MapperActionType.Attach))
                                     )
-                                ),
-                                CreateBackReference(typeMap)
+                                )
                             )
                         ),
                         Result(typeMap.Target)
