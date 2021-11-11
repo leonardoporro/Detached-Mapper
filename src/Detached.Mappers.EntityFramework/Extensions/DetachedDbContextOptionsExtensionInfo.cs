@@ -14,11 +14,13 @@ namespace Detached.Mappers.EntityFramework.Extensions
 
         public override string LogFragment => "Detached";
 
-        public override long GetServiceProviderHashCode() => 0;
+        public override int GetServiceProviderHashCode() => 0;
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
 
         }
+
+        public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other) => true;
     }
 }
