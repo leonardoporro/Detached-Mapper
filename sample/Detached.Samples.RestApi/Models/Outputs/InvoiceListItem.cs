@@ -3,7 +3,7 @@ using System;
 
 namespace Detached.Mappers.Samples.RestApi.Models.Outputs
 {
-    public class InvoiceListItemOutput
+    public class InvoiceListItem
     {
         public int Id { get; set; }
  
