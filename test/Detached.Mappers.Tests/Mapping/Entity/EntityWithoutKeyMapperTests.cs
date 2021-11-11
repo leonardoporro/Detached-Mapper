@@ -11,7 +11,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
         Mapper mapper = new Mapper();
 
         [Fact]
-        public async Task map_dto_without_key()
+        public Task map_dto_without_key()
         {
             Entity entity = new Entity
             {
@@ -28,6 +28,8 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             mapper.Map(dto, entity, context);
 
             Assert.Equal("the dto", entity.Name);
+
+            return Task.CompletedTask;
         }
 
         [Entity]
