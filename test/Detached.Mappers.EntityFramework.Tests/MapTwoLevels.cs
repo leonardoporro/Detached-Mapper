@@ -47,6 +47,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             Assert.Contains(persistedInvoice.Rows[0].RowDetails, r => r.Description == "detail 2");
             Assert.Contains(persistedInvoice.Rows[0].RowDetails, r => r.Description == "detail 3");
  
+            db.ChangeTracker.Clear();
             await db.MapAsync<Invoice>(new Invoice
             {
                 Id = 1,
@@ -64,6 +65,8 @@ namespace Detached.Mappers.EntityFramework.Tests
                     },
                 }
             });
+
+            await db.SaveChangesAsync();
 
             persistedInvoice = db.Invoices
                 .Include("Rows.RowDetails")
