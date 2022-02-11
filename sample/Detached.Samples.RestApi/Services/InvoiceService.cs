@@ -15,7 +15,7 @@ namespace Detached.Mappers.Samples.RestApi.Services
             _invoiceStore = invoiceStore;
         }
 
-        public Task<IEnumerable<InvoiceListItemOutput>> GetAsync()
+        public Task<IEnumerable<InvoiceListItem>> GetAsync()
         {
             return _invoiceStore.GetAsync();
         }

@@ -17,9 +17,15 @@ namespace Detached.Mappers.Samples.RestApi.Stores
             _context = context;
         }
 
-        public async Task<IEnumerable<InvoiceListItemOutput>> GetAsync()
+        public async Task<IEnumerable<InvoiceListItem>> GetAsync()
         {
-            return await _context.Project<Invoice, InvoiceListItemOutput>(_context.Invoices).ToListAsync();
+            var a = await _context.Invoices.ToListAsync();
+            var b = await _context.InvoiceRows.ToListAsync();
+            var c = await _context.InvoiceTypes.ToListAsync();
+            var d = await _context.Customers.ToListAsync();
+            var e = await _context.StockUnits.ToListAsync(); 
+
+            return await _context.Project<Invoice, InvoiceListItem>(_context.Invoices).ToListAsync();
         }
 
         public async Task SaveAsync(SaveInvoiceInput input)

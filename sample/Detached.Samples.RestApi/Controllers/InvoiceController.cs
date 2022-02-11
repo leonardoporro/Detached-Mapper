@@ -19,7 +19,7 @@ namespace Detached.Mappers.Samples.RestApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InvoiceListItemOutput>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<InvoiceListItem>>> GetAsync()
         {
             return Ok(await _invoiceService.GetAsync());
         }

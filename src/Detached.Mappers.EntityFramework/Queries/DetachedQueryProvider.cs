@@ -116,9 +116,19 @@ namespace Detached.Mappers.EntityFramework.Queries
         {
             foreach (MemberMap memberMap in typeMap.Members)
             {
-                if (memberMap.TypeMap.TargetOptions.IsCollection || memberMap.TypeMap.TargetOptions.IsComplexType)
+                if (!memberMap.IsBackReference)
                 {
-                    if (!memberMap.IsBackReference)
+                    if (memberMap.TypeMap.TargetOptions.IsCollection)
+                    {
+                        string name = prefix + memberMap.TargetOptions.Name;
+                        includes.Add(name);
+
+                        if (memberMap.IsComposition)
+                        {
+                            GetIncludes(memberMap.TypeMap.ItemMap, includes, name + ".");
+                        }
+                    }
+                    else if (memberMap.TypeMap.TargetOptions.IsComplexType)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);

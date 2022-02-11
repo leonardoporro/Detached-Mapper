@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>5.0.23</Version>
+    <Version>5.0.24</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
@@ -14,15 +14,16 @@
     <NeutralLanguage />
     <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
     <PackageIcon>logo.png</PackageIcon>
+    <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="3.0.0" />
     <PackageReference Include="Detached.RuntimeTypes" Version="5.0.0" />
     <PackageReference Include="Detached.PatchTypes" Version="5.0.2" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />

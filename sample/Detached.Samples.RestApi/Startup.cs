@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
 
 namespace Detached.Mappers.Samples.RestApi
 {
@@ -42,15 +44,14 @@ namespace Detached.Mappers.Samples.RestApi
             });
         }
 
-        public class User {  }
+        public class User { }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MainDbContext mainDb)
         {
-            if (mainDb.Database.EnsureCreated())
-            {
-                Seed(mainDb);
-            }
+            mainDb.Database.EnsureDeleted();
+            mainDb.Database.EnsureCreated();
+            Seed(mainDb);
 
             app.UseSwagger();
 
@@ -82,12 +83,30 @@ namespace Detached.Mappers.Samples.RestApi
             db.Customers.Add(new Customer
             {
                 DocumentNumber = "123",
-                FirstName = "sample",
-                LastName = "customer",
-                Email = "samplecustomer@example.com"
+                Name = "sample customer",
+                Email = "samplecustomer@example.com",
+                Phone = "123 456 7890"
             });
             db.StockUnits.Add(new StockUnit { Name = "Potato", Quantity = 10 });
             db.StockUnits.Add(new StockUnit { Name = "Tomato", Quantity = 8 });
+            db.SaveChanges();
+
+            db.Invoices.Add(new Invoice
+            {
+                Customer = db.Customers.Find(1),
+                DateTime = DateTime.Now,
+                Type = db.InvoiceTypes.Find(1),
+                Rows = new List<InvoiceRow>
+                {
+                    new InvoiceRow
+                    {
+                        Description = "invoice row",
+                        Quantity = 1,
+                        SKU = db.StockUnits.Find(1),
+                        UnitPrice = 100
+                    }
+                }
+            });
             db.SaveChanges();
         }
     }

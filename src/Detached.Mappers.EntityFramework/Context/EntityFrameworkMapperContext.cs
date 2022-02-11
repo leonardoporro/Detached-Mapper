@@ -32,18 +32,17 @@ namespace Detached.Mappers.EntityFramework.Context
         {
             if (actionType == MapperActionType.Load)
             {
-                TTarget loadedEntity = null;
-
                 if (!key.IsEmpty)
                 {
                     QueryProvider.Load(DbContext.Set<TTarget>(), source);
                 }
 
-                if (loadedEntity == null)
-                    loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
+                TTarget loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
 
                 if (loadedEntity == null && !Parameters.RootUpsert)
+                {
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
+                }
 
                 return loadedEntity;
             }
