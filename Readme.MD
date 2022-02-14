@@ -92,7 +92,7 @@ More info on configuration, later in this doc.
 
 ###### Install Nu-Get package
 ```cs
-Install-Package Detached.Mappers.EntityFramework -Version 5.0.12
+Install-Package Detached.Mappers.EntityFramework -Version 6.0.2
 ```
 ###### Create your regular DbContext
 ```cs
