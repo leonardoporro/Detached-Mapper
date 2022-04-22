@@ -1,9 +1,9 @@
 ﻿using AgileObjects.ReadableExpressions;
-using Detached.Mappers.Cache;
 using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.Model;
+using Detached.Mappers.Factories;
 using Detached.Mappers.TypeMaps;
+using Detached.Mappers.TypeOptions;
 using Detached.PatchTypes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

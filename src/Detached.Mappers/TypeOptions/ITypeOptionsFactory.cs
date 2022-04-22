@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Detached.Mappers.Model
+namespace Detached.Mappers.TypeOptions
 {
     public interface ITypeOptionsFactory
     {

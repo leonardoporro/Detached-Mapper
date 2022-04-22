@@ -1,9 +1,6 @@
-﻿using Detached.Mappers.Model;
-using Detached.Mappers.Model.Types.Class;
-using Detached.Mappers.Model.Types.Class.Conventions;
-using Microsoft.EntityFrameworkCore;
+﻿using Detached.Mappers.TypeOptions.Types.Class;
+using Detached.Mappers.TypeOptions.Types.Class.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions

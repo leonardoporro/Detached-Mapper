@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.Context;
-using Detached.Mappers.Model;
+using Detached.Mappers.TypeOptions;
 using System;
 using System.Collections.Generic;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;

@@ -2,7 +2,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.Model.Types.Class.Builder
+namespace Detached.Mappers.TypeOptions.Types.Class.Builder
 {
     public class ClassTypeOptionsBuilder<TType>
     {
@@ -31,7 +31,7 @@ namespace Detached.Mappers.Model.Types.Class.Builder
 
         public ClassTypeOptionsBuilder<TType> IsFragment(bool entity = true)
         {
-            TypeOptions.IsEntity = !entity; 
+            TypeOptions.IsEntity = !entity;
             TypeOptions.IsFragment = entity;
             return this;
         }

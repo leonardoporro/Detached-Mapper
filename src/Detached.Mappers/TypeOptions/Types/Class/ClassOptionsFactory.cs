@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Model.Types.Class.Conventions;
+using Detached.Mappers.TypeOptions.Types.Class.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
@@ -8,7 +8,7 @@ using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.Model.Types.Class
+namespace Detached.Mappers.TypeOptions.Types.Class
 {
     public class ClassOptionsFactory : ITypeOptionsFactory
     {

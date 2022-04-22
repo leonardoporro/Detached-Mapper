@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.Model;
+﻿using Detached.Mappers.TypeOptions;
 
 namespace Detached.Mappers.TypeMaps
 {

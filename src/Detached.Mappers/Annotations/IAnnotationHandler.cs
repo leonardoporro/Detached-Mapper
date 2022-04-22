@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Model;
-using Detached.Mappers.Model.Types.Class;
+﻿using Detached.Mappers.TypeOptions.Types.Class;
 using System;
 
 namespace Detached.Mappers.Annotations

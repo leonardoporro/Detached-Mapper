@@ -1,5 +1,4 @@
 using Detached.Mappers.EntityFramework;
-using Detached.Mappers.Model;
 using Detached.Mappers.Samples.RestApi.Models;
 using Detached.Mappers.Samples.RestApi.Services;
 using Detached.Mappers.Samples.RestApi.Stores;

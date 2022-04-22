@@ -102,7 +102,7 @@ namespace Detached.Mappers.EntityFramework.Context
             IStateManager stateManager = DbContext.GetService<IStateManager>();
             IEntityType entityType = DbContext.Model.FindEntityType(typeof(TEntity));
             IKey keyType = entityType.FindPrimaryKey();
-
+ 
             InternalEntityEntry internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
             if (internalEntry != null)
                 return new EntityEntry<TEntity>(internalEntry);

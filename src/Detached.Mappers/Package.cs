@@ -1,11 +1,9 @@
-﻿using Detached.Mappers;
-using Detached.Mappers.Model;
-using Detached.Mappers.TypeMaps;
+﻿using Detached.Mappers.TypeMaps;
 using Detached.PatchTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Detached
+namespace Detached.Mappers
 {
     public static class Package
     {

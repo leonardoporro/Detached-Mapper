@@ -1,8 +1,9 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
+using Detached.Mappers.TypeOptions;
 using Detached.RuntimeTypes.Reflection;
 using System;
 
-namespace Detached.Mappers.Model.Types.Dictionary
+namespace Detached.Mappers.TypeOptions.Types.Dictionary
 {
     public class DictionaryOptionsFactory : ITypeOptionsFactory
     {
@@ -19,7 +20,7 @@ namespace Detached.Mappers.Model.Types.Dictionary
                 result = _typeOptions;
             }
 
-            return result; 
+            return result;
         }
     }
 }

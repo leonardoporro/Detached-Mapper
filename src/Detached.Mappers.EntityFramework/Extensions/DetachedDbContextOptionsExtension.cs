@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework.Conventions;
 using Detached.Mappers.EntityFramework.Queries;
-using Detached.Mappers.Model;
 using Detached.Mappers.TypeMaps;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore.Infrastructure;

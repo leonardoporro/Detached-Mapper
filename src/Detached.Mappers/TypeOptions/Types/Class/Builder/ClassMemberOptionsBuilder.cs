@@ -2,11 +2,11 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.Model.Types.Class.Builder
+namespace Detached.Mappers.TypeOptions.Types.Class.Builder
 {
     public class ClassMemberOptionsBuilder<TType, TMember> : ClassTypeOptionsBuilder<TType>
     {
-        public ClassMemberOptionsBuilder(ClassTypeOptions typeOptions, ClassMemberOptions memberOptions) 
+        public ClassMemberOptionsBuilder(ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
             : base(typeOptions)
         {
             MemberOptions = memberOptions;

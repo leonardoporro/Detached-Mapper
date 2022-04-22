@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Detached.Mappers.TypeOptions;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
-namespace Detached.Mappers.Model.Types.Dictionary
+namespace Detached.Mappers.TypeOptions.Types.Dictionary
 {
     public class DictionaryTypeOptions : ITypeOptions
     {

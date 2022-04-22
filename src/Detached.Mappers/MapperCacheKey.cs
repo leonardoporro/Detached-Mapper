@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Detached.Mappers.Cache
+namespace Detached.Mappers
 {
     public class MapperCacheKey
     {

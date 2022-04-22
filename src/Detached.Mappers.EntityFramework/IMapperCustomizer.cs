@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Model;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Detached.Mappers
 {

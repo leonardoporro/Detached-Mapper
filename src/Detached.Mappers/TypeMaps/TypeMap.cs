@@ -1,5 +1,5 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Mappers.Model;
+using Detached.Mappers.TypeOptions;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 

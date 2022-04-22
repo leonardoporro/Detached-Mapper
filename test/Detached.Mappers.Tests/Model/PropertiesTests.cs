@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Context;
-using Detached.Mappers.Model;
 using Detached.PatchTypes;
 using System.Collections.Generic;
 using System.Linq.Expressions;

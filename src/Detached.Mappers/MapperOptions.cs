@@ -3,18 +3,18 @@ using Detached.Annotations;
 using Detached.Mappers.Annotations;
 using Detached.Mappers.Factories;
 using Detached.Mappers.Factories.Entity;
-using Detached.Mappers.Model.Types.Class;
-using Detached.Mappers.Model.Types.Class.Builder;
-using Detached.Mappers.Model.Types.Class.Conventions;
-using Detached.Mappers.Model.Types.Dictionary;
-using Detached.Mappers.TypeMaps;
+using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Types.Class;
+using Detached.Mappers.TypeOptions.Types.Class.Builder;
+using Detached.Mappers.TypeOptions.Types.Class.Conventions;
+using Detached.Mappers.TypeOptions.Types.Dictionary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Detached.Mappers.Model
+namespace Detached.Mappers
 {
     public class MapperOptions
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Detached.Mappers.Model.Types.Class
+namespace Detached.Mappers.TypeOptions.Types.Class
 {
     public class ClassMemberOptionsCollection : KeyedCollection<string, ClassMemberOptions>
     {
