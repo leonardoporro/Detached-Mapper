@@ -27,7 +27,7 @@ namespace Detached.Mappers.Factories
                                     Assign(typeMap.Target, Default(typeMap.Target.Type))
                                 ),
                                 Else(
-                                    Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context)),
+                                    Assign(typeMap.Target, Construct(typeMap)),
                                     Variable(typeMap.ItemMap.Source),
                                     ForEach(
                                         typeMap.ItemMap.Source,
@@ -48,6 +48,11 @@ namespace Detached.Mappers.Factories
                             Result(typeMap.Target)
                         )
                     );
+        }
+
+        public Expression Construct(TypeMap typeMap)
+        {
+            return typeMap.TargetOptions.Construct(typeMap.Context, null);
         }
     }
 }

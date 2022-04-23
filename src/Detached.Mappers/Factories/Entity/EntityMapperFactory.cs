@@ -21,7 +21,7 @@ namespace Detached.Mappers.Factories.Entity
                 {
                     Expression list = backRef.MemberOptions.GetValue(typeMap.Target, typeMap.Context);
                     Expression item = backRef.Parent.Target;
-                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.Context);
+                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.Context, null);
 
                     return Block(
                         If(IsNull(list), Assign(list, newList)),

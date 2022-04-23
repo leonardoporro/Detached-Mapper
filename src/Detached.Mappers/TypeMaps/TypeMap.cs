@@ -19,6 +19,8 @@ namespace Detached.Mappers.TypeMaps
 
         public ITypeOptions TargetOptions { get; set; }
 
+        public IMemberOptions Discriminator { get; set; }
+
         public ParameterExpression Context { get; set; }
 
         public ParameterExpression MapReference { get; set; }

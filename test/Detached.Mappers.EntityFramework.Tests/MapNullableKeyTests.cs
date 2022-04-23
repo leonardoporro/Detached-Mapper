@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    public class MapNullableKey
+    public class MapNullableKeyTests
     {
         [Fact]
         public async Task map_dto_with_nullable_key_value()

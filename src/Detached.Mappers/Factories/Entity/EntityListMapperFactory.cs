@@ -39,7 +39,7 @@ namespace Detached.Mappers.Factories.Entity
                             Else(
                                 // if target is null, create.
                                 If(IsNull(typeMap.Target),
-                                    Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context))
+                                    Assign(typeMap.Target, Construct(typeMap))
                                 ),
 
                                 // copy source values to hash table.

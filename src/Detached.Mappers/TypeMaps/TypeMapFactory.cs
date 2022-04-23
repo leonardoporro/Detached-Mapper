@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Context;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
 using System;
 using System.Collections.Generic;
@@ -79,13 +80,18 @@ namespace Detached.Mappers.TypeMaps
                                         targetMemberOptions.IsComposition);
 
                                     typeMap.Members.Add(memberMap);
+
+                                    if (memberName == typeMap.TargetOptions.DiscriminatorName)
+                                    {
+                                        typeMap.Discriminator = memberMap.SourceOptions;
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-
+              
             return typeMap;
         }
 

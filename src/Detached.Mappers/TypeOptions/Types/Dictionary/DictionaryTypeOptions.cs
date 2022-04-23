@@ -28,7 +28,11 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
 
         public bool UsePatchProxy => false;
 
-        public Expression Construct(Expression context)
+        public string DiscriminatorName => null;
+
+        public Dictionary<object, Type> DiscriminatorValues => null;
+
+        public Expression Construct(Expression context, Expression discriminator)
         {
             return New(typeof(Dictionary<string, object>));
         }

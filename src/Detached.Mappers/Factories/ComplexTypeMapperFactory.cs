@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypeMaps;
+﻿using Detached.Mappers.Exceptions;
+using Detached.Mappers.TypeMaps;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Expressions;
 using System;
@@ -32,7 +33,7 @@ namespace Detached.Mappers.Factories
                                 ),
                                 Else(
                                     If(IsNull(typeMap.Target),
-                                        Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context))
+                                        Assign(typeMap.Target, Construct(typeMap))
                                     ),
                                     CreateMembers(typeMap)
                                 )
@@ -74,6 +75,24 @@ namespace Detached.Mappers.Factories
             }
 
             return Include(memberExprs);
+        }
+
+        public Expression Construct(TypeMap typeMap)
+        {
+            if (typeMap.TargetOptions.DiscriminatorName != null && typeMap.Discriminator == null)
+            {
+                throw new MapperException($"Entity {typeMap.TargetOptions.Type} uses inheritance but discriminator was not found in source type.");
+            }
+
+            if (typeMap.Discriminator != null)
+            {
+                Expression discriminator = typeMap.Discriminator.GetValue(typeMap.Source, typeMap.Context);
+                return typeMap.TargetOptions.Construct(typeMap.Context, discriminator);
+            }
+            else
+            {
+                return typeMap.TargetOptions.Construct(typeMap.Context, null);
+            }
         }
     }
 }

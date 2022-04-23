@@ -39,7 +39,7 @@ namespace Detached.Mappers.Factories.Entity
                                 Variable("created", Constant(false), out Expression created),
                                 If(IsNull(typeMap.Target),
                                     Then(
-                                        Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context)),
+                                        Assign(typeMap.Target, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
                                         Assign(created, Constant(true))
                                     ),
@@ -48,7 +48,7 @@ namespace Detached.Mappers.Factories.Entity
                                         If(NotEqual(typeMap.TargetKey, typeMap.SourceKey),
                                             Then(
                                                 OnMapperAction(typeMap, MapperActionType.Delete),
-                                                Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context)),
+                                                Assign(typeMap.Target, Construct(typeMap)),
                                                 CreateMembers(typeMap, m => m.IsKey),
                                                 Assign(created, Constant(true))
                                             )

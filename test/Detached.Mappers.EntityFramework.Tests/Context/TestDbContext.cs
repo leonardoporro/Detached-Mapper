@@ -33,6 +33,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
 
         public DbSet<Customer> Customers { get; set; }
 
+        public DbSet<SellPoint> SellPoints { get; set; }
+
         public DbSet<ConventionTestClass> ConventionTests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder mb)
@@ -46,6 +48,10 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                .HasKey(ur => new { ur.UserId, ur.RoleId });
 
             mb.Entity<ConventionTestClass>().HasKey(c => new { c.CustomizedKey1, c.CustomizedKey2 });
+
+            mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)
+                .HasValue(typeof(CircleDeliveryArea), DeliveryAreaType.Circle)
+                .HasValue(typeof(RectangleDeliveryArea), DeliveryAreaType.Rectangle);
         }
 
         public static async Task<DbContextOptions<TestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)
@@ -59,6 +65,10 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                     .UseDetached(cfg =>
                     {
                         ConventionTestClass.Configure(cfg);
+
+                        cfg.Configure<DeliveryArea>().Discriminator(d => d.AreaType)
+                                .Value(DeliveryAreaType.Circle, typeof(CircleDeliveryArea))
+                                .Value(DeliveryAreaType.Rectangle, typeof(RectangleDeliveryArea));
                     })
                     .Options;
         }

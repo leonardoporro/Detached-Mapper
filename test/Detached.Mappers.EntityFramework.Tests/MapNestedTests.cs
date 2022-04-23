@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    public class MapTwoLevels
+    public class MapNestedTests
     {
         [Fact]
         public async Task MapTwoLevelsAsync()

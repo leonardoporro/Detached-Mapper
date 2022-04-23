@@ -15,9 +15,7 @@ namespace Detached.Mappers.TypeOptions.Types.Class.Builder
 
         public ClassMemberOptionsBuilder<TType, TMember> Member<TMember>(Expression<Func<TType, TMember>> selector)
         {
-            string memberName = ((MemberExpression)selector.Body).Member.Name;
-            if (!TypeOptions.Members.TryGetValue(memberName, out ClassMemberOptions memberOptions))
-                throw new ArgumentException($"Member {memberName} does not exist.");
+            ClassMemberOptions memberOptions = GetMember(selector);
 
             return new ClassMemberOptionsBuilder<TType, TMember>(TypeOptions, memberOptions);
         }
@@ -40,6 +38,22 @@ namespace Detached.Mappers.TypeOptions.Types.Class.Builder
         {
             TypeOptions.Constructor = constructor;
             return this;
+        }
+
+        public ClassDiscriminatorBuilder<TType, TMember> Discriminator<TMember>(Expression<Func<TType, TMember>> selector)
+        {
+            ClassMemberOptions memberOptions = GetMember(selector);
+            TypeOptions.DiscriminatorName = memberOptions.Name;
+
+            return new ClassDiscriminatorBuilder<TType, TMember>(TypeOptions);
+        }
+
+        ClassMemberOptions GetMember<TMember>(Expression<Func<TType, TMember>> selector)
+        {
+            string memberName = ((MemberExpression)selector.Body).Member.Name;
+            if (!TypeOptions.Members.TryGetValue(memberName, out ClassMemberOptions memberOptions))
+                throw new ArgumentException($"Member {memberName} does not exist.");
+            return memberOptions;
         }
     }
 }

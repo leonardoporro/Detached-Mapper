@@ -32,7 +32,7 @@ namespace Detached.Mappers.Factories.Entity
                                 CreateKey(typeMap),
                                 If(OrElse(IsNull(typeMap.Target), NotEqual(typeMap.SourceKey, typeMap.TargetKey)),
                                     Then(
-                                        Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context)),
+                                        Assign(typeMap.Target, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
                                         Assign(typeMap.Target, OnMapperAction(typeMap, MapperActionType.Attach))
                                     )

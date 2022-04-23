@@ -28,7 +28,7 @@ namespace Detached.Mappers.Factories.Entity
                         Variable("created", Constant(false), out Expression created),
                         If(IsNull(typeMap.Target),
                             Then(
-                                Assign(typeMap.Target, typeMap.TargetOptions.Construct(typeMap.Context)),
+                                Assign(typeMap.Target, Construct(typeMap)),
                                 CreateMembers(typeMap, m => m.IsKey),
                                 Variable("persisted", OnMapperAction(typeMap, MapperActionType.Load), out Expression persisted),
                                 If(IsNull(persisted),
