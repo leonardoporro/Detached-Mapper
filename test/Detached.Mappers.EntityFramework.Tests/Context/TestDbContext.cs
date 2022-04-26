@@ -65,10 +65,6 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
                     .UseDetached(cfg =>
                     {
                         ConventionTestClass.Configure(cfg);
-
-                        cfg.Configure<DeliveryArea>().Discriminator(d => d.AreaType)
-                                .Value(DeliveryAreaType.Circle, typeof(CircleDeliveryArea))
-                                .Value(DeliveryAreaType.Rectangle, typeof(RectangleDeliveryArea));
                     })
                     .Options;
         }
