@@ -54,7 +54,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             catch (Exception x)
             {
                 Assert.IsType<MapperException>(x);
-                Assert.Equal("50 is not a valid value for discriminator in entity Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea.", x.Message);
+                Assert.Equal("50 is not a valid value for discriminator in entity Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea, valid values are: Circle, Rectangle", x.Message);
             }
 
             await dbContext.SaveChangesAsync();

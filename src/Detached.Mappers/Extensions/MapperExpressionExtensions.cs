@@ -4,11 +4,22 @@ using System.Linq.Expressions;
 using Detached.Mappers.Exceptions;
 using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using System.Text.Json;
 
 namespace Detached.Mappers.Extensions
 {
     public static class MapperExpressionExtensions
     {
+        static string JsonSerialize(object obj)
+        {
+            return JsonSerializer.Serialize(obj);
+        }
+
+        public static Expression JsonSerialize(Expression expression)
+        {
+            return Call("JsonSerialize", typeof(MapperExpressionExtensions), expression);
+        }
+
         public static Expression ThrowMapperException(string message, params Expression[] args)
         {
             Expression messageExpr;

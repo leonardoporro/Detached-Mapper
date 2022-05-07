@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 using static Detached.Mappers.Extensions.MapperExpressionExtensions;
+using System.Linq;
 
 namespace Detached.Mappers.TypeOptions.Types.Class
 {
@@ -51,15 +52,18 @@ namespace Detached.Mappers.TypeOptions.Types.Class
                 Type dictionaryType = typeof(Dictionary<,>).MakeGenericType(discriminator.Type, funcType);
                 IDictionary typeTable = (IDictionary)Activator.CreateInstance(dictionaryType);
 
+                List<string> keyNames = new List<string>();
                 foreach (var entry in DiscriminatorValues)
                 {
+                    keyNames.Add(System.Convert.ToString(entry.Key));
                     typeTable.Add(entry.Key, Lambda(Convert(New(entry.Value), Type)).Compile());
                 }
+                string keyError = string.Join(", ", keyNames);
 
                 Expression construct = Block(
                     Variable("type", funcType, out Expression typeVar),
                     If(Not(Call("TryGetValue", Constant(typeTable, dictionaryType), discriminator, typeVar)),
-                       ThrowMapperException("{0} is not a valid value for discriminator in entity {1}.", discriminator, Constant(Type))
+                       ThrowMapperException("{0} is not a valid value for discriminator in entity {1}, valid values are: {2}", discriminator, Constant(Type), Constant(keyError))
                     ),
                     Invoke(typeVar)
                 );
