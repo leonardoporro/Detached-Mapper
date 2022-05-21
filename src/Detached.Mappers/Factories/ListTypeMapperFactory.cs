@@ -9,50 +9,50 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceOptions.IsCollection
-                && typeMap.TargetOptions.IsCollection;
+            return typeMap.SourceTypeOptions.IsCollection
+                && typeMap.TargetTypeOptions.IsCollection;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.SourceExpr),
-                        Parameter(typeMap.TargetExpr),
-                        Parameter(typeMap.BuildContextExpr),
+                        Parameter(typeMap.SourceExpression),
+                        Parameter(typeMap.TargetExpression),
+                        Parameter(typeMap.BuildContextExpression),
                         Block(
-                            CreateMapper(typeMap.ItemMap),
-                            If(IsNull(typeMap.SourceExpr),
+                            CreateMapper(typeMap.ItemTypeMap),
+                            If(IsNull(typeMap.SourceExpression),
                                 Then(
-                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
+                                    Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type))
                                 ),
                                 Else(
-                                    Assign(typeMap.TargetExpr, Construct(typeMap)),
-                                    Variable(typeMap.ItemMap.SourceExpr),
+                                    Assign(typeMap.TargetExpression, Construct(typeMap)),
+                                    Variable(typeMap.ItemTypeMap.SourceExpression),
                                     ForEach(
-                                        typeMap.ItemMap.SourceExpr,
-                                        In(typeMap.SourceExpr),
+                                        typeMap.ItemTypeMap.SourceExpression,
+                                        In(typeMap.SourceExpression),
                                         Block(
                                             Call("Add",
-                                                typeMap.TargetExpr,
+                                                typeMap.TargetExpression,
                                                 CallMapper(
-                                                    typeMap.ItemMap,
-                                                    typeMap.ItemMap.SourceExpr,
-                                                    Default(typeMap.ItemMap.TargetExpr.Type)
+                                                    typeMap.ItemTypeMap,
+                                                    typeMap.ItemTypeMap.SourceExpression,
+                                                    Default(typeMap.ItemTypeMap.TargetExpression.Type)
                                                 )
                                             )
                                         )
                                     )
                                 )
                             ),
-                            Result(typeMap.TargetExpr)
+                            Result(typeMap.TargetExpression)
                         )
                     );
         }
 
         public Expression Construct(TypeMap typeMap)
         {
-            return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, null);
+            return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, null);
         }
     }
 }

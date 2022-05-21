@@ -9,35 +9,35 @@ namespace Detached.Mappers.TypeMaps
     {
         public Mapper Mapper { get; set; }
 
-        public TypeMap Parent { get; set; }
+        public TypeMap ParentTypeMap { get; set; }
 
-        public BackReferenceMap BackReference { get; set; }
+        public BackReferenceMap BackReferenceMap { get; set; }
 
-        public TypeMap ItemMap { get; set; }
+        public TypeMap ItemTypeMap { get; set; }
 
         public List<MemberMap> Members { get; } = new List<MemberMap>();
 
-        public ITypeOptions SourceOptions { get; set; }
+        public ITypeOptions SourceTypeOptions { get; set; }
 
-        public ITypeOptions TargetOptions { get; set; }
+        public ITypeOptions TargetTypeOptions { get; set; }
 
-        public IMemberOptions Discriminator { get; set; }
+        public IMemberOptions DiscriminatorMember { get; set; }
 
-        public ParameterExpression BuildContextExpr { get; set; }
+        public ParameterExpression BuildContextExpression { get; set; }
 
-        public ParameterExpression SourceExpr { get; set; }
+        public ParameterExpression SourceExpression { get; set; }
 
-        public ParameterExpression TargetExpr { get; set; }
+        public ParameterExpression TargetExpression { get; set; }
 
-        public ParameterExpression MapperFnExpr { get; set; }
+        public ParameterExpression MappingFunctionExpression { get; set; }
 
-        public Expression SourceKeyExpr { get; set; }
+        public Expression SourceKeyExpression { get; set; }
 
-        public Expression TargetKeyExpr { get; set; }
+        public Expression TargetKeyExpression { get; set; }
 
         public bool IsComposition { get; set; }
 
         public override string ToString() 
-            => $"{SourceOptions.Type.GetFriendlyName()} to {TargetOptions.Type.GetFriendlyName()} (TypeMap)";
+            => $"{SourceTypeOptions.Type.GetFriendlyName()} to {TargetTypeOptions.Type.GetFriendlyName()} (TypeMap)";
     }
 }

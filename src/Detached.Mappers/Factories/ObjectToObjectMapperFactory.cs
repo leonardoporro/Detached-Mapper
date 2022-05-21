@@ -9,43 +9,43 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceExpr.Type == typeof(object) && typeMap.TargetExpr.Type == typeof(object);
+            return typeMap.SourceExpression.Type == typeof(object) && typeMap.TargetExpression.Type == typeof(object);
         }
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.SourceExpr),
-                        Parameter(typeMap.TargetExpr),
-                        Parameter(typeMap.BuildContextExpr),
+                        Parameter(typeMap.SourceExpression),
+                        Parameter(typeMap.TargetExpression),
+                        Parameter(typeMap.BuildContextExpression),
                         Block(
-                            If(IsNull(typeMap.SourceExpr),
+                            If(IsNull(typeMap.SourceExpression),
                                 Then(
-                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
+                                    Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type))
                                 ),
                                 Else(
-                                    If(IsNotNull(typeMap.TargetExpr),
+                                    If(IsNotNull(typeMap.TargetExpression),
                                         Then(
-                                            Assign(typeMap.TargetExpr,
+                                            Assign(typeMap.TargetExpression,
                                                 Convert(
                                                     Call("Map",
                                                         Constant(typeMap.Mapper),
-                                                        Convert(typeMap.SourceExpr, typeof(object)),
-                                                        Call("GetType", typeMap.SourceExpr),
-                                                        Convert(typeMap.TargetExpr, typeof(object)),
-                                                        Call("GetType", typeMap.TargetExpr),
-                                                        typeMap.BuildContextExpr),
-                                                    typeMap.TargetExpr.Type
+                                                        Convert(typeMap.SourceExpression, typeof(object)),
+                                                        Call("GetType", typeMap.SourceExpression),
+                                                        Convert(typeMap.TargetExpression, typeof(object)),
+                                                        Call("GetType", typeMap.TargetExpression),
+                                                        typeMap.BuildContextExpression),
+                                                    typeMap.TargetExpression.Type
                                                 )
                                             )
                                         ),
                                         Else(
-                                            Assign(typeMap.TargetExpr, typeMap.SourceExpr)
+                                            Assign(typeMap.TargetExpression, typeMap.SourceExpression)
                                         )
                                     )
                                 )
                             ),
-                            Result(typeMap.TargetExpr)
+                            Result(typeMap.TargetExpression)
                         )
                     );
         }

@@ -10,45 +10,45 @@ namespace Detached.Mappers.Factories.Entity
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.Parent != null
+            return typeMap.ParentTypeMap != null
                 && typeMap.IsComposition
-                && typeMap.TargetOptions.IsEntity
-                && typeMap.SourceOptions.IsComplexType;
+                && typeMap.TargetTypeOptions.IsEntity
+                && typeMap.SourceTypeOptions.IsComplexType;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.SourceExpr),
-                    Parameter(typeMap.TargetExpr),
-                    Parameter(typeMap.BuildContextExpr),
+                    Parameter(typeMap.SourceExpression),
+                    Parameter(typeMap.TargetExpression),
+                    Parameter(typeMap.BuildContextExpression),
                     Block(
                         CreateMemberMappers(typeMap),
                         CreateKey(typeMap),
-                        If(IsNull(typeMap.SourceExpr),
+                        If(IsNull(typeMap.SourceExpression),
                             Then(
-                                If(IsNotNull(typeMap.TargetExpr),
+                                If(IsNotNull(typeMap.TargetExpression),
                                     Then(
                                         OnMapperAction(typeMap, MapperActionType.Delete),
-                                        Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
+                                        Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type))
                                     )
                                 )
                             ),
                             Else(
                                 Variable("created", Constant(false), out Expression created),
-                                If(IsNull(typeMap.TargetExpr),
+                                If(IsNull(typeMap.TargetExpression),
                                     Then(
-                                        Assign(typeMap.TargetExpr, Construct(typeMap)),
+                                        Assign(typeMap.TargetExpression, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
                                         Assign(created, Constant(true))
                                     ),
                                     Else(
                                         CreateKey(typeMap),
-                                        If(NotEqual(typeMap.TargetKeyExpr, typeMap.SourceKeyExpr),
+                                        If(NotEqual(typeMap.TargetKeyExpression, typeMap.SourceKeyExpression),
                                             Then(
                                                 OnMapperAction(typeMap, MapperActionType.Delete),
-                                                Assign(typeMap.TargetExpr, Construct(typeMap)),
+                                                Assign(typeMap.TargetExpression, Construct(typeMap)),
                                                 CreateMembers(typeMap, m => m.IsKey),
                                                 Assign(created, Constant(true))
                                             )
@@ -63,7 +63,7 @@ namespace Detached.Mappers.Factories.Entity
                                 )
                             )
                         ),
-                        Result(typeMap.TargetExpr)
+                        Result(typeMap.TargetExpression)
                     )
                 );
         }

@@ -121,7 +121,7 @@ namespace Detached.Mappers
                 }
             }
 
-            throw new MapperException($"Can't map {typeMap.SourceOptions.Type} to {typeMap.TargetOptions.Type}");
+            throw new MapperException($"Can't map {typeMap.SourceTypeOptions.Type} to {typeMap.TargetTypeOptions.Type}");
         }
 
         public ITypeOptions GetTypeOptions(Type type) => _options.GetTypeOptions(type);

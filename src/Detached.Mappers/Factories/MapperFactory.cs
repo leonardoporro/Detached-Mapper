@@ -20,33 +20,33 @@ namespace Detached.Mappers.Factories
         public Type GetDelegateType(TypeMap typeMap)
         {
             return typeof(MapperDelegate<,>).MakeGenericType(
-                typeMap.SourceExpr.Type,
-                typeMap.TargetExpr.Type);
+                typeMap.SourceExpression.Type,
+                typeMap.TargetExpression.Type);
         }
 
         protected virtual Expression CallMapper(TypeMap typeMap, Expression source, Expression target)
         {
-            if (typeMap.MapperFnExpr != null)
-                return Invoke(typeMap.MapperFnExpr, source, target, typeMap.BuildContextExpr);
-            else if (!typeMap.TargetExpr.Type.IsAssignableFrom(typeMap.SourceExpr.Type))
-                throw new MapperException($"Type {typeMap.SourceExpr.Type.GetFriendlyName()} is not assignable to {typeMap.SourceExpr.Type.GetFriendlyName()}. Did you miss a CreateMap call?");
+            if (typeMap.MappingFunctionExpression != null)
+                return Invoke(typeMap.MappingFunctionExpression, source, target, typeMap.BuildContextExpression);
+            else if (!typeMap.TargetExpression.Type.IsAssignableFrom(typeMap.SourceExpression.Type))
+                throw new MapperException($"Type {typeMap.SourceExpression.Type.GetFriendlyName()} is not assignable to {typeMap.SourceExpression.Type.GetFriendlyName()}. Did you miss a CreateMap call?");
             else
                 return source;
         }
 
         protected virtual Expression CreateMapper(TypeMap typeMap)
         {
-            if (typeMap.Mapper.ShouldMap(typeMap.SourceOptions, typeMap.TargetOptions))
+            if (typeMap.Mapper.ShouldMap(typeMap.SourceTypeOptions, typeMap.TargetTypeOptions))
             {
-                if (typeMap.MapperFnExpr == null)
+                if (typeMap.MappingFunctionExpression == null)
                 {
-                    string mapperName = $"{typeMap.SourceExpr}_{typeMap.TargetExpr}_mapper";
+                    string mapperName = $"{typeMap.SourceExpression}_{typeMap.TargetExpression}_mapper";
 
-                    typeMap.MapperFnExpr = Parameter(GetDelegateType(typeMap), mapperName);
+                    typeMap.MappingFunctionExpression = Parameter(GetDelegateType(typeMap), mapperName);
 
                     Expression mapperExpr = typeMap.Mapper.GetFactory(typeMap).Create(typeMap);
 
-                    return Variable(typeMap.MapperFnExpr, mapperExpr);
+                    return Variable(typeMap.MappingFunctionExpression, mapperExpr);
                 }
             }
 
@@ -70,7 +70,7 @@ namespace Detached.Mappers.Factories
 
         protected virtual Expression OnMapperAction(TypeMap typeMap, MapperActionType actionType)
         {
-            return Call("OnMapperAction", typeMap.BuildContextExpr, typeMap.TargetExpr, typeMap.SourceExpr, typeMap.TargetKeyExpr, Constant(actionType));
+            return Call("OnMapperAction", typeMap.BuildContextExpression, typeMap.TargetExpression, typeMap.SourceExpression, typeMap.TargetKeyExpression, Constant(actionType));
         }
     }
 }

@@ -11,35 +11,35 @@ namespace Detached.Mappers.Factories.Entity
         public override bool CanMap(TypeMap typeMap)
         {
             return !typeMap.IsComposition
-                && typeMap.TargetOptions.IsEntity
-                && typeMap.SourceOptions.IsComplexType;
+                && typeMap.TargetTypeOptions.IsEntity
+                && typeMap.SourceTypeOptions.IsComplexType;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.SourceExpr),
-                    Parameter(typeMap.TargetExpr),
-                    Parameter(typeMap.BuildContextExpr),
+                    Parameter(typeMap.SourceExpression),
+                    Parameter(typeMap.TargetExpression),
+                    Parameter(typeMap.BuildContextExpression),
                     Block(
                         CreateMemberMappers(typeMap, x => x.IsKey),
-                        If(IsNull(typeMap.SourceExpr),
+                        If(IsNull(typeMap.SourceExpression),
                             Then(
-                                Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
+                                Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type))
                             ),
                             Else(
                                 CreateKey(typeMap),
-                                If(OrElse(IsNull(typeMap.TargetExpr), NotEqual(typeMap.SourceKeyExpr, typeMap.TargetKeyExpr)),
+                                If(OrElse(IsNull(typeMap.TargetExpression), NotEqual(typeMap.SourceKeyExpression, typeMap.TargetKeyExpression)),
                                     Then(
-                                        Assign(typeMap.TargetExpr, Construct(typeMap)),
+                                        Assign(typeMap.TargetExpression, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
-                                        Assign(typeMap.TargetExpr, OnMapperAction(typeMap, MapperActionType.Attach))
+                                        Assign(typeMap.TargetExpression, OnMapperAction(typeMap, MapperActionType.Attach))
                                     )
                                 )
                             )
                         ),
-                        Result(typeMap.TargetExpr)
+                        Result(typeMap.TargetExpression)
                     )
                 );
         }

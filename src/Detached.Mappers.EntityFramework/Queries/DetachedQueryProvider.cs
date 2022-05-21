@@ -33,8 +33,8 @@ namespace Detached.Mappers.EntityFramework.Queries
             var filter = _memoryCache.GetOrCreate(key, entry =>
             {
                 TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
-                var param = Parameter(typeMap.TargetOptions.Type, "e");
-                Expression projection = ToLambda(typeMap.TargetOptions.Type, param, CreateSelectProjection(typeMap, param));
+                var param = Parameter(typeMap.TargetTypeOptions.Type, "e");
+                Expression projection = ToLambda(typeMap.TargetTypeOptions.Type, param, CreateSelectProjection(typeMap, param));
 
                 entry.SetSize(1);
 
@@ -70,7 +70,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
-                queryTemplate.SourceConstant = Constant(null, typeMap.SourceOptions.Type);
+                queryTemplate.SourceConstant = Constant(null, typeMap.SourceTypeOptions.Type);
                 queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(typeMap, queryTemplate.SourceConstant);
                 GetIncludes(typeMap, queryTemplate.Includes, null);
 
@@ -82,7 +82,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(TypeMap typeMap, ConstantExpression sourceConstant)
         {
-            var targetParam = Parameter(typeMap.TargetOptions.Type, "e");
+            var targetParam = Parameter(typeMap.TargetTypeOptions.Type, "e");
 
             Expression expression = null;
 
@@ -118,17 +118,17 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 if (!memberMap.IsBackReference)
                 {
-                    if (memberMap.TypeMap.TargetOptions.IsCollection)
+                    if (memberMap.TypeMap.TargetTypeOptions.IsCollection)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
 
                         if (memberMap.IsComposition)
                         {
-                            GetIncludes(memberMap.TypeMap.ItemMap, includes, name + ".");
+                            GetIncludes(memberMap.TypeMap.ItemTypeMap, includes, name + ".");
                         }
                     }
-                    else if (memberMap.TypeMap.TargetOptions.IsComplexType)
+                    else if (memberMap.TypeMap.TargetTypeOptions.IsComplexType)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
@@ -144,24 +144,24 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression CreateSelectProjection(TypeMap typeMap, Expression targetExpr)
         {
-            if (typeMap.SourceOptions.IsCollection)
+            if (typeMap.SourceTypeOptions.IsCollection)
             {
-                var itemType = typeMap.ItemMap.TargetOptions.Type;
+                var itemType = typeMap.ItemTypeMap.TargetTypeOptions.Type;
                 var param = Parameter(itemType, "e");
-                var itemMap = CreateSelectProjection(typeMap.ItemMap, param);
+                var itemMap = CreateSelectProjection(typeMap.ItemTypeMap, param);
 
                 LambdaExpression lambda = ToLambda(itemType, param, itemMap);
 
                 return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), targetExpr, lambda));
             }
-            else if (typeMap.SourceOptions.IsComplexType)
+            else if (typeMap.SourceTypeOptions.IsComplexType)
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 foreach (MemberMap memberMap in typeMap.Members)
                 {
                     if (!memberMap.IsBackReference)
                     {
-                        PropertyInfo propInfo = typeMap.SourceOptions.Type.GetProperty(memberMap.SourceOptions.Name);
+                        PropertyInfo propInfo = typeMap.SourceTypeOptions.Type.GetProperty(memberMap.SourceOptions.Name);
                         if (propInfo != null)
                         {
                             Expression map = memberMap.TargetOptions.GetValue(targetExpr, null);
@@ -171,7 +171,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                     }
                 }
 
-                return MemberInit(New(typeMap.SourceOptions.Type), bindings.ToArray());
+                return MemberInit(New(typeMap.SourceTypeOptions.Type), bindings.ToArray());
             }
             else
             {

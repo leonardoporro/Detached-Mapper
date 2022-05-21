@@ -11,20 +11,20 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.TargetOptions.Type.IsNullable(out _) ^ typeMap.SourceOptions.Type.IsNullable(out _);
+            return typeMap.TargetTypeOptions.Type.IsNullable(out _) ^ typeMap.SourceTypeOptions.Type.IsNullable(out _);
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
-            if (typeMap.TargetOptions.Type.IsNullable(out Type baseType))
+            if (typeMap.TargetTypeOptions.Type.IsNullable(out Type baseType))
             {
                 // nullable target.
                 return Lambda(
                          GetDelegateType(typeMap),
-                         Parameter(typeMap.SourceExpr),
-                         Parameter(typeMap.TargetExpr),
-                         Parameter(typeMap.BuildContextExpr),
-                         Assign(typeMap.TargetExpr, Convert(typeMap.SourceExpr, typeMap.TargetExpr.Type))
+                         Parameter(typeMap.SourceExpression),
+                         Parameter(typeMap.TargetExpression),
+                         Parameter(typeMap.BuildContextExpression),
+                         Assign(typeMap.TargetExpression, Convert(typeMap.SourceExpression, typeMap.TargetExpression.Type))
                       );
             }
             else
@@ -32,15 +32,15 @@ namespace Detached.Mappers.Factories
                 // nullable source.
                 return Lambda(
                           GetDelegateType(typeMap),
-                          Parameter(typeMap.SourceExpr),
-                          Parameter(typeMap.TargetExpr),
-                          Parameter(typeMap.BuildContextExpr),
+                          Parameter(typeMap.SourceExpression),
+                          Parameter(typeMap.TargetExpression),
+                          Parameter(typeMap.BuildContextExpression),
                           Block(
-                              IfThenElse(IsNull(typeMap.SourceExpr),
-                                Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type)),
-                                Assign(typeMap.TargetExpr, Property(typeMap.SourceExpr, "Value"))
+                              IfThenElse(IsNull(typeMap.SourceExpression),
+                                Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type)),
+                                Assign(typeMap.TargetExpression, Property(typeMap.SourceExpression, "Value"))
                               ),
-                              Result(typeMap.TargetExpr)
+                              Result(typeMap.TargetExpression)
                           )
                        );
             }

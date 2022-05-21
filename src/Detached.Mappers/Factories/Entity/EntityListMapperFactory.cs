@@ -9,87 +9,87 @@ namespace Detached.Mappers.Factories.Entity
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceOptions.IsCollection
-                && typeMap.TargetOptions.IsCollection
-                && typeMap.ItemMap.TargetOptions.IsEntity
-                && typeMap.ItemMap.SourceOptions.IsComplexType;
+            return typeMap.SourceTypeOptions.IsCollection
+                && typeMap.TargetTypeOptions.IsCollection
+                && typeMap.ItemTypeMap.TargetTypeOptions.IsEntity
+                && typeMap.ItemTypeMap.SourceTypeOptions.IsComplexType;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
-            TypeMap itemMap = typeMap.ItemMap;
+            TypeMap itemMap = typeMap.ItemTypeMap;
 
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.SourceExpr),
-                    Parameter(typeMap.TargetExpr),
-                    Parameter(typeMap.BuildContextExpr),
+                    Parameter(typeMap.SourceExpression),
+                    Parameter(typeMap.TargetExpression),
+                    Parameter(typeMap.BuildContextExpression),
                     Block(
-                        Variable(itemMap.SourceExpr),
-                        Variable(itemMap.TargetExpr),
+                        Variable(itemMap.SourceExpression),
+                        Variable(itemMap.TargetExpression),
 
-                        CreateMemberMappers(typeMap.ItemMap),
+                        CreateMemberMappers(typeMap.ItemTypeMap),
                         CreateKey(itemMap),
-                        CreateMapper(typeMap.ItemMap),
+                        CreateMapper(typeMap.ItemTypeMap),
 
-                        If(IsNull(typeMap.SourceExpr),
+                        If(IsNull(typeMap.SourceExpression),
                             Then(
-                                SetToDefault(typeMap.TargetExpr)
+                                SetToDefault(typeMap.TargetExpression)
                             ),
                             Else(
                                 // if target is null, create.
-                                If(IsNull(typeMap.TargetExpr),
-                                    Assign(typeMap.TargetExpr, Construct(typeMap))
+                                If(IsNull(typeMap.TargetExpression),
+                                    Assign(typeMap.TargetExpression, Construct(typeMap))
                                 ),
 
                                 // copy source values to hash table.
-                                Variable("mergeTable", New(DictionaryOf(itemMap.SourceKeyExpr.Type, itemMap.SourceExpr.Type)), out Expression mergeTable),
-                                Variable("addList", New(ListOf(itemMap.SourceExpr.Type)), out Expression addList),
+                                Variable("mergeTable", New(DictionaryOf(itemMap.SourceKeyExpression.Type, itemMap.SourceExpression.Type)), out Expression mergeTable),
+                                Variable("addList", New(ListOf(itemMap.SourceExpression.Type)), out Expression addList),
                                 ForEach(
-                                    itemMap.SourceExpr,
-                                    In(typeMap.SourceExpr),
-                                    IfThenElse(IsNotNull(itemMap.SourceKeyExpr),
-                                        Call("Add", mergeTable, itemMap.SourceKeyExpr, itemMap.SourceExpr),
-                                        Call("Add", addList, itemMap.SourceExpr)
+                                    itemMap.SourceExpression,
+                                    In(typeMap.SourceExpression),
+                                    IfThenElse(IsNotNull(itemMap.SourceKeyExpression),
+                                        Call("Add", mergeTable, itemMap.SourceKeyExpression, itemMap.SourceExpression),
+                                        Call("Add", addList, itemMap.SourceExpression)
                                     )
                                 ),
                                 // iterate target replace or remove items.
-                                Variable("i", Subtract(Property(typeMap.TargetExpr, "Count"), Constant(1)), out Expression i),
+                                Variable("i", Subtract(Property(typeMap.TargetExpression, "Count"), Constant(1)), out Expression i),
                                 For(
                                     GreaterThanOrEqual(i, Constant(0)),
                                     PostDecrementAssign(i),
                                     Block(
-                                        Assign(itemMap.TargetExpr, Index(typeMap.TargetExpr, i)),
-                                        Variable("id", itemMap.TargetKeyExpr, out Expression id),
-                                        If(Call("TryGetValue", mergeTable, id, itemMap.SourceExpr),
+                                        Assign(itemMap.TargetExpression, Index(typeMap.TargetExpression, i)),
+                                        Variable("id", itemMap.TargetKeyExpression, out Expression id),
+                                        If(Call("TryGetValue", mergeTable, id, itemMap.SourceExpression),
                                             Then(
-                                                Assign(Index(typeMap.TargetExpr, i), CallMapper(itemMap, itemMap.SourceExpr, itemMap.TargetExpr)),
+                                                Assign(Index(typeMap.TargetExpression, i), CallMapper(itemMap, itemMap.SourceExpression, itemMap.TargetExpression)),
                                                 Call("Remove", mergeTable, id)
                                             ),
                                             Else(
-                                                CallMapper(itemMap, Default(itemMap.SourceExpr.Type), itemMap.TargetExpr),
-                                                Call("RemoveAt", typeMap.TargetExpr, i)
+                                                CallMapper(itemMap, Default(itemMap.SourceExpression.Type), itemMap.TargetExpression),
+                                                Call("RemoveAt", typeMap.TargetExpression, i)
                                             )
                                         )
                                     )
                                 ),
                                 // iterate items left in hash table and add.
-                                Variable("entry", KeyValueOf(itemMap.TargetKeyExpr.Type, itemMap.SourceExpr.Type), out Expression entry),
+                                Variable("entry", KeyValueOf(itemMap.TargetKeyExpression.Type, itemMap.SourceExpression.Type), out Expression entry),
                                 ForEach(
                                     entry,
                                     In(mergeTable),
-                                    Call("Add", typeMap.TargetExpr, CallMapper(itemMap, Property(entry, "Value"), Default(itemMap.TargetExpr.Type)))
+                                    Call("Add", typeMap.TargetExpression, CallMapper(itemMap, Property(entry, "Value"), Default(itemMap.TargetExpression.Type)))
                                 ),
                                 // iterate items with null key and add
-                                Variable("item", itemMap.SourceExpr.Type, out Expression item),
+                                Variable("item", itemMap.SourceExpression.Type, out Expression item),
                                 ForEach(
                                     item,
                                     In(addList),
-                                    Call("Add", typeMap.TargetExpr, CallMapper(itemMap, item, Default(itemMap.TargetExpr.Type)))
+                                    Call("Add", typeMap.TargetExpression, CallMapper(itemMap, item, Default(itemMap.TargetExpression.Type)))
                                 )
                             )
                         ),
-                        Result(typeMap.TargetExpr)
+                        Result(typeMap.TargetExpression)
                     )
                 );
         }

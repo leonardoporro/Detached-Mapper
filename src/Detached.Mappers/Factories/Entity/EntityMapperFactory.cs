@@ -13,15 +13,15 @@ namespace Detached.Mappers.Factories.Entity
     {
         public Expression CreateBackReference(TypeMap typeMap)
         {
-            if (typeMap.BackReference != null)
+            if (typeMap.BackReferenceMap != null)
             {
-                BackReferenceMap backRef = typeMap.BackReference;
+                BackReferenceMap backRef = typeMap.BackReferenceMap;
 
                 if (backRef.MemberTypeOptions.IsCollection)
                 {
-                    Expression list = backRef.MemberOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
-                    Expression item = backRef.Parent.TargetExpr;
-                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.BuildContextExpr, null);
+                    Expression list = backRef.MemberOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
+                    Expression item = backRef.Parent.TargetExpression;
+                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.BuildContextExpression, null);
 
                     return Block(
                         If(IsNull(list), Assign(list, newList)),
@@ -32,10 +32,10 @@ namespace Detached.Mappers.Factories.Entity
                 }
                 else
                 {
-                    return typeMap.BackReference.MemberOptions.SetValue(
-                                  typeMap.TargetExpr,
-                                  typeMap.BackReference.Parent.TargetExpr,
-                                  typeMap.BuildContextExpr);
+                    return typeMap.BackReferenceMap.MemberOptions.SetValue(
+                                  typeMap.TargetExpression,
+                                  typeMap.BackReferenceMap.Parent.TargetExpression,
+                                  typeMap.BuildContextExpression);
                 }
             }
             else
@@ -51,7 +51,7 @@ namespace Detached.Mappers.Factories.Entity
 
         protected virtual Expression CreateKey(TypeMap typeMap)
         {
-            if (typeMap.TargetKeyExpr == null || typeMap.SourceKeyExpr == null)
+            if (typeMap.TargetKeyExpression == null || typeMap.SourceKeyExpression == null)
             {
                 List<MemberMap> keyMembers = new List<MemberMap>();
                 foreach (MemberMap memberMap in typeMap.Members)
@@ -62,8 +62,8 @@ namespace Detached.Mappers.Factories.Entity
 
                 if (keyMembers.Count == 0)
                 {
-                    typeMap.SourceKeyExpr = Constant(NoKey.Instance);
-                    typeMap.TargetKeyExpr = Constant(NoKey.Instance);
+                    typeMap.SourceKeyExpression = Constant(NoKey.Instance);
+                    typeMap.TargetKeyExpression = Constant(NoKey.Instance);
                 }
                 else
                 {
@@ -74,15 +74,15 @@ namespace Detached.Mappers.Factories.Entity
                     for (int i = 0; i < keyMembers.Count; i++)
                     {
                         MemberMap keyMember = keyMembers[i];
-                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
-                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
+                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
                         sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
                         keyMemberTypes[i] = keyMembers[i].TargetOptions.Type;
                     }
 
                     Type keyType = GetKeyType(keyMemberTypes);
-                    typeMap.SourceKeyExpr = New(keyType, sourceKeyMembers);
-                    typeMap.TargetKeyExpr = New(keyType, targetKeyMembers);
+                    typeMap.SourceKeyExpression = New(keyType, sourceKeyMembers);
+                    typeMap.TargetKeyExpression = New(keyType, targetKeyMembers);
                 }
             }
 

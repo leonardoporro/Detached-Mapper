@@ -13,58 +13,58 @@ namespace Detached.Mappers.TypeMaps
         public TypeMap Create(Mapper mapper, MapperOptions options, TypeMap parentMap, Type sourceType, Type targetType, bool isComposition)
         {
             TypeMap typeMap = new TypeMap();
-            typeMap.Parent = parentMap;
+            typeMap.ParentTypeMap = parentMap;
             typeMap.Mapper = mapper;
-            typeMap.SourceOptions = options.GetTypeOptions(sourceType);
-            typeMap.SourceExpr = Parameter(sourceType, "source_" + sourceType.Name);
-            typeMap.TargetOptions = options.GetTypeOptions(targetType);
-            typeMap.TargetExpr = Parameter(targetType, "target_" + targetType.Name);
+            typeMap.SourceTypeOptions = options.GetTypeOptions(sourceType);
+            typeMap.SourceExpression = Parameter(sourceType, "source_" + sourceType.Name);
+            typeMap.TargetTypeOptions = options.GetTypeOptions(targetType);
+            typeMap.TargetExpression = Parameter(targetType, "target_" + targetType.Name);
             typeMap.IsComposition = isComposition;
 
             if (parentMap == null)
-                typeMap.BuildContextExpr = Parameter(typeof(IMapperContext), "context");
+                typeMap.BuildContextExpression = Parameter(typeof(IMapperContext), "context");
             else
-                typeMap.BuildContextExpr = parentMap.BuildContextExpr;
+                typeMap.BuildContextExpression = parentMap.BuildContextExpression;
 
             while (parentMap != null)
             {
-                if (typeMap.TargetOptions == parentMap.TargetOptions
-                    && typeMap.SourceOptions == parentMap.SourceOptions
+                if (typeMap.TargetTypeOptions == parentMap.TargetTypeOptions
+                    && typeMap.SourceTypeOptions == parentMap.SourceTypeOptions
                     && typeMap.IsComposition == parentMap.IsComposition)
                 {
                     return parentMap;
                 }
-                parentMap = parentMap.Parent;
+                parentMap = parentMap.ParentTypeMap;
             }
 
-            if (typeMap.TargetOptions.IsCollection)
+            if (typeMap.TargetTypeOptions.IsCollection)
             {
-                Type sourceItemType = typeMap.SourceOptions.ItemType;
-                Type targetItemType = typeMap.TargetOptions.ItemType;
+                Type sourceItemType = typeMap.SourceTypeOptions.ItemType;
+                Type targetItemType = typeMap.TargetTypeOptions.ItemType;
 
-                if (typeMap.SourceOptions.Type == typeof(object))
+                if (typeMap.SourceTypeOptions.Type == typeof(object))
                     sourceItemType = typeof(object);
 
-                typeMap.ItemMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, isComposition);
+                typeMap.ItemTypeMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, isComposition);
             }
-            else if (typeMap.TargetOptions.IsComplexType)
+            else if (typeMap.TargetTypeOptions.IsComplexType)
             {
-                IEnumerable<string> memberNames = typeMap.TargetOptions.MemberNames;
+                IEnumerable<string> memberNames = typeMap.TargetTypeOptions.MemberNames;
                 if (memberNames != null)
                 {
                     foreach (string memberName in memberNames)
                     {
-                        IMemberOptions targetMemberOptions = typeMap.TargetOptions.GetMember(memberName);
+                        IMemberOptions targetMemberOptions = typeMap.TargetTypeOptions.GetMember(memberName);
 
                         if (targetMemberOptions != null && targetMemberOptions.CanWrite && !targetMemberOptions.Ignored)
                         {
                             if (IsBackReference(options, typeMap, targetMemberOptions, out BackReferenceMap backRefMap))
                             {
-                                typeMap.BackReference = backRefMap;
+                                typeMap.BackReferenceMap = backRefMap;
                             }
                             else
                             {
-                                IMemberOptions sourceMemberOptions = typeMap.SourceOptions.GetMember(memberName);
+                                IMemberOptions sourceMemberOptions = typeMap.SourceTypeOptions.GetMember(memberName);
 
                                 if (sourceMemberOptions != null && sourceMemberOptions.CanRead && !sourceMemberOptions.Ignored)
                                 {
@@ -81,9 +81,9 @@ namespace Detached.Mappers.TypeMaps
 
                                     typeMap.Members.Add(memberMap);
 
-                                    if (memberName == typeMap.TargetOptions.DiscriminatorName)
+                                    if (memberName == typeMap.TargetTypeOptions.DiscriminatorName)
                                     {
-                                        typeMap.Discriminator = memberMap.SourceOptions;
+                                        typeMap.DiscriminatorMember = memberMap.SourceOptions;
                                     }
                                 }
                             }
@@ -106,31 +106,31 @@ namespace Detached.Mappers.TypeMaps
 
             ITypeOptions memberTypeOptions = options.GetTypeOptions(memberOptions.Type);
 
-            if (typeMap.Parent != null)
+            if (typeMap.ParentTypeMap != null)
             {
-                if (typeMap.TargetOptions.IsEntity
-                    && (typeMap.Parent.TargetOptions.Type == memberTypeOptions.Type
-                           || typeMap.Parent.TargetOptions.Type == memberTypeOptions.ItemType))
+                if (typeMap.TargetTypeOptions.IsEntity
+                    && (typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
+                           || typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {
                     backReferenceMap = new BackReferenceMap
                     {
 
                         MemberOptions = memberOptions,
                         MemberTypeOptions = options.GetTypeOptions(memberOptions.Type),
-                        Parent = typeMap.Parent
+                        Parent = typeMap.ParentTypeMap
                     };
                     result = true;
                 }
-                else if (typeMap.Parent.Parent != null
-                       && typeMap.Parent.TargetOptions.IsCollection
-                       && (typeMap.Parent.Parent.TargetOptions.Type == memberTypeOptions.Type
-                           || typeMap.Parent.Parent.TargetOptions.Type == memberTypeOptions.ItemType))
+                else if (typeMap.ParentTypeMap.ParentTypeMap != null
+                       && typeMap.ParentTypeMap.TargetTypeOptions.IsCollection
+                       && (typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
+                           || typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {
                     backReferenceMap = new BackReferenceMap
                     {
                         MemberOptions = memberOptions,
                         MemberTypeOptions = options.GetTypeOptions(memberOptions.Type),
-                        Parent = typeMap.Parent.Parent
+                        Parent = typeMap.ParentTypeMap.ParentTypeMap
                     };
                     result = true;
                 }

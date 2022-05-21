@@ -10,24 +10,24 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceOptions.IsValue &&
-                   typeMap.TargetOptions.IsValue &&
-                   typeof(IConvertible).IsAssignableFrom(typeMap.SourceOptions.Type) &&
-                   typeMap.TargetOptions.Type.IsPrimitive;
+            return typeMap.SourceTypeOptions.IsValue &&
+                   typeMap.TargetTypeOptions.IsValue &&
+                   typeof(IConvertible).IsAssignableFrom(typeMap.SourceTypeOptions.Type) &&
+                   typeMap.TargetTypeOptions.Type.IsPrimitive;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                      GetDelegateType(typeMap),
-                     Parameter(typeMap.SourceExpr),
-                     Parameter(typeMap.TargetExpr),
-                     Parameter(typeMap.BuildContextExpr),
+                     Parameter(typeMap.SourceExpression),
+                     Parameter(typeMap.TargetExpression),
+                     Parameter(typeMap.BuildContextExpression),
                      Block(
-                         Condition(IsNull(typeMap.SourceExpr),
-                            Default(typeMap.TargetExpr.Type),
-                            Call("To" + typeMap.TargetExpr.Type.Name, 
-                                Convert(typeMap.SourceExpr, typeof(IConvertible)), 
+                         Condition(IsNull(typeMap.SourceExpression),
+                            Default(typeMap.TargetExpression.Type),
+                            Call("To" + typeMap.TargetExpression.Type.Name, 
+                                Convert(typeMap.SourceExpression, typeof(IConvertible)), 
                                 Default(typeof(IFormatProvider)))
                         )
                      )

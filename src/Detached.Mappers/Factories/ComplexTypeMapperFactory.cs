@@ -14,31 +14,31 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceOptions.IsComplexType
-                && typeMap.TargetOptions.IsComplexType;
+            return typeMap.SourceTypeOptions.IsComplexType
+                && typeMap.TargetTypeOptions.IsComplexType;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.SourceExpr),
-                        Parameter(typeMap.TargetExpr),
-                        Parameter(typeMap.BuildContextExpr),
+                        Parameter(typeMap.SourceExpression),
+                        Parameter(typeMap.TargetExpression),
+                        Parameter(typeMap.BuildContextExpression),
                         Block(
                             CreateMemberMappers(typeMap),
-                            If(IsNull(typeMap.SourceExpr),
+                            If(IsNull(typeMap.SourceExpression),
                                 Then(
-                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
+                                    Assign(typeMap.TargetExpression, Default(typeMap.TargetExpression.Type))
                                 ),
                                 Else(
-                                    If(IsNull(typeMap.TargetExpr),
-                                        Assign(typeMap.TargetExpr, Construct(typeMap))
+                                    If(IsNull(typeMap.TargetExpression),
+                                        Assign(typeMap.TargetExpression, Construct(typeMap))
                                     ),
                                     CreateMembers(typeMap)
                                 )
                             ),
-                            Result(typeMap.TargetExpr)
+                            Result(typeMap.TargetExpression)
                         )
                     );
         }
@@ -51,16 +51,16 @@ namespace Detached.Mappers.Factories
             {
                 if (filter == null || filter(memberMap))
                 {
-                    Expression sourceMember = memberMap.SourceOptions.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
-                    Expression targetMember = memberMap.TargetOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
+                    Expression sourceMember = memberMap.SourceOptions.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                    Expression targetMember = memberMap.TargetOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
 
                     sourceMember = CallMapper(memberMap.TypeMap, sourceMember, targetMember);
 
-                    if (typeof(IPatch).IsAssignableFrom(typeMap.SourceExpr.Type))
+                    if (typeof(IPatch).IsAssignableFrom(typeMap.SourceExpression.Type))
                     {
                         memberExprs.Add(
-                            If(Call("IsSet", Convert(typeMap.SourceExpr, typeof(IPatch)), Constant(memberMap.SourceOptions.Name)),
-                                memberMap.TargetOptions.SetValue(typeMap.TargetExpr, sourceMember, typeMap.BuildContextExpr)
+                            If(Call("IsSet", Convert(typeMap.SourceExpression, typeof(IPatch)), Constant(memberMap.SourceOptions.Name)),
+                                memberMap.TargetOptions.SetValue(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
                             )
                         );
 
@@ -68,7 +68,7 @@ namespace Detached.Mappers.Factories
                     else
                     {
                         memberExprs.Add(
-                            memberMap.TargetOptions.SetValue(typeMap.TargetExpr, sourceMember, typeMap.BuildContextExpr)
+                            memberMap.TargetOptions.SetValue(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
                         );
                     }
                 }
@@ -79,19 +79,19 @@ namespace Detached.Mappers.Factories
 
         public Expression Construct(TypeMap typeMap)
         {
-            if (typeMap.TargetOptions.DiscriminatorName != null && typeMap.Discriminator == null)
+            if (typeMap.TargetTypeOptions.DiscriminatorName != null && typeMap.DiscriminatorMember == null)
             {
-                throw new MapperException($"Entity {typeMap.TargetOptions.Type} uses inheritance but discriminator was not found in source type.");
+                throw new MapperException($"Entity {typeMap.TargetTypeOptions.Type} uses inheritance but discriminator was not found in source type.");
             }
 
-            if (typeMap.Discriminator != null)
+            if (typeMap.DiscriminatorMember != null)
             {
-                Expression discriminator = typeMap.Discriminator.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
-                return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, discriminator);
+                Expression discriminator = typeMap.DiscriminatorMember.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, discriminator);
             }
             else
             {
-                return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, null);
+                return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, null);
             }
         }
     }
