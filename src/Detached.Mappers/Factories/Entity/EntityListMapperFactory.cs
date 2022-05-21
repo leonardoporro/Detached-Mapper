@@ -21,75 +21,75 @@ namespace Detached.Mappers.Factories.Entity
 
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.Source),
-                    Parameter(typeMap.Target),
-                    Parameter(typeMap.Context),
+                    Parameter(typeMap.SourceExpr),
+                    Parameter(typeMap.TargetExpr),
+                    Parameter(typeMap.BuildContextExpr),
                     Block(
-                        Variable(itemMap.Source),
-                        Variable(itemMap.Target),
+                        Variable(itemMap.SourceExpr),
+                        Variable(itemMap.TargetExpr),
 
                         CreateMemberMappers(typeMap.ItemMap),
                         CreateKey(itemMap),
                         CreateMapper(typeMap.ItemMap),
 
-                        If(IsNull(typeMap.Source),
+                        If(IsNull(typeMap.SourceExpr),
                             Then(
-                                SetToDefault(typeMap.Target)
+                                SetToDefault(typeMap.TargetExpr)
                             ),
                             Else(
                                 // if target is null, create.
-                                If(IsNull(typeMap.Target),
-                                    Assign(typeMap.Target, Construct(typeMap))
+                                If(IsNull(typeMap.TargetExpr),
+                                    Assign(typeMap.TargetExpr, Construct(typeMap))
                                 ),
 
                                 // copy source values to hash table.
-                                Variable("mergeTable", New(DictionaryOf(itemMap.SourceKey.Type, itemMap.Source.Type)), out Expression mergeTable),
-                                Variable("addList", New(ListOf(itemMap.Source.Type)), out Expression addList),
+                                Variable("mergeTable", New(DictionaryOf(itemMap.SourceKeyExpr.Type, itemMap.SourceExpr.Type)), out Expression mergeTable),
+                                Variable("addList", New(ListOf(itemMap.SourceExpr.Type)), out Expression addList),
                                 ForEach(
-                                    itemMap.Source,
-                                    In(typeMap.Source),
-                                    IfThenElse(IsNotNull(itemMap.SourceKey),
-                                        Call("Add", mergeTable, itemMap.SourceKey, itemMap.Source),
-                                        Call("Add", addList, itemMap.Source)
+                                    itemMap.SourceExpr,
+                                    In(typeMap.SourceExpr),
+                                    IfThenElse(IsNotNull(itemMap.SourceKeyExpr),
+                                        Call("Add", mergeTable, itemMap.SourceKeyExpr, itemMap.SourceExpr),
+                                        Call("Add", addList, itemMap.SourceExpr)
                                     )
                                 ),
                                 // iterate target replace or remove items.
-                                Variable("i", Subtract(Property(typeMap.Target, "Count"), Constant(1)), out Expression i),
+                                Variable("i", Subtract(Property(typeMap.TargetExpr, "Count"), Constant(1)), out Expression i),
                                 For(
                                     GreaterThanOrEqual(i, Constant(0)),
                                     PostDecrementAssign(i),
                                     Block(
-                                        Assign(itemMap.Target, Index(typeMap.Target, i)),
-                                        Variable("id", itemMap.TargetKey, out Expression id),
-                                        If(Call("TryGetValue", mergeTable, id, itemMap.Source),
+                                        Assign(itemMap.TargetExpr, Index(typeMap.TargetExpr, i)),
+                                        Variable("id", itemMap.TargetKeyExpr, out Expression id),
+                                        If(Call("TryGetValue", mergeTable, id, itemMap.SourceExpr),
                                             Then(
-                                                Assign(Index(typeMap.Target, i), CallMapper(itemMap, itemMap.Source, itemMap.Target)),
+                                                Assign(Index(typeMap.TargetExpr, i), CallMapper(itemMap, itemMap.SourceExpr, itemMap.TargetExpr)),
                                                 Call("Remove", mergeTable, id)
                                             ),
                                             Else(
-                                                CallMapper(itemMap, Default(itemMap.Source.Type), itemMap.Target),
-                                                Call("RemoveAt", typeMap.Target, i)
+                                                CallMapper(itemMap, Default(itemMap.SourceExpr.Type), itemMap.TargetExpr),
+                                                Call("RemoveAt", typeMap.TargetExpr, i)
                                             )
                                         )
                                     )
                                 ),
                                 // iterate items left in hash table and add.
-                                Variable("entry", KeyValueOf(itemMap.TargetKey.Type, itemMap.Source.Type), out Expression entry),
+                                Variable("entry", KeyValueOf(itemMap.TargetKeyExpr.Type, itemMap.SourceExpr.Type), out Expression entry),
                                 ForEach(
                                     entry,
                                     In(mergeTable),
-                                    Call("Add", typeMap.Target, CallMapper(itemMap, Property(entry, "Value"), Default(itemMap.Target.Type)))
+                                    Call("Add", typeMap.TargetExpr, CallMapper(itemMap, Property(entry, "Value"), Default(itemMap.TargetExpr.Type)))
                                 ),
                                 // iterate items with null key and add
-                                Variable("item", itemMap.Source.Type, out Expression item),
+                                Variable("item", itemMap.SourceExpr.Type, out Expression item),
                                 ForEach(
                                     item,
                                     In(addList),
-                                    Call("Add", typeMap.Target, CallMapper(itemMap, item, Default(itemMap.Target.Type)))
+                                    Call("Add", typeMap.TargetExpr, CallMapper(itemMap, item, Default(itemMap.TargetExpr.Type)))
                                 )
                             )
                         ),
-                        Result(typeMap.Target)
+                        Result(typeMap.TargetExpr)
                     )
                 );
         }

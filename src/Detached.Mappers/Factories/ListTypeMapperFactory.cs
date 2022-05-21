@@ -17,42 +17,42 @@ namespace Detached.Mappers.Factories
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.Source),
-                        Parameter(typeMap.Target),
-                        Parameter(typeMap.Context),
+                        Parameter(typeMap.SourceExpr),
+                        Parameter(typeMap.TargetExpr),
+                        Parameter(typeMap.BuildContextExpr),
                         Block(
                             CreateMapper(typeMap.ItemMap),
-                            If(IsNull(typeMap.Source),
+                            If(IsNull(typeMap.SourceExpr),
                                 Then(
-                                    Assign(typeMap.Target, Default(typeMap.Target.Type))
+                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
                                 ),
                                 Else(
-                                    Assign(typeMap.Target, Construct(typeMap)),
-                                    Variable(typeMap.ItemMap.Source),
+                                    Assign(typeMap.TargetExpr, Construct(typeMap)),
+                                    Variable(typeMap.ItemMap.SourceExpr),
                                     ForEach(
-                                        typeMap.ItemMap.Source,
-                                        In(typeMap.Source),
+                                        typeMap.ItemMap.SourceExpr,
+                                        In(typeMap.SourceExpr),
                                         Block(
                                             Call("Add",
-                                                typeMap.Target,
+                                                typeMap.TargetExpr,
                                                 CallMapper(
                                                     typeMap.ItemMap,
-                                                    typeMap.ItemMap.Source,
-                                                    Default(typeMap.ItemMap.Target.Type)
+                                                    typeMap.ItemMap.SourceExpr,
+                                                    Default(typeMap.ItemMap.TargetExpr.Type)
                                                 )
                                             )
                                         )
                                     )
                                 )
                             ),
-                            Result(typeMap.Target)
+                            Result(typeMap.TargetExpr)
                         )
                     );
         }
 
         public Expression Construct(TypeMap typeMap)
         {
-            return typeMap.TargetOptions.Construct(typeMap.Context, null);
+            return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, null);
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Detached.Mappers.Factories.Entity
 
                 if (backRef.MemberTypeOptions.IsCollection)
                 {
-                    Expression list = backRef.MemberOptions.GetValue(typeMap.Target, typeMap.Context);
-                    Expression item = backRef.Parent.Target;
-                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.Context, null);
+                    Expression list = backRef.MemberOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
+                    Expression item = backRef.Parent.TargetExpr;
+                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.BuildContextExpr, null);
 
                     return Block(
                         If(IsNull(list), Assign(list, newList)),
@@ -33,9 +33,9 @@ namespace Detached.Mappers.Factories.Entity
                 else
                 {
                     return typeMap.BackReference.MemberOptions.SetValue(
-                                  typeMap.Target,
-                                  typeMap.BackReference.Parent.Target,
-                                  typeMap.Context);
+                                  typeMap.TargetExpr,
+                                  typeMap.BackReference.Parent.TargetExpr,
+                                  typeMap.BuildContextExpr);
                 }
             }
             else
@@ -51,7 +51,7 @@ namespace Detached.Mappers.Factories.Entity
 
         protected virtual Expression CreateKey(TypeMap typeMap)
         {
-            if (typeMap.TargetKey == null || typeMap.SourceKey == null)
+            if (typeMap.TargetKeyExpr == null || typeMap.SourceKeyExpr == null)
             {
                 List<MemberMap> keyMembers = new List<MemberMap>();
                 foreach (MemberMap memberMap in typeMap.Members)
@@ -62,8 +62,8 @@ namespace Detached.Mappers.Factories.Entity
 
                 if (keyMembers.Count == 0)
                 {
-                    typeMap.SourceKey = Constant(NoKey.Instance);
-                    typeMap.TargetKey = Constant(NoKey.Instance);
+                    typeMap.SourceKeyExpr = Constant(NoKey.Instance);
+                    typeMap.TargetKeyExpr = Constant(NoKey.Instance);
                 }
                 else
                 {
@@ -74,15 +74,15 @@ namespace Detached.Mappers.Factories.Entity
                     for (int i = 0; i < keyMembers.Count; i++)
                     {
                         MemberMap keyMember = keyMembers[i];
-                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.Source, typeMap.Context);
-                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.Target, typeMap.Context);
+                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
+                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
                         sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
                         keyMemberTypes[i] = keyMembers[i].TargetOptions.Type;
                     }
 
                     Type keyType = GetKeyType(keyMemberTypes);
-                    typeMap.SourceKey = New(keyType, sourceKeyMembers);
-                    typeMap.TargetKey = New(keyType, targetKeyMembers);
+                    typeMap.SourceKeyExpr = New(keyType, sourceKeyMembers);
+                    typeMap.TargetKeyExpr = New(keyType, targetKeyMembers);
                 }
             }
 

@@ -22,23 +22,23 @@ namespace Detached.Mappers.Factories
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.Source),
-                        Parameter(typeMap.Target),
-                        Parameter(typeMap.Context),
+                        Parameter(typeMap.SourceExpr),
+                        Parameter(typeMap.TargetExpr),
+                        Parameter(typeMap.BuildContextExpr),
                         Block(
                             CreateMemberMappers(typeMap),
-                            If(IsNull(typeMap.Source),
+                            If(IsNull(typeMap.SourceExpr),
                                 Then(
-                                    Assign(typeMap.Target, Default(typeMap.Target.Type))
+                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
                                 ),
                                 Else(
-                                    If(IsNull(typeMap.Target),
-                                        Assign(typeMap.Target, Construct(typeMap))
+                                    If(IsNull(typeMap.TargetExpr),
+                                        Assign(typeMap.TargetExpr, Construct(typeMap))
                                     ),
                                     CreateMembers(typeMap)
                                 )
                             ),
-                            Result(typeMap.Target)
+                            Result(typeMap.TargetExpr)
                         )
                     );
         }
@@ -51,16 +51,16 @@ namespace Detached.Mappers.Factories
             {
                 if (filter == null || filter(memberMap))
                 {
-                    Expression sourceMember = memberMap.SourceOptions.GetValue(typeMap.Source, typeMap.Context);
-                    Expression targetMember = memberMap.TargetOptions.GetValue(typeMap.Target, typeMap.Context);
+                    Expression sourceMember = memberMap.SourceOptions.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
+                    Expression targetMember = memberMap.TargetOptions.GetValue(typeMap.TargetExpr, typeMap.BuildContextExpr);
 
                     sourceMember = CallMapper(memberMap.TypeMap, sourceMember, targetMember);
 
-                    if (typeof(IPatch).IsAssignableFrom(typeMap.Source.Type))
+                    if (typeof(IPatch).IsAssignableFrom(typeMap.SourceExpr.Type))
                     {
                         memberExprs.Add(
-                            If(Call("IsSet", Convert(typeMap.Source, typeof(IPatch)), Constant(memberMap.SourceOptions.Name)),
-                                memberMap.TargetOptions.SetValue(typeMap.Target, sourceMember, typeMap.Context)
+                            If(Call("IsSet", Convert(typeMap.SourceExpr, typeof(IPatch)), Constant(memberMap.SourceOptions.Name)),
+                                memberMap.TargetOptions.SetValue(typeMap.TargetExpr, sourceMember, typeMap.BuildContextExpr)
                             )
                         );
 
@@ -68,7 +68,7 @@ namespace Detached.Mappers.Factories
                     else
                     {
                         memberExprs.Add(
-                            memberMap.TargetOptions.SetValue(typeMap.Target, sourceMember, typeMap.Context)
+                            memberMap.TargetOptions.SetValue(typeMap.TargetExpr, sourceMember, typeMap.BuildContextExpr)
                         );
                     }
                 }
@@ -86,12 +86,12 @@ namespace Detached.Mappers.Factories
 
             if (typeMap.Discriminator != null)
             {
-                Expression discriminator = typeMap.Discriminator.GetValue(typeMap.Source, typeMap.Context);
-                return typeMap.TargetOptions.Construct(typeMap.Context, discriminator);
+                Expression discriminator = typeMap.Discriminator.GetValue(typeMap.SourceExpr, typeMap.BuildContextExpr);
+                return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, discriminator);
             }
             else
             {
-                return typeMap.TargetOptions.Construct(typeMap.Context, null);
+                return typeMap.TargetOptions.Construct(typeMap.BuildContextExpr, null);
             }
         }
     }

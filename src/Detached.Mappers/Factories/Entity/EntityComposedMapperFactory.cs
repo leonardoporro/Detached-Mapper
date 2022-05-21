@@ -20,35 +20,35 @@ namespace Detached.Mappers.Factories.Entity
         {
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.Source),
-                    Parameter(typeMap.Target),
-                    Parameter(typeMap.Context),
+                    Parameter(typeMap.SourceExpr),
+                    Parameter(typeMap.TargetExpr),
+                    Parameter(typeMap.BuildContextExpr),
                     Block(
                         CreateMemberMappers(typeMap),
                         CreateKey(typeMap),
-                        If(IsNull(typeMap.Source),
+                        If(IsNull(typeMap.SourceExpr),
                             Then(
-                                If(IsNotNull(typeMap.Target),
+                                If(IsNotNull(typeMap.TargetExpr),
                                     Then(
                                         OnMapperAction(typeMap, MapperActionType.Delete),
-                                        Assign(typeMap.Target, Default(typeMap.Target.Type))
+                                        Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
                                     )
                                 )
                             ),
                             Else(
                                 Variable("created", Constant(false), out Expression created),
-                                If(IsNull(typeMap.Target),
+                                If(IsNull(typeMap.TargetExpr),
                                     Then(
-                                        Assign(typeMap.Target, Construct(typeMap)),
+                                        Assign(typeMap.TargetExpr, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
                                         Assign(created, Constant(true))
                                     ),
                                     Else(
                                         CreateKey(typeMap),
-                                        If(NotEqual(typeMap.TargetKey, typeMap.SourceKey),
+                                        If(NotEqual(typeMap.TargetKeyExpr, typeMap.SourceKeyExpr),
                                             Then(
                                                 OnMapperAction(typeMap, MapperActionType.Delete),
-                                                Assign(typeMap.Target, Construct(typeMap)),
+                                                Assign(typeMap.TargetExpr, Construct(typeMap)),
                                                 CreateMembers(typeMap, m => m.IsKey),
                                                 Assign(created, Constant(true))
                                             )
@@ -63,7 +63,7 @@ namespace Detached.Mappers.Factories.Entity
                                 )
                             )
                         ),
-                        Result(typeMap.Target)
+                        Result(typeMap.TargetExpr)
                     )
                 );
         }

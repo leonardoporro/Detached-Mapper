@@ -21,10 +21,10 @@ namespace Detached.Mappers.Factories
                 // nullable target.
                 return Lambda(
                          GetDelegateType(typeMap),
-                         Parameter(typeMap.Source),
-                         Parameter(typeMap.Target),
-                         Parameter(typeMap.Context),
-                         Assign(typeMap.Target, Convert(typeMap.Source, typeMap.Target.Type))
+                         Parameter(typeMap.SourceExpr),
+                         Parameter(typeMap.TargetExpr),
+                         Parameter(typeMap.BuildContextExpr),
+                         Assign(typeMap.TargetExpr, Convert(typeMap.SourceExpr, typeMap.TargetExpr.Type))
                       );
             }
             else
@@ -32,15 +32,15 @@ namespace Detached.Mappers.Factories
                 // nullable source.
                 return Lambda(
                           GetDelegateType(typeMap),
-                          Parameter(typeMap.Source),
-                          Parameter(typeMap.Target),
-                          Parameter(typeMap.Context),
+                          Parameter(typeMap.SourceExpr),
+                          Parameter(typeMap.TargetExpr),
+                          Parameter(typeMap.BuildContextExpr),
                           Block(
-                              IfThenElse(IsNull(typeMap.Source),
-                                Assign(typeMap.Target, Default(typeMap.Target.Type)),
-                                Assign(typeMap.Target, Property(typeMap.Source, "Value"))
+                              IfThenElse(IsNull(typeMap.SourceExpr),
+                                Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type)),
+                                Assign(typeMap.TargetExpr, Property(typeMap.SourceExpr, "Value"))
                               ),
-                              Result(typeMap.Target)
+                              Result(typeMap.TargetExpr)
                           )
                        );
             }

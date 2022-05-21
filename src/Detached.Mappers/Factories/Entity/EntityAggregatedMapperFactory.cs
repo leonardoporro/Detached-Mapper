@@ -19,27 +19,27 @@ namespace Detached.Mappers.Factories.Entity
         {
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.Source),
-                    Parameter(typeMap.Target),
-                    Parameter(typeMap.Context),
+                    Parameter(typeMap.SourceExpr),
+                    Parameter(typeMap.TargetExpr),
+                    Parameter(typeMap.BuildContextExpr),
                     Block(
                         CreateMemberMappers(typeMap, x => x.IsKey),
-                        If(IsNull(typeMap.Source),
+                        If(IsNull(typeMap.SourceExpr),
                             Then(
-                                Assign(typeMap.Target, Default(typeMap.Target.Type))
+                                Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
                             ),
                             Else(
                                 CreateKey(typeMap),
-                                If(OrElse(IsNull(typeMap.Target), NotEqual(typeMap.SourceKey, typeMap.TargetKey)),
+                                If(OrElse(IsNull(typeMap.TargetExpr), NotEqual(typeMap.SourceKeyExpr, typeMap.TargetKeyExpr)),
                                     Then(
-                                        Assign(typeMap.Target, Construct(typeMap)),
+                                        Assign(typeMap.TargetExpr, Construct(typeMap)),
                                         CreateMembers(typeMap, m => m.IsKey),
-                                        Assign(typeMap.Target, OnMapperAction(typeMap, MapperActionType.Attach))
+                                        Assign(typeMap.TargetExpr, OnMapperAction(typeMap, MapperActionType.Attach))
                                     )
                                 )
                             )
                         ),
-                        Result(typeMap.Target)
+                        Result(typeMap.TargetExpr)
                     )
                 );
         }

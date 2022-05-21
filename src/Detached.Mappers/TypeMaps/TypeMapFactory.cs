@@ -16,15 +16,15 @@ namespace Detached.Mappers.TypeMaps
             typeMap.Parent = parentMap;
             typeMap.Mapper = mapper;
             typeMap.SourceOptions = options.GetTypeOptions(sourceType);
-            typeMap.Source = Parameter(sourceType, "source_" + sourceType.Name);
+            typeMap.SourceExpr = Parameter(sourceType, "source_" + sourceType.Name);
             typeMap.TargetOptions = options.GetTypeOptions(targetType);
-            typeMap.Target = Parameter(targetType, "target_" + targetType.Name);
+            typeMap.TargetExpr = Parameter(targetType, "target_" + targetType.Name);
             typeMap.IsComposition = isComposition;
 
             if (parentMap == null)
-                typeMap.Context = Parameter(typeof(IMapperContext), "context");
+                typeMap.BuildContextExpr = Parameter(typeof(IMapperContext), "context");
             else
-                typeMap.Context = parentMap.Context;
+                typeMap.BuildContextExpr = parentMap.BuildContextExpr;
 
             while (parentMap != null)
             {
@@ -91,7 +91,7 @@ namespace Detached.Mappers.TypeMaps
                     }
                 }
             }
-              
+
             return typeMap;
         }
 

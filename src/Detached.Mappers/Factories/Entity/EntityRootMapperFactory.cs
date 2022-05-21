@@ -19,16 +19,16 @@ namespace Detached.Mappers.Factories.Entity
         {
             return Lambda(
                     GetDelegateType(typeMap),
-                    Parameter(typeMap.Source),
-                    Parameter(typeMap.Target),
-                    Parameter(typeMap.Context),
+                    Parameter(typeMap.SourceExpr),
+                    Parameter(typeMap.TargetExpr),
+                    Parameter(typeMap.BuildContextExpr),
                     Block(
                         CreateMemberMappers(typeMap),
                         CreateKey(typeMap),
                         Variable("created", Constant(false), out Expression created),
-                        If(IsNull(typeMap.Target),
+                        If(IsNull(typeMap.TargetExpr),
                             Then(
-                                Assign(typeMap.Target, Construct(typeMap)),
+                                Assign(typeMap.TargetExpr, Construct(typeMap)),
                                 CreateMembers(typeMap, m => m.IsKey),
                                 Variable("persisted", OnMapperAction(typeMap, MapperActionType.Load), out Expression persisted),
                                 If(IsNull(persisted),
@@ -36,7 +36,7 @@ namespace Detached.Mappers.Factories.Entity
                                         Assign(created, Constant(true))
                                     ),
                                     Else(
-                                        Assign(typeMap.Target, persisted)
+                                        Assign(typeMap.TargetExpr, persisted)
                                     )
                                 )
                             )
@@ -47,7 +47,7 @@ namespace Detached.Mappers.Factories.Entity
                             OnMapperAction(typeMap, MapperActionType.Create),
                             OnMapperAction(typeMap, MapperActionType.Update)
                         ),
-                        Result(typeMap.Target)
+                        Result(typeMap.TargetExpr)
                     )
                 );
         }

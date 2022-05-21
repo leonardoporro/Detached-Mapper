@@ -20,14 +20,14 @@ namespace Detached.Mappers.Factories
         {
             return Lambda(
                      GetDelegateType(typeMap),
-                     Parameter(typeMap.Source),
-                     Parameter(typeMap.Target),
-                     Parameter(typeMap.Context),
+                     Parameter(typeMap.SourceExpr),
+                     Parameter(typeMap.TargetExpr),
+                     Parameter(typeMap.BuildContextExpr),
                      Block(
-                         Condition(IsNull(typeMap.Source),
-                            Default(typeMap.Target.Type),
-                            Call("To" + typeMap.Target.Type.Name, 
-                                Convert(typeMap.Source, typeof(IConvertible)), 
+                         Condition(IsNull(typeMap.SourceExpr),
+                            Default(typeMap.TargetExpr.Type),
+                            Call("To" + typeMap.TargetExpr.Type.Name, 
+                                Convert(typeMap.SourceExpr, typeof(IConvertible)), 
                                 Default(typeof(IFormatProvider)))
                         )
                      )

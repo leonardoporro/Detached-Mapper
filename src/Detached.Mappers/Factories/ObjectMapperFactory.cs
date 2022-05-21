@@ -9,36 +9,36 @@ namespace Detached.Mappers.Factories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.Source.Type == typeof(object) && typeMap.Target.Type != typeof(object);
+            return typeMap.SourceExpr.Type == typeof(object) && typeMap.TargetExpr.Type != typeof(object);
         }
         public override LambdaExpression Create(TypeMap typeMap)
         {
             return Lambda(
                         GetDelegateType(typeMap),
-                        Parameter(typeMap.Source),
-                        Parameter(typeMap.Target),
-                        Parameter(typeMap.Context),
+                        Parameter(typeMap.SourceExpr),
+                        Parameter(typeMap.TargetExpr),
+                        Parameter(typeMap.BuildContextExpr),
                         Block(
-                            If(IsNull(typeMap.Source),
+                            If(IsNull(typeMap.SourceExpr),
                                 Then(
-                                    Assign(typeMap.Target, Default(typeMap.Target.Type))
+                                    Assign(typeMap.TargetExpr, Default(typeMap.TargetExpr.Type))
                                 ),
                                 Else(
-                                    Assign(typeMap.Target,
+                                    Assign(typeMap.TargetExpr,
                                         Convert(
                                             Call("Map",
                                                 Constant(typeMap.Mapper),
-                                                Convert(typeMap.Source, typeof(object)),
-                                                Call("GetType", typeMap.Source),
-                                                Convert(typeMap.Target, typeof(object)),
-                                                Constant(typeMap.Target.Type),
-                                                typeMap.Context),
-                                            typeMap.Target.Type
+                                                Convert(typeMap.SourceExpr, typeof(object)),
+                                                Call("GetType", typeMap.SourceExpr),
+                                                Convert(typeMap.TargetExpr, typeof(object)),
+                                                Constant(typeMap.TargetExpr.Type),
+                                                typeMap.BuildContextExpr),
+                                            typeMap.TargetExpr.Type
                                         )
                                     )
                                 )
                             ),
-                            Result(typeMap.Target)
+                            Result(typeMap.TargetExpr)
                         )
                     );
         }
