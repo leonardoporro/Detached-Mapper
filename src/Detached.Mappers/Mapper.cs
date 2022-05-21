@@ -1,7 +1,7 @@
 ﻿using AgileObjects.ReadableExpressions;
 using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.Factories;
+using Detached.Mappers.MapperFactories;
 using Detached.Mappers.TypeMaps;
 using Detached.Mappers.TypeOptions;
 using Detached.PatchTypes;

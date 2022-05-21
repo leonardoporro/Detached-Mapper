@@ -1,8 +1,8 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 using Detached.Annotations;
 using Detached.Mappers.Annotations;
-using Detached.Mappers.Factories;
-using Detached.Mappers.Factories.Entity;
+using Detached.Mappers.MapperFactories;
+using Detached.Mappers.MapperFactories.Entity;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Types.Class;
 using Detached.Mappers.TypeOptions.Types.Class.Builder;

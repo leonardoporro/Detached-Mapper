@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.Factories
+namespace Detached.Mappers.MapperFactories
 {
     public class ValueMapperFactory : MapperFactory
     {
@@ -26,8 +26,8 @@ namespace Detached.Mappers.Factories
                      Block(
                          Condition(IsNull(typeMap.SourceExpression),
                             Default(typeMap.TargetExpression.Type),
-                            Call("To" + typeMap.TargetExpression.Type.Name, 
-                                Convert(typeMap.SourceExpression, typeof(IConvertible)), 
+                            Call("To" + typeMap.TargetExpression.Type.Name,
+                                Convert(typeMap.SourceExpression, typeof(IConvertible)),
                                 Default(typeof(IFormatProvider)))
                         )
                      )

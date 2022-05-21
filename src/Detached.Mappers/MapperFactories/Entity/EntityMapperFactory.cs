@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.Factories.Entity
+namespace Detached.Mappers.MapperFactories.Entity
 {
     public abstract class EntityMapperFactory : ComplexTypeMapperFactory
     {
