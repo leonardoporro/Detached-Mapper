@@ -20,12 +20,12 @@ namespace Detached.Mappers.TypeOptions.Types.Class
             // determine the object type: Entity (has members), Collection or Plain Value
             if (IsPrimitive(options, type))
             {
-                typeOptions.IsValue = true;
+                typeOptions.IsPrimitiveType = true;
             }
             else if (type.IsEnumerable(out Type itemType))
             {
                 typeOptions.ItemType = itemType;
-                typeOptions.IsCollection = true;
+                typeOptions.IsCollectionType = true;
             }
             else
             {
@@ -136,8 +136,8 @@ namespace Detached.Mappers.TypeOptions.Types.Class
         {
             if (type.IsEnum)
                 return true;
-            else if (type.IsEnumerable(out Type elementType) && IsPrimitive(options, elementType))
-                return true;
+            //else if (type.IsEnumerable(out Type elementType) && IsPrimitive(options, elementType))
+            //    return true;
             else if (type.IsGenericType)
                 return options.Primitives.Contains(type.GetGenericTypeDefinition());
             else

@@ -1,7 +1,6 @@
-﻿using Detached.Mappers;
-using Xunit;
+﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
     public class BoxedMapperTests
     {

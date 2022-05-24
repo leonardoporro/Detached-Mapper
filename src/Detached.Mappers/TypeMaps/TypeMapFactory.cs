@@ -37,7 +37,7 @@ namespace Detached.Mappers.TypeMaps
                 parentMap = parentMap.ParentTypeMap;
             }
 
-            if (typeMap.TargetTypeOptions.IsCollection)
+            if (typeMap.TargetTypeOptions.IsCollectionType)
             {
                 Type sourceItemType = typeMap.SourceTypeOptions.ItemType;
                 Type targetItemType = typeMap.TargetTypeOptions.ItemType;
@@ -108,7 +108,7 @@ namespace Detached.Mappers.TypeMaps
 
             if (typeMap.ParentTypeMap != null)
             {
-                if (typeMap.TargetTypeOptions.IsEntity
+                if (typeMap.TargetTypeOptions.IsEntityType
                     && (typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
                            || typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {
@@ -122,7 +122,7 @@ namespace Detached.Mappers.TypeMaps
                     result = true;
                 }
                 else if (typeMap.ParentTypeMap.ParentTypeMap != null
-                       && typeMap.ParentTypeMap.TargetTypeOptions.IsCollection
+                       && typeMap.ParentTypeMap.TargetTypeOptions.IsCollectionType
                        && (typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
                            || typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {

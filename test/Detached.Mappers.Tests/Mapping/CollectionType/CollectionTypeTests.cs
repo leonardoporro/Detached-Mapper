@@ -1,15 +1,28 @@
-﻿using Detached.Mappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.CollectionType
 {
-    public class ListTypeMapperTest
+    public class CollectionTypeTests
     {
         Mapper mapper = new Mapper();
 
         [Fact]
-        public void MapCollection()
+        public void map_primitive_collection()
+        {
+            List<int> ints = new List<int> { 1, 2, 3, 4, 5 };
+
+            List<string> result = mapper.Map2<List<int>, List<string>>(ints);
+
+            Assert.Equal("1", result[0]);
+            Assert.Equal("2", result[1]);
+            Assert.Equal("3", result[2]);
+            Assert.Equal("4", result[3]);
+            Assert.Equal("5", result[4]);
+        }
+
+        [Fact]
+        public void map_complex_collection()
         {
             SourceType sourceType = new SourceType
             {
@@ -21,7 +34,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            TargetType targetType = mapper.Map<SourceType, TargetType>(sourceType);
+            TargetType targetType = mapper.Map2<SourceType, TargetType>(sourceType);
 
             Assert.NotNull(targetType.ComplexCollection);
             Assert.Equal("Item 1", targetType.ComplexCollection[0].Name);

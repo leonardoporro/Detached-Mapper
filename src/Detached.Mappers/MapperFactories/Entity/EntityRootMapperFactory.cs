@@ -11,7 +11,7 @@ namespace Detached.Mappers.MapperFactories.Entity
         public override bool CanMap(TypeMap typeMap)
         {
             return typeMap.ParentTypeMap == null
-                && typeMap.TargetTypeOptions.IsEntity
+                && typeMap.TargetTypeOptions.IsEntityType
                 && typeMap.SourceTypeOptions.IsComplexType;
         }
 

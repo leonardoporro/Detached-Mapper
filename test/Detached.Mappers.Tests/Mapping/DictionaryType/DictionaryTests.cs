@@ -1,15 +1,14 @@
-﻿using Detached.Mappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Dictionary
+namespace Detached.Mappers.Tests.Mapping.DictionaryType
 {
     public class DictionaryTests
     {
         static Mapper mapper = new Mapper();
 
         [Fact]
-        public void MapDictionaryToEntity()
+        public void map_dictionary_to_entity()
         {
             var source = new Dictionary<string, object>
             {
@@ -27,11 +26,11 @@ namespace Detached.Mappers.Tests.Mapping.Dictionary
                           { "Id", 2 },
                           { "Name", "asoc2" }
                       },
-                   } 
+                   }
                 }
             };
 
-            Entity result = mapper.Map<Dictionary<string, object>, Entity>(source);
+            Entity result = mapper.Map2<Dictionary<string, object>, Entity>(source);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("test name", result.Name);
@@ -47,7 +46,7 @@ namespace Detached.Mappers.Tests.Mapping.Dictionary
             public int Id { get; set; }
 
             public string Name { get; set; }
-        
+
             public List<Association> Associations { get; set; }
         }
 
@@ -57,6 +56,6 @@ namespace Detached.Mappers.Tests.Mapping.Dictionary
 
             public string Name { get; set; }
         }
-         
+
     }
 }

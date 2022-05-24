@@ -1,10 +1,9 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
 using Detached.Mappers.Context;
 using Detached.Mappers.TypeMaps;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class EntityCompositionMapperTests
     {
@@ -69,7 +68,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             };
 
             TargetEntity target = new TargetEntity
-            { 
+            {
                 Id = 1,
                 Name = "entity",
                 ExtraProperty = "extra_prop_not_mapped",
@@ -87,7 +86,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);
-            
+
             // THEN
             Assert.Equal(targetCheck, mapped.GetHashCode()); // root is merged
             Assert.Equal(1, mapped.Id);

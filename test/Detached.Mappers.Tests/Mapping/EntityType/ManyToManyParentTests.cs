@@ -1,10 +1,9 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
 using Detached.Mappers.Context;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class MayToManyParentTests
     {
@@ -50,7 +49,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             };
 
             EntityB target = null;
- 
+
             MapperContext context = new MapperContext();
 
             var mapped = mapper.Map(source, target, context);
@@ -74,7 +73,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
         public class EntityB
         {
             [Composition]
-            public List<EntityA> ListOfA { get; set; } 
+            public List<EntityA> ListOfA { get; set; }
 
             public int Id { get; set; }
 

@@ -8,15 +8,15 @@ namespace Detached.Mappers.TypeOptions
     {
         Dictionary<string, object> Annotations { get; }
 
-        bool IsCollection { get; }
+        bool IsCollectionType { get; }
 
-        bool IsEntity { get; }
+        bool IsEntityType { get; }
 
         bool IsFragment { get; }
 
         bool IsComplexType { get; }
 
-        bool IsValue { get; }
+        bool IsPrimitiveType { get; }
 
         Type ItemType { get; }
 

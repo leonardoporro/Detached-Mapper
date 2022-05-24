@@ -3,7 +3,7 @@ using Detached.Mappers.Context;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class BackReferenceTests
     {

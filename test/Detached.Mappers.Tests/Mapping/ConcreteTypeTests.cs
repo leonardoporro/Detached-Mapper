@@ -9,7 +9,7 @@ namespace Detached.Mappers.Tests.Mapping
         readonly Mapper _mapper = new Mapper();
 
         [Fact]
-        public void MapInterfaces()
+        public void map_concrete_list()
         {
             SourceType sourceType = new SourceType
             {
@@ -21,7 +21,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            TargetType targetType = _mapper.Map<SourceType, TargetType>(sourceType);
+            TargetType targetType = _mapper.Map2<SourceType, TargetType>(sourceType);
 
             Assert.NotNull(targetType.ComplexCollection);
             Assert.Equal("Item 1", targetType.ComplexCollection[0].Name);

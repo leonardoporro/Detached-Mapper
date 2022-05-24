@@ -1,14 +1,13 @@
-﻿using Detached.Mappers;
-using Xunit;
+﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class NestedTypeMapperTest
+    public class NestedComplexTypeTests
     {
         Mapper mapper = new Mapper();
 
         [Fact]
-        public void MapSameType()
+        public void map_nested_type_same_type()
         {
             NestedTargetType oldObj = new NestedTargetType
             {
@@ -21,7 +20,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map<NestedTargetType, NestedTargetType>(oldObj);
+            NestedTargetType mappedObj = mapper.Map2<NestedTargetType, NestedTargetType>(oldObj);
 
             Assert.NotEqual(oldObj, mappedObj);
             Assert.Equal("sample text", mappedObj.Text);
@@ -32,7 +31,7 @@ namespace Detached.Mappers.Tests.Mapping
         }
 
         [Fact]
-        public void MergeOtherType()
+        public void map_nested_type_different_type()
         {
             NestedTargetType targetObj = new NestedTargetType
             {
@@ -56,7 +55,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map(sourceObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map2(sourceObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
@@ -67,7 +66,7 @@ namespace Detached.Mappers.Tests.Mapping
         }
 
         [Fact]
-        public void MergeOtherNullValue()
+        public void merge_null_value()
         {
             NestedTargetType targetObj = new NestedTargetType
             {
@@ -87,7 +86,7 @@ namespace Detached.Mappers.Tests.Mapping
                 Nested = null
             };
 
-            NestedTargetType mappedObj = mapper.Map(sourceObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map2(sourceObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
@@ -96,7 +95,7 @@ namespace Detached.Mappers.Tests.Mapping
         }
 
         [Fact]
-        public void MergeAnonymousType()
+        public void merge_anonymous_type()
         {
             NestedTargetType targetObj = new NestedTargetType
             {

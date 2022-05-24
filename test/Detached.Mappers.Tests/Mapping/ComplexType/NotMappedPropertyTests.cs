@@ -1,16 +1,15 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
 using System.ComponentModel.DataAnnotations.Schema;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
     public class NotMappedPropertyTests
     {
         readonly Mapper _mapper = new Mapper();
-    
+
         [Fact]
-        public void IgnoreNotMapped()
+        public void ignore_not_mapped_property()
         {
             Entity source = new Entity
             {
@@ -24,7 +23,7 @@ namespace Detached.Mappers.Tests.Mapping
                 Text2 = "source_text2"
             };
 
-            var mapped =_mapper.Map(source, target);
+            var mapped = _mapper.Map2(source, target);
 
             Assert.Equal("target_text1", mapped.Text1);
             Assert.Equal("source_text2", mapped.Text2);

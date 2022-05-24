@@ -23,13 +23,13 @@ namespace Detached.Mappers.TypeOptions.Types.Class.Builder
         public ClassTypeOptionsBuilder<TType> IsEntity(bool entity = true)
         {
             TypeOptions.IsFragment = !entity;
-            TypeOptions.IsEntity = entity;
+            TypeOptions.IsEntityType = entity;
             return this;
         }
 
         public ClassTypeOptionsBuilder<TType> IsFragment(bool entity = true)
         {
-            TypeOptions.IsEntity = !entity;
+            TypeOptions.IsEntityType = !entity;
             TypeOptions.IsFragment = entity;
             return this;
         }

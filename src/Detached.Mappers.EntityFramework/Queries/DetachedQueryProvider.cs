@@ -118,7 +118,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 if (!memberMap.IsBackReference)
                 {
-                    if (memberMap.TypeMap.TargetTypeOptions.IsCollection)
+                    if (memberMap.TypeMap.TargetTypeOptions.IsCollectionType)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
@@ -144,7 +144,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression CreateSelectProjection(TypeMap typeMap, Expression targetExpr)
         {
-            if (typeMap.SourceTypeOptions.IsCollection)
+            if (typeMap.SourceTypeOptions.IsCollectionType)
             {
                 var itemType = typeMap.ItemTypeMap.TargetTypeOptions.Type;
                 var param = Parameter(itemType, "e");

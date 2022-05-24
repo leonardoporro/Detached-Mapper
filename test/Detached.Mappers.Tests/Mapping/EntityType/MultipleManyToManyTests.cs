@@ -3,7 +3,7 @@ using Detached.Mappers.Context;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class MultipleManyToManyTests
     {
@@ -22,7 +22,7 @@ namespace Detached.Mappers.Tests.Mapping
 
             MapperContext context = new MapperContext();
 
-            var mapped = mapper.Map(source, target, context);
+            var mapped = mapper.Map2(source, target, context);
 
             Assert.Single(source.ListChildrenA);
             Assert.Null(target.ListChildrenA[0].ListParentsB);

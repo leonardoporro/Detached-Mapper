@@ -1,14 +1,13 @@
-﻿using Detached.Mappers;
-using Xunit;
+﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class CyclesMapperTest
+    public class RecursiveComplexTypeTest
     {
         Mapper mapper = new Mapper();
 
         [Fact]
-        public void MapCycle()
+        public void map_recursive_types()
         {
             CycleSource sourceObj = new CycleSource
             {
@@ -31,7 +30,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            CycleTarget mappedObj = mapper.Map<CycleSource, CycleTarget>(sourceObj);
+            CycleTarget mappedObj = mapper.Map2<CycleSource, CycleTarget>(sourceObj);
             Assert.Equal("sample text", mappedObj.Text);
             Assert.Equal("sample cycle", mappedObj.DirectCycle.Text);
             Assert.Equal("sample cycle 2", mappedObj.DirectCycle.DirectCycle.Text);
@@ -68,18 +67,18 @@ namespace Detached.Mappers.Tests.Mapping
 
 
         [Fact]
-        public void MapIndirectCycleAnonymous()
+        public void map_indirect_recursive_types()
         {
-            var source = new 
+            var source = new
             {
                 Name = "A1",
-                B = new 
+                B = new
                 {
                     Name = "B1",
-                    C = new 
+                    C = new
                     {
                         Name = "C1",
-                        A = new 
+                        A = new
                         {
                             Name = "A2"
                         }
@@ -87,7 +86,7 @@ namespace Detached.Mappers.Tests.Mapping
                 }
             };
 
-            CycleA result = mapper.Map(source, new CycleA());
+            CycleA result = mapper.Map2(source, new CycleA());
             Assert.Equal("A1", result.Name);
             Assert.Equal("B1", result.B.Name);
             Assert.Equal("C1", result.B.C.Name);
@@ -119,7 +118,7 @@ namespace Detached.Mappers.Tests.Mapping
         {
             public string Name { get; set; }
 
-             public CycleC C { get; set; }
+            public CycleC C { get; set; }
         }
 
         public class CycleC

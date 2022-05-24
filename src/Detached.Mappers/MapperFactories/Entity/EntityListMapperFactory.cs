@@ -9,9 +9,9 @@ namespace Detached.Mappers.MapperFactories.Entity
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceTypeOptions.IsCollection
-                && typeMap.TargetTypeOptions.IsCollection
-                && typeMap.ItemTypeMap.TargetTypeOptions.IsEntity
+            return typeMap.SourceTypeOptions.IsCollectionType
+                && typeMap.TargetTypeOptions.IsCollectionType
+                && typeMap.ItemTypeMap.TargetTypeOptions.IsEntityType
                 && typeMap.ItemTypeMap.SourceTypeOptions.IsComplexType;
         }
 

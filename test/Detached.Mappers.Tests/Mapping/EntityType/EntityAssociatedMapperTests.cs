@@ -3,7 +3,7 @@ using Detached.Mappers.Context;
 using Detached.Mappers.TypeMaps;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class EntityAssociatedMapperTests
     {
@@ -46,7 +46,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.NotEqual(targetCheck, mapped.Associated.GetHashCode());
 
             // there is no tracking for disposed entity.
-            Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry)); 
+            Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry));
 
             // new entity is loaded.
             Assert.True(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(2), out MapperContextEntry entry2));
@@ -126,10 +126,10 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             Assert.NotNull(mapped.Associated);
             Assert.Equal(1, mapped.Associated.Id);// key is mapped
             Assert.Equal(targetCheck, mapped.Associated.GetHashCode());
- 
+
             Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry2));
         }
- 
+
         [Entity]
         public class TargetEntity
         {

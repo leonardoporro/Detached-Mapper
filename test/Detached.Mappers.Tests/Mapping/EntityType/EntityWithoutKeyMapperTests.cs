@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class EntityWithoutKeyMapperTests
     {
@@ -23,7 +23,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             {
                 Name = "the dto"
             };
-            
+
             MapperContext context = new MapperContext();
             mapper.Map(dto, entity, context);
 

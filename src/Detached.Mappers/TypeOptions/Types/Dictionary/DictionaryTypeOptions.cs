@@ -10,15 +10,15 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
     {
         public Dictionary<string, object> Annotations { get; set; }
 
-        public bool IsCollection => false;
+        public bool IsCollectionType => false;
 
-        public bool IsEntity => false;
+        public bool IsEntityType => false;
 
         public bool IsFragment => false;
 
         public bool IsComplexType => true;
 
-        public bool IsValue => false;
+        public bool IsPrimitiveType => false;
 
         public Type ItemType => null;
 

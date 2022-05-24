@@ -2,12 +2,15 @@
 using Detached.Mappers.Context;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.MapperFactories;
+using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeMaps;
 using Detached.Mappers.TypeOptions;
 using Detached.PatchTypes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -24,7 +27,7 @@ namespace Detached.Mappers
         public Mapper()
         {
             _options = new MapperOptions();
-            _typeMapFactory = new TypeMapFactory();;
+            _typeMapFactory = new TypeMapFactory(); ;
             _memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null }));
         }
 
@@ -102,13 +105,13 @@ namespace Detached.Mappers
                           Result(sourceObjExpr)
                       ).Compile() as MapperDelegate;
                 }
-               
+
             })(source, target, context);
         }
 
         public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType != targetType || !targetType.IsValue;
+            return sourceType != targetType || !targetType.IsPrimitiveType;
         }
 
         public MapperFactory GetFactory(TypeMap typeMap)
@@ -132,6 +135,50 @@ namespace Detached.Mappers
         bool IPatchTypeInfoProvider.ShouldPatch(Type type)
         {
             return !typeof(IPatch).IsAssignableFrom(type) && GetTypeOptions(type).IsComplexType;
+        }
+
+        ConcurrentDictionary<TypePair, ITypeMapper> _mappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
+
+        List<ITypeMapperFactory> _factories = new List<ITypeMapperFactory>
+        {
+            new TypeMappers.CollectionType.CollectionTypeMapperFactory(),
+            new TypeMappers.ComplexType.ComplexTypeMapperFactory(),
+            new TypeMappers.PrimitiveType.PrimitiveTypeMapperFactory()
+        };
+
+        public ITypeMapper GetTypeMapper(TypePair typePair)
+        {
+            return _mappers.GetOrAdd(typePair, t =>
+            {
+                ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
+                ITypeOptions targetType = GetTypeOptions(typePair.TargetType);
+
+                foreach (var factory in _factories)
+                {
+                    if (factory.CanCreate(this, typePair, sourceType, targetType))
+                    {
+                        return factory.Create(this, typePair, sourceType, targetType);
+                    }
+                }
+
+                throw new MapperException($"No factory for {typePair.SourceType.Name} -> {typePair.TargetType.Name}");
+            });
+        }
+
+        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
+        {
+            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
+            return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });
+        }
+
+        public object Map2(object source, Type sourceType, object target, Type targetType, IMapperContext context = default)
+        {
+            return GetTypeMapper(new TypePair(sourceType, targetType, TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
+        }
+
+        public TTarget Map2<TSource, TTarget>(TSource source, TTarget target = default, IMapperContext context = default)
+        {
+            return (TTarget)GetTypeMapper(new TypePair(typeof(TSource), typeof(TTarget), TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
         }
     }
 }

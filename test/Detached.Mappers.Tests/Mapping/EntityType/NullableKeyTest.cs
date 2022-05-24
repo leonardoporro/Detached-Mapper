@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class NullableKeyTest
     {

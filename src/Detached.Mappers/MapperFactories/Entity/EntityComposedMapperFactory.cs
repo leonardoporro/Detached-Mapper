@@ -12,7 +12,7 @@ namespace Detached.Mappers.MapperFactories.Entity
         {
             return typeMap.ParentTypeMap != null
                 && typeMap.IsComposition
-                && typeMap.TargetTypeOptions.IsEntity
+                && typeMap.TargetTypeOptions.IsEntityType
                 && typeMap.SourceTypeOptions.IsComplexType;
         }
 

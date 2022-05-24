@@ -7,7 +7,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
-            typeOptions.IsEntity = true;
+            typeOptions.IsEntityType = true;
         }
     }
 }

@@ -1,15 +1,14 @@
-﻿using Detached.Mappers;
-using System;
+﻿using System;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class ComplexTypeMapperTest
+    public class ComplexTypeTests
     {
         Mapper mapper = new Mapper();
 
         [Fact]
-        public void MapSameType()
+        public void map_same_type()
         {
             TargetTestType targetObj = new TargetTestType
             {
@@ -17,7 +16,7 @@ namespace Detached.Mappers.Tests.Mapping
                 Number = 5
             };
 
-            TargetTestType mappedObj = mapper.Map<TargetTestType, TargetTestType>(targetObj);
+            TargetTestType mappedObj = mapper.Map2<TargetTestType, TargetTestType>(targetObj);
 
             Assert.NotEqual(targetObj, mappedObj);
             Assert.Equal("sample text", mappedObj.Text);
@@ -25,13 +24,13 @@ namespace Detached.Mappers.Tests.Mapping
         }
 
         [Fact]
-        public void MergeOtherType()
+        public void map_different_types()
         {
             TargetTestType targetObj = new TargetTestType
             {
                 Text = "sample text",
                 Number = 5,
-                DateTime  = new DateTime(1984, 07, 09)
+                DateTime = new DateTime(1984, 07, 09)
             };
 
             SourceTestType sourceObj = new SourceTestType
@@ -40,16 +39,16 @@ namespace Detached.Mappers.Tests.Mapping
                 Number = 9
             };
 
-            TargetTestType mappedObj = mapper.Map(sourceObj, targetObj);
+            TargetTestType mappedObj = mapper.Map2(sourceObj, targetObj);
 
-            Assert.Equal(targetObj, mappedObj); 
+            Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
             Assert.Equal(9, mappedObj.Number);
             Assert.Equal(new DateTime(1984, 07, 09), mappedObj.DateTime);
         }
 
         [Fact]
-        public void MergeAnonymousType()
+        public void map_anonymous_types()
         {
             TargetTestType targetObj = new TargetTestType
             {
@@ -64,7 +63,7 @@ namespace Detached.Mappers.Tests.Mapping
                 Number = 9
             };
 
-            TargetTestType mappedObj = mapper.Map(newObj, targetObj);
+            TargetTestType mappedObj = mapper.Map2(newObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);

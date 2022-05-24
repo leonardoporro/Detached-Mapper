@@ -31,13 +31,13 @@ namespace Detached.Mappers.TypeOptions.Types.Class
 
         public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
 
-        public virtual bool IsValue { get; set; }
+        public virtual bool IsPrimitiveType { get; set; }
 
-        public virtual bool IsCollection { get; set; }
+        public virtual bool IsCollectionType { get; set; }
 
         public virtual bool IsComplexType { get; set; }
 
-        public virtual bool IsEntity { get; set; }
+        public virtual bool IsEntityType { get; set; }
 
         public virtual bool IsFragment { get; set; }
 

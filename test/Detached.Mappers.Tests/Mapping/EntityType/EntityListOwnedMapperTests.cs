@@ -1,11 +1,10 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
 using Detached.Mappers.Context;
 using Detached.Mappers.TypeMaps;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.Entity
+namespace Detached.Mappers.Tests.Mapping.EntityType
 {
     public class EntityListCompositionMapperTests
     {
@@ -40,7 +39,7 @@ namespace Detached.Mappers.Tests.Mapping.Entity
             MapperContext context = new MapperContext();
 
             TargetEntity mapped = mapper.Map(source, target, context);
- 
+
             Assert.NotNull(mapped.CompositionList);
             Assert.Equal(2, mapped.CompositionList.Count);
 
