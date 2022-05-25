@@ -43,8 +43,7 @@ namespace Detached.Mappers
             typeof(DateTime),
             typeof(DateTimeOffset),
             typeof(TimeSpan),
-            typeof(Guid),
-            typeof(Nullable<>)
+            typeof(Guid)
         };
 
         public virtual List<ITypeOptionsFactory> TypeOptionsFactories { get; set; }

@@ -4,19 +4,33 @@ using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeOptions
 {
+    public enum TypeKind
+    {
+        Primitive,
+        Complex,
+        Collection,
+        Entity,
+        Nullable,
+        Boxed
+    }
+
     public interface ITypeOptions
     {
         Dictionary<string, object> Annotations { get; }
 
-        bool IsCollectionType { get; }
+        bool IsCollection { get; }
 
-        bool IsEntityType { get; }
+        bool IsEntity { get; }
 
         bool IsFragment { get; }
 
-        bool IsComplexType { get; }
+        bool IsComplex { get; }
 
-        bool IsPrimitiveType { get; }
+        bool IsPrimitive { get; }
+
+        bool IsNullable { get; }
+
+        bool IsBoxed { get; }
 
         Type ItemType { get; }
 

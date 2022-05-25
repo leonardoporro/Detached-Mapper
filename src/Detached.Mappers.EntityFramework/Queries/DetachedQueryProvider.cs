@@ -118,7 +118,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 if (!memberMap.IsBackReference)
                 {
-                    if (memberMap.TypeMap.TargetTypeOptions.IsCollectionType)
+                    if (memberMap.TypeMap.TargetTypeOptions.IsCollection)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
@@ -128,7 +128,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                             GetIncludes(memberMap.TypeMap.ItemTypeMap, includes, name + ".");
                         }
                     }
-                    else if (memberMap.TypeMap.TargetTypeOptions.IsComplexType)
+                    else if (memberMap.TypeMap.TargetTypeOptions.IsComplex)
                     {
                         string name = prefix + memberMap.TargetOptions.Name;
                         includes.Add(name);
@@ -144,7 +144,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression CreateSelectProjection(TypeMap typeMap, Expression targetExpr)
         {
-            if (typeMap.SourceTypeOptions.IsCollectionType)
+            if (typeMap.SourceTypeOptions.IsCollection)
             {
                 var itemType = typeMap.ItemTypeMap.TargetTypeOptions.Type;
                 var param = Parameter(itemType, "e");
@@ -154,7 +154,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), targetExpr, lambda));
             }
-            else if (typeMap.SourceTypeOptions.IsComplexType)
+            else if (typeMap.SourceTypeOptions.IsComplex)
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 foreach (MemberMap memberMap in typeMap.Members)

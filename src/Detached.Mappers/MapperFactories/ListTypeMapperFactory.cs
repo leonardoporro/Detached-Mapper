@@ -9,8 +9,8 @@ namespace Detached.Mappers.MapperFactories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceTypeOptions.IsCollectionType
-                && typeMap.TargetTypeOptions.IsCollectionType;
+            return typeMap.SourceTypeOptions.IsCollection
+                && typeMap.TargetTypeOptions.IsCollection;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)

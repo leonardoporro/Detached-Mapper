@@ -37,7 +37,7 @@ namespace Detached.Mappers.TypeMaps
                 parentMap = parentMap.ParentTypeMap;
             }
 
-            if (typeMap.TargetTypeOptions.IsCollectionType)
+            if (typeMap.TargetTypeOptions.IsCollection)
             {
                 Type sourceItemType = typeMap.SourceTypeOptions.ItemType;
                 Type targetItemType = typeMap.TargetTypeOptions.ItemType;
@@ -47,7 +47,7 @@ namespace Detached.Mappers.TypeMaps
 
                 typeMap.ItemTypeMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, isComposition);
             }
-            else if (typeMap.TargetTypeOptions.IsComplexType)
+            else if (typeMap.TargetTypeOptions.IsComplex)
             {
                 IEnumerable<string> memberNames = typeMap.TargetTypeOptions.MemberNames;
                 if (memberNames != null)
@@ -108,7 +108,7 @@ namespace Detached.Mappers.TypeMaps
 
             if (typeMap.ParentTypeMap != null)
             {
-                if (typeMap.TargetTypeOptions.IsEntityType
+                if (typeMap.TargetTypeOptions.IsEntity
                     && (typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
                            || typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {
@@ -122,7 +122,7 @@ namespace Detached.Mappers.TypeMaps
                     result = true;
                 }
                 else if (typeMap.ParentTypeMap.ParentTypeMap != null
-                       && typeMap.ParentTypeMap.TargetTypeOptions.IsCollectionType
+                       && typeMap.ParentTypeMap.TargetTypeOptions.IsCollection
                        && (typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
                            || typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
                 {

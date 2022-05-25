@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.TypeOptions;
 using System;
 
 namespace Detached.Mappers.TypeMappers.PrimitiveType
@@ -8,7 +7,7 @@ namespace Detached.Mappers.TypeMappers.PrimitiveType
     {
         public bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsPrimitiveType && targetType.IsPrimitiveType;
+            return sourceType.IsPrimitive && targetType.IsPrimitive;
         }
 
         public ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)

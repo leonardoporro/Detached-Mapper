@@ -14,8 +14,8 @@ namespace Detached.Mappers.MapperFactories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceTypeOptions.IsComplexType
-                && typeMap.TargetTypeOptions.IsComplexType;
+            return typeMap.SourceTypeOptions.IsComplex
+                && typeMap.TargetTypeOptions.IsComplex;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)

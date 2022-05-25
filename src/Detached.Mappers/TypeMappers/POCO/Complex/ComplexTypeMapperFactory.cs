@@ -12,9 +12,9 @@ namespace Detached.Mappers.TypeMappers.ComplexType
     {
         public bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsComplexType
-                && targetType.IsComplexType
-                && !targetType.IsEntityType;
+            return sourceType.IsComplex
+                && targetType.IsComplex
+                && !targetType.IsEntity;
         }
 
         public ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
@@ -51,12 +51,15 @@ namespace Detached.Mappers.TypeMappers.ComplexType
         {
             List<Expression> memberMapsExprs = new List<Expression>();
 
-            foreach (string memberName in targetType.MemberNames)
+            if (targetType.MemberNames != null)
             {
-                Expression memberMapExpr = CreateMemberMapExpression(mapper, sourceType, targetType, sourceExpr, targetExpr, contextExpr, memberName);
-                if (memberMapExpr != null)
+                foreach (string memberName in targetType.MemberNames)
                 {
-                    memberMapsExprs.Add(memberMapExpr);
+                    Expression memberMapExpr = CreateMemberMapExpression(mapper, sourceType, targetType, sourceExpr, targetExpr, contextExpr, memberName);
+                    if (memberMapExpr != null)
+                    {
+                        memberMapsExprs.Add(memberMapExpr);
+                    }
                 }
             }
 

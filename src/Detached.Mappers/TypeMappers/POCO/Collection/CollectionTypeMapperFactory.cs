@@ -7,9 +7,9 @@ namespace Detached.Mappers.TypeMappers.CollectionType
     {
         public bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsCollectionType
-                && targetType.IsCollectionType
-                && !mapper.GetTypeOptions(targetType.ItemType).IsEntityType; // TODO: simplify.
+            return sourceType.IsCollection
+                && targetType.IsCollection
+                && !mapper.GetTypeOptions(targetType.ItemType).IsEntity; // TODO: simplify.
         }
 
         public ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)

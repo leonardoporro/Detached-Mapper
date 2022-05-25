@@ -9,10 +9,10 @@ namespace Detached.Mappers.MapperFactories.Entity
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceTypeOptions.IsCollectionType
-                && typeMap.TargetTypeOptions.IsCollectionType
-                && typeMap.ItemTypeMap.TargetTypeOptions.IsEntityType
-                && typeMap.ItemTypeMap.SourceTypeOptions.IsComplexType;
+            return typeMap.SourceTypeOptions.IsCollection
+                && typeMap.TargetTypeOptions.IsCollection
+                && typeMap.ItemTypeMap.TargetTypeOptions.IsEntity
+                && typeMap.ItemTypeMap.SourceTypeOptions.IsComplex;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)

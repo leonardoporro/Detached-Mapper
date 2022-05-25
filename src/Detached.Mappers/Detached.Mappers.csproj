@@ -40,8 +40,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TypeMappers\EntityType\" />
-  </ItemGroup>
-
 </Project>

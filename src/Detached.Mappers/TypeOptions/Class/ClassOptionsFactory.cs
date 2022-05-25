@@ -20,16 +20,25 @@ namespace Detached.Mappers.TypeOptions.Types.Class
             // determine the object type: Entity (has members), Collection or Plain Value
             if (IsPrimitive(options, type))
             {
-                typeOptions.IsPrimitiveType = true;
+                typeOptions.IsPrimitive = true;
             }
             else if (type.IsEnumerable(out Type itemType))
             {
                 typeOptions.ItemType = itemType;
-                typeOptions.IsCollectionType = true;
+                typeOptions.IsCollection = true;
+            }
+            else if (type.IsNullable(out Type baseType))
+            {
+                typeOptions.IsNullable = true;
+                typeOptions.ItemType = baseType;
+            }
+            else if (type == typeof(object))
+            {
+                typeOptions.IsBoxed = true;
             }
             else
             {
-                typeOptions.IsComplexType = true;
+                typeOptions.IsComplex = true;
 
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())

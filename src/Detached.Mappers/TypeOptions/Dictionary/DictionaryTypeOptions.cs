@@ -10,15 +10,17 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
     {
         public Dictionary<string, object> Annotations { get; set; }
 
-        public bool IsCollectionType => false;
+        public bool IsCollection => false;
 
-        public bool IsEntityType => false;
+        public bool IsEntity => false;
 
         public bool IsFragment => false;
 
-        public bool IsComplexType => true;
+        public bool IsComplex => true;
 
-        public bool IsPrimitiveType => false;
+        public bool IsPrimitive => false;
+
+        public bool IsBoxed => false;
 
         public Type ItemType => null;
 
@@ -31,6 +33,8 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
         public string DiscriminatorName => null;
 
         public Dictionary<object, Type> DiscriminatorValues => null;
+
+        public bool IsNullable => false;
 
         public Expression Construct(Expression context, Expression discriminator)
         {

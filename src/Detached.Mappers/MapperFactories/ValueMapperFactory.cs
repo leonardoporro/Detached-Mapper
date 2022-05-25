@@ -10,8 +10,8 @@ namespace Detached.Mappers.MapperFactories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.SourceTypeOptions.IsPrimitiveType &&
-                   typeMap.TargetTypeOptions.IsPrimitiveType &&
+            return typeMap.SourceTypeOptions.IsPrimitive &&
+                   typeMap.TargetTypeOptions.IsPrimitive &&
                    typeof(IConvertible).IsAssignableFrom(typeMap.SourceTypeOptions.Type) &&
                    typeMap.TargetTypeOptions.Type.IsPrimitive;
         }

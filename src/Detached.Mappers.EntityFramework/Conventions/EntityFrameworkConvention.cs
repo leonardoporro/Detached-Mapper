@@ -19,9 +19,9 @@ namespace Detached.Mappers.EntityFramework.Conventions
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.Type);
 
-            typeOptions.IsEntityType = entityType != null && !entityType.IsOwned();
+            typeOptions.IsEntity = entityType != null && !entityType.IsOwned();
 
-            if (typeOptions.IsEntityType)
+            if (typeOptions.IsEntity)
             {
                 IKey pk = entityType.FindPrimaryKey();
 

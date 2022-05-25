@@ -17,7 +17,7 @@ namespace Detached.Mappers.MapperFactories.Entity
             {
                 BackReferenceMap backRef = typeMap.BackReferenceMap;
 
-                if (backRef.MemberTypeOptions.IsCollectionType)
+                if (backRef.MemberTypeOptions.IsCollection)
                 {
                     Expression list = backRef.MemberOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
                     Expression item = backRef.Parent.TargetExpression;

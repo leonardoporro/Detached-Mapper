@@ -111,7 +111,10 @@ namespace Detached.Mappers
 
         public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType != targetType || !targetType.IsPrimitiveType;
+            return sourceType != targetType 
+                    || sourceType.IsBoxed
+                    || targetType.IsBoxed
+                    || !targetType.IsPrimitive;
         }
 
         public MapperFactory GetFactory(TypeMap typeMap)
@@ -134,7 +137,7 @@ namespace Detached.Mappers
 
         bool IPatchTypeInfoProvider.ShouldPatch(Type type)
         {
-            return !typeof(IPatch).IsAssignableFrom(type) && GetTypeOptions(type).IsComplexType;
+            return !typeof(IPatch).IsAssignableFrom(type) && GetTypeOptions(type).IsComplex;
         }
 
         ConcurrentDictionary<TypePair, ITypeMapper> _mappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
@@ -143,7 +146,9 @@ namespace Detached.Mappers
         {
             new TypeMappers.CollectionType.CollectionTypeMapperFactory(),
             new TypeMappers.ComplexType.ComplexTypeMapperFactory(),
-            new TypeMappers.PrimitiveType.PrimitiveTypeMapperFactory()
+            new TypeMappers.PrimitiveType.PrimitiveTypeMapperFactory(),
+            new TypeMappers.POCO.Object.BoxingTypeMapperFactory(),
+            new TypeMappers.POCO.Nullable.NullableTypeMapperFactory()
         };
 
         public ITypeMapper GetTypeMapper(TypePair typePair)
