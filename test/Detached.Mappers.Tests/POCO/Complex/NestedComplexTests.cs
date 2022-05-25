@@ -2,7 +2,7 @@
 
 namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class NestedComplexTypeTests
+    public class NestedComplexTests
     {
         Mapper mapper = new Mapper();
 

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Model
+namespace Detached.Mappers.Tests.POCO.ComplexType
 {
     public class ConstructorTests
     {

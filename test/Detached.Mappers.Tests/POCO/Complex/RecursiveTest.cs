@@ -2,7 +2,7 @@
 
 namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class RecursiveComplexTypeTest
+    public class RecursiveTest
     {
         Mapper mapper = new Mapper();
 

@@ -18,7 +18,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             ITypeOptions typeOptions = mapperOptions.GetTypeOptions(typeof(ConventionTestClass));
 
-            Assert.True(typeOptions.IsEntityType);
+            Assert.True(typeOptions.IsEntity);
             Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey);
             Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey);
             Assert.False(typeOptions.GetMember(nameof(ConventionTestClass.Id)).IsKey);

@@ -2,7 +2,7 @@
 
 namespace Detached.Mappers.Tests.Mapping.PrimitiveType
 {
-    public class PrimitiveTypeTest
+    public class PrimitiveTests
     {
         [Fact]
         public void map_string_to_int()

@@ -1,11 +1,11 @@
 ﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.ComplexType
+namespace Detached.Mappers.Tests.POCO.Boxing
 {
-    public class BoxedMapperTests
+    public class BoxingTests
     {
         [Fact]
-        public void MapBoxedTypes()
+        public void map_boxed_types()
         {
             Mapper mapper = new Mapper();
 
@@ -15,7 +15,7 @@ namespace Detached.Mappers.Tests.Mapping.ComplexType
                 Name = "BoxedSourceType"
             };
 
-            TargetType result = mapper.Map(source, typeof(SourceType), null, typeof(TargetType), null) as TargetType;
+            TargetType result = mapper.Map2(source, typeof(SourceType), null, typeof(TargetType), null) as TargetType;
 
             Assert.NotNull(result);
             Assert.Equal("BoxedSourceType", result.Name);
@@ -23,7 +23,7 @@ namespace Detached.Mappers.Tests.Mapping.ComplexType
         }
 
         [Fact]
-        public void MapBoxedMembers()
+        public void map_boxed_members()
         {
             Mapper mapper = new Mapper();
 
@@ -45,7 +45,7 @@ namespace Detached.Mappers.Tests.Mapping.ComplexType
                 }
             };
 
-            RootType result = mapper.Map(source, target);
+            RootType result = mapper.Map2(source, target);
 
             Assert.NotNull(result);
             Assert.Equal("BoxedSourceType", ((TargetType)result.Value).Name);

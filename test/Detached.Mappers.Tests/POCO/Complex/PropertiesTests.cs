@@ -6,7 +6,7 @@ using Xunit;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.Tests.Model
+namespace Detached.Mappers.Tests.POCO.ComplexType
 {
     public class PropertiesTests
     {

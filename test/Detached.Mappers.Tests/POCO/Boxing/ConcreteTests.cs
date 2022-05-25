@@ -1,8 +1,7 @@
-﻿using Detached.Mappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping
+namespace Detached.Mappers.Tests.POCO.Boxing
 {
     public class ConcreteTypeTests
     {

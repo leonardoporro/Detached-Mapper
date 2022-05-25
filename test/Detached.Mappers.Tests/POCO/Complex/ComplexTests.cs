@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class ComplexTypeTests
+    public class ComplexTests
     {
         Mapper mapper = new Mapper();
 

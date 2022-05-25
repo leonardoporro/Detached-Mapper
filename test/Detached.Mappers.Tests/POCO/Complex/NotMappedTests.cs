@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.Mapping.ComplexType
 {
-    public class NotMappedPropertyTests
+    public class NotMappedTests
     {
         readonly Mapper _mapper = new Mapper();
 

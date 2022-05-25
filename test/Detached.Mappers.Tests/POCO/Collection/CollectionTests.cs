@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.Mapping.CollectionType
 {
-    public class CollectionTypeTests
+    public class CollectionTests
     {
         Mapper mapper = new Mapper();
 
