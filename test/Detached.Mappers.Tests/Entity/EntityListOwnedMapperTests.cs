@@ -4,7 +4,7 @@ using Detached.Mappers.TypeMaps;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.EntityType
+namespace Detached.Mappers.Tests.Entity
 {
     public class EntityListCompositionMapperTests
     {

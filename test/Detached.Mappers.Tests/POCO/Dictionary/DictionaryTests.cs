@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.DictionaryType
+namespace Detached.Mappers.Tests.POCO.Dictionary
 {
     public class DictionaryTests
     {

@@ -3,7 +3,7 @@ using Detached.Mappers.Context;
 using Detached.Mappers.TypeMaps;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.EntityType
+namespace Detached.Mappers.Tests.Entity
 {
     public class EntityAssociatedMapperTests
     {

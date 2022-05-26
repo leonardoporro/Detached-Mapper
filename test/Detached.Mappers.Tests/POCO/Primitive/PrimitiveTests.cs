@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.PrimitiveType
+namespace Detached.Mappers.Tests.POCO.Primitive
 {
     public class PrimitiveTests
     {

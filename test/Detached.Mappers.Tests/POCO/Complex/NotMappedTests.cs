@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.ComplexType
+namespace Detached.Mappers.Tests.POCO.Complex
 {
     public class NotMappedTests
     {

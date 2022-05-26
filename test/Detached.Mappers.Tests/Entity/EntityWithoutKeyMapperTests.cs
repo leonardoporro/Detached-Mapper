@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.EntityType
+namespace Detached.Mappers.Tests.Entity
 {
     public class EntityWithoutKeyMapperTests
     {

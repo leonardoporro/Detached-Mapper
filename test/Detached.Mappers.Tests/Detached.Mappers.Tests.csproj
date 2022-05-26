@@ -23,4 +23,8 @@
     <ProjectReference Include="..\..\src\Detached.Mappers\Detached.Mappers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="POCO\Inherited\" />
+  </ItemGroup>
+
 </Project>

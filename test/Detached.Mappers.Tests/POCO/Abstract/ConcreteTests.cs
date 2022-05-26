@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Boxing
+namespace Detached.Mappers.Tests.POCO.Abstract
 {
     public class ConcreteTypeTests
     {

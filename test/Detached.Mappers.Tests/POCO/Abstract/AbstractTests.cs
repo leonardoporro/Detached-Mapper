@@ -1,8 +1,8 @@
 ﻿using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Boxing
+namespace Detached.Mappers.Tests.POCO.Abstract
 {
-    public class BoxingTests
+    public class AbstractTests
     {
         [Fact]
         public void map_boxed_types()

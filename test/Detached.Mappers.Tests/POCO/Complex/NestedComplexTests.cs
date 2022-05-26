@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Detached.Mappers.Tests.Mapping.ComplexType
+namespace Detached.Mappers.Tests.POCO.Complex
 {
     public class NestedComplexTests
     {
@@ -119,7 +119,7 @@ namespace Detached.Mappers.Tests.Mapping.ComplexType
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map(newObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map2(newObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
