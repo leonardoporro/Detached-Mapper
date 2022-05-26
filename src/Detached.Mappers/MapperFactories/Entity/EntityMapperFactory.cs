@@ -19,9 +19,9 @@ namespace Detached.Mappers.MapperFactories.Entity
 
                 if (backRef.MemberTypeOptions.IsCollection)
                 {
-                    Expression list = backRef.MemberOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
+                    Expression list = backRef.MemberOptions.BuildGetterExpression(typeMap.TargetExpression, typeMap.BuildContextExpression);
                     Expression item = backRef.Parent.TargetExpression;
-                    Expression newList = backRef.MemberTypeOptions.Construct(typeMap.BuildContextExpression, null);
+                    Expression newList = backRef.MemberTypeOptions.BuildNewExpression(typeMap.BuildContextExpression, null);
 
                     return Block(
                         If(IsNull(list), Assign(list, newList)),
@@ -32,7 +32,7 @@ namespace Detached.Mappers.MapperFactories.Entity
                 }
                 else
                 {
-                    return typeMap.BackReferenceMap.MemberOptions.SetValue(
+                    return typeMap.BackReferenceMap.MemberOptions.BuildSetterExpression(
                                   typeMap.TargetExpression,
                                   typeMap.BackReferenceMap.Parent.TargetExpression,
                                   typeMap.BuildContextExpression);
@@ -74,8 +74,8 @@ namespace Detached.Mappers.MapperFactories.Entity
                     for (int i = 0; i < keyMembers.Count; i++)
                     {
                         MemberMap keyMember = keyMembers[i];
-                        sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
-                        targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
+                        sourceKeyMembers[i] = keyMember.SourceOptions.BuildGetterExpression(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                        targetKeyMembers[i] = keyMember.TargetOptions.BuildGetterExpression(typeMap.TargetExpression, typeMap.BuildContextExpression);
                         sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
                         keyMemberTypes[i] = keyMembers[i].TargetOptions.ClrType;
                     }

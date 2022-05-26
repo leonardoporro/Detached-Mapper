@@ -8,7 +8,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Tests.POCO.Complex
 {
-    public class PropertiesTests
+    public class CustomizeMemberTests
     {
         [Fact]
         public void customize_property()

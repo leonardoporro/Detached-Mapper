@@ -42,7 +42,9 @@ namespace Detached.Mappers.TypeOptions
 
         Type ClrType { get; }
 
-        Expression Construct(Expression context, Expression discriminator);
+        Expression BuildNewExpression(Expression context, Expression discriminator);
+
+        Expression BuildIsSetExpression(Expression instance, Expression context, string memberName);
 
         IMemberOptions GetMember(string memberName);
     }

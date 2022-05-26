@@ -29,12 +29,12 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public bool CanWrite => Setter != null;
 
-        public virtual Expression GetValue(Expression instance, Expression context)
+        public virtual Expression BuildGetterExpression(Expression instance, Expression context)
         {
             return Import(Getter, instance, context);
         }
 
-        public virtual Expression SetValue(Expression instance, Expression value, Expression context)
+        public virtual Expression BuildSetterExpression(Expression instance, Expression value, Expression context)
         {
             return Import(Setter, instance, value, context);
         }

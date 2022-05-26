@@ -31,12 +31,12 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public bool CanWrite => true;
 
-        public Expression GetValue(Expression instance, Expression context)
+        public Expression BuildGetterExpression(Expression instance, Expression context)
         {
             return Index(instance, Constant(_name));
         }
 
-        public Expression SetValue(Expression instance, Expression value, Expression context)
+        public Expression BuildSetterExpression(Expression instance, Expression value, Expression context)
         {
             return Assign(Index(instance, Constant(_name)), value);
         }

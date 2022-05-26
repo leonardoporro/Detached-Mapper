@@ -51,8 +51,8 @@ namespace Detached.Mappers.MapperFactories
             {
                 if (filter == null || filter(memberMap))
                 {
-                    Expression sourceMember = memberMap.SourceOptions.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
-                    Expression targetMember = memberMap.TargetOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
+                    Expression sourceMember = memberMap.SourceOptions.BuildGetterExpression(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                    Expression targetMember = memberMap.TargetOptions.BuildGetterExpression(typeMap.TargetExpression, typeMap.BuildContextExpression);
 
                     sourceMember = CallMapper(memberMap.TypeMap, sourceMember, targetMember);
 
@@ -60,7 +60,7 @@ namespace Detached.Mappers.MapperFactories
                     {
                         memberExprs.Add(
                             If(Call("IsSet", Convert(typeMap.SourceExpression, typeof(IPatch)), Constant(memberMap.SourceOptions.Name)),
-                                memberMap.TargetOptions.SetValue(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
+                                memberMap.TargetOptions.BuildSetterExpression(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
                             )
                         );
 
@@ -68,7 +68,7 @@ namespace Detached.Mappers.MapperFactories
                     else
                     {
                         memberExprs.Add(
-                            memberMap.TargetOptions.SetValue(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
+                            memberMap.TargetOptions.BuildSetterExpression(typeMap.TargetExpression, sourceMember, typeMap.BuildContextExpression)
                         );
                     }
                 }
@@ -86,12 +86,12 @@ namespace Detached.Mappers.MapperFactories
 
             if (typeMap.DiscriminatorMember != null)
             {
-                Expression discriminator = typeMap.DiscriminatorMember.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
-                return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, discriminator);
+                Expression discriminator = typeMap.DiscriminatorMember.BuildGetterExpression(typeMap.SourceExpression, typeMap.BuildContextExpression);
+                return typeMap.TargetTypeOptions.BuildNewExpression(typeMap.BuildContextExpression, discriminator);
             }
             else
             {
-                return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, null);
+                return typeMap.TargetTypeOptions.BuildNewExpression(typeMap.BuildContextExpression, null);
             }
         }
     }

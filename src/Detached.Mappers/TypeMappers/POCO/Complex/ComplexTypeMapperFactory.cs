@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.Context;
 using Detached.Mappers.TypeOptions;
+using Detached.PatchTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -30,7 +31,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
                 Lambda(
                     typeof(Func<,>).MakeGenericType(typeof(IMapperContext), typePair.TargetType),
                     Parameter("source", typeof(IMapperContext), out Expression contextExpr),
-                    targetType.Construct(contextExpr, Constant(null, typeof(IMapperContext)))
+                    targetType.BuildNewExpression(contextExpr, Constant(null, typeof(IMapperContext)))
                 ).Compile();
 
             object mapMembers =
@@ -97,16 +98,25 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
                     ITypeOptions sourceMemberType = options.GetTypeOptions(sourceMember.ClrType);
                     ITypeOptions targetMemberType = options.GetTypeOptions(targetMember.ClrType);
 
-                    Expression sourceValueExpr = sourceMember.GetValue(sourceExpr, contextExpr);
+                    Expression sourceValueExpr = sourceMember.BuildGetterExpression(sourceExpr, contextExpr);
 
                     if (options.ShouldMap(sourceMemberType, targetMemberType))
                     {
-                        Expression targetValueExpr = targetMember.GetValue(targetExpr, contextExpr);
+                        Expression targetValueExpr = targetMember.BuildGetterExpression(targetExpr, contextExpr);
                         Expression typeMapperExpr = CreateLazyTypeMappperExpression(options, memberTypePair);
                         sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
                     }
 
-                    memberSetExpr = targetMember.SetValue(targetExpr, sourceValueExpr, contextExpr);
+                    memberSetExpr = targetMember.BuildSetterExpression(targetExpr, sourceValueExpr, contextExpr);
+                }
+            }
+
+            if (memberSetExpr != null)
+            {
+                Expression isSetExpr = sourceType.BuildIsSetExpression(sourceExpr, contextExpr, memberName);
+                if (isSetExpr != null)
+                {
+                    memberSetExpr = If(isSetExpr, memberSetExpr);
                 }
             }
 

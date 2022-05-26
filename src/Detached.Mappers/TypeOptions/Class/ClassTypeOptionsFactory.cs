@@ -79,7 +79,10 @@ namespace Detached.Mappers.TypeOptions.Class
                 }
             }
 
-            CreateConstructor(options, type, typeOptions);
+            if (typeOptions.IsComplex && !typeOptions.IsAbstract)
+            {
+                typeOptions.Constructor = Lambda(New(type));
+            }
 
             // apply type attributes.
             foreach (Attribute annotation in type.GetCustomAttributes())
@@ -111,31 +114,6 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             return result;
-        }
-
-        protected virtual void CreateConstructor(MapperOptions options, Type type, ClassTypeOptions typeOptions)
-        {
-            if (type.IsInterface)
-            {
-                Type concreteType;
-
-                if (type.IsGenericType)
-                {
-                    options.ConcreteTypes.TryGetValue(type.GetGenericTypeDefinition(), out concreteType);
-
-                    concreteType = concreteType.MakeGenericType(type.GetGenericArguments());
-                }
-                else
-                {
-                    options.ConcreteTypes.TryGetValue(type.GetGenericTypeDefinition(), out concreteType);
-                }
-
-                typeOptions.Constructor = Lambda(New(concreteType));
-            }
-            else if (type.IsClass && type.GetConstructor(new Type[0]) != null)
-            {
-                typeOptions.Constructor = Lambda(New(type));
-            }
         }
 
         protected virtual bool IsPrimitive(MapperOptions options, Type type)

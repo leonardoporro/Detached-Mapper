@@ -5,11 +5,6 @@ namespace Detached.Mappers.Tests.POCO.Inherited
 {
     public class InheritedTests
     {
-        public InheritedTests()
-        {
-
-        }
-
         [Fact]
         public void map_inherited_using_discriminator()
         {
@@ -37,7 +32,7 @@ namespace Detached.Mappers.Tests.POCO.Inherited
             Assert.IsType<Fish>(result[1]);
             Assert.Equal(2, result[1].Id);
             Assert.Equal("Nemo", result[1].Name);
-            Assert.Equal(true, ((Fish)result[1]).HasTeeth);
+            Assert.True(((Fish)result[1]).HasTeeth);
         }
     }
 

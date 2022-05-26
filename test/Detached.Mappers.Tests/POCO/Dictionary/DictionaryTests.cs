@@ -41,6 +41,23 @@ namespace Detached.Mappers.Tests.POCO.Dictionary
             Assert.Equal("asoc2", result.Associations[1].Name);
         }
 
+        [Fact]
+        public void map_dictionary_as_patch()
+        {
+            Dictionary<string, object> patch = new Dictionary<string, object>
+            {
+                { "Name", "patched name!" }
+            };
+
+            Entity entity = new Entity { Id = 1, Name = "regular name" };
+
+
+            Entity result = mapper.Map2(patch, entity);
+
+            Assert.Equal(1, result.Id);
+            Assert.Equal("patched name!", result.Name);
+        }
+
         public class Entity
         {
             public int Id { get; set; }

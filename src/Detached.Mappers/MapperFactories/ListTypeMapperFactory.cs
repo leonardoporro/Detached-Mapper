@@ -52,7 +52,7 @@ namespace Detached.Mappers.MapperFactories
 
         public Expression Construct(TypeMap typeMap)
         {
-            return typeMap.TargetTypeOptions.Construct(typeMap.BuildContextExpression, null);
+            return typeMap.TargetTypeOptions.BuildNewExpression(typeMap.BuildContextExpression, null);
         }
     }
 }

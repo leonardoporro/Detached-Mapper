@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 using static Detached.Mappers.Extensions.MapperExpressionExtensions;
+using Detached.PatchTypes;
 
 namespace Detached.Mappers.TypeOptions.Class
 {
@@ -47,7 +48,7 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public bool IsNullable { get; set; }
 
-        public virtual Expression Construct(Expression context, Expression discriminator)
+        public virtual Expression BuildNewExpression(Expression context, Expression discriminator)
         {
             if (Constructor == null)
             {
@@ -57,6 +58,18 @@ namespace Detached.Mappers.TypeOptions.Class
             return Import(Constructor, context);
         }
 
-        public override string ToString() => $"{ClrType.GetFriendlyName()} (EntityOptions)";
+        public Expression BuildIsSetExpression(Expression instance, Expression context, string memberName)
+        {
+            Expression result = null;
+
+            if (typeof(IPatch).IsAssignableFrom(ClrType))
+            {
+                result = Call("IsSet", Convert(instance, typeof(IPatch)), Constant(memberName));
+            }
+
+            return result;
+        }
+
+        public override string ToString() => $"{ClrType.GetFriendlyName()} (TypeOptions)";
     }
 }

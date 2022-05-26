@@ -20,10 +20,10 @@ namespace Detached.Mappers.TypeOptions
 
         bool CanRead { get; }
 
-        Expression GetValue(Expression instance, Expression context);
+        Expression BuildGetterExpression(Expression instance, Expression context);
 
         bool CanWrite { get; }
 
-        Expression SetValue(Expression instance, Expression value, Expression context);
+        Expression BuildSetterExpression(Expression instance, Expression value, Expression context);
     }
 }

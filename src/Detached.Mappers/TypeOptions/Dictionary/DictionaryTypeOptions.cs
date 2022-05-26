@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.TypeOptions.Dictionary
 {
@@ -35,7 +36,12 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public bool IsNullable => false;
 
-        public Expression Construct(Expression context, Expression discriminator)
+        public Expression BuildIsSetExpression(Expression instance, Expression context, string memberName)
+        {
+            return Call("ContainsKey", instance, Constant(memberName));
+        }
+
+        public Expression BuildNewExpression(Expression context, Expression discriminator)
         {
             return New(typeof(Dictionary<string, object>));
         }

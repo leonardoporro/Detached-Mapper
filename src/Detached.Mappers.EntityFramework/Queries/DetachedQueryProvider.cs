@@ -90,8 +90,8 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 if (memberMap.IsKey)
                 {
-                    var targetExpr = memberMap.TargetOptions.GetValue(targetParam, null);
-                    var sourceExpr = memberMap.SourceOptions.GetValue(sourceConstant, null);
+                    var targetExpr = memberMap.TargetOptions.BuildGetterExpression(targetParam, null);
+                    var sourceExpr = memberMap.SourceOptions.BuildGetterExpression(sourceConstant, null);
 
                     if (sourceExpr.Type.IsNullable(out _))
                     {
@@ -164,7 +164,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                         PropertyInfo propInfo = typeMap.SourceTypeOptions.ClrType.GetProperty(memberMap.SourceOptions.Name);
                         if (propInfo != null)
                         {
-                            Expression map = memberMap.TargetOptions.GetValue(targetExpr, null);
+                            Expression map = memberMap.TargetOptions.BuildGetterExpression(targetExpr, null);
                             map = CreateSelectProjection(memberMap.TypeMap, map);
                             bindings.Add(Bind(propInfo, map));
                         }
