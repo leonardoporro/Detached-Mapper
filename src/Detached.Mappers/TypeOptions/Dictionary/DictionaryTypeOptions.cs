@@ -1,10 +1,9 @@
-﻿using Detached.Mappers.TypeOptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
-namespace Detached.Mappers.TypeOptions.Types.Dictionary
+namespace Detached.Mappers.TypeOptions.Dictionary
 {
     public class DictionaryTypeOptions : ITypeOptions
     {
@@ -20,13 +19,13 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
 
         public bool IsPrimitive => false;
 
-        public bool IsBoxed => false;
+        public bool IsAbstract => false;
 
         public Type ItemType => null;
 
         public IEnumerable<string> MemberNames => new string[0];
 
-        public Type Type => typeof(Dictionary<string, object>);
+        public Type ClrType => typeof(Dictionary<string, object>);
 
         public bool UsePatchProxy => false;
 

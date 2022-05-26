@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
-namespace Detached.Mappers.TypeOptions.Types.Dictionary
+namespace Detached.Mappers.TypeOptions.Dictionary
 {
     public class DictionaryMemberOptions : IMemberOptions
     {
@@ -25,7 +25,7 @@ namespace Detached.Mappers.TypeOptions.Types.Dictionary
 
         public bool IsComposition => false;
 
-        public Type Type => typeof(object);
+        public Type ClrType => typeof(object);
 
         public bool CanRead => true;
 

@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions.Types.Class.Conventions;
+using Detached.Mappers.TypeOptions.Class.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
@@ -8,16 +8,17 @@ using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeOptions.Types.Class
+namespace Detached.Mappers.TypeOptions.Class
 {
-    public class ClassOptionsFactory : ITypeOptionsFactory
+    public class ClassTypeOptionsFactory : ITypeOptionsFactory
     {
         public ITypeOptions Create(MapperOptions options, Type type)
         {
             ClassTypeOptions typeOptions = new ClassTypeOptions();
-            typeOptions.Type = type;
+            typeOptions.ClrType = type;
 
-            // determine the object type: Entity (has members), Collection or Plain Value
+            typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
+
             if (IsPrimitive(options, type))
             {
                 typeOptions.IsPrimitive = true;
@@ -32,10 +33,6 @@ namespace Detached.Mappers.TypeOptions.Types.Class
                 typeOptions.IsNullable = true;
                 typeOptions.ItemType = baseType;
             }
-            else if (type == typeof(object))
-            {
-                typeOptions.IsBoxed = true;
-            }
             else
             {
                 typeOptions.IsComplex = true;
@@ -47,7 +44,7 @@ namespace Detached.Mappers.TypeOptions.Types.Class
                     {
                         ClassMemberOptions memberOptions = new ClassMemberOptions();
                         memberOptions.Name = propInfo.Name;
-                        memberOptions.Type = propInfo.PropertyType;
+                        memberOptions.ClrType = propInfo.PropertyType;
 
                         // generate getter.
                         if (propInfo.CanRead)

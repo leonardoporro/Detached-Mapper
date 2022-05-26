@@ -3,7 +3,7 @@ using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Nullable
 {
-    public class NullableTypeMapper<TSource, TTarget> : ITypeMapper<TSource?, TTarget?>
+    public class NullableTypeMapper<TSource, TTarget> : TypeMapper<TSource?, TTarget?>
         where TSource : struct
         where TTarget : struct
     {
@@ -14,17 +14,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
             _baseMapper = baseMapper;
         }
 
-        public TTarget? Map(TSource? source, TTarget? target, IMapperContext mapperContext)
+        public override TTarget? Map(TSource? source, TTarget? target, IMapperContext mapperContext)
         {
             if (source.HasValue)
                 return (TTarget?)_baseMapper.Value.Map(source.Value, target ?? default(TTarget), mapperContext);
             else
                 return null;
-        }
-
-        public object Map(object source, object target, IMapperContext mapperContext)
-        {
-            return Map((TSource?)source, (TTarget?)target, mapperContext);  
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Detached.Mappers.MapperFactories
     {
         public override bool CanMap(TypeMap typeMap)
         {
-            return typeMap.TargetTypeOptions.Type.IsNullable(out _) ^ typeMap.SourceTypeOptions.Type.IsNullable(out _);
+            return typeMap.TargetTypeOptions.ClrType.IsNullable(out _) ^ typeMap.SourceTypeOptions.ClrType.IsNullable(out _);
         }
 
         public override LambdaExpression Create(TypeMap typeMap)
         {
-            if (typeMap.TargetTypeOptions.Type.IsNullable(out Type baseType))
+            if (typeMap.TargetTypeOptions.ClrType.IsNullable(out Type baseType))
             {
                 // nullable target.
                 return Lambda(

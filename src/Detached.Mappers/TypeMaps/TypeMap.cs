@@ -38,6 +38,6 @@ namespace Detached.Mappers.TypeMaps
         public bool IsComposition { get; set; }
 
         public override string ToString() 
-            => $"{SourceTypeOptions.Type.GetFriendlyName()} to {TargetTypeOptions.Type.GetFriendlyName()} (TypeMap)";
+            => $"{SourceTypeOptions.ClrType.GetFriendlyName()} to {TargetTypeOptions.ClrType.GetFriendlyName()} (TypeMap)";
     }
 }

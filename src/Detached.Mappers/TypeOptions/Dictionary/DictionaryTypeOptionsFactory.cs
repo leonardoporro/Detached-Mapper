@@ -1,11 +1,10 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Mappers.TypeOptions;
 using Detached.RuntimeTypes.Reflection;
 using System;
 
-namespace Detached.Mappers.TypeOptions.Types.Dictionary
+namespace Detached.Mappers.TypeOptions.Dictionary
 {
-    public class DictionaryOptionsFactory : ITypeOptionsFactory
+    public class DictionaryTypeOptionsFactory : ITypeOptionsFactory
     {
         readonly DictionaryTypeOptions _typeOptions = new DictionaryTypeOptions();
 

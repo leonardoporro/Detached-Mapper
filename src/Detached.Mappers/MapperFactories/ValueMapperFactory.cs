@@ -12,8 +12,8 @@ namespace Detached.Mappers.MapperFactories
         {
             return typeMap.SourceTypeOptions.IsPrimitive &&
                    typeMap.TargetTypeOptions.IsPrimitive &&
-                   typeof(IConvertible).IsAssignableFrom(typeMap.SourceTypeOptions.Type) &&
-                   typeMap.TargetTypeOptions.Type.IsPrimitive;
+                   typeof(IConvertible).IsAssignableFrom(typeMap.SourceTypeOptions.ClrType) &&
+                   typeMap.TargetTypeOptions.ClrType.IsPrimitive;
         }
 
         public override LambdaExpression Create(TypeMap typeMap)

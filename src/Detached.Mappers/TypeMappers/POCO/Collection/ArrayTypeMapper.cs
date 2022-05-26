@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Detached.Mappers.Context;
 
-namespace Detached.Mappers.TypeMappers.CollectionType
+namespace Detached.Mappers.TypeMappers.POCO.Collection
 {
-    internal class ArrayTypeMapper
+    public class ArrayTypeMapper<TSource, TSourceItem, TTarget, TTargetItem> : TypeMapper<TSource, TTarget>
     {
+        public override TTarget Map(TSource source, TTarget target, IMapperContext mapperContext)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,7 +1,6 @@
-﻿using Detached.Mappers.TypeOptions.Types.Class;
-using System.Linq;
+﻿using System.Linq;
 
-namespace Detached.Mappers.TypeOptions.Types.Class.Conventions
+namespace Detached.Mappers.TypeOptions.Class.Conventions
 {
     public class KeyOptionsConvention : ITypeOptionsConvention
     {

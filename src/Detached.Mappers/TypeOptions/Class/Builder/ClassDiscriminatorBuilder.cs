@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Detached.Mappers.TypeOptions.Class;
+using System;
 
-namespace Detached.Mappers.TypeOptions.Types.Class.Builder
+namespace Detached.Mappers.TypeOptions.Class.Builder
 {
     public class ClassDiscriminatorBuilder<TType, TMember>
     {

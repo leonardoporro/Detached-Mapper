@@ -1,8 +1,9 @@
 ﻿using Detached.Mappers.Context;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.TypeOptions.Types.Class.Builder
+namespace Detached.Mappers.TypeOptions.Class.Builder
 {
     public class ClassTypeOptionsBuilder<TType>
     {
@@ -53,6 +54,7 @@ namespace Detached.Mappers.TypeOptions.Types.Class.Builder
             string memberName = ((MemberExpression)selector.Body).Member.Name;
             if (!TypeOptions.Members.TryGetValue(memberName, out ClassMemberOptions memberOptions))
                 throw new ArgumentException($"Member {memberName} does not exist.");
+
             return memberOptions;
         }
     }

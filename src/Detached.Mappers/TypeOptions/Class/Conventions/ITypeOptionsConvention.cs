@@ -1,4 +1,6 @@
-﻿namespace Detached.Mappers.TypeOptions.Types.Class.Conventions
+﻿using Detached.Mappers.TypeOptions.Class;
+
+namespace Detached.Mappers.TypeOptions.Class.Conventions
 {
     public interface ITypeOptionsConvention
     {

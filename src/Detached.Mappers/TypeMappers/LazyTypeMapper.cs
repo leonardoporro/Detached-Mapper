@@ -2,12 +2,12 @@
 {
     public class LazyTypeMapper<TSource, TTarget> : ILazyTypeMapper
     {
-        readonly Mapper _mapper;
+        readonly MapperOptions _options;
         readonly TypePair _typePair;
 
-        public LazyTypeMapper(Mapper mapper, TypePair typePair)
+        public LazyTypeMapper(MapperOptions options, TypePair typePair)
         {
-            _mapper = mapper;
+            _options = options;
             _typePair = typePair;
         }
 
@@ -19,7 +19,7 @@
             {
                 if (_value == null)
                 {
-                    _value = (ITypeMapper<TSource, TTarget>)_mapper.GetTypeMapper(_typePair);
+                    _value = (ITypeMapper<TSource, TTarget>)_options.GetTypeMapper(_typePair);
                 }
 
                 return _value;

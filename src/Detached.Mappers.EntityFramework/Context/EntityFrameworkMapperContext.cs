@@ -109,5 +109,15 @@ namespace Detached.Mappers.EntityFramework.Context
             else
                 return null;
         }
+
+        public void TrackObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool TryGetTrackedObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, out TTarget target)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

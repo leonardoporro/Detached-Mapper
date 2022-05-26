@@ -36,19 +36,19 @@ namespace Detached.Mappers.MapperFactories
 
         protected virtual Expression CreateMapper(TypeMap typeMap)
         {
-            if (typeMap.Mapper.ShouldMap(typeMap.SourceTypeOptions, typeMap.TargetTypeOptions))
-            {
-                if (typeMap.MappingFunctionExpression == null)
-                {
-                    string mapperName = $"{typeMap.SourceExpression}_{typeMap.TargetExpression}_mapper";
+            //if (typeMap.Mapper.ShouldMap(typeMap.SourceTypeOptions, typeMap.TargetTypeOptions))
+            //{
+            //    if (typeMap.MappingFunctionExpression == null)
+            //    {
+            //        string mapperName = $"{typeMap.SourceExpression}_{typeMap.TargetExpression}_mapper";
 
-                    typeMap.MappingFunctionExpression = Parameter(GetDelegateType(typeMap), mapperName);
+            //        typeMap.MappingFunctionExpression = Parameter(GetDelegateType(typeMap), mapperName);
 
-                    Expression mapperExpr = typeMap.Mapper.GetFactory(typeMap).Create(typeMap);
+            //        Expression mapperExpr = typeMap.Mapper.GetFactory(typeMap).Create(typeMap);
 
-                    return Variable(typeMap.MappingFunctionExpression, mapperExpr);
-                }
-            }
+            //        return Variable(typeMap.MappingFunctionExpression, mapperExpr);
+            //    }
+            //}
 
             return Empty();
         }

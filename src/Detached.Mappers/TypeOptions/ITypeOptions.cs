@@ -30,7 +30,7 @@ namespace Detached.Mappers.TypeOptions
 
         bool IsNullable { get; }
 
-        bool IsBoxed { get; }
+        bool IsAbstract { get; }
 
         Type ItemType { get; }
 
@@ -40,7 +40,7 @@ namespace Detached.Mappers.TypeOptions
 
         Dictionary<object, Type> DiscriminatorValues { get; }
 
-        Type Type { get; }
+        Type ClrType { get; }
 
         Expression Construct(Expression context, Expression discriminator);
 

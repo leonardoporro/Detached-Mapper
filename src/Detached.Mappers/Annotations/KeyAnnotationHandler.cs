@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions.Types.Class;
+﻿using Detached.Mappers.TypeOptions.Class;
 using System.ComponentModel.DataAnnotations;
 
 namespace Detached.Mappers.Annotations

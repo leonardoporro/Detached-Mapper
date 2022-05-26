@@ -2,7 +2,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.TypeOptions.Types.Class.Builder
+namespace Detached.Mappers.TypeOptions.Class.Builder
 {
     public class ClassMemberOptionsBuilder<TType, TMember> : ClassTypeOptionsBuilder<TType>
     {

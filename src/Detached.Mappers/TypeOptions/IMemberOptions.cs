@@ -16,7 +16,7 @@ namespace Detached.Mappers.TypeOptions
 
         bool IsComposition { get; }
 
-        Type Type { get; }
+        Type ClrType { get; }
 
         bool CanRead { get; }
 

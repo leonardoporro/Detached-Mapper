@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.TypeMaps;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Detached.Mappers.Context
 {
@@ -7,6 +8,8 @@ namespace Detached.Mappers.Context
     {
         readonly ConcurrentDictionary<MapperContextKey, MapperContextEntry> _entries =
             new ConcurrentDictionary<MapperContextKey, MapperContextEntry>();
+
+        readonly Dictionary<object, object> _trackedObjects = new Dictionary<object, object>();
 
         public MapperParameters Parameters { get; } = new MapperParameters();
 
@@ -29,6 +32,25 @@ namespace Detached.Mappers.Context
                 });
 
             return entity;
+        }
+
+        public bool TryGetTrackedObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrDto, out TTarget target)
+        {
+            if (_trackedObjects.TryGetValue(keyOrDto, out var entry))
+            {
+                target = (TTarget)entry;
+                return true;
+            }
+            else
+            {
+                target = default;
+                return false;
+            }
+        }
+
+        public void TrackObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target)
+        {
+            _trackedObjects.Add(keyOrSource, target);
         }
 
         public bool TryGetEntry<TEntity>(IEntityKey key, out MapperContextEntry entry)

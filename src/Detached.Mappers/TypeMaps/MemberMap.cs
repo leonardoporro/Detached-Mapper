@@ -18,6 +18,6 @@ namespace Detached.Mappers.TypeMaps
         public bool IsBackReference { get; set; }
 
         public override string ToString() 
-            => $"{SourceOptions.Name} [{SourceOptions.Type.GetFriendlyName()}] to {TargetOptions.Name} [{TargetOptions.Type.GetFriendlyName()}] (MemberMap)";
+            => $"{SourceOptions.Name} [{SourceOptions.ClrType.GetFriendlyName()}] to {TargetOptions.Name} [{TargetOptions.ClrType.GetFriendlyName()}] (MemberMap)";
     }
 }

@@ -1,7 +1,6 @@
-﻿using Detached.Mappers.TypeOptions.Types.Class;
-using Detached.Mappers.TypeOptions.Types.Class.Conventions;
+﻿using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.TypeOptions.Class.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions
@@ -17,7 +16,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
 
         public void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions)
         {
-            IEntityType entityType = _model.FindEntityType(typeOptions.Type);
+            IEntityType entityType = _model.FindEntityType(typeOptions.ClrType);
 
             typeOptions.IsEntity = entityType != null && !entityType.IsOwned();
 

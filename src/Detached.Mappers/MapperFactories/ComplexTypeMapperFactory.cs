@@ -81,7 +81,7 @@ namespace Detached.Mappers.MapperFactories
         {
             if (typeMap.TargetTypeOptions.DiscriminatorName != null && typeMap.DiscriminatorMember == null)
             {
-                throw new MapperException($"Entity {typeMap.TargetTypeOptions.Type} uses inheritance but discriminator was not found in source type.");
+                throw new MapperException($"Entity {typeMap.TargetTypeOptions.ClrType} uses inheritance but discriminator was not found in source type.");
             }
 
             if (typeMap.DiscriminatorMember != null)

@@ -9,8 +9,6 @@ using Detached.PatchTypes;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -25,17 +23,14 @@ namespace Detached.Mappers
         readonly IMemoryCache _memoryCache;
 
         public Mapper()
+            : this(new MapperOptions(), new TypeMapFactory(), new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null })))
         {
-            _options = new MapperOptions();
-            _typeMapFactory = new TypeMapFactory(); ;
-            _memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null }));
+
         }
 
         public Mapper(MapperOptions options)
+            : this(options, new TypeMapFactory(), new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null })))
         {
-            _options = options;
-            _typeMapFactory = new TypeMapFactory();
-            _memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions { SizeLimit = null }));
         }
 
         public Mapper(
@@ -76,7 +71,7 @@ namespace Detached.Mappers
                 ITypeOptions sourceOptions = _options.GetTypeOptions(sourceType);
                 ITypeOptions targetOptions = _options.GetTypeOptions(targetType);
 
-                if (ShouldMap(sourceOptions, targetOptions))
+                if (_options.ShouldMap(sourceOptions, targetOptions))
                 {
                     return Lambda(
                           typeof(MapperDelegate),
@@ -109,14 +104,6 @@ namespace Detached.Mappers
             })(source, target, context);
         }
 
-        public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
-        {
-            return sourceType != targetType 
-                    || sourceType.IsBoxed
-                    || targetType.IsBoxed
-                    || !targetType.IsPrimitive;
-        }
-
         public MapperFactory GetFactory(TypeMap typeMap)
         {
             for (int i = _options.MapperFactories.Count - 1; i >= 0; i--)
@@ -127,7 +114,7 @@ namespace Detached.Mappers
                 }
             }
 
-            throw new MapperException($"Can't map {typeMap.SourceTypeOptions.Type} to {typeMap.TargetTypeOptions.Type}");
+            throw new MapperException($"Can't map {typeMap.SourceTypeOptions.ClrType} to {typeMap.TargetTypeOptions.ClrType}");
         }
 
         public ITypeOptions GetTypeOptions(Type type) => _options.GetTypeOptions(type);
@@ -139,51 +126,25 @@ namespace Detached.Mappers
         {
             return !typeof(IPatch).IsAssignableFrom(type) && GetTypeOptions(type).IsComplex;
         }
-
-        ConcurrentDictionary<TypePair, ITypeMapper> _mappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
-
-        List<ITypeMapperFactory> _factories = new List<ITypeMapperFactory>
-        {
-            new TypeMappers.CollectionType.CollectionTypeMapperFactory(),
-            new TypeMappers.ComplexType.ComplexTypeMapperFactory(),
-            new TypeMappers.PrimitiveType.PrimitiveTypeMapperFactory(),
-            new TypeMappers.POCO.Object.BoxingTypeMapperFactory(),
-            new TypeMappers.POCO.Nullable.NullableTypeMapperFactory()
-        };
-
-        public ITypeMapper GetTypeMapper(TypePair typePair)
-        {
-            return _mappers.GetOrAdd(typePair, t =>
-            {
-                ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
-                ITypeOptions targetType = GetTypeOptions(typePair.TargetType);
-
-                foreach (var factory in _factories)
-                {
-                    if (factory.CanCreate(this, typePair, sourceType, targetType))
-                    {
-                        return factory.Create(this, typePair, sourceType, targetType);
-                    }
-                }
-
-                throw new MapperException($"No factory for {typePair.SourceType.Name} -> {typePair.TargetType.Name}");
-            });
-        }
-
-        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
-        {
-            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
-            return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });
-        }
-
+ 
         public object Map2(object source, Type sourceType, object target, Type targetType, IMapperContext context = default)
         {
-            return GetTypeMapper(new TypePair(sourceType, targetType, TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
+            if (context == null)
+            {
+                context = new MapperContext();
+            }
+
+            return _options.GetTypeMapper(new TypePair(sourceType, targetType, TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
         }
 
         public TTarget Map2<TSource, TTarget>(TSource source, TTarget target = default, IMapperContext context = default)
         {
-            return (TTarget)GetTypeMapper(new TypePair(typeof(TSource), typeof(TTarget), TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
+            if (context == null)
+            {
+                context = new MapperContext();
+            }
+
+            return (TTarget)_options.GetTypeMapper(new TypePair(typeof(TSource), typeof(TTarget), TypePairFlags.Root | TypePairFlags.Owned)).Map(source, target, context);
         }
     }
 }

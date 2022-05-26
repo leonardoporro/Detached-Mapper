@@ -33,8 +33,8 @@ namespace Detached.Mappers.EntityFramework.Queries
             var filter = _memoryCache.GetOrCreate(key, entry =>
             {
                 TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
-                var param = Parameter(typeMap.TargetTypeOptions.Type, "e");
-                Expression projection = ToLambda(typeMap.TargetTypeOptions.Type, param, CreateSelectProjection(typeMap, param));
+                var param = Parameter(typeMap.TargetTypeOptions.ClrType, "e");
+                Expression projection = ToLambda(typeMap.TargetTypeOptions.ClrType, param, CreateSelectProjection(typeMap, param));
 
                 entry.SetSize(1);
 
@@ -70,7 +70,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
-                queryTemplate.SourceConstant = Constant(null, typeMap.SourceTypeOptions.Type);
+                queryTemplate.SourceConstant = Constant(null, typeMap.SourceTypeOptions.ClrType);
                 queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(typeMap, queryTemplate.SourceConstant);
                 GetIncludes(typeMap, queryTemplate.Includes, null);
 
@@ -82,7 +82,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(TypeMap typeMap, ConstantExpression sourceConstant)
         {
-            var targetParam = Parameter(typeMap.TargetTypeOptions.Type, "e");
+            var targetParam = Parameter(typeMap.TargetTypeOptions.ClrType, "e");
 
             Expression expression = null;
 
@@ -146,7 +146,7 @@ namespace Detached.Mappers.EntityFramework.Queries
         {
             if (typeMap.SourceTypeOptions.IsCollection)
             {
-                var itemType = typeMap.ItemTypeMap.TargetTypeOptions.Type;
+                var itemType = typeMap.ItemTypeMap.TargetTypeOptions.ClrType;
                 var param = Parameter(itemType, "e");
                 var itemMap = CreateSelectProjection(typeMap.ItemTypeMap, param);
 
@@ -161,7 +161,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                 {
                     if (!memberMap.IsBackReference)
                     {
-                        PropertyInfo propInfo = typeMap.SourceTypeOptions.Type.GetProperty(memberMap.SourceOptions.Name);
+                        PropertyInfo propInfo = typeMap.SourceTypeOptions.ClrType.GetProperty(memberMap.SourceOptions.Name);
                         if (propInfo != null)
                         {
                             Expression map = memberMap.TargetOptions.GetValue(targetExpr, null);
@@ -171,7 +171,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                     }
                 }
 
-                return MemberInit(New(typeMap.SourceTypeOptions.Type), bindings.ToArray());
+                return MemberInit(New(typeMap.SourceTypeOptions.ClrType), bindings.ToArray());
             }
             else
             {

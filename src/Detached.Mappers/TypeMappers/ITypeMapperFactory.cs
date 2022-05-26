@@ -4,8 +4,8 @@ namespace Detached.Mappers.TypeMappers
 {
     public interface ITypeMapperFactory
     {
-        bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType);
+        bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType);
 
-        ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType);
+        ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType);
     }
 }

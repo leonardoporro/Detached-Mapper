@@ -7,11 +7,11 @@ using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 using static Detached.Mappers.Extensions.MapperExpressionExtensions;
 
-namespace Detached.Mappers.TypeOptions.Types.Class
+namespace Detached.Mappers.TypeOptions.Class
 {
     public class ClassTypeOptions : ITypeOptions
     {
-        public virtual Type Type { get; set; }
+        public virtual Type ClrType { get; set; }
 
         public virtual Type ItemType { get; set; }
 
@@ -41,7 +41,7 @@ namespace Detached.Mappers.TypeOptions.Types.Class
 
         public virtual bool IsFragment { get; set; }
 
-        public virtual bool IsBoxed { get; set; }
+        public virtual bool IsAbstract { get; set; }
 
         public virtual LambdaExpression Constructor { get; set; }
 
@@ -49,38 +49,14 @@ namespace Detached.Mappers.TypeOptions.Types.Class
 
         public virtual Expression Construct(Expression context, Expression discriminator)
         {
-            if (DiscriminatorName != null)
+            if (Constructor == null)
             {
-                Type funcType = typeof(Func<>).MakeGenericType(Type);
-                Type dictionaryType = typeof(Dictionary<,>).MakeGenericType(discriminator.Type, funcType);
-                IDictionary typeTable = (IDictionary)Activator.CreateInstance(dictionaryType);
-
-                foreach (var entry in DiscriminatorValues)
-                {
-                    typeTable.Add(entry.Key, Lambda(Convert(New(entry.Value), Type)).Compile());
-                }
-
-                Expression construct = Block(
-                    Variable("type", funcType, out Expression typeVar),
-                    If(Not(Call("TryGetValue", Constant(typeTable, dictionaryType), discriminator, typeVar)),
-                       ThrowMapperException("{0} is not a valid value for discriminator in entity {1}.", discriminator, Constant(Type))
-                    ),
-                    Invoke(typeVar)
-                );
-
-                return construct;
+                throw new InvalidOperationException($"Can't construct {ClrType.GetFriendlyName()}. It does not have a parameterless constructor or a concrete type specified.");
             }
-            else
-            {
-                if (Constructor == null)
-                {
-                    throw new InvalidOperationException($"Can't construct {Type.GetFriendlyName()}. It does not have a parameterless constructor or a concrete type specified.");
-                }
 
-                return Import(Constructor, context);
-            }
+            return Import(Constructor, context);
         }
 
-        public override string ToString() => $"{Type.GetFriendlyName()} (EntityOptions)";
+        public override string ToString() => $"{ClrType.GetFriendlyName()} (EntityOptions)";
     }
 }

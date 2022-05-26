@@ -12,5 +12,9 @@ namespace Detached.Mappers.Context
             where TTarget : class
             where TSource : class
             where TKey : IEntityKey;
+
+        void TrackObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target);
+
+        bool TryGetTrackedObject<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, out TTarget target);
     }
 }

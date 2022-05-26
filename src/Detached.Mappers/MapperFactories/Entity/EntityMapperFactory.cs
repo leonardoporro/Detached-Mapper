@@ -77,7 +77,7 @@ namespace Detached.Mappers.MapperFactories.Entity
                         sourceKeyMembers[i] = keyMember.SourceOptions.GetValue(typeMap.SourceExpression, typeMap.BuildContextExpression);
                         targetKeyMembers[i] = keyMember.TargetOptions.GetValue(typeMap.TargetExpression, typeMap.BuildContextExpression);
                         sourceKeyMembers[i] = CallMapper(keyMember.TypeMap, sourceKeyMembers[i], Default(targetKeyMembers[i].Type));
-                        keyMemberTypes[i] = keyMembers[i].TargetOptions.Type;
+                        keyMemberTypes[i] = keyMembers[i].TargetOptions.ClrType;
                     }
 
                     Type keyType = GetKeyType(keyMemberTypes);

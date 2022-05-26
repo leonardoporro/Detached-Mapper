@@ -42,7 +42,7 @@ namespace Detached.Mappers.TypeMaps
                 Type sourceItemType = typeMap.SourceTypeOptions.ItemType;
                 Type targetItemType = typeMap.TargetTypeOptions.ItemType;
 
-                if (typeMap.SourceTypeOptions.Type == typeof(object))
+                if (typeMap.SourceTypeOptions.ClrType == typeof(object))
                     sourceItemType = typeof(object);
 
                 typeMap.ItemTypeMap = Create(mapper, options, typeMap, sourceItemType, targetItemType, isComposition);
@@ -75,8 +75,8 @@ namespace Detached.Mappers.TypeMaps
                                         mapper,
                                         options,
                                         typeMap,
-                                        memberMap.SourceOptions.Type,
-                                        memberMap.TargetOptions.Type,
+                                        memberMap.SourceOptions.ClrType,
+                                        memberMap.TargetOptions.ClrType,
                                         targetMemberOptions.IsComposition);
 
                                     typeMap.Members.Add(memberMap);
@@ -104,32 +104,32 @@ namespace Detached.Mappers.TypeMaps
             bool result = false;
             backReferenceMap = null;
 
-            ITypeOptions memberTypeOptions = options.GetTypeOptions(memberOptions.Type);
+            ITypeOptions memberTypeOptions = options.GetTypeOptions(memberOptions.ClrType);
 
             if (typeMap.ParentTypeMap != null)
             {
                 if (typeMap.TargetTypeOptions.IsEntity
-                    && (typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
-                           || typeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
+                    && (typeMap.ParentTypeMap.TargetTypeOptions.ClrType == memberTypeOptions.ClrType
+                           || typeMap.ParentTypeMap.TargetTypeOptions.ClrType == memberTypeOptions.ItemType))
                 {
                     backReferenceMap = new BackReferenceMap
                     {
 
                         MemberOptions = memberOptions,
-                        MemberTypeOptions = options.GetTypeOptions(memberOptions.Type),
+                        MemberTypeOptions = options.GetTypeOptions(memberOptions.ClrType),
                         Parent = typeMap.ParentTypeMap
                     };
                     result = true;
                 }
                 else if (typeMap.ParentTypeMap.ParentTypeMap != null
                        && typeMap.ParentTypeMap.TargetTypeOptions.IsCollection
-                       && (typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.Type
-                           || typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.Type == memberTypeOptions.ItemType))
+                       && (typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.ClrType == memberTypeOptions.ClrType
+                           || typeMap.ParentTypeMap.ParentTypeMap.TargetTypeOptions.ClrType == memberTypeOptions.ItemType))
                 {
                     backReferenceMap = new BackReferenceMap
                     {
                         MemberOptions = memberOptions,
-                        MemberTypeOptions = options.GetTypeOptions(memberOptions.Type),
+                        MemberTypeOptions = options.GetTypeOptions(memberOptions.ClrType),
                         Parent = typeMap.ParentTypeMap.ParentTypeMap
                     };
                     result = true;

@@ -6,18 +6,25 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeMappers.ComplexType
+namespace Detached.Mappers.TypeMappers.POCO.Complex
 {
     public class ComplexTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        readonly MapperOptions _options;
+
+        public ComplexTypeMapperFactory(MapperOptions options)
+        {
+            _options = options;
+        }
+
+        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType.IsComplex
                 && targetType.IsComplex
                 && !targetType.IsEntity;
         }
 
-        public ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             object construct =
                 Lambda(
@@ -26,14 +33,14 @@ namespace Detached.Mappers.TypeMappers.ComplexType
                     targetType.Construct(contextExpr, Constant(null, typeof(IMapperContext)))
                 ).Compile();
 
-            object mapMembers = 
+            object mapMembers =
                 Lambda(
                     typeof(Action<,,>).MakeGenericType(typePair.SourceType, typePair.TargetType, typeof(IMapperContext)),
                     Parameter("source", typePair.SourceType, out Expression sourceParamExpr),
                     Parameter("source", typePair.TargetType, out Expression targetParamExpr),
                     Parameter("source", typeof(IMapperContext), out Expression context2Expr),
                     Block(
-                        CreateAllMembersMapExpressions(mapper, sourceType, targetType, sourceParamExpr, targetParamExpr, context2Expr)
+                        CreateAllMembersMapExpressions(_options, sourceType, targetType, sourceParamExpr, targetParamExpr, context2Expr)
                     )
                 ).Compile();
 
@@ -42,7 +49,7 @@ namespace Detached.Mappers.TypeMappers.ComplexType
         }
 
         private Expression CreateAllMembersMapExpressions(
-            Mapper mapper,
+            MapperOptions options,
             ITypeOptions sourceType,
             ITypeOptions targetType,
             Expression sourceExpr,
@@ -55,7 +62,7 @@ namespace Detached.Mappers.TypeMappers.ComplexType
             {
                 foreach (string memberName in targetType.MemberNames)
                 {
-                    Expression memberMapExpr = CreateMemberMapExpression(mapper, sourceType, targetType, sourceExpr, targetExpr, contextExpr, memberName);
+                    Expression memberMapExpr = CreateMemberMapExpression(options, sourceType, targetType, sourceExpr, targetExpr, contextExpr, memberName);
                     if (memberMapExpr != null)
                     {
                         memberMapsExprs.Add(memberMapExpr);
@@ -67,7 +74,7 @@ namespace Detached.Mappers.TypeMappers.ComplexType
         }
 
         private Expression CreateMemberMapExpression(
-            Mapper mapper,
+            MapperOptions options,
             ITypeOptions sourceType,
             ITypeOptions targetType,
             Expression sourceExpr,
@@ -85,17 +92,17 @@ namespace Detached.Mappers.TypeMappers.ComplexType
 
                 if (sourceMember != null && sourceMember.CanRead && !sourceMember.Ignored)
                 {
-                    TypePair memberTypePair = new TypePair(sourceMember.Type, targetMember.Type, targetMember.IsComposition ? TypePairFlags.Owned : TypePairFlags.None);
+                    TypePair memberTypePair = new TypePair(sourceMember.ClrType, targetMember.ClrType, targetMember.IsComposition ? TypePairFlags.Owned : TypePairFlags.None);
 
-                    ITypeOptions sourceMemberType = mapper.GetTypeOptions(sourceMember.Type);
-                    ITypeOptions targetMemberType = mapper.GetTypeOptions(targetMember.Type);
+                    ITypeOptions sourceMemberType = options.GetTypeOptions(sourceMember.ClrType);
+                    ITypeOptions targetMemberType = options.GetTypeOptions(targetMember.ClrType);
 
                     Expression sourceValueExpr = sourceMember.GetValue(sourceExpr, contextExpr);
 
-                    if (mapper.ShouldMap(sourceMemberType, targetMemberType))
+                    if (options.ShouldMap(sourceMemberType, targetMemberType))
                     {
                         Expression targetValueExpr = targetMember.GetValue(targetExpr, contextExpr);
-                        Expression typeMapperExpr = CreateLazyTypeMappperExpression(mapper, memberTypePair);
+                        Expression typeMapperExpr = CreateLazyTypeMappperExpression(options, memberTypePair);
                         sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
                     }
 
@@ -106,11 +113,11 @@ namespace Detached.Mappers.TypeMappers.ComplexType
             return memberSetExpr;
         }
 
-        public Expression CreateLazyTypeMappperExpression(Mapper mapper, TypePair typePair)
+        public Expression CreateLazyTypeMappperExpression(MapperOptions options, TypePair typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
-            return Constant(mapper.GetLazyTypeMapper(typePair), lazyType);
+            return Constant(options.GetLazyTypeMapper(typePair), lazyType);
         }
-         
+
     }
 }

@@ -1,13 +1,15 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 using Detached.Annotations;
 using Detached.Mappers.Annotations;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.MapperFactories;
 using Detached.Mappers.MapperFactories.Entity;
+using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Types.Class;
-using Detached.Mappers.TypeOptions.Types.Class.Builder;
-using Detached.Mappers.TypeOptions.Types.Class.Conventions;
-using Detached.Mappers.TypeOptions.Types.Dictionary;
+using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.TypeOptions.Class.Builder;
+using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Dictionary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,11 +20,20 @@ namespace Detached.Mappers
 {
     public class MapperOptions
     {
-        readonly ConcurrentDictionary<Type, ITypeOptions> _options;
+        readonly ConcurrentDictionary<Type, ITypeOptions> _options = new ConcurrentDictionary<Type, ITypeOptions>();
+        readonly ConcurrentDictionary<TypePair, ITypeMapper> _mappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
 
         public MapperOptions()
         {
-            _options = new ConcurrentDictionary<Type, ITypeOptions>();
+            Factories = new List<TypeMappers.ITypeMapperFactory>
+            {
+                new TypeMappers.POCO.Collection.CollectionTypeMapperFactory(this),
+                new TypeMappers.POCO.Complex.ComplexTypeMapperFactory(this),
+                new TypeMappers.POCO.Primitive.PrimitiveTypeMapperFactory(),
+                new TypeMappers.POCO.Abstract.AbstractTypeMapperFactory(this),
+                new TypeMappers.POCO.Nullable.NullableTypeMapperFactory(this),
+                new TypeMappers.POCO.Inherited.InheritedTypeMapperFactory(this)
+            };
         }
 
         public virtual HashSet<Type> Primitives { get; } = new HashSet<Type>
@@ -49,8 +60,8 @@ namespace Detached.Mappers
         public virtual List<ITypeOptionsFactory> TypeOptionsFactories { get; set; }
             = new List<ITypeOptionsFactory>
             {
-                new ClassOptionsFactory(),
-                new DictionaryOptionsFactory()
+                new ClassTypeOptionsFactory(),
+                new DictionaryTypeOptionsFactory()
             };
 
         public virtual List<MapperFactory> MapperFactories { get; set; } = new List<MapperFactory>
@@ -77,7 +88,8 @@ namespace Detached.Mappers
         {
             { typeof(IList<>), typeof(List<>) },
             { typeof(IEnumerable<>), typeof(List<>) },
-            { typeof(ICollection<>), typeof(List<>) }
+            { typeof(ICollection<>), typeof(List<>) },
+            { typeof(IDictionary<,>), typeof(Dictionary<,>) }
         };
 
         public Dictionary<Type, IAnnotationHandler> AnnotationHandlers { get; } = new Dictionary<Type, IAnnotationHandler>
@@ -88,8 +100,6 @@ namespace Detached.Mappers
             { typeof(EntityAttribute), new EntityAnnotationHandler() },
             { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() }
         };
-
-        public virtual IEnumerable<ITypeOptions> TypeOptions => _options.Values;
 
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
@@ -109,6 +119,43 @@ namespace Detached.Mappers
 
                 throw new InvalidOperationException($"Can't get options for type {type.GetFriendlyName()}.");
             });
+        }
+
+        public List<TypeMappers.ITypeMapperFactory> Factories { get; }
+
+        public ITypeMapper GetTypeMapper(TypePair typePair)
+        {
+            return _mappers.GetOrAdd(typePair, t =>
+            {
+                ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
+                ITypeOptions targetType = GetTypeOptions(typePair.TargetType);
+
+                for (int i = Factories.Count - 1; i >= 0; i--)
+                {
+                    ITypeMapperFactory factory = Factories[i];
+
+                    if (factory.CanCreate(typePair, sourceType, targetType))
+                    {
+                        return factory.Create(typePair, sourceType, targetType);
+                    }
+                }
+
+                throw new MapperException($"No factory for {typePair.SourceType.Name} -> {typePair.TargetType.Name}");
+            });
+        }
+
+        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
+        {
+            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
+            return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });
+        }
+
+        public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
+        {
+            return sourceType != targetType
+                    || sourceType.IsAbstract
+                    || targetType.IsAbstract
+                    || !targetType.IsPrimitive;
         }
     }
 }

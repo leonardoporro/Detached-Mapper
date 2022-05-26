@@ -1,0 +1,53 @@
+﻿using Detached.Mappers.Context;
+using Detached.Mappers.TypeOptions;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
+
+namespace Detached.Mappers.TypeMappers.POCO.Inherited
+{
+    public class InheritedTypeMapperFactory : ITypeMapperFactory
+    {
+        readonly MapperOptions _options;
+
+        public InheritedTypeMapperFactory(MapperOptions options)
+        {
+            _options = options;
+        }
+
+        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        {
+            return ((sourceType.IsComplex || sourceType.IsEntity) && !sourceType.IsAbstract)
+                 && (targetType.IsComplex || targetType.IsEntity)
+                 && targetType.DiscriminatorName != null;
+        }
+
+        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        {
+            IMemberOptions discriminatorMember = sourceType.GetMember(targetType.DiscriminatorName);
+
+            var getDiscriminator =
+                    Lambda(
+                        typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapperContext), discriminatorMember.ClrType),
+                        Parameter(typePair.SourceType, out Expression sourceExpr),
+                        Parameter(typeof(IMapperContext), out Expression contextExpr),
+                        discriminatorMember.GetValue(sourceExpr, contextExpr)
+                    ).Compile();
+
+            Type tableType = typeof(Dictionary<,>).MakeGenericType(discriminatorMember.ClrType, typeof(ILazyTypeMapper));
+            IDictionary table = (IDictionary)Activator.CreateInstance(tableType);
+
+            foreach (var entry in targetType.DiscriminatorValues)
+            {
+                ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ClrType, entry.Value, typePair.Flags));
+                table.Add(entry.Key, mapper);
+            }
+
+            Type mapperType = typeof(InheritedTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, discriminatorMember.ClrType);
+            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { getDiscriminator, table });
+        }
+    }
+}

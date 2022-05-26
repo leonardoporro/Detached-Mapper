@@ -1,24 +1,35 @@
 ﻿using Detached.Mappers.TypeOptions;
 using System;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeMappers.CollectionType
+namespace Detached.Mappers.TypeMappers.POCO.Collection
 {
     public class CollectionTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        readonly MapperOptions _options;
+
+        public CollectionTypeMapperFactory(MapperOptions options)
+        {
+            _options = options;
+        }
+
+        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType.IsCollection
                 && targetType.IsCollection
-                && !mapper.GetTypeOptions(targetType.ItemType).IsEntity; // TODO: simplify.
+                && !_options.GetTypeOptions(targetType.ItemType).IsEntity; // TODO: simplify.
         }
 
-        public ITypeMapper Create(Mapper mapper, TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            Type mapperType = typeof(ListTypeMapper<,>).MakeGenericType(sourceType.ItemType, targetType.ItemType);
+            Type mapperType = typeof(CollectionTypeMapper<,,,>)
+                    .MakeGenericType(sourceType.ClrType, sourceType.ItemType, targetType.ClrType, targetType.ItemType);
 
-            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(new TypePair(sourceType.ItemType, targetType.ItemType, typePair.Flags));
+            Delegate construct = Lambda(New(targetType.ClrType)).Compile();
+            ILazyTypeMapper itemMapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ItemType, targetType.ItemType, typePair.Flags));
 
-            return (ITypeMapper)Activator.CreateInstance(mapperType, itemMapper);
+            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { construct, itemMapper });
         }
     }
 }
