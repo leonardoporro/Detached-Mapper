@@ -12,7 +12,7 @@ namespace Detached.Mappers.Tests.POCO.Collection
         {
             List<int> ints = new List<int> { 1, 2, 3, 4, 5 };
 
-            List<string> result = mapper.Map2<List<int>, List<string>>(ints);
+            List<string> result = mapper.Map<List<int>, List<string>>(ints);
 
             Assert.Equal("1", result[0]);
             Assert.Equal("2", result[1]);
@@ -34,7 +34,7 @@ namespace Detached.Mappers.Tests.POCO.Collection
                 }
             };
 
-            TargetType targetType = mapper.Map2<SourceType, TargetType>(sourceType);
+            TargetType targetType = mapper.Map<SourceType, TargetType>(sourceType);
 
             Assert.NotNull(targetType.ComplexCollection);
             Assert.Equal("Item 1", targetType.ComplexCollection[0].Name);

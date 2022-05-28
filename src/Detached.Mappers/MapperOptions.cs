@@ -2,9 +2,15 @@
 using Detached.Annotations;
 using Detached.Mappers.Annotations;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.MapperFactories;
-using Detached.Mappers.MapperFactories.Entity;
 using Detached.Mappers.TypeMappers;
+using Detached.Mappers.TypeMappers.Entity.Collection;
+using Detached.Mappers.TypeMappers.Entity.Complex;
+using Detached.Mappers.TypeMappers.POCO.Abstract;
+using Detached.Mappers.TypeMappers.POCO.Collection;
+using Detached.Mappers.TypeMappers.POCO.Complex;
+using Detached.Mappers.TypeMappers.POCO.Inherited;
+using Detached.Mappers.TypeMappers.POCO.Nullable;
+using Detached.Mappers.TypeMappers.POCO.Primitive;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
 using Detached.Mappers.TypeOptions.Class.Builder;
@@ -25,81 +31,80 @@ namespace Detached.Mappers
 
         public MapperOptions()
         {
-            Factories = new List<TypeMappers.ITypeMapperFactory>
+            Primitives = new HashSet<Type>
             {
-                new TypeMappers.POCO.Collection.CollectionTypeMapperFactory(this),
-                new TypeMappers.POCO.Complex.ComplexTypeMapperFactory(this),
-                new TypeMappers.POCO.Primitive.PrimitiveTypeMapperFactory(),
-                new TypeMappers.POCO.Abstract.AbstractTypeMapperFactory(this),
-                new TypeMappers.POCO.Nullable.NullableTypeMapperFactory(this),
-                new TypeMappers.POCO.Inherited.InheritedTypeMapperFactory(this)
+                typeof(bool),
+                typeof(string),
+                typeof(char),
+                typeof(int),
+                typeof(uint),
+                typeof(long),
+                typeof(ulong),
+                typeof(short),
+                typeof(ushort),
+                typeof(byte),
+                typeof(float),
+                typeof(double),
+                typeof(decimal),
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(TimeSpan),
+                typeof(Guid)
             };
-        }
 
-        public virtual HashSet<Type> Primitives { get; } = new HashSet<Type>
-        {
-            typeof(bool),
-            typeof(string),
-            typeof(char),
-            typeof(int),
-            typeof(uint),
-            typeof(long),
-            typeof(ulong),
-            typeof(short),
-            typeof(ushort),
-            typeof(byte),
-            typeof(float),
-            typeof(double),
-            typeof(decimal),
-            typeof(DateTime),
-            typeof(DateTimeOffset),
-            typeof(TimeSpan),
-            typeof(Guid)
-        };
-
-        public virtual List<ITypeOptionsFactory> TypeOptionsFactories { get; set; }
-            = new List<ITypeOptionsFactory>
+            TypeOptionsFactories = new List<ITypeOptionsFactory>
             {
                 new ClassTypeOptionsFactory(),
                 new DictionaryTypeOptionsFactory()
             };
 
-        public virtual List<MapperFactory> MapperFactories { get; set; } = new List<MapperFactory>
-        {
-            new ValueMapperFactory(),
-            new ComplexTypeMapperFactory(),
-            new ListMapperFactory(),
-            new EntityRootMapperFactory(),
-            new EntityListMapperFactory(),
-            new EntityComposedMapperFactory(),
-            new EntityAggregatedMapperFactory(),
-            new NullableTypeMapperFactory(),
-            new ObjectMapperFactory(),
-            new ObjectToObjectMapperFactory()
-        };
+            TypeMapperFactories = new List<ITypeMapperFactory>
+            {
+                new CollectionTypeMapperFactory(this),
+                new ComplexTypeMapperFactory(this),
+                new PrimitiveTypeMapperFactory(),
+                new AbstractTypeMapperFactory(this),
+                new NullableTypeMapperFactory(this),
+                new InheritedTypeMapperFactory(this),
+                new EntityCollectionTypeMapperFactory(this),
+                new EntityTypeMapperFactory(this),
+            };
 
-        public virtual List<ITypeOptionsConvention> Conventions { get; set; }
-            = new List<ITypeOptionsConvention>
+            Conventions = new List<ITypeOptionsConvention>
             {
                 new KeyOptionsConvention()
             };
 
-        public virtual Dictionary<Type, Type> ConcreteTypes { get; set; } = new Dictionary<Type, Type>
-        {
-            { typeof(IList<>), typeof(List<>) },
-            { typeof(IEnumerable<>), typeof(List<>) },
-            { typeof(ICollection<>), typeof(List<>) },
-            { typeof(IDictionary<,>), typeof(Dictionary<,>) }
-        };
+            ConcreteTypes = new Dictionary<Type, Type>
+            {
+                { typeof(IList<>), typeof(List<>) },
+                { typeof(IEnumerable<>), typeof(List<>) },
+                { typeof(ICollection<>), typeof(List<>) },
+                { typeof(IDictionary<,>), typeof(Dictionary<,>) }
+            };
 
-        public Dictionary<Type, IAnnotationHandler> AnnotationHandlers { get; } = new Dictionary<Type, IAnnotationHandler>
-        {
-            { typeof(KeyAttribute), new KeyAnnotationHandler() },
-            { typeof(AggregationAttribute), new AssociationAnnotationHandler() },
-            { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
-            { typeof(EntityAttribute), new EntityAnnotationHandler() },
-            { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() }
-        };
+            AnnotationHandlers = new Dictionary<Type, IAnnotationHandler>
+            {
+                { typeof(KeyAttribute), new KeyAnnotationHandler() },
+                { typeof(AggregationAttribute), new AssociationAnnotationHandler() },
+                { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
+                { typeof(EntityAttribute), new EntityAnnotationHandler() },
+                { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
+                { typeof(ParentAttribute), new ParentAnnotationHandler() }
+            };
+        }
+
+        public virtual HashSet<Type> Primitives { get; }
+
+        public Dictionary<Type, IAnnotationHandler> AnnotationHandlers { get; }
+
+        public virtual List<ITypeOptionsFactory> TypeOptionsFactories { get; }
+
+        public List<ITypeMapperFactory> TypeMapperFactories { get; }
+
+        public virtual List<ITypeOptionsConvention> Conventions { get; }
+
+        public virtual Dictionary<Type, Type> ConcreteTypes { get; }
 
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
@@ -121,8 +126,6 @@ namespace Detached.Mappers
             });
         }
 
-        public List<TypeMappers.ITypeMapperFactory> Factories { get; }
-
         public ITypeMapper GetTypeMapper(TypePair typePair)
         {
             return _mappers.GetOrAdd(typePair, t =>
@@ -130,9 +133,9 @@ namespace Detached.Mappers
                 ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
                 ITypeOptions targetType = GetTypeOptions(typePair.TargetType);
 
-                for (int i = Factories.Count - 1; i >= 0; i--)
+                for (int i = TypeMapperFactories.Count - 1; i >= 0; i--)
                 {
-                    ITypeMapperFactory factory = Factories[i];
+                    ITypeMapperFactory factory = TypeMapperFactories[i];
 
                     if (factory.CanCreate(typePair, sourceType, targetType))
                     {
@@ -140,7 +143,7 @@ namespace Detached.Mappers
                     }
                 }
 
-                throw new MapperException($"No factory for {typePair.SourceType.Name} -> {typePair.TargetType.Name}");
+                throw new MapperException($"No factory for {typePair.SourceType.GetFriendlyName()} -> {typePair.TargetType.GetFriendlyName()}");
             });
         }
 

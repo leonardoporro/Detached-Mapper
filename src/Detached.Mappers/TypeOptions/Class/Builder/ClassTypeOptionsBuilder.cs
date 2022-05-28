@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Context;
-using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -23,7 +22,6 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
 
         public ClassTypeOptionsBuilder<TType> IsEntity(bool entity = true)
         {
-            TypeOptions.IsFragment = !entity;
             TypeOptions.IsEntity = entity;
             return this;
         }
@@ -31,11 +29,10 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
         public ClassTypeOptionsBuilder<TType> IsFragment(bool entity = true)
         {
             TypeOptions.IsEntity = !entity;
-            TypeOptions.IsFragment = entity;
             return this;
         }
 
-        public ClassTypeOptionsBuilder<TType> Constructor(Expression<Func<IMapperContext, TType>> constructor)
+        public ClassTypeOptionsBuilder<TType> Constructor(Expression<Func<IMapContext, TType>> constructor)
         {
             TypeOptions.Constructor = constructor;
             return this;

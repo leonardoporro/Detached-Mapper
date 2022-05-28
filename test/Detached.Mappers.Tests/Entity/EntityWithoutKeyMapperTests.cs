@@ -24,7 +24,7 @@ namespace Detached.Mappers.Tests.Entity
                 Name = "the dto"
             };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
             mapper.Map(dto, entity, context);
 
             Assert.Equal("the dto", entity.Name);

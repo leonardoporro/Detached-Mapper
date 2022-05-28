@@ -19,7 +19,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
             dto.Name = "cycledto";
             dto.Parent = dto;
 
-            var result = mapper.Map2<DirectCycleDTO, DirectCycle>(dto);
+            var result = mapper.Map<DirectCycleDTO, DirectCycle>(dto);
 
             Assert.Equal(1, dto.Id);
             Assert.Equal("cycledto", dto.Name);
@@ -46,7 +46,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Parent = root
             });
 
-            Root result = mapper.Map2<RootDTO, Root>(root);
+            Root result = mapper.Map<RootDTO, Root>(root);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("root", result.Name);

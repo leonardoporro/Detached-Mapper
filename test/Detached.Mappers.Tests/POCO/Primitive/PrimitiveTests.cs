@@ -9,7 +9,7 @@ namespace Detached.Mappers.Tests.POCO.Primitive
         {
             Mapper mapper = new Mapper();
 
-            int result = mapper.Map2<string, int>("1");
+            int result = mapper.Map<string, int>("1");
 
             Assert.Equal(1, result);
         }
@@ -19,7 +19,7 @@ namespace Detached.Mappers.Tests.POCO.Primitive
         {
             Mapper mapper = new Mapper();
 
-            string result = mapper.Map2<string, string>("1");
+            string result = mapper.Map<string, string>("1");
 
             Assert.Equal("1", result);
         }
@@ -29,7 +29,7 @@ namespace Detached.Mappers.Tests.POCO.Primitive
         {
             Mapper mapper = new Mapper();
 
-            bool result = mapper.Map2<string, bool>("true");
+            bool result = mapper.Map<string, bool>("true");
 
             Assert.True(result);
         }

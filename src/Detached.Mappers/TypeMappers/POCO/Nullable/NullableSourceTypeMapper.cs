@@ -12,12 +12,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
             _typeMapper = typeMapper;
         }
 
-        public override TTarget Map(TSource? source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TSource? source, TTarget target, IMapContext context)
         {
             if (source == null)
                 return default;
             else
-                return _typeMapper.Value.Map(source.Value, target, mapperContext);
+                return _typeMapper.Value.Map(source.Value, target, context);
         }
     }
 
@@ -25,7 +25,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
         where TTarget : struct
     {
 
-        public override TTarget Map(TTarget? source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TTarget? source, TTarget target, IMapContext context)
         {
             if (source.HasValue)
                 return source.Value;

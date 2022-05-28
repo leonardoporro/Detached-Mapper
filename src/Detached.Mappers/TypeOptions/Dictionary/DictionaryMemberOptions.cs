@@ -17,7 +17,7 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public Dictionary<string, object> Annotations { get; set; } = new Dictionary<string, object>();
 
-        public bool Ignored => false;
+        public bool IsIgnored => false;
 
         public bool IsKey => false;
 

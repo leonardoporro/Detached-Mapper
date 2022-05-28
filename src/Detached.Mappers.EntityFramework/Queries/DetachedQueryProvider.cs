@@ -1,4 +1,6 @@
-﻿using Detached.Mappers.TypeMaps;
+﻿using Detached.Mappers.Exceptions;
+using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using Detached.RuntimeTypes.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,12 +17,12 @@ namespace Detached.Mappers.EntityFramework.Queries
 {
     public class DetachedQueryProvider
     {
-        readonly Mapper _mapper;
+        readonly MapperOptions _options;
         IMemoryCache _memoryCache;
 
-        public DetachedQueryProvider(Mapper mapper, IMemoryCache memoryCache)
+        public DetachedQueryProvider(MapperOptions options, IMemoryCache memoryCache)
         {
-            _mapper = mapper;
+            _options = options;
             _memoryCache = memoryCache;
         }
 
@@ -32,9 +34,11 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             var filter = _memoryCache.GetOrCreate(key, entry =>
             {
-                TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
-                var param = Parameter(typeMap.TargetTypeOptions.ClrType, "e");
-                Expression projection = ToLambda(typeMap.TargetTypeOptions.ClrType, param, CreateSelectProjection(typeMap, param));
+                ITypeOptions sourceType = _options.GetTypeOptions(typeof(TSource));
+                ITypeOptions targetType = _options.GetTypeOptions(typeof(TTarget));
+
+                var param = Parameter(sourceType.ClrType, "e");
+                Expression projection = ToLambda(targetType.ClrType, param, CreateSelectProjection(sourceType, targetType, param));
 
                 entry.SetSize(1);
 
@@ -48,14 +52,20 @@ namespace Detached.Mappers.EntityFramework.Queries
             where TSource : class
             where TTarget : class
         {
-            return GetTemplate<TSource, TTarget>().Render(queryable, source).FirstOrDefaultAsync();
+            DetachedQueryTemplate<TSource, TTarget> queryTemplate = GetTemplate<TSource, TTarget>();
+            IQueryable<TTarget> query = queryTemplate.Render(queryable, source);
+
+            return query.FirstOrDefaultAsync();
         }
 
         public TTarget Load<TSource, TTarget>(IQueryable<TTarget> queryable, TSource source)
             where TSource : class
             where TTarget : class
         {
-            return GetTemplate<TSource, TTarget>().Render(queryable, source).FirstOrDefault();
+            DetachedQueryTemplate<TSource, TTarget> queryTemplate = GetTemplate<TSource, TTarget>();
+            IQueryable<TTarget> query = queryTemplate.Render(queryable, source);
+
+            return query.FirstOrDefault();
         }
 
         DetachedQueryTemplate<TSource, TTarget> GetTemplate<TSource, TTarget>()
@@ -66,13 +76,14 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             return _memoryCache.GetOrCreate(key, entry =>
             {
-                TypeMap typeMap = _mapper.GetTypeMap(typeof(TSource), typeof(TTarget));
+                ITypeOptions sourceType = _options.GetTypeOptions(typeof(TSource));
+                ITypeOptions targetType = _options.GetTypeOptions(typeof(TTarget));
 
                 DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
-                queryTemplate.SourceConstant = Constant(null, typeMap.SourceTypeOptions.ClrType);
-                queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(typeMap, queryTemplate.SourceConstant);
-                GetIncludes(typeMap, queryTemplate.Includes, null);
+                queryTemplate.SourceConstant = Constant(null, sourceType.ClrType);
+                queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
+                GetIncludes(sourceType, targetType, queryTemplate.Includes, null);
 
                 entry.SetSize(1);
 
@@ -80,18 +91,25 @@ namespace Detached.Mappers.EntityFramework.Queries
             });
         }
 
-        Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(TypeMap typeMap, ConstantExpression sourceConstant)
+        Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
         {
-            var targetParam = Parameter(typeMap.TargetTypeOptions.ClrType, "e");
+            var targetParam = Parameter(targetType.ClrType, "e");
 
             Expression expression = null;
 
-            foreach (MemberMap memberMap in typeMap.Members)
+            foreach (string memberName in targetType.MemberNames)
             {
-                if (memberMap.IsKey)
+                IMemberOptions targetMember = targetType.GetMember(memberName);
+                if (targetMember.IsKey)
                 {
-                    var targetExpr = memberMap.TargetOptions.BuildGetterExpression(targetParam, null);
-                    var sourceExpr = memberMap.SourceOptions.BuildGetterExpression(sourceConstant, null);
+                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    if (sourceMember == null)
+                    {
+                        throw new MapperException($"Can't build query filter, key member {memberName} not found.");
+                    }
+
+                    var targetExpr = targetMember.BuildGetterExpression(targetParam, null);
+                    var sourceExpr = sourceMember.BuildGetterExpression(sourceConstant, null);
 
                     if (sourceExpr.Type.IsNullable(out _))
                     {
@@ -112,66 +130,87 @@ namespace Detached.Mappers.EntityFramework.Queries
             return Lambda<Func<TTarget, bool>>(expression, targetParam);
         }
 
-        void GetIncludes(TypeMap typeMap, List<string> includes, string prefix)
+        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, List<string> includes, string prefix)
         {
-            foreach (MemberMap memberMap in typeMap.Members)
+            foreach (string memberName in targetType.MemberNames)
             {
-                if (!memberMap.IsBackReference)
+                IMemberOptions targetMember = targetType.GetMember(memberName);
+                if (targetMember.IsComposition)
                 {
-                    if (memberMap.TypeMap.TargetTypeOptions.IsCollection)
+                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    if (sourceMember != null)
                     {
-                        string name = prefix + memberMap.TargetOptions.Name;
-                        includes.Add(name);
+                        ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
+                        ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
 
-                        if (memberMap.IsComposition)
+                        if (targetMemberType.IsCollection)
                         {
-                            GetIncludes(memberMap.TypeMap.ItemTypeMap, includes, name + ".");
+                            string name = prefix + targetMember.Name;
+                            includes.Add(name);
+
+                            ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
+                            ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+
+                            GetIncludes(sourceItemType, targetItemType, includes, name + ".");
+
                         }
-                    }
-                    else if (memberMap.TypeMap.TargetTypeOptions.IsComplex)
-                    {
-                        string name = prefix + memberMap.TargetOptions.Name;
-                        includes.Add(name);
-
-                        if (memberMap.IsComposition)
+                        else if (targetMemberType.IsComplex)
                         {
-                            GetIncludes(memberMap.TypeMap, includes, name + ".");
+                            string name = prefix + targetMember.Name;
+                            includes.Add(name);
+
+
+
+                            GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
                         }
                     }
                 }
             }
         }
 
-        Expression CreateSelectProjection(TypeMap typeMap, Expression targetExpr)
+        Expression CreateSelectProjection(ITypeOptions sourceType, ITypeOptions targetType, Expression targetExpr)
         {
-            if (typeMap.SourceTypeOptions.IsCollection)
+            if (sourceType.IsCollection)
             {
-                var itemType = typeMap.ItemTypeMap.TargetTypeOptions.ClrType;
-                var param = Parameter(itemType, "e");
-                var itemMap = CreateSelectProjection(typeMap.ItemTypeMap, param);
+                ITypeOptions sourceItemType = _options.GetTypeOptions(sourceType.ItemClrType);
+                ITypeOptions targetItemType = _options.GetTypeOptions(targetType.ItemClrType);
 
-                LambdaExpression lambda = ToLambda(itemType, param, itemMap);
+                var param = Parameter(sourceItemType.ClrType, "e");
+                var itemMap = CreateSelectProjection(sourceItemType, targetItemType, param);
+
+                LambdaExpression lambda = ToLambda(targetItemType.ClrType, param, itemMap);
 
                 return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), targetExpr, lambda));
             }
-            else if (typeMap.SourceTypeOptions.IsComplex)
+            else if (sourceType.IsComplex)
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
-                foreach (MemberMap memberMap in typeMap.Members)
+
+                foreach (string memberName in targetType.MemberNames)
                 {
-                    if (!memberMap.IsBackReference)
+                    IMemberOptions targetMember = targetType.GetMember(memberName);
+
+                    if (targetMember.CanWrite && !targetMember.IsIgnored)
                     {
-                        PropertyInfo propInfo = typeMap.SourceTypeOptions.ClrType.GetProperty(memberMap.SourceOptions.Name);
-                        if (propInfo != null)
+                        IMemberOptions sourceMember = sourceType.GetMember(memberName);
+
+                        if (sourceMember.CanRead && !sourceMember.IsIgnored)
                         {
-                            Expression map = memberMap.TargetOptions.BuildGetterExpression(targetExpr, null);
-                            map = CreateSelectProjection(memberMap.TypeMap, map);
-                            bindings.Add(Bind(propInfo, map));
+                            PropertyInfo propInfo = sourceMember.GetPropertyInfo();
+                            if (propInfo != null)
+                            {
+                                ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
+                                ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
+
+                                Expression map = targetMember.BuildGetterExpression(targetExpr, null);
+                                map = CreateSelectProjection(sourceMemberType, targetMemberType, map);
+                                bindings.Add(Bind(propInfo, map));
+                            }
                         }
                     }
                 }
 
-                return MemberInit(New(typeMap.SourceTypeOptions.ClrType), bindings.ToArray());
+                return MemberInit(New(sourceType.ClrType), bindings.ToArray());
             }
             else
             {

@@ -20,7 +20,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map2<NestedTargetType, NestedTargetType>(oldObj);
+            NestedTargetType mappedObj = mapper.Map<NestedTargetType, NestedTargetType>(oldObj);
 
             Assert.NotEqual(oldObj, mappedObj);
             Assert.Equal("sample text", mappedObj.Text);
@@ -55,7 +55,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map2(sourceObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map(sourceObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
@@ -86,7 +86,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Nested = null
             };
 
-            NestedTargetType mappedObj = mapper.Map2(sourceObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map(sourceObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
@@ -119,7 +119,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 }
             };
 
-            NestedTargetType mappedObj = mapper.Map2(newObj, targetObj);
+            NestedTargetType mappedObj = mapper.Map(newObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);

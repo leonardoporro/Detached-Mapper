@@ -20,9 +20,9 @@ namespace Detached.Mappers.Tests.Entity
 
             EntityParent target = new() { Id = 1 };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
-            var mapped = mapper.Map2(source, target, context);
+            var mapped = mapper.Map(source, target, context);
 
             Assert.Single(source.ListChildrenA);
             Assert.Null(target.ListChildrenA[0].ListParentsB);

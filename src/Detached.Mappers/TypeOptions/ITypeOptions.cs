@@ -20,9 +20,7 @@ namespace Detached.Mappers.TypeOptions
 
         bool IsCollection { get; }
 
-        bool IsEntity { get; }
-
-        bool IsFragment { get; }
+        bool IsEntity { get; } 
 
         bool IsComplex { get; }
 
@@ -32,7 +30,9 @@ namespace Detached.Mappers.TypeOptions
 
         bool IsAbstract { get; }
 
-        Type ItemType { get; }
+        bool IsInherited { get; }
+
+        Type ItemClrType { get; }
 
         IEnumerable<string> MemberNames { get; }
 

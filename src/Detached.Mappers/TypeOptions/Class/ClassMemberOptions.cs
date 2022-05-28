@@ -3,19 +3,24 @@ using AgileObjects.ReadableExpressions.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
 namespace Detached.Mappers.TypeOptions.Class
 {
     public class ClassMemberOptions : IMemberOptions
     {
+        public virtual PropertyInfo PropertyInfo { get; set; }
+
         public virtual string Name { get; set; }
 
         public virtual Type ClrType { get; set; }
 
         public virtual bool IsComposition { get; set; }
 
-        public virtual bool Ignored { get; set; }
+        public virtual bool IsIgnored { get; set; }
+
+        public virtual bool IsParentReference { get; set; }
 
         public virtual bool IsKey { get; set; }
 

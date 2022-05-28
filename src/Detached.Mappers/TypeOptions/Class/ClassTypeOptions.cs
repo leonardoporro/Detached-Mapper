@@ -1,12 +1,10 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
+using Detached.PatchTypes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
-using static Detached.Mappers.Extensions.MapperExpressionExtensions;
-using Detached.PatchTypes;
 
 namespace Detached.Mappers.TypeOptions.Class
 {
@@ -14,7 +12,7 @@ namespace Detached.Mappers.TypeOptions.Class
     {
         public virtual Type ClrType { get; set; }
 
-        public virtual Type ItemType { get; set; }
+        public virtual Type ItemClrType { get; set; }
 
         public virtual ClassMemberOptionsCollection Members { get; set; } = new ClassMemberOptionsCollection();
 
@@ -38,11 +36,11 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual bool IsComplex { get; set; }
 
-        public virtual bool IsEntity { get; set; }
-
-        public virtual bool IsFragment { get; set; }
+        public virtual bool IsEntity { get; set; } 
 
         public virtual bool IsAbstract { get; set; }
+
+        public virtual bool IsInherited => DiscriminatorName != null;
 
         public virtual LambdaExpression Constructor { get; set; }
 

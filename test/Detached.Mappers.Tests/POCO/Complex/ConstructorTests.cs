@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.TypeMaps;
-using Microsoft.Extensions.Options;
-using Xunit;
+﻿using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Complex
 {

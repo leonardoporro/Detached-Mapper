@@ -22,7 +22,9 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public bool IsAbstract => false;
 
-        public Type ItemType => null;
+        public bool IsInherited => false;
+
+        public Type ItemClrType => null;
 
         public IEnumerable<string> MemberNames => new string[0];
 

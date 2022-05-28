@@ -20,7 +20,7 @@ namespace Detached.Mappers.EntityFramework
             return dbContext.GetService<DetachedQueryProvider>().Project<TProjection, TEntity>(query);
         }
 
-        public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object entityOrDTO, MapperParameters parameters = null)
+        public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
             Task<TEntity> task = Task.Run(() => Map<TEntity>(dbContext, entityOrDTO, parameters));
@@ -28,28 +28,28 @@ namespace Detached.Mappers.EntityFramework
             return task;
         }
 
-        public static TEntity Map<TEntity>(this DbContext dbContext, object entityOrDTO, MapperParameters parameters = null)
+        public static TEntity Map<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
             Mapper mapper = dbContext.GetService<Mapper>();
             DetachedQueryProvider queryProvider = dbContext.GetService<DetachedQueryProvider>();
 
             if (parameters == null)
-                parameters = new MapperParameters();
+                parameters = new MapParameters();
 
-            var context = new EntityFrameworkMapperContext(dbContext, queryProvider, parameters);
+            var context = new EntityFrameworkMapContext(dbContext, queryProvider, parameters);
 
             return (TEntity)dbContext.GetService<Mapper>().Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }
 
-        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, Stream stream, MapperParameters mapperParameters = null)
+        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, Stream stream, MapParameters mapperParameters = null)
             where TEntity : class
         {
             JsonSerializerOptions jsonSerializerOptions = dbContext.GetService<JsonSerializerOptions>();
 
             if (mapperParameters == null)
             {
-                mapperParameters = new MapperParameters { AggregationAction = AggregationAction.Map };
+                mapperParameters = new MapParameters { AggregationAction = AggregationAction.Map };
             }
 
             foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, jsonSerializerOptions))
@@ -61,13 +61,13 @@ namespace Detached.Mappers.EntityFramework
             }
         }
 
-        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, string json, MapperParameters mapperParameters = null)
+        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, string json, MapParameters mapperParameters = null)
             where TEntity : class
         {
             JsonSerializerOptions jsonSerializerOptions = dbContext.GetService<JsonSerializerOptions>();
 
             if (mapperParameters == null)
-                mapperParameters = new MapperParameters { AggregationAction = AggregationAction.Map };
+                mapperParameters = new MapParameters { AggregationAction = AggregationAction.Map };
 
             foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, jsonSerializerOptions))
             {
@@ -78,7 +78,7 @@ namespace Detached.Mappers.EntityFramework
             }
         }
 
-        public static async Task MapJsonFileAsync<TEntity>(this DbContext dbContext, string filePath, MapperParameters mapperParameters = null)
+        public static async Task MapJsonFileAsync<TEntity>(this DbContext dbContext, string filePath, MapParameters mapperParameters = null)
            where TEntity : class
         {
             using (Stream fileStream = File.OpenRead(filePath))
@@ -87,7 +87,7 @@ namespace Detached.Mappers.EntityFramework
             }
         }
 
-        public static async Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, string resourceName, Assembly assembly = null,  MapperParameters mapperParameters = null)
+        public static async Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, string resourceName, Assembly assembly = null,  MapParameters mapperParameters = null)
            where TEntity : class
         {
             if (assembly == null)

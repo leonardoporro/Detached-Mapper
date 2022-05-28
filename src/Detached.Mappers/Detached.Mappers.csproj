@@ -40,10 +40,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TypeMappers\Entity\Aggregated\" />
-    <Folder Include="TypeMappers\Entity\Composed\" />
-    <Folder Include="TypeMappers\Entity\Root\" />
-  </ItemGroup>
-
 </Project>

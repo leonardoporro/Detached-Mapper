@@ -14,10 +14,10 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
             _baseMapper = baseMapper;
         }
 
-        public override TTarget? Map(TSource? source, TTarget? target, IMapperContext mapperContext)
+        public override TTarget? Map(TSource? source, TTarget? target, IMapContext context)
         {
             if (source.HasValue)
-                return (TTarget?)_baseMapper.Value.Map(source.Value, target ?? default(TTarget), mapperContext);
+                return (TTarget?)_baseMapper.Value.Map(source.Value, target ?? default(TTarget), context);
             else
                 return null;
         }

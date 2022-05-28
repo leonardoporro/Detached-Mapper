@@ -19,7 +19,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                         .Setter(Lambda(
                                 Parameter(typeof(TargetEntity), out Expression entity),
                                 Parameter(typeof(int), out Expression value),
-                                Parameter(typeof(IMapperContext), out Expression context),
+                                Parameter(typeof(IMapContext), out Expression context),
                                 Block(
                                     Assign(Property(entity, nameof(TargetEntity.Value)), value),
                                     Call("Add", Field(entity, "_modified"), Constant(nameof(TargetEntity.Value)))

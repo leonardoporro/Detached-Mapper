@@ -20,7 +20,7 @@ namespace Detached.Mappers.Tests.POCO.Abstract
                 }
             };
 
-            TargetType targetType = _mapper.Map2<SourceType, TargetType>(sourceType);
+            TargetType targetType = _mapper.Map<SourceType, TargetType>(sourceType);
 
             Assert.NotNull(targetType.ComplexCollection);
             Assert.Equal("Item 1", targetType.ComplexCollection[0].Name);

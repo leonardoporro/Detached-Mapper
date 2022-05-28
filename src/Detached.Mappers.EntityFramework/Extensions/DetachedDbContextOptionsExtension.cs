@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework.Conventions;
 using Detached.Mappers.EntityFramework.Queries;
-using Detached.Mappers.TypeMaps;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,8 +60,7 @@ namespace Detached.Mappers.EntityFramework.Extensions
                 return MapperOptions;
             });
 
-            services.AddScoped<PatchJsonConverterFactory>();
-            services.AddScoped<TypeMapFactory>();
+            services.AddScoped<PatchJsonConverterFactory>(); 
             services.AddScoped(sp =>
             {
                 JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();

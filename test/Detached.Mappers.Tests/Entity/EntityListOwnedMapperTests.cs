@@ -1,6 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Context;
-using Detached.Mappers.TypeMaps;
+using Detached.Mappers.TypeMappers.Entity;
 using System.Collections.Generic;
 using Xunit;
 
@@ -36,7 +36,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             TargetEntity mapped = mapper.Map(source, target, context);
 
@@ -82,7 +82,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             TargetEntity mapped = mapper.Map(source, target, context);
 

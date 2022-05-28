@@ -61,6 +61,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Context
             await connection.OpenAsync();
 
             return new DbContextOptionsBuilder<TestDbContext>()
+                    .EnableSensitiveDataLogging()
+                    .EnableDetailedErrors()
                     .UseSqlite(connection)
                     .UseDetached(cfg =>
                     {

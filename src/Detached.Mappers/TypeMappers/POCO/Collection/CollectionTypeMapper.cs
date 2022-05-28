@@ -19,7 +19,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
             _itemMapper = itemMapper;
         }
 
-        public override TTarget Map(TSource source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
             TTarget result = null;
 
@@ -31,7 +31,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
 
                 foreach (TSourceItem sourceItem in source)
                 {
-                    result.Add(itemMapper.Map(sourceItem, default, mapperContext));
+                    result.Add(itemMapper.Map(sourceItem, default, context));
                 }
             }
 

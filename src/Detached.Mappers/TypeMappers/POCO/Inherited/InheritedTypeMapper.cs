@@ -9,28 +9,28 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
         where TSource : class
         where TTarget : class
     {
-        Func<TSource, IMapperContext, TDiscriminator> _getDiscriminator;
+        Func<TSource, IMapContext, TDiscriminator> _getDiscriminator;
         Dictionary<TDiscriminator, ILazyTypeMapper> _mappers;
 
         public InheritedTypeMapper(
-            Func<TSource, IMapperContext, TDiscriminator> getDiscriminator, 
+            Func<TSource, IMapContext, TDiscriminator> getDiscriminator, 
             Dictionary<TDiscriminator, ILazyTypeMapper> mappers)
         {
             _getDiscriminator = getDiscriminator;
             _mappers = mappers;
         }   
 
-        public override TTarget Map(TSource source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
             TTarget result = null;
 
             if (source != null)
             {
-                TDiscriminator discriminator = _getDiscriminator(source, mapperContext);
+                TDiscriminator discriminator = _getDiscriminator(source, context);
 
                 if (_mappers.TryGetValue(discriminator, out ILazyTypeMapper mapper))
                 {
-                    result = (TTarget)mapper.Value.Map(source, target, mapperContext);
+                    result = (TTarget)mapper.Value.Map(source, target, context);
                 }
                 else
                 {

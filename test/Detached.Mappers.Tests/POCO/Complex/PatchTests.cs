@@ -19,7 +19,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Name = "test entity"
             };
 
-            Entity result = _mapper.Map2((IPatch)dto, entity);
+            Entity result = _mapper.Map((IPatch)dto, entity);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("test entity", result.Name);

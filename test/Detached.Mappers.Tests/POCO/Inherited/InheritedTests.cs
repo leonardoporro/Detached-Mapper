@@ -22,7 +22,7 @@ namespace Detached.Mappers.Tests.POCO.Inherited
 
             Mapper mapper = new Mapper(mapperOptions);
 
-            List<Animal> result = mapper.Map2<List<object>, List<Animal>>(animals);
+            List<Animal> result = mapper.Map<List<object>, List<Animal>>(animals);
 
             Assert.IsType<Cat>(result[0]);
             Assert.Equal(1, result[0].Id);

@@ -4,11 +4,11 @@ namespace Detached.Mappers.TypeMappers
 {
     public interface ITypeMapper
     {
-        object Map(object source, object target, IMapperContext mapperContext);
+        object Map(object source, object target, IMapContext context);
     }
 
     public interface ITypeMapper<TSource, TTarget> : ITypeMapper
     {
-        TTarget Map(TSource source, TTarget target, IMapperContext mapperContext);
+        TTarget Map(TSource source, TTarget target, IMapContext context);
     }
 }

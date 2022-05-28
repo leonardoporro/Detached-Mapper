@@ -1,6 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Context;
-using Detached.Mappers.TypeMaps;
+using Detached.Mappers.TypeMappers.Entity;
 using Xunit;
 
 namespace Detached.Mappers.Tests.Entity
@@ -32,7 +32,7 @@ namespace Detached.Mappers.Tests.Entity
                 Composition = null
             };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             int targetCheck = target.GetHashCode();
 
@@ -79,7 +79,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             int targetCheck = target.GetHashCode();
             int compositionCheck = target.Composition.GetHashCode();
@@ -131,7 +131,7 @@ namespace Detached.Mappers.Tests.Entity
             int targetCheck = target.GetHashCode();
             int compositionCheck = target.Composition.GetHashCode();
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);
@@ -181,7 +181,7 @@ namespace Detached.Mappers.Tests.Entity
 
             int targetCheck = target.GetHashCode();
 
-            MapperContext context = new MapperContext();
+            MapContext context = new MapContext();
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);

@@ -15,7 +15,7 @@ namespace Detached.Mappers.Tests.POCO.Abstract
                 Name = "BoxedSourceType"
             };
 
-            TargetType result = mapper.Map2(source, typeof(SourceType), null, typeof(TargetType), null) as TargetType;
+            TargetType result = mapper.Map(source, typeof(SourceType), null, typeof(TargetType), null) as TargetType;
 
             Assert.NotNull(result);
             Assert.Equal("BoxedSourceType", result.Name);
@@ -45,7 +45,7 @@ namespace Detached.Mappers.Tests.POCO.Abstract
                 }
             };
 
-            RootType result = mapper.Map2(source, target);
+            RootType result = mapper.Map(source, target);
 
             Assert.NotNull(result);
             Assert.Equal("BoxedSourceType", ((TargetType)result.Value).Name);

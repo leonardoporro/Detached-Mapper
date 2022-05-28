@@ -23,7 +23,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Text2 = "source_text2"
             };
 
-            var mapped = _mapper.Map2(source, target);
+            var mapped = _mapper.Map(source, target);
 
             Assert.Equal("target_text1", mapped.Text1);
             Assert.Equal("source_text2", mapped.Text2);

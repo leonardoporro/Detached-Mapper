@@ -8,7 +8,7 @@ namespace Detached.Mappers.TypeOptions
     {
         Dictionary<string, object> Annotations { get; }
 
-        bool Ignored { get; }
+        bool IsIgnored { get; }
 
         bool IsKey { get; }
 

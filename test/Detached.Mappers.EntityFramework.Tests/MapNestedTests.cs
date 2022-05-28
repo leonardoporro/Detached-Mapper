@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests
     public class MapNestedTests
     {
         [Fact]
-        public async Task MapTwoLevelsAsync()
+        public async Task map_two_levels()
         {
             TestDbContext db = await TestDbContext.CreateAsync();
             db.InvoiceTypes.Add(new InvoiceType() { Id = 1, });

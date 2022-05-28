@@ -3,6 +3,7 @@ using Detached.Mappers.TypeOptions.Class.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -25,13 +26,13 @@ namespace Detached.Mappers.TypeOptions.Class
             }
             else if (type.IsEnumerable(out Type itemType))
             {
-                typeOptions.ItemType = itemType;
+                typeOptions.ItemClrType = itemType;
                 typeOptions.IsCollection = true;
             }
             else if (type.IsNullable(out Type baseType))
             {
                 typeOptions.IsNullable = true;
-                typeOptions.ItemType = baseType;
+                typeOptions.ItemClrType = baseType;
             }
             else
             {
@@ -45,6 +46,7 @@ namespace Detached.Mappers.TypeOptions.Class
                         ClassMemberOptions memberOptions = new ClassMemberOptions();
                         memberOptions.Name = propInfo.Name;
                         memberOptions.ClrType = propInfo.PropertyType;
+                        memberOptions.PropertyInfo = propInfo;
 
                         // generate getter.
                         if (propInfo.CanRead)
@@ -79,9 +81,10 @@ namespace Detached.Mappers.TypeOptions.Class
                 }
             }
 
-            if (typeOptions.IsComplex && !typeOptions.IsAbstract)
+            ConstructorInfo constructorInfo = typeOptions.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+            if (!typeOptions.IsAbstract && constructorInfo != null)
             {
-                typeOptions.Constructor = Lambda(New(type));
+                typeOptions.Constructor = Lambda(New(constructorInfo));
             }
 
             // apply type attributes.

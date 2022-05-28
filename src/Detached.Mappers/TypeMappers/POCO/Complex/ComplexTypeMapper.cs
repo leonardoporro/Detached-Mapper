@@ -4,25 +4,27 @@ using System;
 namespace Detached.Mappers.TypeMappers.POCO.Complex
 {
     public class ComplexTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget>
+        where TSource : class
+        where TTarget : class
     {
-        readonly Func<IMapperContext, TTarget> _construct;
-        readonly Action<TSource, TTarget, IMapperContext> _mapMembers;
+        readonly Func<IMapContext, TTarget> _construct;
+        readonly Action<TSource, TTarget, IMapContext> _mapMembers;
 
         public ComplexTypeMapper(
-            Func<IMapperContext, TTarget> construct,
-            Action<TSource, TTarget, IMapperContext> mapMembers)
+            Func<IMapContext, TTarget> construct,
+            Action<TSource, TTarget, IMapContext> mapMembers)
         {
             _construct = construct;
             _mapMembers = mapMembers;
         }
 
-        public override TTarget Map(TSource source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
             if (Equals(source, null))
             {
                 return default;
             }
-            else if (mapperContext.TryGetTrackedObject(source, out TTarget trackedTarget))
+            else if (context.TryGetResult(source, out TTarget trackedTarget))
             {
                 return trackedTarget;
             }
@@ -30,13 +32,14 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
             {
                 if (Equals(target, null))
                 {
-                    target = _construct(mapperContext);
+                    target = _construct(context);
                 }
 
-                mapperContext.TrackObject(source, target);
+                context.PushResult(source, target);
 
+                _mapMembers(source, target, context);
 
-                _mapMembers(source, target, mapperContext);
+                context.PopResult();
 
                 return target;
             }

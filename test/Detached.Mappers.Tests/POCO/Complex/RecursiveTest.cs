@@ -30,7 +30,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 }
             };
 
-            CycleTarget mappedObj = mapper.Map2<CycleSource, CycleTarget>(sourceObj);
+            CycleTarget mappedObj = mapper.Map<CycleSource, CycleTarget>(sourceObj);
             Assert.Equal("sample text", mappedObj.Text);
             Assert.Equal("sample cycle", mappedObj.DirectCycle.Text);
             Assert.Equal("sample cycle 2", mappedObj.DirectCycle.DirectCycle.Text);
@@ -86,7 +86,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 }
             };
 
-            CycleA result = mapper.Map2(source, new CycleA());
+            CycleA result = mapper.Map(source, new CycleA());
             Assert.Equal("A1", result.Name);
             Assert.Equal("B1", result.B.Name);
             Assert.Equal("C1", result.B.C.Name);

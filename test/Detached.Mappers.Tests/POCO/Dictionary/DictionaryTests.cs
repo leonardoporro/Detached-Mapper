@@ -30,7 +30,7 @@ namespace Detached.Mappers.Tests.POCO.Dictionary
                 }
             };
 
-            Entity result = mapper.Map2<Dictionary<string, object>, Entity>(source);
+            Entity result = mapper.Map<Dictionary<string, object>, Entity>(source);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("test name", result.Name);
@@ -52,7 +52,7 @@ namespace Detached.Mappers.Tests.POCO.Dictionary
             Entity entity = new Entity { Id = 1, Name = "regular name" };
 
 
-            Entity result = mapper.Map2(patch, entity);
+            Entity result = mapper.Map(patch, entity);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("patched name!", result.Name);

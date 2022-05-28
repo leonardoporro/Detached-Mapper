@@ -18,16 +18,16 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
         {
             return sourceType.IsCollection
                 && targetType.IsCollection
-                && !_options.GetTypeOptions(targetType.ItemType).IsEntity; // TODO: simplify.
+                && !_options.GetTypeOptions(targetType.ItemClrType).IsEntity; // TODO: simplify.
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             Type mapperType = typeof(CollectionTypeMapper<,,,>)
-                    .MakeGenericType(sourceType.ClrType, sourceType.ItemType, targetType.ClrType, targetType.ItemType);
+                    .MakeGenericType(sourceType.ClrType, sourceType.ItemClrType, targetType.ClrType, targetType.ItemClrType);
 
             Delegate construct = Lambda(New(targetType.ClrType)).Compile();
-            ILazyTypeMapper itemMapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ItemType, targetType.ItemType, typePair.Flags));
+            ILazyTypeMapper itemMapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ItemClrType, targetType.ItemClrType, typePair.Flags));
 
             return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { construct, itemMapper });
         }

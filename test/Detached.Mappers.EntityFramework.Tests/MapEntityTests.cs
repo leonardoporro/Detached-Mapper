@@ -84,7 +84,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                     Id = 1,
                     Name = "cr",
                 },
-                new MapperParameters
+                new MapParameters
                 {
                     RootUpsert = false
                 })

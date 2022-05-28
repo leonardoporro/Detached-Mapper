@@ -16,7 +16,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Number = 5
             };
 
-            TargetTestType mappedObj = mapper.Map2<TargetTestType, TargetTestType>(targetObj);
+            TargetTestType mappedObj = mapper.Map<TargetTestType, TargetTestType>(targetObj);
 
             Assert.NotEqual(targetObj, mappedObj);
             Assert.Equal("sample text", mappedObj.Text);
@@ -39,7 +39,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Number = 9
             };
 
-            TargetTestType mappedObj = mapper.Map2(sourceObj, targetObj);
+            TargetTestType mappedObj = mapper.Map(sourceObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);
@@ -63,7 +63,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
                 Number = 9
             };
 
-            TargetTestType mappedObj = mapper.Map2(newObj, targetObj);
+            TargetTestType mappedObj = mapper.Map(newObj, targetObj);
 
             Assert.Equal(targetObj, mappedObj);
             Assert.Equal("new text", mappedObj.Text);

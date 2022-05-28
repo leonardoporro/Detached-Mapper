@@ -16,7 +16,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
             _concreteTargetType = concreteTargetType;
         }
 
-        public override TTarget Map(TSource source, TTarget target, IMapperContext mapperContext)
+        public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
             if (Equals(source, null))
             {
@@ -34,7 +34,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
                 else
                 {
                     ITypeMapper typeMapper = _options.GetTypeMapper(new TypePair(sourceType, targetType, _flags));
-                    return (TTarget)typeMapper.Map(source, target, mapperContext);
+                    return (TTarget)typeMapper.Map(source, target, context);
                 }
             }
         }

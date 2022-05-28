@@ -31,9 +31,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
             var getDiscriminator =
                     Lambda(
-                        typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapperContext), discriminatorMember.ClrType),
+                        typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapContext), discriminatorMember.ClrType),
                         Parameter(typePair.SourceType, out Expression sourceExpr),
-                        Parameter(typeof(IMapperContext), out Expression contextExpr),
+                        Parameter(typeof(IMapContext), out Expression contextExpr),
                         discriminatorMember.BuildGetterExpression(sourceExpr, contextExpr)
                     ).Compile();
 

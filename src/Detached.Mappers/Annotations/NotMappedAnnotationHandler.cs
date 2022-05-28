@@ -7,7 +7,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(NotMappedAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
-            memberOptions.Ignored = true;
+            memberOptions.IsIgnored = true;
         }
     }
 }

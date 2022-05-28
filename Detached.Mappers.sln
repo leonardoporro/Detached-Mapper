@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{745CB1E1-F50B-4307-8BD6-1ADDC837102B}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.EntityFramework.Tests", "test\Detached.Mappers.EntityFramework.Tests\Detached.Mappers.EntityFramework.Tests.csproj", "{AE2CCD23-0DD6-4B16-960C-BC8B233206BF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.Tests", "test\Detached.Mappers.Tests\Detached.Mappers.Tests.csproj", "{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.EntityFramework.Contrib.SysTec", "contrib\Detached.Mappers.EntityFramework.Contrib.SysTec\Detached.Mappers.EntityFramework.Contrib.SysTec.csproj", "{7338CBDE-3C38-40DC-A3CC-19483C77822A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{DA563FFB-7793-47D6-8CEC-7E9206F4D0B2} = {745CB1E1-F50B-4307-8BD6-1ADDC837102B}
 		{AE2CCD23-0DD6-4B16-960C-BC8B233206BF} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
 		{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
+		{7338CBDE-3C38-40DC-A3CC-19483C77822A} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7FC47439-B36B-45BB-BEEC-A6D595358C63}
