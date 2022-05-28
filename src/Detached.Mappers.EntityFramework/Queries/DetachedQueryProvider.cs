@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Exceptions;
+﻿using AgileObjects.ReadableExpressions;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
 using Detached.RuntimeTypes.Reflection;
@@ -26,24 +27,26 @@ namespace Detached.Mappers.EntityFramework.Queries
             _memoryCache = memoryCache;
         }
 
-        public IQueryable<TSource> Project<TSource, TTarget>(IQueryable<TTarget> query)
-            where TTarget : class
-            where TSource : class
+        public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
+            where TProjection : class
+            where TEntity : class
         {
-            var key = new DetachedQueryCacheKey(typeof(TSource), typeof(TTarget), QueryType.Projection);
+            var key = new DetachedQueryCacheKey(typeof(TEntity), typeof(TProjection), QueryType.Projection);
 
             var filter = _memoryCache.GetOrCreate(key, entry =>
             {
-                ITypeOptions sourceType = _options.GetTypeOptions(typeof(TSource));
-                ITypeOptions targetType = _options.GetTypeOptions(typeof(TTarget));
+                ITypeOptions entityType = _options.GetTypeOptions(typeof(TEntity));
+                ITypeOptions projectionType = _options.GetTypeOptions(typeof(TProjection));
 
-                var param = Parameter(sourceType.ClrType, "e");
-                Expression projection = ToLambda(targetType.ClrType, param, CreateSelectProjection(sourceType, targetType, param));
+                var param = Parameter(entityType.ClrType, "e");
+                Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(entityType, projectionType, param));
 
                 entry.SetSize(1);
 
-                return (Expression<Func<TTarget, TSource>>)projection;
+                return (Expression<Func<TEntity, TProjection>>)projection;
             });
+
+            var x = filter.ToReadableString();
 
             return query.Select(filter);
         }
@@ -168,53 +171,63 @@ namespace Detached.Mappers.EntityFramework.Queries
             }
         }
 
-        Expression CreateSelectProjection(ITypeOptions sourceType, ITypeOptions targetType, Expression targetExpr)
+        Expression CreateSelectProjection(ITypeOptions entityType, ITypeOptions projectionType, Expression entityExpr)
         {
-            if (sourceType.IsCollection)
+            if (entityType.IsCollection)
             {
-                ITypeOptions sourceItemType = _options.GetTypeOptions(sourceType.ItemClrType);
-                ITypeOptions targetItemType = _options.GetTypeOptions(targetType.ItemClrType);
+                ITypeOptions entityItemType = _options.GetTypeOptions(entityType.ItemClrType);
+                ITypeOptions projectionItemType = _options.GetTypeOptions(projectionType.ItemClrType);
 
-                var param = Parameter(sourceItemType.ClrType, "e");
-                var itemMap = CreateSelectProjection(sourceItemType, targetItemType, param);
+                var param = Parameter(entityItemType.ClrType, "e");
+                var itemMap = CreateSelectProjection(entityItemType, projectionItemType, param);
 
-                LambdaExpression lambda = ToLambda(targetItemType.ClrType, param, itemMap);
+                LambdaExpression lambda = ToLambda(entityItemType.ClrType, param, itemMap);
 
-                return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), targetExpr, lambda));
+                return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), entityExpr, lambda));
             }
-            else if (sourceType.IsComplex)
+            else if (entityType.IsComplex)
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
 
-                foreach (string memberName in targetType.MemberNames)
+                foreach (string memberName in entityType.MemberNames)
                 {
-                    IMemberOptions targetMember = targetType.GetMember(memberName);
+                    IMemberOptions entityMember = entityType.GetMember(memberName);
 
-                    if (targetMember.CanWrite && !targetMember.IsIgnored)
+                    if (entityMember.CanRead && !entityMember.IsIgnored)
                     {
-                        IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                        IMemberOptions projectionMember = projectionType.GetMember(memberName);
 
-                        if (sourceMember.CanRead && !sourceMember.IsIgnored)
+                        if (projectionMember.CanWrite && !projectionMember.IsIgnored)
                         {
-                            PropertyInfo propInfo = sourceMember.GetPropertyInfo();
+                            PropertyInfo propInfo = projectionMember.GetPropertyInfo();
                             if (propInfo != null)
                             {
-                                ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
-                                ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
+                                ITypeOptions projectionMemberType = _options.GetTypeOptions(projectionMember.ClrType);
+                                ITypeOptions entityMemberType = _options.GetTypeOptions(entityMember.ClrType);
 
-                                Expression map = targetMember.BuildGetterExpression(targetExpr, null);
-                                map = CreateSelectProjection(sourceMemberType, targetMemberType, map);
+                                Expression map = entityMember.BuildGetterExpression(entityExpr, null);
+                                Expression body = CreateSelectProjection(entityMemberType, projectionMemberType, map);
+
+                                if (entityMemberType.IsComplex)
+                                {
+                                    map = Condition(NotEqual(map, Constant(null, map.Type)), body, Constant(null, body.Type));
+                                }
+                                else
+                                {
+                                    map = body;
+                                }
+
                                 bindings.Add(Bind(propInfo, map));
                             }
                         }
                     }
                 }
 
-                return MemberInit(New(sourceType.ClrType), bindings.ToArray());
+                return MemberInit(New(projectionType.ClrType), bindings.ToArray());
             }
             else
             {
-                return targetExpr;
+                return entityExpr;
             }
         }
 

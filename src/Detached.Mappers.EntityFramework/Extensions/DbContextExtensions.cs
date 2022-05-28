@@ -17,7 +17,7 @@ namespace Detached.Mappers.EntityFramework
             where TEntity : class
             where TProjection : class
         {
-            return dbContext.GetService<DetachedQueryProvider>().Project<TProjection, TEntity>(query);
+            return dbContext.GetService<DetachedQueryProvider>().Project<TEntity, TProjection>(query);
         }
 
         public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
