@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Context;
-using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeOptions.Class.Builder
 {

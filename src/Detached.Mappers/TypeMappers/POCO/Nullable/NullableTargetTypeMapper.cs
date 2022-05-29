@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Context;
-
-namespace Detached.Mappers.TypeMappers.POCO.Nullable
+﻿namespace Detached.Mappers.TypeMappers.POCO.Nullable
 {
     public class NullableTargetTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget?>
         where TTarget : struct

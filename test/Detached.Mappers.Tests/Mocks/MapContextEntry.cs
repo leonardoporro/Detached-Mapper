@@ -1,8 +1,8 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 
-namespace Detached.Mappers.Context
+namespace Detached.Mappers.Tests.Mocks
 {
-    public class MapperContextEntry
+    public class MapContextEntry
     {
         public object Entity { get; set; }
 

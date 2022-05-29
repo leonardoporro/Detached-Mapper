@@ -1,5 +1,5 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Context;
+using Detached.Mappers.Tests.Mocks;
 using Detached.Mappers.TypeMappers.Entity;
 using Xunit;
 
@@ -32,7 +32,7 @@ namespace Detached.Mappers.Tests.Entity
                 Composition = null
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             int targetCheck = target.GetHashCode();
 
@@ -48,7 +48,7 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(2, mapped.Composition.Id);
             Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
+            Assert.True(context.Verify<CompositionEntity>(new EntityKey<int>(2), out MapContextEntry entry));
             Assert.Equal(MapperActionType.Create, entry.ActionType);
         }
 
@@ -79,7 +79,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             int targetCheck = target.GetHashCode();
             int compositionCheck = target.Composition.GetHashCode();
@@ -97,7 +97,7 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(2, mapped.Composition.Id);
             Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry entry));
+            Assert.True(context.Verify<CompositionEntity>(new EntityKey<int>(2), out MapContextEntry entry));
             Assert.Equal(MapperActionType.Update, entry.ActionType);
         }
 
@@ -131,7 +131,7 @@ namespace Detached.Mappers.Tests.Entity
             int targetCheck = target.GetHashCode();
             int compositionCheck = target.Composition.GetHashCode();
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);
@@ -147,10 +147,10 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(2, mapped.Composition.Id);
             Assert.Equal("composition_dto", mapped.Composition.Name);
 
-            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(2), out MapperContextEntry createdEntry));
+            Assert.True(context.Verify<CompositionEntity>(new EntityKey<int>(2), out MapContextEntry createdEntry));
             Assert.Equal(MapperActionType.Create, createdEntry.ActionType);
 
-            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
+            Assert.True(context.Verify<CompositionEntity>(new EntityKey<int>(3), out MapContextEntry deletedEntry));
             Assert.Equal(MapperActionType.Delete, deletedEntry.ActionType);
         }
 
@@ -181,7 +181,7 @@ namespace Detached.Mappers.Tests.Entity
 
             int targetCheck = target.GetHashCode();
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             // WHEN mapped
             TargetEntity mapped = mapper.Map(source, target, context);
@@ -193,7 +193,7 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal("extra_prop_not_mapped", mapped.ExtraProperty);
             Assert.Null(mapped.Composition); // composition is deleted
 
-            Assert.True(context.TryGetEntry<CompositionEntity>(new EntityKey<int>(3), out MapperContextEntry deletedEntry));
+            Assert.True(context.Verify<CompositionEntity>(new EntityKey<int>(3), out MapContextEntry deletedEntry));
             Assert.Equal(MapperActionType.Delete, deletedEntry.ActionType);
         }
 

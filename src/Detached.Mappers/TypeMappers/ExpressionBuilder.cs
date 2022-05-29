@@ -1,11 +1,10 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Context;
-using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers.Entity;
 using Detached.Mappers.TypeOptions;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
@@ -153,7 +152,14 @@ namespace Detached.Mappers.TypeMappers
 
         private Expression BuildFindParentExpression(Expression targetExpr, Expression contextExpr, IMemberOptions targetMember)
         {
-            return targetMember.BuildSetterExpression(targetExpr, Call(contextExpr, "FindParent", new[] { targetMember.ClrType }), contextExpr);
+            MethodInfo methodInfo = typeof(IMapContext).GetMethod("TryGetParent").MakeGenericMethod(targetMember.ClrType);
+
+            return Block(
+                Variable("parent", targetMember.ClrType, out Expression parentExpr),
+                If(Call(contextExpr, methodInfo, parentExpr),
+                    targetMember.BuildSetterExpression(targetExpr, parentExpr, contextExpr)
+                )
+            );
         }
 
         private Expression BuildMapSingleMemberExpression(

@@ -35,7 +35,9 @@ namespace Detached.Mappers.EntityFramework
             DetachedQueryProvider queryProvider = dbContext.GetService<DetachedQueryProvider>();
 
             if (parameters == null)
+            {
                 parameters = new MapParameters();
+            }
 
             var context = new EntityFrameworkMapContext(dbContext, queryProvider, parameters);
 
@@ -49,7 +51,7 @@ namespace Detached.Mappers.EntityFramework
 
             if (mapperParameters == null)
             {
-                mapperParameters = new MapParameters { AggregationAction = AggregationAction.Map };
+                mapperParameters = new MapParameters { AddAggregations = true };
             }
 
             foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, jsonSerializerOptions))
@@ -67,7 +69,9 @@ namespace Detached.Mappers.EntityFramework
             JsonSerializerOptions jsonSerializerOptions = dbContext.GetService<JsonSerializerOptions>();
 
             if (mapperParameters == null)
-                mapperParameters = new MapParameters { AggregationAction = AggregationAction.Map };
+            {
+                mapperParameters = new MapParameters { AddAggregations = true };
+            }
 
             foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, jsonSerializerOptions))
             {
@@ -91,7 +95,9 @@ namespace Detached.Mappers.EntityFramework
            where TEntity : class
         {
             if (assembly == null)
+            {
                 assembly = Assembly.GetCallingAssembly();
+            }
 
             using (Stream fileStream = assembly.GetManifestResourceStream(resourceName))
             {

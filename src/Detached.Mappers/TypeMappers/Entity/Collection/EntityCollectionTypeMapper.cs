@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.TypeMappers.Entity.Collection

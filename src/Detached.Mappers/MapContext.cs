@@ -1,45 +1,28 @@
 ﻿using Detached.Mappers.TypeMappers.Entity;
-using System.Collections.Concurrent;
+using System;
 using System.Collections.Generic;
 
-namespace Detached.Mappers.Context
+namespace Detached.Mappers
 {
     public class MapContext : IMapContext
     {
-        readonly ConcurrentDictionary<MapperContextKey, MapperContextEntry> _entries =
-            new ConcurrentDictionary<MapperContextKey, MapperContextEntry>();
+        readonly LinkedList<(object, object)> _objectStack =
+            new LinkedList<(object, object)>();
 
-        readonly Dictionary<object, object> _trackedObjects = new Dictionary<object, object>();
+        public MapContext(MapParameters parameters = null)
+        {
+            Parameters = parameters ?? new MapParameters();
+        }
 
-        public MapParameters Parameters { get; } = new MapParameters();
+        public MapParameters Parameters { get; }
 
         public virtual TEntity TrackChange<TEntity, TSource, TKey>(TEntity entity, TSource source, TKey key, MapperActionType actionType)
             where TEntity : class
             where TSource : class
             where TKey : IEntityKey
         {
-            MapperContextKey mapperKey = new MapperContextKey(typeof(TEntity), key);
-
-            _entries.AddOrUpdate(mapperKey,
-                k =>
-                {
-                    return new MapperContextEntry { Entity = entity, ActionType = actionType };
-                },
-                (k, entry) =>
-                {
-                    entry.ActionType = actionType;
-                    return entry;
-                });
-
             return entity;
         }
-
-        public bool TryGetEntry<TEntity>(IEntityKey key, out MapperContextEntry entry)
-        {
-            return _entries.TryGetValue(new MapperContextKey(typeof(TEntity), key), out entry);
-        }
-
-        public LinkedList<(object, object)> _objectStack = new LinkedList<(object, object)>();
 
         public virtual void PushResult<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target)
         {
@@ -72,22 +55,28 @@ namespace Detached.Mappers.Context
             }
         }
 
-        public virtual TTarget FindParent<TTarget>()
+        public virtual bool TryGetParent<TTarget>(out TTarget target)
             where TTarget : class
         {
+            Type targetType = typeof(TTarget);
             var entry = _objectStack.Last;
-            while (entry != null && !(entry.Value.Item1 is EntityRef entityRef && entityRef.ClrType == typeof(TTarget)))
+            while (entry != null 
+                   && !(entry.Value.Item1 is EntityRef entityRef 
+                        && !entityRef.Key.IsEmpty
+                        && targetType.IsAssignableFrom(entityRef.ClrType)))
             {
                 entry = entry.Previous;
             }
 
             if (entry != null)
             {
-                return (TTarget)entry.Value.Item2;
+                target = (TTarget)entry.Value.Item2;
+                return true;
             }
             else
             {
-                return null;
+                target = null;
+                return false;
             }
         }
     }

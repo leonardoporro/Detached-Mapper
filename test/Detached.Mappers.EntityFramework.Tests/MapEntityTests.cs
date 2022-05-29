@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Context;
-using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Mappers.EntityFramework.Tests.Model;
 using Detached.Mappers.EntityFramework.Tests.Model.DTOs;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -86,7 +85,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 },
                 new MapParameters
                 {
-                    RootUpsert = false
+                    Upsert = false
                 })
             );
         }

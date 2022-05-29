@@ -1,5 +1,5 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Context;
+using Detached.Mappers.Tests.Mocks;
 using Detached.Mappers.TypeMappers.Entity;
 using System.Collections.Generic;
 using Xunit;
@@ -36,13 +36,13 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             var mapped = mapper.Map(source, target, context);
             Assert.NotNull(mapped.AssociatedList);
             Assert.Equal(2, mapped.AssociatedList.Count);
 
-            Assert.True(context.TryGetEntry<TargetAssociatedItem>(new EntityKey<int>(4), out MapperContextEntry entry4));
+            Assert.True(context.Verify<TargetAssociatedItem>(new EntityKey<int>(4), out MapContextEntry entry4));
             Assert.Equal(MapperActionType.Attach, entry4.ActionType);
         }
 

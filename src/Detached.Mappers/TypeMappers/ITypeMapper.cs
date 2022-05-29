@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Context;
-
-namespace Detached.Mappers.TypeMappers
+﻿namespace Detached.Mappers.TypeMappers
 {
     public interface ITypeMapper
     {

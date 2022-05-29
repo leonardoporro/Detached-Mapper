@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Context;
-using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Mappers.EntityFramework.Tests.Model;
 using Detached.Mappers.EntityFramework.Tests.Model.DTOs;
 using System.Linq;
 using System.Threading.Tasks;

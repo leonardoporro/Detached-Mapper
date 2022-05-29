@@ -23,7 +23,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                 ITypeOptions sourceItemType = _options.GetTypeOptions(targetType.ItemClrType);
                 ITypeOptions targetItemType = _options.GetTypeOptions(targetType.ItemClrType);
 
-                return targetItemType.IsEntity && !targetItemType.IsAbstract && !sourceItemType.IsAbstract;
+                return targetItemType.IsEntity && sourceItemType.IsComplex;
             }
 
             return false;

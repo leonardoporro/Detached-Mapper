@@ -1,6 +1,7 @@
 ﻿using Detached.Annotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace GraphInheritenceTests.ComplexModels
         public string Name { get; set; }
 
         public int PrimaryAddressId { get; set; }
+
         [Aggregation]
         public Address PrimaryAddress { get; set; }
 
@@ -28,8 +30,10 @@ namespace GraphInheritenceTests.ComplexModels
         public List<OrganizationNotes> Notes { get; set; } = new List<OrganizationNotes>();
 
         public int? ParentId { get; set; }
-        [Aggregation]
+        
+        [Parent]
         public OrganizationBase Parent { get; set; }
+
         [Aggregation]
         public List<OrganizationBase> Children { get; set; } = new List<OrganizationBase>();
     }

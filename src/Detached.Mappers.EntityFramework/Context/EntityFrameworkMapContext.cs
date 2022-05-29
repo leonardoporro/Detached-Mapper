@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using Detached.Mappers.EntityFramework.Queries;
+﻿using Detached.Mappers.EntityFramework.Queries;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +12,11 @@ namespace Detached.Mappers.EntityFramework.Context
     public class EntityFrameworkMapContext : MapContext
     {
         public EntityFrameworkMapContext(DbContext dbContext, DetachedQueryProvider queryProvider, MapParameters parameters)
+            : base(parameters)
         {
             QueryProvider = queryProvider;
-            Parameters = parameters;
             DbContext = dbContext;
-        }
-
-        public MapParameters Parameters { get; }
+        } 
 
         public DetachedQueryProvider QueryProvider { get; }
 
@@ -36,7 +33,7 @@ namespace Detached.Mappers.EntityFramework.Context
 
                 TTarget loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
 
-                if (loadedEntity == null && !Parameters.RootUpsert)
+                if (loadedEntity == null && !Parameters.Upsert)
                 {
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
                 }
@@ -53,11 +50,13 @@ namespace Detached.Mappers.EntityFramework.Context
                     switch (actionType)
                     {
                         case MapperActionType.Attach:
-                            if (Parameters.AggregationAction == AggregationAction.Map)
+                            if (Parameters.AddAggregations)
                             {
                                 entry.Reload();
                                 if (entry.State == EntityState.Detached)
+                                {
                                     entry.State = EntityState.Added;
+                                }
                             }
                             else
                             {
@@ -65,7 +64,14 @@ namespace Detached.Mappers.EntityFramework.Context
                             }
                             break;
                         case MapperActionType.Create:
-                            entry.State = EntityState.Added;
+                            if (!key.IsEmpty && Parameters.AssociateExistingCompositions)
+                            {
+                                entry.Reload();
+                            }
+                            if (entry.State == EntityState.Detached)
+                            {
+                                entry.State = EntityState.Added;
+                            }
                             break;
                         case MapperActionType.Delete:
                             entry.State = EntityState.Deleted;
@@ -106,7 +112,5 @@ namespace Detached.Mappers.EntityFramework.Context
             else
                 return null;
         }
-
-        
     }
 }

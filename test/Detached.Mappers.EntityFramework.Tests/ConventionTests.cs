@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Context;
+﻿using Detached.Mappers.EntityFramework.Tests.Model;
 using Detached.Mappers.TypeOptions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;

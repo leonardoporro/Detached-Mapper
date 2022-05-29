@@ -1,5 +1,5 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Context;
+using Detached.Mappers.Tests.Mocks;
 using System.Collections.Generic;
 using Xunit;
 
@@ -26,7 +26,7 @@ namespace Detached.Mappers.Tests.Entity
             EntityA target = null;
 
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             var mapped = mapper.Map(source, target, context);
 

@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.Context;
+﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
 using System;
 using System.Collections;
@@ -22,12 +22,16 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
         {
             return ((sourceType.IsComplex || sourceType.IsEntity) && !sourceType.IsAbstract)
                  && (targetType.IsComplex || targetType.IsEntity)
-                 && targetType.DiscriminatorName != null;
+                 && targetType.IsInherited;
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             IMemberOptions discriminatorMember = sourceType.GetMember(targetType.DiscriminatorName);
+            if (discriminatorMember == null)
+            {
+                throw new MapperException($"Discriminator member {targetType.DiscriminatorName} does not exist in type {targetType.ClrType}");
+            }
 
             var getDiscriminator =
                     Lambda(

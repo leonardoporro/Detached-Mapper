@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using Detached.Mappers.TypeMappers;
+﻿using Detached.Mappers.TypeMappers;
 using Detached.PatchTypes;
 using System;
 

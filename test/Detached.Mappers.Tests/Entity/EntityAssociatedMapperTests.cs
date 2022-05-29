@@ -1,5 +1,5 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Context;
+using Detached.Mappers.Tests.Mocks;
 using Detached.Mappers.TypeMappers.Entity;
 using Xunit;
 
@@ -36,7 +36,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             var mapped = mapper.Map(source, target, context);
 
@@ -46,10 +46,10 @@ namespace Detached.Mappers.Tests.Entity
             Assert.NotEqual(targetCheck, mapped.Associated.GetHashCode());
 
             // there is no tracking for disposed entity.
-            Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry));
+            Assert.False(context.Verify<TargetAssociated>(new EntityKey<int>(1), out MapContextEntry entry));
 
             // new entity is loaded.
-            Assert.True(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.Verify<TargetAssociated>(new EntityKey<int>(2), out MapContextEntry entry2));
             Assert.Equal(MapperActionType.Attach, entry2.ActionType);
         }
 
@@ -74,7 +74,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             var mapped = mapper.Map(source, target, context);
 
@@ -83,10 +83,10 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(2, mapped.Associated.Id);// key is mapped
 
             // there is no tracking for disposed entity.
-            Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry));
+            Assert.False(context.Verify<TargetAssociated>(new EntityKey<int>(1), out MapContextEntry entry));
 
             // new entity is loaded.
-            Assert.True(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.Verify<TargetAssociated>(new EntityKey<int>(2), out MapContextEntry entry2));
             Assert.Equal(MapperActionType.Attach, entry2.ActionType);
         }
 
@@ -119,7 +119,7 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             var mapped = mapper.Map(source, target, context);
 
@@ -127,7 +127,7 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(1, mapped.Associated.Id);// key is mapped
             Assert.Equal(targetCheck, mapped.Associated.GetHashCode());
 
-            Assert.False(context.TryGetEntry<TargetAssociated>(new EntityKey<int>(1), out MapperContextEntry entry2));
+            Assert.False(context.Verify<TargetAssociated>(new EntityKey<int>(1), out MapContextEntry entry2));
         }
 
         [Entity]

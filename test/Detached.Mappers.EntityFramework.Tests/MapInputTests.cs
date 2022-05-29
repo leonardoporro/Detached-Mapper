@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Context;
-using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Mappers.EntityFramework.Tests.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;

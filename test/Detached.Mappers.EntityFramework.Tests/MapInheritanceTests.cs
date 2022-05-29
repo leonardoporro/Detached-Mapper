@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Context;
-using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Mappers.EntityFramework.Tests.Model;
 using Detached.Mappers.Exceptions;
 using System;
 using System.Threading.Tasks;
@@ -54,7 +53,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             catch (Exception x)
             {
                 Assert.IsType<MapperException>(x);
-                Assert.Equal("50 is not a valid value for discriminator in entity Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea.", x.Message);
+                Assert.Equal("50 is not a valid value for Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea discriminator.", x.Message);
             }
 
             await dbContext.SaveChangesAsync();
@@ -81,7 +80,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             catch (Exception x)
             {
                 Assert.IsType<MapperException>(x);
-                Assert.Equal("Entity Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea uses inheritance but discriminator was not found in source type.", x.Message);
+                Assert.Equal("Discriminator member AreaType does not exist in type Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea", x.Message);
             }
 
             await dbContext.SaveChangesAsync();

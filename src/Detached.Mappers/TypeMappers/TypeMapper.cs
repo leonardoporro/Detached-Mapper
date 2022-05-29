@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using System;
+﻿using System;
 
 namespace Detached.Mappers.TypeMappers
 {

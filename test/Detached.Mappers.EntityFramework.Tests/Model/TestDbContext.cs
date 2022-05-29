@@ -1,10 +1,9 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Model;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.EntityFramework.Tests.Context
+namespace Detached.Mappers.EntityFramework.Tests.Model
 {
     public class TestDbContext : DbContext
     {

@@ -1,5 +1,5 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Context;
+using Detached.Mappers.Tests.Mocks;
 using Detached.Mappers.TypeMappers.Entity;
 using System.Collections.Generic;
 using Xunit;
@@ -36,23 +36,23 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             TargetEntity mapped = mapper.Map(source, target, context);
 
             Assert.NotNull(mapped.CompositionList);
             Assert.Equal(2, mapped.CompositionList.Count);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(1), out MapContextEntry entry1));
             Assert.Equal(MapperActionType.Delete, entry1.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(2), out MapContextEntry entry2));
             Assert.Equal(MapperActionType.Update, entry2.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(3), out MapContextEntry entry3));
             Assert.Equal(MapperActionType.Delete, entry3.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(4), out MapperContextEntry entry4));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(4), out MapContextEntry entry4));
             Assert.Equal(MapperActionType.Create, entry4.ActionType);
         }
 
@@ -82,23 +82,23 @@ namespace Detached.Mappers.Tests.Entity
                 }
             };
 
-            MapContext context = new MapContext();
+            MapContextMock context = new MapContextMock();
 
             TargetEntity mapped = mapper.Map(source, target, context);
 
             Assert.NotNull(mapped.CompositionList);
             Assert.Equal(2, mapped.CompositionList.Count);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(1), out MapperContextEntry entry1));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(1), out MapContextEntry entry1));
             Assert.Equal(MapperActionType.Delete, entry1.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(2), out MapperContextEntry entry2));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(2), out MapContextEntry entry2));
             Assert.Equal(MapperActionType.Update, entry2.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(3), out MapperContextEntry entry3));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(3), out MapContextEntry entry3));
             Assert.Equal(MapperActionType.Delete, entry3.ActionType);
 
-            Assert.True(context.TryGetEntry<TargetCompositionItem>(new EntityKey<int>(0), out MapperContextEntry entry4));
+            Assert.True(context.Verify<TargetCompositionItem>(new EntityKey<int>(0), out MapContextEntry entry4));
             Assert.Equal(MapperActionType.Create, entry4.ActionType);
         }
 

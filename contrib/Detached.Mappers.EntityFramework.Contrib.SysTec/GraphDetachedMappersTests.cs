@@ -1,3 +1,4 @@
+using Detached.Mappers;
 using Detached.Mappers.EntityFramework;
 using GraphInheritenceTests.ComplexModels;
 using GraphInheritenceTests.DeepModel;
@@ -117,6 +118,7 @@ namespace GraphInheritenceTests
                 CustomerName = "Customer1",
                 PrimaryAddressId = _superCustomer.PrimaryAddressId
             };
+
             var government1 = new
             {
                 OrganizationType = "Government",
@@ -229,7 +231,7 @@ namespace GraphInheritenceTests
             };
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var mapped = dbContext.Map<TodoItem>(updated);
+                var mapped = dbContext.Map<TodoItem>(updated, new MapParameters { AssociateExistingCompositions = true });
                 dbContext.SaveChanges();
             }
 
@@ -540,6 +542,8 @@ namespace GraphInheritenceTests
                     parent.Parent,
                     parent.Children
                 });
+                dbContext.SaveChanges();
+
                 var mapped2 = dbContext.Map<OrganizationBase>(new
                 {
                     child.Id,
@@ -548,7 +552,6 @@ namespace GraphInheritenceTests
                     child.Parent,
                     child.Children
                 });
-
                 dbContext.SaveChanges();
             }
 

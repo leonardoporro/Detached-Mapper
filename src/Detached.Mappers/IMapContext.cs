@@ -1,6 +1,6 @@
 ﻿using Detached.Mappers.TypeMappers.Entity;
 
-namespace Detached.Mappers.Context
+namespace Detached.Mappers
 {
     public enum MapperActionType { Load, Create, Update, Delete, Attach }
 
@@ -18,9 +18,9 @@ namespace Detached.Mappers.Context
         void PopResult();
 
         bool TryGetResult<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, out TTarget target)
-            where TTarget: class;
+            where TTarget : class;
 
-        TTarget FindParent<TTarget>()
+        bool TryGetParent<TTarget>(out TTarget target)
             where TTarget : class;
     }
 }

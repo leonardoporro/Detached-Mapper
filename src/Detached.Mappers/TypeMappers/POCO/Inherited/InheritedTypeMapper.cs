@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Context;
-using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Exceptions;
 using System;
 using System.Collections.Generic;
 

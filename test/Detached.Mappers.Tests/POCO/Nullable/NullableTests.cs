@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Context;
-using System;
-using Xunit;
+﻿using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Nullable
 {

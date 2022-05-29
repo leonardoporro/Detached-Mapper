@@ -1,11 +1,11 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 using System;
 
-namespace Detached.Mappers.Context
+namespace Detached.Mappers.Tests.Mocks
 {
-    public class MapperContextKey
+    public class MapContextKey
     {
-        public MapperContextKey(Type entityType, object keyValue)
+        public MapContextKey(Type entityType, object keyValue)
         {
             EntityType = entityType;
             KeyValue = keyValue;
@@ -17,7 +17,7 @@ namespace Detached.Mappers.Context
 
         public override bool Equals(object obj)
         {
-            MapperContextKey other = obj as MapperContextKey;
+            MapContextKey other = obj as MapContextKey;
 
             return other != null
                 && Equals(other.EntityType, EntityType)
@@ -26,7 +26,7 @@ namespace Detached.Mappers.Context
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(typeof(MapperContextKey), EntityType, KeyValue);
+            return HashCode.Combine(typeof(MapContextKey), EntityType, KeyValue);
         }
 
         public override string ToString()
