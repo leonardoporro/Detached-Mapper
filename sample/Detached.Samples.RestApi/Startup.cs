@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using Detached.Mappers.Annotations;
 
 namespace Detached.Mappers.Samples.RestApi
 {
@@ -39,7 +40,7 @@ namespace Detached.Mappers.Samples.RestApi
 
             services.Configure<MapperOptions>(m =>
             {
-                m.Configure<User>().IsEntity();
+                m.Configure<User>().IsEntity(true);
             });
         }
 

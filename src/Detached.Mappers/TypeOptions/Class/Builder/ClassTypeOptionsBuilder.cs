@@ -18,19 +18,6 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
 
             return new ClassMemberOptionsBuilder<TType, TMember>(TypeOptions, memberOptions);
         }
-
-        public ClassTypeOptionsBuilder<TType> IsEntity(bool entity = true)
-        {
-            if (entity)
-            {
-                TypeOptions.Kind = TypeKind.Entity;
-            }
-            else
-            {
-                TypeOptions.Kind = TypeKind.Complex;
-            }
-            return this;
-        }
  
         public ClassTypeOptionsBuilder<TType> Constructor(Expression<Func<IMapContext, TType>> constructor)
         {

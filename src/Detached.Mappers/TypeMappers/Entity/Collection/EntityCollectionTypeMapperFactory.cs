@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Linq.Expressions;

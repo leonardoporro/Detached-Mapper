@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Detached.Mappers.Annotations;
+using System.Reflection;
 
 namespace Detached.Mappers.TypeOptions.Class
 {
@@ -33,17 +34,12 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public static bool IsComplexOrEntity(this ITypeOptions typeOptions)
         {
-            return typeOptions.Kind == TypeKind.Complex || typeOptions.Kind == TypeKind.Entity;
+            return typeOptions.IsComplex() || typeOptions.IsEntity();
         }
 
         public static bool IsNullable(this ITypeOptions typeOptions)
         {
             return typeOptions.Kind == TypeKind.Nullable;
-        }
-
-        public static bool IsEntity(this ITypeOptions typeOptions)
-        {
-            return typeOptions.Kind == TypeKind.Entity;
         }
 
         public static bool IsAbstract(this ITypeOptions typeOptions)

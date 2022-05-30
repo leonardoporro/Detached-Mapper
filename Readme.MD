@@ -171,12 +171,3 @@ That's why PatchJsonConverter allows to automatically deserialize some classes i
 form of IsSet() true/false calls.
 
 See this library for source code and more info and samples: [Patch Types](https://github.com/leonardoporro/Detached-PatchTypes)
-
-
-
-
-
-
-
-
-

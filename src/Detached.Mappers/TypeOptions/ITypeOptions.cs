@@ -9,7 +9,6 @@ namespace Detached.Mappers.TypeOptions
         Primitive,
         Complex,
         Collection,
-        Entity,
         Nullable
     }
 

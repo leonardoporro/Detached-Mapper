@@ -22,7 +22,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
 
             if (entityType != null && !entityType.IsOwned())
             {
-                typeOptions.Kind = TypeKind.Entity;
+                typeOptions.IsEntity(true);
             }
 
             if (typeOptions.IsEntity())
