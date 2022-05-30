@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Abstract
@@ -15,14 +16,14 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsAbstract || targetType.IsAbstract;
+            return sourceType.IsAbstract() || targetType.IsAbstract();
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
 
-            Type concreteTargetType = targetType.IsAbstract && targetType.ClrType != typeof(object) && targetType.DiscriminatorName == null
+            Type concreteTargetType = targetType.IsAbstract() && !targetType.IsInherited() && targetType.ClrType != typeof(object)
                 ? GetConcreteType(targetType.ClrType) 
                 : targetType.ClrType;
             

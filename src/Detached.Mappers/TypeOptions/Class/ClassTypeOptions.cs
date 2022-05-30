@@ -14,6 +14,12 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual Type ItemClrType { get; set; }
 
+        public virtual TypeKind Kind { get; set; }
+
+        public virtual bool IsAbstract { get; set; }
+
+        public virtual bool IsInherited => DiscriminatorName != null;
+
         public virtual ClassMemberOptionsCollection Members { get; set; } = new ClassMemberOptionsCollection();
 
         public virtual IEnumerable<string> MemberNames => Members.Keys;
@@ -22,29 +28,15 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual Dictionary<object, Type> DiscriminatorValues { get; } = new Dictionary<object, Type>();
 
+        public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+
+        public virtual LambdaExpression Constructor { get; set; }
+
         public virtual IMemberOptions GetMember(string memberName)
         {
             Members.TryGetValue(memberName, out ClassMemberOptions memberOptions);
             return memberOptions;
         }
-
-        public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
-
-        public virtual bool IsPrimitive { get; set; }
-
-        public virtual bool IsCollection { get; set; }
-
-        public virtual bool IsComplex { get; set; }
-
-        public virtual bool IsEntity { get; set; } 
-
-        public virtual bool IsAbstract { get; set; }
-
-        public virtual bool IsInherited => DiscriminatorName != null;
-
-        public virtual LambdaExpression Constructor { get; set; }
-
-        public bool IsNullable { get; set; }
 
         public virtual Expression BuildNewExpression(Expression context, Expression discriminator)
         {

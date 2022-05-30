@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
@@ -16,9 +17,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsCollection
-                && targetType.IsCollection
-                && !_options.GetTypeOptions(targetType.ItemClrType).IsEntity; // TODO: simplify.
+            return sourceType.IsCollection()
+                && targetType.IsCollection()
+                && !_options.GetTypeOptions(targetType.ItemClrType).IsEntity(); // TODO: simplify.
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)

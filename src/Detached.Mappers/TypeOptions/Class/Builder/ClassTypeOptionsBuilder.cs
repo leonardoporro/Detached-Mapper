@@ -21,16 +21,17 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
 
         public ClassTypeOptionsBuilder<TType> IsEntity(bool entity = true)
         {
-            TypeOptions.IsEntity = entity;
+            if (entity)
+            {
+                TypeOptions.Kind = TypeKind.Entity;
+            }
+            else
+            {
+                TypeOptions.Kind = TypeKind.Complex;
+            }
             return this;
         }
-
-        public ClassTypeOptionsBuilder<TType> IsFragment(bool entity = true)
-        {
-            TypeOptions.IsEntity = !entity;
-            return this;
-        }
-
+ 
         public ClassTypeOptionsBuilder<TType> Constructor(Expression<Func<IMapContext, TType>> constructor)
         {
             TypeOptions.Constructor = constructor;

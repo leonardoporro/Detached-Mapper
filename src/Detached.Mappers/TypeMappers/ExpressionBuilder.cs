@@ -36,14 +36,14 @@ namespace Detached.Mappers.TypeMappers
             foreach (string memberName in targetType.MemberNames)
             {
                 IMemberOptions targetMember = targetType.GetMember(memberName);
-                if (targetMember.IsKey)
+                if (targetMember.IsKey())
                 {
                     keyParamTypes.Add(targetMember.ClrType);
                     Expression targetParamExpr = targetMember.BuildGetterExpression(targetExpr, contextExpr);
                     targetParamExprList.Add(targetParamExpr);
 
                     IMemberOptions sourceMember = sourceType.GetMember(memberName);
-                    if (sourceMember == null || !sourceMember.CanRead || sourceMember.IsIgnored)
+                    if (sourceMember == null || !sourceMember.CanRead || sourceMember.IsNotMapped())
                     {
                         keyType = typeof(NoKey);
                         getSourceKeyExpr = Lambda(New(typeof(NoKey)), new[] { sourceExpr, contextExpr });
@@ -122,16 +122,16 @@ namespace Detached.Mappers.TypeMappers
                 {
                     IMemberOptions targetMember = targetType.GetMember(memberName);
 
-                    if (targetMember.GetIsParentReference())
+                    if (targetMember.IsParent())
                     {
                         memberMapsExprs.Add(BuildFindParentExpression(targetExpr, contextExpr, targetMember));
                     }
-                    else if (targetMember != null && targetMember.CanWrite && !targetMember.IsIgnored)
+                    else if (targetMember != null && targetMember.CanWrite && !targetMember.IsNotMapped())
                     {
                         // TODO: map transform.
                         IMemberOptions sourceMember = sourceType.GetMember(memberName);
 
-                        if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsIgnored && shouldMap(sourceMember, targetMember))
+                        if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsNotMapped() && shouldMap(sourceMember, targetMember))
                         {
                             Expression memberMapExpr = BuildMapSingleMemberExpression(sourceExpr, targetExpr, contextExpr, sourceMember, targetMember);
 
@@ -169,7 +169,7 @@ namespace Detached.Mappers.TypeMappers
             IMemberOptions sourceMember,
             IMemberOptions targetMember)
         {
-            TypePair memberTypePair = new TypePair(sourceMember.ClrType, targetMember.ClrType, targetMember.IsComposition ? TypePairFlags.Owned : TypePairFlags.None);
+            TypePair memberTypePair = new TypePair(sourceMember.ClrType, targetMember.ClrType, targetMember.IsComposition() ? TypePairFlags.Owned : TypePairFlags.None);
 
             ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
             ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);

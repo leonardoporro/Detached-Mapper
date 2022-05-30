@@ -14,15 +14,7 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual string Name { get; set; }
 
-        public virtual Type ClrType { get; set; }
-
-        public virtual bool IsComposition { get; set; }
-
-        public virtual bool IsIgnored { get; set; }
-
-        public virtual bool IsParentReference { get; set; }
-
-        public virtual bool IsKey { get; set; }
+        public virtual Type ClrType { get; set; } 
 
         public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
 

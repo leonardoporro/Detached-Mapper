@@ -7,14 +7,8 @@ namespace Detached.Mappers.TypeOptions
     public interface IMemberOptions
     {
         Dictionary<string, object> Annotations { get; }
-
-        bool IsIgnored { get; }
-
-        bool IsKey { get; }
-
-        string Name { get; }
-
-        bool IsComposition { get; }
+ 
+        string Name { get; } 
 
         Type ClrType { get; }
 

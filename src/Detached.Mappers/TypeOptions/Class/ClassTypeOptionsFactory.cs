@@ -18,25 +18,23 @@ namespace Detached.Mappers.TypeOptions.Class
             ClassTypeOptions typeOptions = new ClassTypeOptions();
             typeOptions.ClrType = type;
 
-            typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
-
             if (IsPrimitive(options, type))
             {
-                typeOptions.IsPrimitive = true;
+                typeOptions.Kind = TypeKind.Primitive;
             }
             else if (type.IsEnumerable(out Type itemType))
             {
                 typeOptions.ItemClrType = itemType;
-                typeOptions.IsCollection = true;
+                typeOptions.Kind = TypeKind.Collection;
             }
             else if (type.IsNullable(out Type baseType))
             {
-                typeOptions.IsNullable = true;
+                typeOptions.Kind = TypeKind.Nullable;
                 typeOptions.ItemClrType = baseType;
             }
             else
             {
-                typeOptions.IsComplex = true;
+                typeOptions.Kind = TypeKind.Complex;
 
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
@@ -122,9 +120,7 @@ namespace Detached.Mappers.TypeOptions.Class
         protected virtual bool IsPrimitive(MapperOptions options, Type type)
         {
             if (type.IsEnum)
-                return true;
-            //else if (type.IsEnumerable(out Type elementType) && IsPrimitive(options, elementType))
-            //    return true;
+                return true; 
             else if (type.IsGenericType)
                 return options.Primitives.Contains(type.GetGenericTypeDefinition());
             else

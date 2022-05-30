@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return ((sourceType.IsComplex || sourceType.IsEntity) && !sourceType.IsAbstract)
-                 && (targetType.IsComplex || targetType.IsEntity)
-                 && targetType.IsInherited;
+            return ((sourceType.IsComplex() || sourceType.IsEntity()) && !sourceType.IsAbstract())
+                 && (targetType.IsComplex() || targetType.IsEntity())
+                 && targetType.IsInherited();
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)

@@ -1,4 +1,5 @@
 ﻿using AgileObjects.ReadableExpressions;
+using Detached.Mappers.Annotations;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
@@ -45,9 +46,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 return (Expression<Func<TEntity, TProjection>>)projection;
             });
-
-            var x = filter.ToReadableString();
-
+ 
             return query.Select(filter);
         }
 
@@ -103,7 +102,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             foreach (string memberName in targetType.MemberNames)
             {
                 IMemberOptions targetMember = targetType.GetMember(memberName);
-                if (targetMember.IsKey)
+                if (targetMember.IsKey())
                 {
                     IMemberOptions sourceMember = sourceType.GetMember(memberName);
                     if (sourceMember == null)
@@ -138,7 +137,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             foreach (string memberName in targetType.MemberNames)
             {
                 IMemberOptions targetMember = targetType.GetMember(memberName);
-                if (targetMember.IsComposition)
+                if (targetMember.IsComposition())
                 {
                     IMemberOptions sourceMember = sourceType.GetMember(memberName);
                     if (sourceMember != null)
@@ -146,7 +145,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                         ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
                         ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
 
-                        if (targetMemberType.IsCollection)
+                        if (targetMemberType.IsCollection())
                         {
                             string name = prefix + targetMember.Name;
                             includes.Add(name);
@@ -157,12 +156,10 @@ namespace Detached.Mappers.EntityFramework.Queries
                             GetIncludes(sourceItemType, targetItemType, includes, name + ".");
 
                         }
-                        else if (targetMemberType.IsComplex)
+                        else if (targetMemberType.IsComplexOrEntity())
                         {
                             string name = prefix + targetMember.Name;
                             includes.Add(name);
-
-
 
                             GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
                         }
@@ -173,7 +170,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         Expression CreateSelectProjection(ITypeOptions entityType, ITypeOptions projectionType, Expression entityExpr)
         {
-            if (entityType.IsCollection)
+            if (entityType.IsCollection())
             {
                 ITypeOptions entityItemType = _options.GetTypeOptions(entityType.ItemClrType);
                 ITypeOptions projectionItemType = _options.GetTypeOptions(projectionType.ItemClrType);
@@ -185,7 +182,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), entityExpr, lambda));
             }
-            else if (entityType.IsComplex)
+            else if (entityType.IsComplexOrEntity())
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
 
@@ -193,11 +190,11 @@ namespace Detached.Mappers.EntityFramework.Queries
                 {
                     IMemberOptions entityMember = entityType.GetMember(memberName);
 
-                    if (entityMember.CanRead && !entityMember.IsIgnored)
+                    if (entityMember.CanRead && !entityMember.IsNotMapped())
                     {
                         IMemberOptions projectionMember = projectionType.GetMember(memberName);
 
-                        if (projectionMember.CanWrite && !projectionMember.IsIgnored)
+                        if (projectionMember.CanWrite && !projectionMember.IsNotMapped())
                         {
                             PropertyInfo propInfo = projectionMember.GetPropertyInfo();
                             if (propInfo != null)
@@ -208,7 +205,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                                 Expression map = entityMember.BuildGetterExpression(entityExpr, null);
                                 Expression body = CreateSelectProjection(entityMemberType, projectionMemberType, map);
 
-                                if (entityMemberType.IsComplex)
+                                if (entityMemberType.IsComplexOrEntity())
                                 {
                                     map = Condition(NotEqual(map, Constant(null, map.Type)), body, Constant(null, body.Type));
                                 }

@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -15,15 +16,15 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            if (sourceType.IsCollection
-                   && !sourceType.IsAbstract
-                   && targetType.IsCollection
-                   && !targetType.IsAbstract)
+            if (sourceType.IsCollection()
+                   && !sourceType.IsAbstract()
+                   && targetType.IsCollection()
+                   && !targetType.IsAbstract())
             {
                 ITypeOptions sourceItemType = _options.GetTypeOptions(targetType.ItemClrType);
                 ITypeOptions targetItemType = _options.GetTypeOptions(targetType.ItemClrType);
 
-                return targetItemType.IsEntity && sourceItemType.IsComplex;
+                return targetItemType.IsEntity() && sourceItemType.IsComplexOrEntity();
             }
 
             return false;

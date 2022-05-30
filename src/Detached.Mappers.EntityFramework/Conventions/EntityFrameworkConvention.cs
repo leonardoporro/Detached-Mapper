@@ -1,4 +1,6 @@
-﻿using Detached.Mappers.TypeOptions.Class;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using Detached.Mappers.TypeOptions.Class.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
@@ -18,9 +20,12 @@ namespace Detached.Mappers.EntityFramework.Conventions
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.ClrType);
 
-            typeOptions.IsEntity = entityType != null && !entityType.IsOwned();
+            if (entityType != null && !entityType.IsOwned())
+            {
+                typeOptions.Kind = TypeKind.Entity;
+            }
 
-            if (typeOptions.IsEntity)
+            if (typeOptions.IsEntity())
             {
                 IKey pk = entityType.FindPrimaryKey();
 
@@ -32,7 +37,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
                     foreach (string memberName in typeOptions.MemberNames)
                     {
                         ClassMemberOptions member = typeOptions.GetMember(memberName) as ClassMemberOptions;
-                        member.IsKey = keyMembers.Contains(memberName);
+                        member.IsKey(keyMembers.Contains(memberName));
                     }
                 }
 

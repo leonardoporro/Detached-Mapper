@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Detached.Mappers.Annotations;
+using System.Linq;
 
 namespace Detached.Mappers.TypeOptions.Class.Conventions
 {
@@ -6,13 +7,13 @@ namespace Detached.Mappers.TypeOptions.Class.Conventions
     {
         public void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions)
         {
-            if (!typeOptions.Members.Any(m => m.IsKey))
+            if (!typeOptions.Members.Any(m => m.IsKey()))
             {
                 foreach (ClassMemberOptions memberOptions in typeOptions.Members)
                 {
                     if (memberOptions.Name == "Id")
                     {
-                        memberOptions.IsKey = true;
+                        memberOptions.IsKey(true);
                         return;
                     }
                 }

@@ -10,42 +10,29 @@ namespace Detached.Mappers.TypeOptions
         Complex,
         Collection,
         Entity,
-        Nullable,
-        Boxed
+        Nullable
     }
 
     public interface ITypeOptions
     {
+        Type ClrType { get; }        
+        
+        Type ItemClrType { get; }
+
         Dictionary<string, object> Annotations { get; }
 
-        bool IsCollection { get; }
-
-        bool IsEntity { get; } 
-
-        bool IsComplex { get; }
-
-        bool IsPrimitive { get; }
-
-        bool IsNullable { get; }
-
-        bool IsAbstract { get; }
-
-        bool IsInherited { get; }
-
-        Type ItemClrType { get; }
+        public TypeKind Kind { get; }
 
         IEnumerable<string> MemberNames { get; }
 
         string DiscriminatorName { get; }
 
         Dictionary<object, Type> DiscriminatorValues { get; }
-
-        Type ClrType { get; }
+ 
+        IMemberOptions GetMember(string memberName);
 
         Expression BuildNewExpression(Expression context, Expression discriminator);
 
         Expression BuildIsSetExpression(Expression instance, Expression context, string memberName);
-
-        IMemberOptions GetMember(string memberName);
     }
 }

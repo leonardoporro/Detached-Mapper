@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
 
 namespace Detached.Mappers.Annotations
@@ -7,7 +8,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
         {
-            typeOptions.IsEntity = true;
+            typeOptions.Kind = TypeKind.Entity;
         }
     }
 }

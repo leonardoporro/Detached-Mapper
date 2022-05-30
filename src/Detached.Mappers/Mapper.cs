@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeMappers;
+using Detached.Mappers.TypeOptions.Class;
 using Detached.PatchTypes;
 using System;
 
@@ -15,7 +16,7 @@ namespace Detached.Mappers
 
         bool IPatchTypeInfoProvider.ShouldPatch(Type type)
         {
-            return !typeof(IPatch).IsAssignableFrom(type) && _options.GetTypeOptions(type).IsComplex;
+            return !typeof(IPatch).IsAssignableFrom(type) && _options.GetTypeOptions(type).IsComplex();
         }
  
         public object Map(object source, Type sourceType, object target, Type targetType, IMapContext context = default)

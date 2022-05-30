@@ -86,7 +86,7 @@ namespace Detached.Mappers
             AnnotationHandlers = new Dictionary<Type, IAnnotationHandler>
             {
                 { typeof(KeyAttribute), new KeyAnnotationHandler() },
-                { typeof(AggregationAttribute), new AssociationAnnotationHandler() },
+                { typeof(AggregationAttribute), new AggregationAnnotationHandler() },
                 { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
                 { typeof(EntityAttribute), new EntityAnnotationHandler() },
                 { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
@@ -156,9 +156,9 @@ namespace Detached.Mappers
         public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType != targetType
-                    || sourceType.IsAbstract
-                    || targetType.IsAbstract
-                    || !targetType.IsPrimitive;
+                    || sourceType.IsAbstract()
+                    || targetType.IsAbstract()
+                    || !targetType.IsPrimitive();
         }
     }
 }

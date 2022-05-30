@@ -1,5 +1,7 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.EntityFramework.Tests.Model;
 using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
@@ -18,10 +20,10 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             ITypeOptions typeOptions = mapperOptions.GetTypeOptions(typeof(ConventionTestClass));
 
-            Assert.True(typeOptions.IsEntity);
-            Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey);
-            Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey);
-            Assert.False(typeOptions.GetMember(nameof(ConventionTestClass.Id)).IsKey);
+            Assert.True(typeOptions.IsEntity());
+            Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey());
+            Assert.True(typeOptions.GetMember(nameof(ConventionTestClass.CustomizedKey1)).IsKey());
+            Assert.False(typeOptions.GetMember(nameof(ConventionTestClass.Id)).IsKey());
         }
     }
 
@@ -37,7 +39,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public static void Configure(MapperOptions mapperOptions)
         {
-            mapperOptions.Configure<ConventionTestClass>().Member(c => c.CustomizedKey1).IsKey();
+            mapperOptions.Configure<ConventionTestClass>().Member(c => c.CustomizedKey1).IsKey(true);
         }
     }
 }

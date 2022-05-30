@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -15,9 +16,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsComplex
-                && targetType.IsComplex
-                && !targetType.IsEntity;
+            return sourceType.IsComplex()
+                && targetType.IsComplex()
+                && !targetType.IsEntity();
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)

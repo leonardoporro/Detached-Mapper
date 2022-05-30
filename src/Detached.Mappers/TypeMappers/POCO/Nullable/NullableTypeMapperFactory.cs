@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.TypeOptions;
+using Detached.Mappers.TypeOptions.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Nullable
@@ -14,18 +15,18 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
 
         public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            return sourceType.IsNullable || targetType.IsNullable;
+            return sourceType.IsNullable() || targetType.IsNullable();
         }
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            if (sourceType.IsNullable && targetType.IsNullable)
+            if (sourceType.IsNullable() && targetType.IsNullable())
             {
                 Type mapperType = typeof(NullableTypeMapper<,>).MakeGenericType(sourceType.ItemClrType, targetType.ItemClrType);
                 ILazyTypeMapper valueMapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ItemClrType, targetType.ItemClrType, typePair.Flags));
                 return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
             }
-            else if (sourceType.IsNullable)
+            else if (sourceType.IsNullable())
             {
                 if (sourceType.ItemClrType == targetType.ClrType)
                 {
