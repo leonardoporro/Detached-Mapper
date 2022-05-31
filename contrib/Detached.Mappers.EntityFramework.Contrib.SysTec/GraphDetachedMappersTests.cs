@@ -1,5 +1,6 @@
 using Detached.Mappers;
 using Detached.Mappers.EntityFramework;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
 using GraphInheritenceTests.ComplexModels;
 using GraphInheritenceTests.DeepModel;
 using GraphInheritenceTests.DTOs;
@@ -369,6 +370,28 @@ namespace GraphInheritenceTests
 
                 Assert.That(fanLoaded.Recommendations[0].RecommendedToId, Is.EqualTo(newCustomerId), "The Id is the same as itself or RecommendedById. The changed value got lost.");
                 Assert.That(fanLoaded.Recommendations[0].RecommendedToId, Is.Not.EqualTo(fanLoaded.Recommendations[0].RecommendedById));
+            }
+        }
+
+        [Test]
+        public void _11_ProjectionToDTOFailsIfPropertyIsNotInDTO()
+        {
+            var germany = new Country() { IsoCode = "DEU", Name = "Germany", FlagPicture = new Picture() { FileName = "schwarzRotGold.png" } };
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                dbContext.Countries.Add(germany);
+                dbContext.SaveChanges();
+            }
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                // System Null Reference Exception: 
+                // We Projecting a Entity on a DTO which has not all Properties on it.
+                // The type of the missing property doesnt matter (Tested with primitive, lists and complex types).
+                IQueryable<CountryDTOWithoutPicture> dtosQuery = dbContext.Project<Country, CountryDTOWithoutPicture>(dbContext.Countries);
+                var dto = dtosQuery.SingleOrDefault(item => item.IsoCode == "DEU");
+                Assert.That(dto, Is.Not.Null);
             }
         }
 
