@@ -1,5 +1,6 @@
 using Detached.Mappers;
 using Detached.Mappers.EntityFramework;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
 using GraphInheritenceTests.ComplexModels;
 using GraphInheritenceTests.DeepModel;
@@ -392,6 +393,82 @@ namespace GraphInheritenceTests
                 IQueryable<CountryDTOWithoutPicture> dtosQuery = dbContext.Project<Country, CountryDTOWithoutPicture>(dbContext.Countries);
                 var dto = dtosQuery.SingleOrDefault(item => item.IsoCode == "DEU");
                 Assert.That(dto, Is.Not.Null);
+            }
+        }
+
+        [Test]
+        public void _12_MappingFailsOnManyToManyRelation()
+        {
+            var karen = new Student() // Karen is used later
+            {
+                Name = "Karen",
+                Age = 22
+            };
+
+            var mike = new Student()
+            {
+                Name = "Mike",
+                Age = 25
+            };
+
+            var math = new Course()
+            {
+                CourseName = "Maths",
+                ClassRoomNumber = 314,
+                Students = new()
+            };
+
+            math.Students.Add(mike);
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                dbContext.Courses.Add(math);
+                dbContext.Students.Add(karen);
+                dbContext.SaveChanges();
+            }
+
+            // Ok... Seed completed. Now a new DTO comes from the frontend (Completely unchanged).
+
+            var mikeDTO = new StudentDTO()
+            {
+                Id = 1,
+                Name = "Mike",
+                Age = 25
+            };
+
+            var mathDTO = new CourseDTO()
+            {
+                Id = 1,
+                CourseName = "Math",
+                ClassRoomNumber = 314,
+                Students = new()
+            };
+
+            mathDTO.Students.Add(mikeDTO);
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var mapped = dbContext.Map<Course>(mathDTO);
+                // on a many to many relation Detached Mappers thinks, the student is added even though thats not the case.
+                Assert.DoesNotThrow(() => dbContext.SaveChanges());
+            }
+
+            // just for the sake of testing we try adding a new student
+
+            var karenDTO = new StudentDTO()
+            {
+                Name = "Karen",
+                Age = 22,
+                Id = 2
+            };
+
+            mathDTO.Students.Add(karenDTO);
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var mapped = dbContext.Map<Course>(mathDTO);
+                Assert.That(mapped.Students.Count(), Is.EqualTo(2));
+                Assert.DoesNotThrow(() => dbContext.SaveChanges());
             }
         }
 
