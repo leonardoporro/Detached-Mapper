@@ -194,7 +194,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                     {
                         IMemberOptions projectionMember = projectionType.GetMember(memberName);
 
-                        if (projectionMember.CanWrite && !projectionMember.IsNotMapped())
+                        if (projectionMember != null && projectionMember.CanWrite && !projectionMember.IsNotMapped())
                         {
                             PropertyInfo propInfo = projectionMember.GetPropertyInfo();
                             if (propInfo != null)
