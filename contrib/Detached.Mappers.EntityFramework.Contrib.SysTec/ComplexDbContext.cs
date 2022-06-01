@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 using GraphInheritenceTests.ComplexModels;
 using GraphInheritenceTests.DeepModel;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace GraphInheritenceTests
         public DbSet<Government> Governments { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Country> Countries { get; set; }
+
         public DbSet<OrganizationNotes> OrganizationNotes { get; set; }
         public DbSet<CustomerKind> CustomerKinds { get; set; }
         public DbSet<Recommendation> Recommendations { get; set; }
@@ -25,6 +27,9 @@ namespace GraphInheritenceTests
         public DbSet<TodoItem> TodoItems { get; set; }
         public DbSet<SubTodoItem> SubTodoItems { get; set; }
         public DbSet<UploadedFile> UploadedFiles { get; set; }
+
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Course> Courses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
