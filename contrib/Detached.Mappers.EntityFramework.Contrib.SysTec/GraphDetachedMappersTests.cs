@@ -470,6 +470,12 @@ namespace GraphInheritenceTests
                 Assert.That(mapped.Students.Count(), Is.EqualTo(2));
                 Assert.DoesNotThrow(() => dbContext.SaveChanges());
             }
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var courseFromDB = dbContext.Courses.SingleOrDefault(c => c.Id == 1);
+                Assert.That(courseFromDB.Students.Count(), Is.EqualTo(2));
+            }
         }
 
         private static void SeedCustomerKindsEnum()
