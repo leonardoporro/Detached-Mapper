@@ -20,6 +20,7 @@ namespace GraphInheritenceTests.ComplexModels
         public Address PrimaryAddress { get; set; }
 
         public int? ShipmentAddressId { get; set; }
+
         [Aggregation]
         public Address ShipmentAddress { get; set; }
 

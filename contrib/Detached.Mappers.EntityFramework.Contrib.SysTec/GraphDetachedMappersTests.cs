@@ -150,32 +150,32 @@ namespace GraphInheritenceTests
                 Assert.That(government1Loaded.GovernmentIdentifierCode, Is.EqualTo("ABC"));
             }
 
-            OrganizationNotes note1 = new OrganizationNotes() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 10), Text = "Note for Customer1" };
-            OrganizationNotes note2 = new OrganizationNotes() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 13), Text = "Note for Government1" };
-            using (var dbContext = new ComplexDbContext())
-            {
-                note1 = dbContext.Map<OrganizationNotes>(note1);
-                note2 = dbContext.Map<OrganizationNotes>(note2);
-                dbContext.SaveChanges();
-            }
-            OrganizationNotes note1Loaded, note2Loaded;
-            using (var dbContext = new ComplexDbContext())
-            {
-                note1Loaded = dbContext.OrganizationNotes.Find(note1.Id);
-                Assert.That(note1Loaded, Is.Not.Null);
+            //OrganizationNotes note1 = new OrganizationNotes() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 10), Text = "Note for Customer1" };
+            //OrganizationNotes note2 = new OrganizationNotes() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 13), Text = "Note for Government1" };
+            //using (var dbContext = new ComplexDbContext())
+            //{
+            //    note1 = dbContext.Map<OrganizationNotes>(note1);
+            //    note2 = dbContext.Map<OrganizationNotes>(note2);
+            //    dbContext.SaveChanges();
+            //}
+            //OrganizationNotes note1Loaded, note2Loaded;
+            //using (var dbContext = new ComplexDbContext())
+            //{
+            //    note1Loaded = dbContext.OrganizationNotes.Find(note1.Id);
+            //    Assert.That(note1Loaded, Is.Not.Null);
 
-                note2Loaded = dbContext.OrganizationNotes.Find(note2.Id);
-                Assert.That(note2Loaded, Is.Not.Null);
-            }
+            //    note2Loaded = dbContext.OrganizationNotes.Find(note2.Id);
+            //    Assert.That(note2Loaded, Is.Not.Null);
+            //}
 
-            note1Loaded.OrganizationId = customer1Id;
-            note2Loaded.OrganizationId = government1Id;
-            using (var dbContext = new ComplexDbContext())
-            {
-                dbContext.Map<OrganizationNotes>(note1Loaded);
-                dbContext.Map<OrganizationNotes>(note2Loaded);
-                dbContext.SaveChanges();
-            }
+            //note1Loaded.OrganizationId = customer1Id;
+            //note2Loaded.OrganizationId = government1Id;
+            //using (var dbContext = new ComplexDbContext())
+            //{
+            //    dbContext.Map<OrganizationNotes>(note1Loaded);
+            //    dbContext.Map<OrganizationNotes>(note2Loaded);
+            //    dbContext.SaveChanges();
+            //}
         }
 
         [Test]
@@ -473,7 +473,7 @@ namespace GraphInheritenceTests
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var courseFromDB = dbContext.Courses.SingleOrDefault(c => c.Id == 1);
+                var courseFromDB = dbContext.Courses.Include(c => c.Students).SingleOrDefault(c => c.Id == 1);
                 Assert.That(courseFromDB.Students.Count(), Is.EqualTo(2));
             }
         }
@@ -593,6 +593,7 @@ namespace GraphInheritenceTests
 
             using (var dbContext = new ComplexDbContext())
             {
+                superCustomer.CustomerKind = new CustomerKind { Id = CustomerKindId.Company };
                 var mapped = dbContext.Map<OrganizationBase>(superCustomer);
 
                 dbContext.SaveChanges();
@@ -607,7 +608,6 @@ namespace GraphInheritenceTests
                 Assert.That(superCustomerLoaded.Notes, Has.Count.EqualTo(1));
                 Assert.That(superCustomerLoaded.Notes[0].Date, Is.EqualTo(DateTime.Today));
                 Assert.That(superCustomerLoaded.Notes[0].Text, Is.EqualTo("Note..."));
-                Assert.That(superCustomerLoaded.Notes[0].OrganizationId, Is.EqualTo(superCustomer.Id));
                 Assert.That(superCustomerLoaded.Notes[0].Organization.Id, Is.EqualTo(superCustomer.Id));
             }
         }

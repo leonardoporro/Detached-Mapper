@@ -46,7 +46,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 return (Expression<Func<TEntity, TProjection>>)projection;
             });
- 
+
             return query.Select(filter);
         }
 
@@ -137,7 +137,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             foreach (string memberName in targetType.MemberNames)
             {
                 IMemberOptions targetMember = targetType.GetMember(memberName);
-                if (targetMember.IsComposition())
+                if (!targetMember.IsParent())
                 {
                     IMemberOptions sourceMember = sourceType.GetMember(memberName);
                     if (sourceMember != null)
@@ -150,10 +150,13 @@ namespace Detached.Mappers.EntityFramework.Queries
                             string name = prefix + targetMember.Name;
                             includes.Add(name);
 
-                            ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
-                            ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+                            if (targetMember.IsComposition())
+                            {
+                                ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
+                                ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
 
-                            GetIncludes(sourceItemType, targetItemType, includes, name + ".");
+                                GetIncludes(sourceItemType, targetItemType, includes, name + ".");
+                            }
 
                         }
                         else if (targetMemberType.IsComplexOrEntity())
@@ -161,7 +164,10 @@ namespace Detached.Mappers.EntityFramework.Queries
                             string name = prefix + targetMember.Name;
                             includes.Add(name);
 
-                            GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
+                            if (targetMember.IsComposition())
+                            {
+                                GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
+                            }
                         }
                     }
                 }

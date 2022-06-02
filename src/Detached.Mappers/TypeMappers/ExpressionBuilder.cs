@@ -156,7 +156,7 @@ namespace Detached.Mappers.TypeMappers
 
             return Block(
                 Variable("parent", targetMember.ClrType, out Expression parentExpr),
-                If(Call(contextExpr, methodInfo, parentExpr),
+                If(And(Call(contextExpr, methodInfo, parentExpr), ReferenceNotEqual(Convert(targetExpr, typeof(object)), parentExpr)),
                     targetMember.BuildSetterExpression(targetExpr, parentExpr, contextExpr)
                 )
             );
