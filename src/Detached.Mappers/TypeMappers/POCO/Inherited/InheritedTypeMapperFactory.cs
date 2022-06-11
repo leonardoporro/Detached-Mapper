@@ -40,7 +40,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
                         typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapContext), discriminatorMember.ClrType),
                         Parameter(typePair.SourceType, out Expression sourceExpr),
                         Parameter(typeof(IMapContext), out Expression contextExpr),
-                        discriminatorMember.BuildGetterExpression(sourceExpr, contextExpr)
+                        discriminatorMember.BuildGetExpression(sourceExpr, contextExpr)
                     ).Compile();
 
             Type tableType = typeof(Dictionary<,>).MakeGenericType(discriminatorMember.ClrType, typeof(ILazyTypeMapper));

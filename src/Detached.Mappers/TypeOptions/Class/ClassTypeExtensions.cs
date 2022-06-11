@@ -44,10 +44,7 @@ namespace Detached.Mappers.TypeOptions.Class
             return typeOptions.Kind == TypeKind.Nullable;
         }
 
-        public static bool IsAbstract(this ITypeOptions typeOptions)
-        {
-            return typeOptions.ClrType == typeof(object) || typeOptions.ClrType.IsAbstract || typeOptions.ClrType.IsInterface;
-        }
+        public static bool IsAbstract(this ITypeOptions typeOptions) => typeOptions.IsAbstract;
 
         public static bool IsConcrete(this ITypeOptions typeOptions)
         {

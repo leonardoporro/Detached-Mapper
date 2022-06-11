@@ -44,8 +44,12 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
             builder.BuildGetKeyExpressions(sourceItemType, targetItemType, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 
-            Type mapperType = typeof(EntityCollectionTypeMapper<,,,,>)
-                    .MakeGenericType(sourceType.ClrType, sourceType.ItemClrType, targetType.ClrType, targetType.ItemClrType, keyType);
+            Type baseMapperType = 
+                _options.MergeCollections
+                    ? typeof(MergeEntityCollectionTypeMapper<,,,,>)
+                    : typeof(EntityCollectionTypeMapper<,,,,>);
+
+            Type mapperType = baseMapperType.MakeGenericType(sourceType.ClrType, sourceType.ItemClrType, targetType.ClrType, targetType.ItemClrType, keyType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType,
                         new object[] {

@@ -110,8 +110,8 @@ namespace Detached.Mappers.EntityFramework.Queries
                         throw new MapperException($"Can't build query filter, key member {memberName} not found.");
                     }
 
-                    var targetExpr = targetMember.BuildGetterExpression(targetParam, null);
-                    var sourceExpr = sourceMember.BuildGetterExpression(sourceConstant, null);
+                    var targetExpr = targetMember.BuildGetExpression(targetParam, null);
+                    var sourceExpr = sourceMember.BuildGetExpression(sourceConstant, null);
 
                     if (sourceExpr.Type.IsNullable(out _))
                     {
@@ -208,7 +208,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                                 ITypeOptions projectionMemberType = _options.GetTypeOptions(projectionMember.ClrType);
                                 ITypeOptions entityMemberType = _options.GetTypeOptions(entityMember.ClrType);
 
-                                Expression map = entityMember.BuildGetterExpression(entityExpr, null);
+                                Expression map = entityMember.BuildGetExpression(entityExpr, null);
                                 Expression body = CreateSelectProjection(entityMemberType, projectionMemberType, map);
 
                                 if (entityMemberType.IsComplexOrEntity())

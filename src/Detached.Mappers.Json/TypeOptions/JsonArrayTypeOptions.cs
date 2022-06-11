@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.Json.Nodes;
+using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.Json.TypeOptions.Json
+namespace Detached.Mappers.Json.TypeOptions
 {
     public class JsonArrayTypeOptions : ITypeOptions
     {
@@ -16,20 +18,13 @@ namespace Detached.Mappers.Json.TypeOptions.Json
 
         public TypeKind Kind => TypeKind.Collection;
 
-        public IEnumerable<string> MemberNames => new string[0];
+        public IEnumerable<string> MemberNames => null;
 
-        public string DiscriminatorName => null;
-
-        public Dictionary<object, Type> DiscriminatorValues => null;
-
-        public Expression BuildIsSetExpression(Expression instance, Expression context, string memberName)
-        {
-            throw new NotImplementedException();
-        }
+        public bool IsAbstract => false;
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {
-            throw new NotImplementedException();
+            return New(ClrType);
         }
 
         public IMemberOptions GetMember(string memberName)

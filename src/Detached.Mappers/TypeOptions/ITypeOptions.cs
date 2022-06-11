@@ -6,6 +6,7 @@ namespace Detached.Mappers.TypeOptions
 {
     public enum TypeKind
     {
+        None,
         Primitive,
         Complex,
         Collection,
@@ -20,14 +21,14 @@ namespace Detached.Mappers.TypeOptions
 
         Dictionary<string, object> Annotations { get; }
 
-        public TypeKind Kind { get; }
+        TypeKind Kind { get; }
+
+        bool IsAbstract { get; }
 
         IEnumerable<string> MemberNames { get; }
  
         IMemberOptions GetMember(string memberName);
 
         Expression BuildNewExpression(Expression context, Expression discriminator);
-
-        Expression BuildIsSetExpression(Expression instance, Expression context, string memberName);
     }
 }

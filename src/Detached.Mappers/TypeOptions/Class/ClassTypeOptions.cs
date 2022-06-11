@@ -16,6 +16,8 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual TypeKind Kind { get; set; } 
 
+        public virtual bool IsAbstract { get; set; }
+
         public virtual ClassMemberOptionsCollection Members { get; set; } = new ClassMemberOptionsCollection();
 
         public virtual IEnumerable<string> MemberNames => Members.Keys;

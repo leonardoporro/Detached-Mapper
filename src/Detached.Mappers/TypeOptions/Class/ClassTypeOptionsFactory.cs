@@ -17,6 +17,7 @@ namespace Detached.Mappers.TypeOptions.Class
         {
             ClassTypeOptions typeOptions = new ClassTypeOptions();
             typeOptions.ClrType = type;
+            typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
 
             if (IsPrimitive(options, type))
             {
@@ -36,6 +37,8 @@ namespace Detached.Mappers.TypeOptions.Class
             {
                 typeOptions.Kind = TypeKind.Complex;
 
+                bool canTryGet = typeof(IPatch).IsAssignableFrom(type); 
+
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
                 {
@@ -45,6 +48,7 @@ namespace Detached.Mappers.TypeOptions.Class
                         memberOptions.Name = propInfo.Name;
                         memberOptions.ClrType = propInfo.PropertyType;
                         memberOptions.PropertyInfo = propInfo;
+                        memberOptions.CanTryGet = canTryGet;
 
                         // generate getter.
                         if (propInfo.CanRead)
@@ -80,7 +84,7 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             ConstructorInfo constructorInfo = typeOptions.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-            if (!typeOptions.IsAbstract() && constructorInfo != null)
+            if (!typeOptions.IsAbstract && constructorInfo != null)
             {
                 typeOptions.Constructor = Lambda(New(constructorInfo));
             }

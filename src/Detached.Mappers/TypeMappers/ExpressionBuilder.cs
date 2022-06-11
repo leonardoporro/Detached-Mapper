@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Annotations;
+﻿using AgileObjects.ReadableExpressions;
+using Detached.Mappers.Annotations;
 using Detached.Mappers.TypeMappers.Entity;
 using Detached.Mappers.TypeOptions;
 using System;
@@ -39,7 +40,7 @@ namespace Detached.Mappers.TypeMappers
                 if (targetMember.IsKey())
                 {
                     keyParamTypes.Add(targetMember.ClrType);
-                    Expression targetParamExpr = targetMember.BuildGetterExpression(targetExpr, contextExpr);
+                    Expression targetParamExpr = targetMember.BuildGetExpression(targetExpr, contextExpr);
                     targetParamExprList.Add(targetParamExpr);
 
                     IMemberOptions sourceMember = sourceType.GetMember(memberName);
@@ -51,7 +52,7 @@ namespace Detached.Mappers.TypeMappers
                         return;
                     }
 
-                    Expression sourceParamExpr = sourceMember.BuildGetterExpression(sourceExpr, contextExpr);
+                    Expression sourceParamExpr = sourceMember.BuildGetExpression(sourceExpr, contextExpr);
 
                     ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
                     ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
@@ -74,6 +75,8 @@ namespace Detached.Mappers.TypeMappers
         {
             switch (types.Length)
             {
+                case 0:
+                    return typeof(NoKey);
                 case 1:
                     return typeof(EntityKey<>).MakeGenericType(types);
                 case 2:
@@ -112,7 +115,7 @@ namespace Detached.Mappers.TypeMappers
             Expression sourceExpr,
             Expression targetExpr,
             Expression contextExpr,
-            Func<IMemberOptions, IMemberOptions, bool> shouldMap)
+            Func<IMemberOptions, IMemberOptions, bool> isIncluded)
         {
             List<Expression> memberMapsExprs = new List<Expression>();
 
@@ -131,16 +134,9 @@ namespace Detached.Mappers.TypeMappers
                         // TODO: map transform.
                         IMemberOptions sourceMember = sourceType.GetMember(memberName);
 
-                        if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsNotMapped() && shouldMap(sourceMember, targetMember))
+                        if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsNotMapped() && isIncluded(sourceMember, targetMember))
                         {
                             Expression memberMapExpr = BuildMapSingleMemberExpression(sourceExpr, targetExpr, contextExpr, sourceMember, targetMember);
-
-                            Expression isSetExpr = sourceType.BuildIsSetExpression(sourceExpr, contextExpr, targetMember.Name);
-                            if (isSetExpr != null)
-                            {
-                                memberMapExpr = If(isSetExpr, memberMapExpr);
-                            }
-
                             memberMapsExprs.Add(memberMapExpr);
                         }
                     }
@@ -157,7 +153,7 @@ namespace Detached.Mappers.TypeMappers
             return Block(
                 Variable("parent", targetMember.ClrType, out Expression parentExpr),
                 If(And(Call(contextExpr, methodInfo, parentExpr), ReferenceNotEqual(Convert(targetExpr, typeof(object)), parentExpr)),
-                    targetMember.BuildSetterExpression(targetExpr, parentExpr, contextExpr)
+                    targetMember.BuildSetExpression(targetExpr, parentExpr, contextExpr)
                 )
             );
         }
@@ -174,16 +170,40 @@ namespace Detached.Mappers.TypeMappers
             ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
             ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
 
-            Expression sourceValueExpr = sourceMember.BuildGetterExpression(sourceExpr, contextExpr);
+            Expression memberSetExpr;
 
-            if (_options.ShouldMap(sourceMemberType, targetMemberType))
+            if (sourceMember.CanTryGet)
             {
-                Expression targetValueExpr = targetMember.BuildGetterExpression(targetExpr, contextExpr);
-                Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
-                sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
-            }
+                ParameterExpression outVar = Parameter(sourceMember.ClrType, "outVar");
+                Expression sourceValueExpr = outVar;
 
-            Expression memberSetExpr = targetMember.BuildSetterExpression(targetExpr, sourceValueExpr, contextExpr);
+                if (_options.ShouldMap(sourceMemberType, targetMemberType))
+                {
+                    Expression targetValueExpr = targetMember.BuildGetExpression(targetExpr, contextExpr);
+                    Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
+                    sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
+                }
+
+                memberSetExpr = Block(
+                    Variable(outVar),
+                    If(sourceMember.BuildTryGetExpression(sourceExpr, contextExpr, outVar),
+                       targetMember.BuildSetExpression(targetExpr, sourceValueExpr, contextExpr)
+                    )
+                );
+            }
+            else
+            {
+                Expression sourceValueExpr = sourceMember.BuildGetExpression(sourceExpr, contextExpr);
+
+                if (_options.ShouldMap(sourceMemberType, targetMemberType))
+                {
+                    Expression targetValueExpr = targetMember.BuildGetExpression(targetExpr, contextExpr);
+                    Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
+                    sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
+                }
+
+                memberSetExpr = targetMember.BuildSetExpression(targetExpr, sourceValueExpr, contextExpr);
+            }
 
             return memberSetExpr;
         }

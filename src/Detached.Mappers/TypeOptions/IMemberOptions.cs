@@ -14,10 +14,14 @@ namespace Detached.Mappers.TypeOptions
 
         bool CanRead { get; }
 
-        Expression BuildGetterExpression(Expression instance, Expression context);
-
         bool CanWrite { get; }
 
-        Expression BuildSetterExpression(Expression instance, Expression value, Expression context);
+        bool CanTryGet { get; }
+
+        Expression BuildGetExpression(Expression instance, Expression context);
+
+        Expression BuildTryGetExpression(Expression instance, Expression context, Expression outVar);
+
+        Expression BuildSetExpression(Expression instance, Expression value, Expression context);
     }
 }

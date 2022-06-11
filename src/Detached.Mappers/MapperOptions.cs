@@ -106,6 +106,8 @@ namespace Detached.Mappers
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
 
+        public virtual bool MergeCollections { get; set; } = false;
+
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
             return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)));

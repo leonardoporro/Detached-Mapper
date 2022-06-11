@@ -1,16 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Version>6.2.0</Version>
+		<Authors>Leonardo Porro</Authors>
+		<Company />
+		<Product>Detached</Product>
+		<Description>A general purpose object-oriented mapper.</Description>
+		<Copyright>2017</Copyright>
+		<PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
+		<PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
+		<NeutralLanguage />
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>logo.png</PackageIcon>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="6.0.4" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.Text.Json" Version="6.0.4" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Detached.Mappers\Detached.Mappers.csproj" />
+	<ItemGroup>
+		<ProjectReference Include="..\Detached.Mappers\Detached.Mappers.csproj" />
+	    <None Include="..\..\logo.png" Link="logo.png">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
   </ItemGroup>
 
 </Project>

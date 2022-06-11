@@ -31,14 +31,21 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public bool CanWrite => true;
 
-        public Expression BuildGetterExpression(Expression instance, Expression context)
+        public bool CanTryGet => true;
+
+        public Expression BuildGetExpression(Expression instance, Expression context)
         {
             return Index(instance, Constant(_name));
         }
 
-        public Expression BuildSetterExpression(Expression instance, Expression value, Expression context)
+        public Expression BuildSetExpression(Expression instance, Expression value, Expression context)
         {
             return Assign(Index(instance, Constant(_name)), value);
+        }
+
+        public Expression BuildTryGetExpression(Expression instance, Expression context, Expression outVar)
+        {
+            return Call("TryGetValue", instance, Constant(Name), outVar);
         }
     }
 }
