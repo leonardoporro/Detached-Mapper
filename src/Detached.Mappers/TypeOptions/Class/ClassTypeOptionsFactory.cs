@@ -80,7 +80,7 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             ConstructorInfo constructorInfo = typeOptions.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-            if (!typeOptions.IsAbstract && constructorInfo != null)
+            if (!typeOptions.IsAbstract() && constructorInfo != null)
             {
                 typeOptions.Constructor = Lambda(New(constructorInfo));
             }

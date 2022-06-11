@@ -29,10 +29,10 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            IMemberOptions discriminatorMember = sourceType.GetMember(targetType.DiscriminatorName);
+            IMemberOptions discriminatorMember = sourceType.GetMember(targetType.GetDiscriminatorName());
             if (discriminatorMember == null)
             {
-                throw new MapperException($"Discriminator member {targetType.DiscriminatorName} does not exist in type {targetType.ClrType}");
+                throw new MapperException($"Discriminator member {targetType.GetDiscriminatorName()} does not exist in type {targetType.ClrType}");
             }
 
             var getDiscriminator =
@@ -46,7 +46,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
             Type tableType = typeof(Dictionary<,>).MakeGenericType(discriminatorMember.ClrType, typeof(ILazyTypeMapper));
             IDictionary table = (IDictionary)Activator.CreateInstance(tableType);
 
-            foreach (var entry in targetType.DiscriminatorValues)
+            foreach (var entry in targetType.GetDiscriminatorValues())
             {
                 ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ClrType, entry.Value, typePair.Flags));
                 table.Add(entry.Key, mapper);

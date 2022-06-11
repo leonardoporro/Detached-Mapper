@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.TypeOptions.Class;
-using System;
+﻿using System;
 
 namespace Detached.Mappers.TypeOptions.Class.Builder
 {
@@ -14,7 +13,7 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
 
         public ClassDiscriminatorBuilder<TType, TMember> Value(TMember value, Type instantiationType)
         {
-            TypeOptions.DiscriminatorValues[value] = instantiationType;
+            TypeOptions.GetDiscriminatorValues()[value] = instantiationType;
 
             return this;
         }

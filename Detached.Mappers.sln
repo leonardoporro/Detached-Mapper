@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.EntityFramework.Contrib.SysTec", "contrib\Detached.Mappers.EntityFramework.Contrib.SysTec\Detached.Mappers.EntityFramework.Contrib.SysTec.csproj", "{7338CBDE-3C38-40DC-A3CC-19483C77822A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detached.Mappers.Json", "src\Detached.Mappers.Json\Detached.Mappers.Json.csproj", "{FE96807B-7F18-4F35-9D7A-C14972B8C921}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7338CBDE-3C38-40DC-A3CC-19483C77822A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE96807B-7F18-4F35-9D7A-C14972B8C921}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE96807B-7F18-4F35-9D7A-C14972B8C921}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE96807B-7F18-4F35-9D7A-C14972B8C921}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE96807B-7F18-4F35-9D7A-C14972B8C921}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +81,7 @@ Global
 		{AE2CCD23-0DD6-4B16-960C-BC8B233206BF} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
 		{15A220B4-B286-4BD4-B9A9-CC2B7A0EB897} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
 		{7338CBDE-3C38-40DC-A3CC-19483C77822A} = {C9521C36-FBA4-4B3E-AE14-A1735E9D1E71}
+		{FE96807B-7F18-4F35-9D7A-C14972B8C921} = {745CB1E1-F50B-4307-8BD6-1ADDC837102B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7FC47439-B36B-45BB-BEEC-A6D595358C63}

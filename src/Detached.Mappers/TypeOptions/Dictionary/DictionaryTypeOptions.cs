@@ -16,15 +16,7 @@ namespace Detached.Mappers.TypeOptions.Dictionary
 
         public Dictionary<string, object> Annotations { get; set; }
  
-        public bool IsAbstract => false;
-
-        public bool IsInherited => false;
- 
-        public IEnumerable<string> MemberNames => new string[0];
- 
-        public string DiscriminatorName => null;
-
-        public Dictionary<object, Type> DiscriminatorValues => null;
+        public IEnumerable<string> MemberNames => new string[0]; 
  
         public Expression BuildIsSetExpression(Expression instance, Expression context, string memberName)
         {

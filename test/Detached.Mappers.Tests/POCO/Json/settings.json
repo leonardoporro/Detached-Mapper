@@ -1,0 +1,20 @@
+﻿{
+  "connectionStrings": [
+    {
+      "name": "cnn1",
+      "value": "Server=tcp:myserver1.database.windows.net,1433;Database=myDataBase;"
+    },
+    {
+      "name": "cnn2",
+      "value": "Server=tcp:myserver2.database.windows.net,1433;Database=myDataBase;"
+    }
+  ],
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+}

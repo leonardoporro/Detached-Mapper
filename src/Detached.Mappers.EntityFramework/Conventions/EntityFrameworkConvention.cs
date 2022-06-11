@@ -44,13 +44,13 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 IProperty discriminator = entityType.FindDiscriminatorProperty();
                 if (discriminator != null && entityType.BaseType == null)
                 {
-                    typeOptions.DiscriminatorName = discriminator.Name;
+                    typeOptions.SetDiscriminatorName(discriminator.Name);
 
                     foreach (var inheritedType in entityType.Model.GetEntityTypes())
                     {
                         if (inheritedType.BaseType == entityType)
                         {
-                            typeOptions.DiscriminatorValues[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
+                            typeOptions.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
                         }
                     }
                 }

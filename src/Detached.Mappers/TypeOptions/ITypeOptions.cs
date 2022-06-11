@@ -23,10 +23,6 @@ namespace Detached.Mappers.TypeOptions
         public TypeKind Kind { get; }
 
         IEnumerable<string> MemberNames { get; }
-
-        string DiscriminatorName { get; }
-
-        Dictionary<object, Type> DiscriminatorValues { get; }
  
         IMemberOptions GetMember(string memberName);
 

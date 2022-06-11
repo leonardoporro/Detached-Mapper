@@ -14,19 +14,11 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual Type ItemClrType { get; set; }
 
-        public virtual TypeKind Kind { get; set; }
-
-        public virtual bool IsAbstract { get; set; }
-
-        public virtual bool IsInherited => DiscriminatorName != null;
+        public virtual TypeKind Kind { get; set; } 
 
         public virtual ClassMemberOptionsCollection Members { get; set; } = new ClassMemberOptionsCollection();
 
         public virtual IEnumerable<string> MemberNames => Members.Keys;
-
-        public virtual string DiscriminatorName { get; set; }
-
-        public virtual Dictionary<object, Type> DiscriminatorValues { get; } = new Dictionary<object, Type>();
 
         public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
 
