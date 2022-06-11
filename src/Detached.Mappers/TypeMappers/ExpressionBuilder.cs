@@ -34,16 +34,18 @@ namespace Detached.Mappers.TypeMappers
             List<Expression> sourceParamExprList = new List<Expression>();
             List<Expression> targetParamExprList = new List<Expression>();
 
-            foreach (string memberName in targetType.MemberNames)
+            foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(memberName);
+                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
                 if (targetMember.IsKey())
                 {
                     keyParamTypes.Add(targetMember.ClrType);
                     Expression targetParamExpr = targetMember.BuildGetExpression(targetExpr, contextExpr);
                     targetParamExprList.Add(targetParamExpr);
 
-                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember == null || !sourceMember.CanRead || sourceMember.IsNotMapped())
                     {
                         keyType = typeof(NoKey);
@@ -121,9 +123,9 @@ namespace Detached.Mappers.TypeMappers
 
             if (targetType.MemberNames != null)
             {
-                foreach (string memberName in targetType.MemberNames)
+                foreach (string targetMemberName in targetType.MemberNames)
                 {
-                    IMemberOptions targetMember = targetType.GetMember(memberName);
+                    IMemberOptions targetMember = targetType.GetMember(targetMemberName);
 
                     if (targetMember.IsParent())
                     {
@@ -131,8 +133,9 @@ namespace Detached.Mappers.TypeMappers
                     }
                     else if (targetMember != null && targetMember.CanWrite && !targetMember.IsNotMapped())
                     {
-                        // TODO: map transform.
-                        IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                        string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+ 
+                        IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
 
                         if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsNotMapped() && isIncluded(sourceMember, targetMember))
                         {

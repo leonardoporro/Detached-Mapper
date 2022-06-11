@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
 

@@ -1,16 +1,16 @@
 ﻿{
-  "ConnectionStrings": [
+  "connectionStrings": [
     {
-      "Name": "cnn1",
-      "Value": "Server=tcp:myserver1.database.windows.net,1433;Database=myDataBase;"
+      "name": "cnn1",
+      "value": "Server=tcp:myserver1.database.windows.net,1433;Database=myDataBase;"
     },
     {
-      "Name": "cnn2",
-      "Value": "Server=tcp:myserver2.database.windows.net,1433;Database=myDataBase;"
+      "name": "cnn2",
+      "value": "Server=tcp:myserver2.database.windows.net,1433;Database=myDataBase;"
     }
   ],
-  "Logging": {
-    "Level": "Debug"
+  "logging": {
+    "level": "Debug"
   },
-  "AllowedHosts": "*"
+  "allowedHosts": "*"
 }

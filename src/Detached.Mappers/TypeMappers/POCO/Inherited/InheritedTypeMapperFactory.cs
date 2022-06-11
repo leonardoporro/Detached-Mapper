@@ -29,7 +29,10 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            IMemberOptions discriminatorMember = sourceType.GetMember(targetType.GetDiscriminatorName());
+            string targetMemberName = targetType.GetDiscriminatorName();
+            string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+            IMemberOptions discriminatorMember = sourceType.GetMember(sourceMemberName);
             if (discriminatorMember == null)
             {
                 throw new MapperException($"Discriminator member {targetType.GetDiscriminatorName()} does not exist in type {targetType.ClrType}");

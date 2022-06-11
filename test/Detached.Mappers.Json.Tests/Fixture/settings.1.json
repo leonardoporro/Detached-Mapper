@@ -1,8 +1,8 @@
 ﻿{
-  "ConnectionStrings": [
+  "connectionStrings": [
     {
-      "Name": "cnn2",
-      "Value": "Server=tcp:db.google.com,1433;Database=myDataBase;"
+      "name": "cnn2",
+      "value": "Server=tcp:db.google.com,1433;Database=myDataBase;"
     }
   ]
 }

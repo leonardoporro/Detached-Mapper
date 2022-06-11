@@ -99,15 +99,17 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             Expression expression = null;
 
-            foreach (string memberName in targetType.MemberNames)
+            foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(memberName);
+                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
                 if (targetMember.IsKey())
                 {
-                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember == null)
                     {
-                        throw new MapperException($"Can't build query filter, key member {memberName} not found.");
+                        throw new MapperException($"Can't build query filter, key member {sourceMemberName} not found.");
                     }
 
                     var targetExpr = targetMember.BuildGetExpression(targetParam, null);
@@ -134,12 +136,14 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, List<string> includes, string prefix)
         {
-            foreach (string memberName in targetType.MemberNames)
+            foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(memberName);
+                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
                 if (!targetMember.IsParent())
                 {
-                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember != null)
                     {
                         ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
@@ -192,13 +196,13 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
 
-                foreach (string memberName in entityType.MemberNames)
+                foreach (string targetMemberName in entityType.MemberNames)
                 {
-                    IMemberOptions entityMember = entityType.GetMember(memberName);
+                    IMemberOptions entityMember = entityType.GetMember(targetMemberName);
 
                     if (entityMember.CanRead && !entityMember.IsNotMapped())
                     {
-                        IMemberOptions projectionMember = projectionType.GetMember(memberName);
+                        IMemberOptions projectionMember = projectionType.GetMember(targetMemberName);
 
                         if (projectionMember != null && projectionMember.CanWrite && !projectionMember.IsNotMapped())
                         {

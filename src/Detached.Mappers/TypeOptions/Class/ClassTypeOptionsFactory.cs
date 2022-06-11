@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
@@ -99,7 +99,7 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             // apply conventions.
-            foreach (ITypeOptionsConvention convention in options.Conventions)
+            foreach (ITypeOptionsConvention convention in options.TypeConventions)
             {
                 convention.Apply(options, typeOptions);
             }

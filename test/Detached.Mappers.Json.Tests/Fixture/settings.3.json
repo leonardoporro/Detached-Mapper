@@ -1,5 +1,5 @@
 ﻿{
-  "Logging": {
-    "Level": "Info"
+  "logging": {
+    "level": "Info"
   }
 }

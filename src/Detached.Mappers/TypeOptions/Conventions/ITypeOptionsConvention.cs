@@ -1,6 +1,6 @@
 ﻿using Detached.Mappers.TypeOptions.Class;
 
-namespace Detached.Mappers.TypeOptions.Class.Conventions
+namespace Detached.Mappers.TypeOptions.Conventions
 {
     public interface ITypeOptionsConvention
     {

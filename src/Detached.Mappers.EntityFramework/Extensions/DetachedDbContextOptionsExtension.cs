@@ -33,7 +33,7 @@ namespace Detached.Mappers.EntityFramework.Extensions
                 if (!IsConfigured)
                 {
                     ICurrentDbContext currentDbContext = sp.GetRequiredService<ICurrentDbContext>();
-                    MapperOptions.Conventions.Add(new EntityFrameworkConvention(currentDbContext.Context.Model));
+                    MapperOptions.TypeConventions.Add(new EntityFrameworkConvention(currentDbContext.Context.Model));
 
                     _configure?.Invoke(MapperOptions);
 

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>6.2.0</Version>
+    <Version>6.2.1</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>

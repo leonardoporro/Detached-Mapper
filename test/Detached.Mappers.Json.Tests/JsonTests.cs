@@ -1,4 +1,5 @@
 using Detached.Mappers.Json.Tests.Fixture;
+using Detached.Mappers.TypeOptions.Conventions;
 using System.Text.Json.Nodes;
 using Xunit;
 
@@ -26,6 +27,8 @@ namespace Detached.Mappers.Json.Tests
             // before update, delete or create.
             // an internal hash table is used to speed up this, so the order of the mapped collection is not guaranteed.
             mapperOptions.MergeCollections = true;
+
+            mapperOptions.PropertyNameConventions.Add(new CamelCasePropertyNameConvention());
 
             // create the mapper.
             Mapper mapper = new Mapper(mapperOptions);
