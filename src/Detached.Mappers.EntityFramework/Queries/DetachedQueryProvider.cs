@@ -84,8 +84,8 @@ namespace Detached.Mappers.EntityFramework.Queries
                 DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
                 queryTemplate.SourceConstant = Constant(null, sourceType.ClrType);
-                queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
-                GetIncludes(sourceType, targetType, queryTemplate.Includes, null);
+                queryTemplate.FilterExpression = CreateFilterExpression<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
+                queryTemplate.Includes = GetIncludes(sourceType, targetType);
 
                 entry.SetSize(1);
 
@@ -93,7 +93,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             });
         }
 
-        Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
+        Expression<Func<TTarget, bool>> CreateFilterExpression<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
         {
             var targetParam = Parameter(targetType.ClrType, "e");
 
@@ -134,8 +134,29 @@ namespace Detached.Mappers.EntityFramework.Queries
             return Lambda<Func<TTarget, bool>>(expression, targetParam);
         }
 
-        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, List<string> includes, string prefix)
+        List<string> GetIncludes(ITypeOptions sourceType, ITypeOptions targetType)
         {
+            List<string> result = new List<string>();
+            Stack<ITypeOptions> stack = new Stack<ITypeOptions>();
+
+            GetIncludes(sourceType, targetType, stack, null, result);
+
+            for (int i = result.Count - 1; i >= 0; i--)
+            {
+                string descendantPrefix = result[i] + ".";
+                if (result.Any(i => i.StartsWith(descendantPrefix)))
+                {
+                    result.RemoveAt(i);
+                }
+            }
+
+            return result;
+        }
+
+        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, Stack<ITypeOptions> stack, string prefix, List<string> result)
+        {
+            stack.Push(targetType);
+
             foreach (string targetMemberName in targetType.MemberNames)
             {
                 IMemberOptions targetMember = targetType.GetMember(targetMemberName);
@@ -149,33 +170,38 @@ namespace Detached.Mappers.EntityFramework.Queries
                         ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
                         ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
 
-                        if (targetMemberType.IsCollection())
+                        if (!stack.Contains(targetMemberType))
                         {
-                            string name = prefix + targetMember.Name;
-                            includes.Add(name);
-
-                            if (targetMember.IsComposition())
+                            if (targetMemberType.IsCollection())
                             {
-                                ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
-                                ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+                                string name = prefix + targetMember.Name;
+                                result.Add(name);
 
-                                GetIncludes(sourceItemType, targetItemType, includes, name + ".");
+                                if (targetMember.IsComposition())
+                                {
+                                    ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
+                                    ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+
+                                    GetIncludes(sourceItemType, targetItemType, stack, name + ".", result);
+                                }
+
                             }
-
-                        }
-                        else if (targetMemberType.IsComplexOrEntity())
-                        {
-                            string name = prefix + targetMember.Name;
-                            includes.Add(name);
-
-                            if (targetMember.IsComposition())
+                            else if (targetMemberType.IsComplexOrEntity())
                             {
-                                GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
+                                string name = prefix + targetMember.Name;
+                                result.Add(name);
+
+                                if (targetMember.IsComposition())
+                                {
+                                    GetIncludes(sourceMemberType, targetMemberType, stack, name + ".", result);
+                                }
                             }
                         }
                     }
                 }
             }
+
+            stack.Pop();
         }
 
         Expression CreateSelectProjection(ITypeOptions entityType, ITypeOptions projectionType, Expression entityExpr)

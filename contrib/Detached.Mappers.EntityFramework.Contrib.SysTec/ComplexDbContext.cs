@@ -49,9 +49,9 @@ namespace GraphInheritenceTests
                         .Value(nameof(Government), typeof(Government));
                 });
 
-            optionsBuilder.ConfigureWarnings(
-                w => w.Ignore(CoreEventId.NavigationBaseIncludeIgnored)
-            );
+            //optionsBuilder.ConfigureWarnings(
+            //    w => w.Ignore(CoreEventId.NavigationBaseIncludeIgnored)
+            //);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

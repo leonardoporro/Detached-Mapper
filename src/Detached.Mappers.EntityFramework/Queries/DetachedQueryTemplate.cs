@@ -16,7 +16,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         public Expression<Func<TTarget, bool>> FilterExpression { get; set; }
 
-        public List<string> Includes { get; } = new List<string>();
+        public List<string> Includes { get; set; }
 
         public IQueryable<TTarget> Render(IQueryable<TTarget> queryable, TSource source)
         {
