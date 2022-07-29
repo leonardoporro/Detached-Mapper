@@ -15,6 +15,9 @@ namespace GraphInheritenceTests.DeepModel
         public bool IsDone { get; set; }
 
         [Composition]
-        public List<SubTodoItem> SubTodoItems { get; set; } = new List<SubTodoItem>();
+        public User User { get; set; }
+
+        [Composition]
+        public List<ReusedLinkedItem> ReusedLinkedItems { get; set; } = new();
     }
 }

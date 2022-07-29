@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace GraphInheritenceTests
 {
@@ -25,7 +27,7 @@ namespace GraphInheritenceTests
         public DbSet<Recommendation> Recommendations { get; set; }
 
         public DbSet<TodoItem> TodoItems { get; set; }
-        public DbSet<SubTodoItem> SubTodoItems { get; set; }
+        public DbSet<ReusedLinkedItem> ReusedLinkedItems { get; set; }
         public DbSet<UploadedFile> UploadedFiles { get; set; }
 
         public DbSet<Student> Students { get; set; }
@@ -36,7 +38,7 @@ namespace GraphInheritenceTests
             optionsBuilder
                 .UseSqlite("Data Source=ComplexDB.db;")
                 .EnableSensitiveDataLogging()
-                .LogTo(Console.WriteLine)
+                .LogTo(message => Debug.WriteLine(message), LogLevel.Information)
                 .EnableDetailedErrors()
                 .UseDetached(options =>
                 {
