@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
-    public class CourseDTO : IdBase
+    public class CourseDTO : IdBaseDTO
     {
         public string CourseName { get; set; }
 

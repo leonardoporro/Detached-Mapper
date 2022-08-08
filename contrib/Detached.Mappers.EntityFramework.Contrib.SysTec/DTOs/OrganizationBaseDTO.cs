@@ -1,5 +1,4 @@
-﻿using GraphInheritenceTests.ComplexModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
-    public class CountryDTOWithoutPicture : IdBaseDTO
+    public class OrganizationBaseDTO : IdBaseDTO
     {
-        public string Name { get; set; }
-        public string IsoCode { get; set; }
+        public string OrganizationType { get; set; }
 
-        public int? FlagPictureId { get; set; }
+        public string Name { get; set; }
+
+        public int PrimaryAddressId { get; set; }
     }
 }

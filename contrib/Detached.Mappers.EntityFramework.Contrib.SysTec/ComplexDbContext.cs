@@ -14,6 +14,8 @@ namespace GraphInheritenceTests
 {
     public class ComplexDbContext : DbContext
     {
+
+        public DbSet<OrganizationList> OrganizationLists { get; set; }
         public DbSet<OrganizationBase> Organizations { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Government> Governments { get; set; }
@@ -46,7 +48,8 @@ namespace GraphInheritenceTests
 
                     options.Configure<OrganizationBase>().Discriminator(o => o.OrganizationType)
                         .Value(nameof(Customer), typeof(Customer))
-                        .Value(nameof(Government), typeof(Government));
+                        .Value(nameof(Government), typeof(Government))
+                        .Value(nameof(GovernmentLeader), typeof(GovernmentLeader));
                 });
 
             optionsBuilder.ConfigureWarnings(
