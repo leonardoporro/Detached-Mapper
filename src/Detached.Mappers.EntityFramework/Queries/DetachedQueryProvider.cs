@@ -84,8 +84,8 @@ namespace Detached.Mappers.EntityFramework.Queries
                 DetachedQueryTemplate<TSource, TTarget> queryTemplate = new DetachedQueryTemplate<TSource, TTarget>();
 
                 queryTemplate.SourceConstant = Constant(null, sourceType.ClrType);
-                queryTemplate.FilterExpression = CreateFilter<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
-                GetIncludes(sourceType, targetType, queryTemplate.Includes, null);
+                queryTemplate.FilterExpression = CreateFilterExpression<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
+                queryTemplate.Includes = GetIncludes(sourceType, targetType);
 
                 entry.SetSize(1);
 
@@ -93,25 +93,27 @@ namespace Detached.Mappers.EntityFramework.Queries
             });
         }
 
-        Expression<Func<TTarget, bool>> CreateFilter<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
+        Expression<Func<TTarget, bool>> CreateFilterExpression<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
         {
             var targetParam = Parameter(targetType.ClrType, "e");
 
             Expression expression = null;
 
-            foreach (string memberName in targetType.MemberNames)
+            foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(memberName);
+                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
                 if (targetMember.IsKey())
                 {
-                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember == null)
                     {
-                        throw new MapperException($"Can't build query filter, key member {memberName} not found.");
+                        throw new MapperException($"Can't build query filter, key member {sourceMemberName} not found.");
                     }
 
-                    var targetExpr = targetMember.BuildGetterExpression(targetParam, null);
-                    var sourceExpr = sourceMember.BuildGetterExpression(sourceConstant, null);
+                    var targetExpr = targetMember.BuildGetExpression(targetParam, null);
+                    var sourceExpr = sourceMember.BuildGetExpression(sourceConstant, null);
 
                     if (sourceExpr.Type.IsNullable(out _))
                     {
@@ -132,46 +134,74 @@ namespace Detached.Mappers.EntityFramework.Queries
             return Lambda<Func<TTarget, bool>>(expression, targetParam);
         }
 
-        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, List<string> includes, string prefix)
+        List<string> GetIncludes(ITypeOptions sourceType, ITypeOptions targetType)
         {
-            foreach (string memberName in targetType.MemberNames)
+            List<string> result = new List<string>();
+            Stack<ITypeOptions> stack = new Stack<ITypeOptions>();
+
+            GetIncludes(sourceType, targetType, stack, null, result);
+
+            for (int i = result.Count - 1; i >= 0; i--)
             {
-                IMemberOptions targetMember = targetType.GetMember(memberName);
+                string descendantPrefix = result[i] + ".";
+                if (result.Any(i => i.StartsWith(descendantPrefix)))
+                {
+                    result.RemoveAt(i);
+                }
+            }
+
+            return result;
+        }
+
+        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, Stack<ITypeOptions> stack, string prefix, List<string> result)
+        {
+            stack.Push(targetType);
+
+            foreach (string targetMemberName in targetType.MemberNames)
+            {
+                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
                 if (!targetMember.IsParent())
                 {
-                    IMemberOptions sourceMember = sourceType.GetMember(memberName);
+                    string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember != null)
                     {
                         ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
                         ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
 
-                        if (targetMemberType.IsCollection())
+                        if (!stack.Contains(targetMemberType))
                         {
-                            string name = prefix + targetMember.Name;
-                            includes.Add(name);
-
-                            if (targetMember.IsComposition())
+                            if (targetMemberType.IsCollection())
                             {
-                                ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
-                                ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+                                string name = prefix + targetMember.Name;
+                                result.Add(name);
 
-                                GetIncludes(sourceItemType, targetItemType, includes, name + ".");
+                                if (targetMember.IsComposition())
+                                {
+                                    ITypeOptions sourceItemType = _options.GetTypeOptions(sourceMemberType.ItemClrType);
+                                    ITypeOptions targetItemType = _options.GetTypeOptions(targetMemberType.ItemClrType);
+
+                                    GetIncludes(sourceItemType, targetItemType, stack, name + ".", result);
+                                }
+
                             }
-
-                        }
-                        else if (targetMemberType.IsComplexOrEntity())
-                        {
-                            string name = prefix + targetMember.Name;
-                            includes.Add(name);
-
-                            if (targetMember.IsComposition())
+                            else if (targetMemberType.IsComplexOrEntity())
                             {
-                                GetIncludes(sourceMemberType, targetMemberType, includes, name + ".");
+                                string name = prefix + targetMember.Name;
+                                result.Add(name);
+
+                                if (targetMember.IsComposition())
+                                {
+                                    GetIncludes(sourceMemberType, targetMemberType, stack, name + ".", result);
+                                }
                             }
                         }
                     }
                 }
             }
+
+            stack.Pop();
         }
 
         Expression CreateSelectProjection(ITypeOptions entityType, ITypeOptions projectionType, Expression entityExpr)
@@ -192,13 +222,13 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 List<MemberBinding> bindings = new List<MemberBinding>();
 
-                foreach (string memberName in entityType.MemberNames)
+                foreach (string targetMemberName in entityType.MemberNames)
                 {
-                    IMemberOptions entityMember = entityType.GetMember(memberName);
+                    IMemberOptions entityMember = entityType.GetMember(targetMemberName);
 
                     if (entityMember.CanRead && !entityMember.IsNotMapped())
                     {
-                        IMemberOptions projectionMember = projectionType.GetMember(memberName);
+                        IMemberOptions projectionMember = projectionType.GetMember(targetMemberName);
 
                         if (projectionMember != null && projectionMember.CanWrite && !projectionMember.IsNotMapped())
                         {
@@ -208,7 +238,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                                 ITypeOptions projectionMemberType = _options.GetTypeOptions(projectionMember.ClrType);
                                 ITypeOptions entityMemberType = _options.GetTypeOptions(entityMember.ClrType);
 
-                                Expression map = entityMember.BuildGetterExpression(entityExpr, null);
+                                Expression map = entityMember.BuildGetExpression(entityExpr, null);
                                 Expression body = CreateSelectProjection(entityMemberType, projectionMemberType, map);
 
                                 if (entityMemberType.IsComplexOrEntity())

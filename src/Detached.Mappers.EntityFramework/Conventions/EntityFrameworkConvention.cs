@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
 
@@ -44,13 +44,13 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 IProperty discriminator = entityType.FindDiscriminatorProperty();
                 if (discriminator != null && entityType.BaseType == null)
                 {
-                    typeOptions.DiscriminatorName = discriminator.Name;
+                    typeOptions.SetDiscriminatorName(discriminator.Name);
 
                     foreach (var inheritedType in entityType.Model.GetEntityTypes())
                     {
                         if (inheritedType.BaseType == entityType)
                         {
-                            typeOptions.DiscriminatorValues[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
+                            typeOptions.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
                         }
                     }
                 }

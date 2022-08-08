@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
@@ -17,6 +17,7 @@ namespace Detached.Mappers.TypeOptions.Class
         {
             ClassTypeOptions typeOptions = new ClassTypeOptions();
             typeOptions.ClrType = type;
+            typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
 
             if (IsPrimitive(options, type))
             {
@@ -36,6 +37,8 @@ namespace Detached.Mappers.TypeOptions.Class
             {
                 typeOptions.Kind = TypeKind.Complex;
 
+                bool canTryGet = typeof(IPatch).IsAssignableFrom(type); 
+
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
                 {
@@ -45,6 +48,7 @@ namespace Detached.Mappers.TypeOptions.Class
                         memberOptions.Name = propInfo.Name;
                         memberOptions.ClrType = propInfo.PropertyType;
                         memberOptions.PropertyInfo = propInfo;
+                        memberOptions.CanTryGet = canTryGet;
 
                         // generate getter.
                         if (propInfo.CanRead)
@@ -95,7 +99,7 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             // apply conventions.
-            foreach (ITypeOptionsConvention convention in options.Conventions)
+            foreach (ITypeOptionsConvention convention in options.TypeConventions)
             {
                 convention.Apply(options, typeOptions);
             }

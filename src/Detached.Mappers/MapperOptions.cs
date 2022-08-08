@@ -14,7 +14,7 @@ using Detached.Mappers.TypeMappers.POCO.Primitive;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
 using Detached.Mappers.TypeOptions.Class.Builder;
-using Detached.Mappers.TypeOptions.Class.Conventions;
+using Detached.Mappers.TypeOptions.Conventions;
 using Detached.Mappers.TypeOptions.Dictionary;
 using System;
 using System.Collections.Concurrent;
@@ -70,7 +70,7 @@ namespace Detached.Mappers
                 new EntityTypeMapperFactory(this),
             };
 
-            Conventions = new List<ITypeOptionsConvention>
+            TypeConventions = new List<ITypeOptionsConvention>
             {
                 new KeyOptionsConvention()
             };
@@ -92,6 +92,8 @@ namespace Detached.Mappers
                 { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() }
             };
+
+            PropertyNameConventions = new List<IPropertyNameConvention>();
         }
 
         public virtual HashSet<Type> Primitives { get; }
@@ -102,9 +104,13 @@ namespace Detached.Mappers
 
         public List<ITypeMapperFactory> TypeMapperFactories { get; }
 
-        public virtual List<ITypeOptionsConvention> Conventions { get; }
+        public virtual List<ITypeOptionsConvention> TypeConventions { get; }
+
+        public virtual List<IPropertyNameConvention> PropertyNameConventions { get; }
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
+
+        public virtual bool MergeCollections { get; set; } = false;
 
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
@@ -145,6 +151,16 @@ namespace Detached.Mappers
 
                 throw new MapperException($"No factory for {typePair.SourceType.GetFriendlyName()} -> {typePair.TargetType.GetFriendlyName()}");
             });
+        }
+
+        public string GetSourcePropertyName(ITypeOptions sourceType, ITypeOptions targetType, string memberName)
+        {
+            for (int i = PropertyNameConventions.Count - 1; i >= 0; i--)
+            {
+                memberName = PropertyNameConventions[i].GetSourcePropertyName(sourceType, targetType, memberName);
+            }
+
+            return memberName;
         }
 
         public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)

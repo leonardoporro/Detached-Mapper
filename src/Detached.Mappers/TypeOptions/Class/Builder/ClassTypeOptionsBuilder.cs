@@ -28,7 +28,7 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
         public ClassDiscriminatorBuilder<TType, TMember> Discriminator<TMember>(Expression<Func<TType, TMember>> selector)
         {
             ClassMemberOptions memberOptions = GetMember(selector);
-            TypeOptions.DiscriminatorName = memberOptions.Name;
+            TypeOptions.SetDiscriminatorName(memberOptions.Name);
 
             return new ClassDiscriminatorBuilder<TType, TMember>(TypeOptions);
         }

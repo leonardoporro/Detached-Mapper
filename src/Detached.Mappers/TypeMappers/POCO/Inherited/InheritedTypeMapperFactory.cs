@@ -29,10 +29,13 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
         public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
-            IMemberOptions discriminatorMember = sourceType.GetMember(targetType.DiscriminatorName);
+            string targetMemberName = targetType.GetDiscriminatorName();
+            string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
+
+            IMemberOptions discriminatorMember = sourceType.GetMember(sourceMemberName);
             if (discriminatorMember == null)
             {
-                throw new MapperException($"Discriminator member {targetType.DiscriminatorName} does not exist in type {targetType.ClrType}");
+                throw new MapperException($"Discriminator member {targetType.GetDiscriminatorName()} does not exist in type {targetType.ClrType}");
             }
 
             var getDiscriminator =
@@ -40,13 +43,13 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
                         typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapContext), discriminatorMember.ClrType),
                         Parameter(typePair.SourceType, out Expression sourceExpr),
                         Parameter(typeof(IMapContext), out Expression contextExpr),
-                        discriminatorMember.BuildGetterExpression(sourceExpr, contextExpr)
+                        discriminatorMember.BuildGetExpression(sourceExpr, contextExpr)
                     ).Compile();
 
             Type tableType = typeof(Dictionary<,>).MakeGenericType(discriminatorMember.ClrType, typeof(ILazyTypeMapper));
             IDictionary table = (IDictionary)Activator.CreateInstance(tableType);
 
-            foreach (var entry in targetType.DiscriminatorValues)
+            foreach (var entry in targetType.GetDiscriminatorValues())
             {
                 ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ClrType, entry.Value, typePair.Flags));
                 table.Add(entry.Key, mapper);
