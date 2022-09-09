@@ -184,9 +184,9 @@ namespace GraphInheritenceTests
             TodoItem todoItem1 = new TodoItem()
             {
                 Title = "TodoItem1",
-                SubTodoItems = new List<SubTodoItem>()
+                ReusedLinkedItems = new List<ReusedLinkedItem>()
                 {
-                    new SubTodoItem()
+                    new ReusedLinkedItem()
                     {
                         Title = "SubTodoItem1",
                         UploadedFiles = null
@@ -194,7 +194,7 @@ namespace GraphInheritenceTests
                 }
             };
 
-            // file will be uploaded seperately and will be inserted
+            // file will be uploaded seperately and will be inserted 
             var newFile1 = new UploadedFile() { FileTitle = "File1" };
 
 
@@ -212,7 +212,7 @@ namespace GraphInheritenceTests
             {
                 Id = 1,
                 Title = "TodoItem1",
-                SubTodoItems = new[]
+                ReusedLinkedItems = new[]
                 {
                     new
                     {
@@ -229,7 +229,7 @@ namespace GraphInheritenceTests
                             }
                         }
                     }
-                }
+                },
             };
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
@@ -240,13 +240,122 @@ namespace GraphInheritenceTests
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
                 var todoItemLoaded = dbContext.TodoItems
-                    .Include(t => t.SubTodoItems)
+                    .Include(t => t.ReusedLinkedItems)
                     .ThenInclude(s => s.UploadedFiles)
                     .First();
 
-                Assert.That(todoItemLoaded.SubTodoItems[0].UploadedFiles, Has.Count.EqualTo(1));
-                Assert.That(todoItemLoaded.SubTodoItems[0].UploadedFiles[0].FileTitle, Is.EqualTo("File1 changed"));
-                Assert.That(todoItemLoaded.SubTodoItems[0].UploadedFiles[0].IsShared, Is.True);
+                Assert.That(todoItemLoaded.ReusedLinkedItems[0].UploadedFiles, Has.Count.EqualTo(1));
+                Assert.That(todoItemLoaded.ReusedLinkedItems[0].UploadedFiles[0].FileTitle, Is.EqualTo("File1 changed"));
+                Assert.That(todoItemLoaded.ReusedLinkedItems[0].UploadedFiles[0].IsShared, Is.True);
+            }
+        }
+
+        [Test]
+        public void _07_01_AttachedExistingEntityWithReusedLinkedItemInCompositionDoesInsertButShouldDoUpdate()
+        {
+            User user = new()
+            {
+                Name = "Daniel",
+                ReusedLinkedItems = new List<ReusedLinkedItem>()
+                {
+                    new ReusedLinkedItem()
+                    {
+                        Title = "SubTodoItem1",
+                        UploadedFiles = null
+                    }
+                },
+            };
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var mapped1 = dbContext.Map<TodoItem>(user);
+                dbContext.SaveChanges();
+            }
+
+            TodoItem todoItem1 = new TodoItem()
+            {
+                Title = "TodoItem1",
+            };
+
+            // file will be uploaded seperately and will be inserted 
+            var newFile1 = new UploadedFile() { FileTitle = "File1" };
+
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var mapped1 = dbContext.Map<TodoItem>(todoItem1);
+                var mapped2 = dbContext.Map<UploadedFile>(newFile1);
+                dbContext.SaveChanges();
+            }
+
+
+            // --------------- edit -----------------------
+
+            var updated = new
+            {
+                Id = 1,
+                Title = "TodoItem1",
+                ReusedLinkedItems = new[]
+                {
+                    new
+                    {
+                        Id = 1,
+                        Title = "SubTodoItem1",
+                        UploadedFiles = new[]
+                        {
+                            new
+                            {
+                                // existing file will be added (and modified with additional properties)
+                                Id = 1,
+                                FileTitle = "File1 changed",
+                                IsShared = true
+                            }
+                        }
+                    }
+                },
+                User = new
+                {
+                    Id = 1,
+                    Name = "DanielChanged",
+                    ReusedLinkedItems = new[]
+                    {
+                        new
+                        {
+                            Id = 1,
+                            Title = "SubTodoItem1",
+                            UploadedFiles = new[]
+                            {
+                                new
+                                {
+                                    // existing file will be added (and modified with additional properties)
+                                    Id = 1,
+                                    FileTitle = "File1 changed",
+                                    IsShared = true
+                                }
+                            }
+                        }
+                    },
+                }
+            };
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var mapped = dbContext.Map<TodoItem>(updated, new MapParameters { AssociateExistingCompositions = true });
+                //Bug: SQLite Error 19: 'UNIQUE constraint failed: SubTodoItems.Id'. Should save as update without error
+                //SQL Command:
+                //fail: 29.07.2022 15:19:14.409 RelationalEventId.CommandError[20102] (Microsoft.EntityFrameworkCore.Database.Command) 
+                //Failed executing DbCommand(1ms)[Parameters =[@p2 = '1', @p3 = 'SubTodoItem1'(Size = 12), @p4 = '1'(Nullable = true), @p5 = '1'(Nullable = true)], CommandType = 'Text', CommandTimeout = '30']
+                //INSERT INTO "ReusedLinkedItems"("Id", "Title", "TodoItemId", "UserId") //Should be update
+                //VALUES(@p2, @p3, @p4, @p5);
+                dbContext.SaveChanges();
+            }
+
+            using (ComplexDbContext dbContext = new ComplexDbContext())
+            {
+                var todoItemLoaded = dbContext.TodoItems
+                    .Include(t => t.User)
+                    .First();
+
+                Assert.That(todoItemLoaded.User.Name, Is.EqualTo("DanielChanged"));
             }
         }
 
