@@ -709,5 +709,68 @@ namespace GraphInheritenceTests
                 Assert.That(germanyReLoaded.Name, Is.EqualTo("Germany"));
             }
         }
+
+        [Test]
+        public void _13_UpdateConcreteTypeLoadsOnlyBaseType()
+        {
+            var organizationList = new OrganizationListDTO()
+            {
+                ListName = "Europe",
+            };
+
+            OrganizationListDTO loaded;
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                dbContext.Map<OrganizationList>(organizationList);
+                dbContext.SaveChanges();
+
+                var query = dbContext.OrganizationLists.Include(o => o.Organizations);
+
+                var projected = dbContext.Project<OrganizationList, OrganizationListDTO>(query);
+
+                loaded = projected.First();
+
+            }
+
+            // Organizations is type of OrganisationBase
+            // It inherits like this: OrganisationBase -> Government -> GovernmentLeader
+            loaded.Organizations.Add(new GovernmentLeaderDTO()
+            {
+                GovernmentIdentifierCode = "DE",
+                OrganizationType = nameof(GovernmentLeader),
+                PrimaryAddressId = 1,
+                Name = "Germany",
+                LeaderName = "Olaf Scholz",
+            });
+
+            loaded.Organizations.Add(new GovernmentLeaderDTO()
+            {
+                GovernmentIdentifierCode = "AU",
+                OrganizationType = nameof(GovernmentLeader),
+                PrimaryAddressId = 1,
+                Name = "Austria",
+                LeaderName = "Alexander Van der Bellen",
+            });
+
+            OrganizationListDTO loaded2;
+            using (var dbContext = new ComplexDbContext())
+            {
+                dbContext.Map<OrganizationList>(loaded);
+                dbContext.SaveChanges();
+
+                var query = dbContext.OrganizationLists.Include(o => o.Organizations);
+                var projected = dbContext.Project<OrganizationList, OrganizationListDTO>(query);
+                loaded2 = projected.First();
+
+            }
+
+            // The problem is that the project method always returns the base type and not
+            // the original type (GovermentLeaderDTO) and I understand why this happens... 
+            // the mapper has no chance to find out the right type of the dto purely based on the discriminator value.
+            // Maybe we could specify it when setting up Detached Mappers when declaring the discriminator or as parameter
+            // of the project method? Do you have an idea? Or another solution?
+            Assert.That(((GovernmentLeaderDTO)loaded2.Organizations[0]).LeaderName, Is.EqualTo("Olaf Scholz"));
+        }
     }
 }

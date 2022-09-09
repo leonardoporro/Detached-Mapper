@@ -1,4 +1,5 @@
-﻿using GraphInheritenceTests.ComplexModels;
+﻿using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using GraphInheritenceTests.ComplexModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GraphInheritenceTests.DTOs
 {
-    public class CountryDTO : IdBase
+    public class CountryDTO : IdBaseDTO
     {
         public string Name { get; set; }
         public string IsoCode { get; set; }

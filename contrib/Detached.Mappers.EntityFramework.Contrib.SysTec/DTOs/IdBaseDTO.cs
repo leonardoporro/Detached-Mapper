@@ -1,15 +1,15 @@
-﻿using GraphInheritenceTests.ComplexModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
-    public class StudentDTO : IdBaseDTO
+    public abstract class IdBaseDTO
     {
-        public string Name { get; set; }
-        public int Age { get; set; }
+        [Key]
+        public int Id { get; set; }
     }
 }
