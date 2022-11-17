@@ -35,7 +35,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
         public DbSet<SellPoint> SellPoints { get; set; }
 
         public DbSet<ConventionTestClass> ConventionTests { get; set; }
-
+ 
         protected override void OnModelCreating(ModelBuilder mb)
         {
             mb.Entity<User>()
@@ -70,11 +70,17 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
                     .Options;
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseDetached(mapperOptions => { });
+        }
+
         public static async Task<TestDbContext> CreateAsync([CallerMemberName] string dbName = null)
         {
             var context = new TestDbContext(await CreateOptionsAsync(dbName));
             await context.Database.EnsureCreatedAsync();
             return context;
         }
+
     }
 }
