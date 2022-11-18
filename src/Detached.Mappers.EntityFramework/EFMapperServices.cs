@@ -11,10 +11,9 @@ using System.Text.Json;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public class DbContextMapper : Mapper
+    public class EFMapperServices
     {
-        public DbContextMapper(DbContext dbContext, MapperOptions options)
-            : base(options)
+        public EFMapperServices(DbContext dbContext, MapperOptions options)
         {
             MapperOptions = options;
 
@@ -26,9 +25,10 @@ namespace Detached.Mappers.EntityFramework
             JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
             JsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory());
 
-            QueryProvider = new DetachedQueryProvider(options);
+            QueryProvider = new EFQueryProvider(this);
+            Mapper = new Mapper(options);
 
-            MapperOptions.TypeConventions.Add(new EntityFrameworkConvention(dbContext.Model));
+            MapperOptions.TypeConventions.Add(new EFConventions(dbContext.Model));
 
             foreach (IMapperCustomizer customizer in dbContext.GetInfrastructure().GetServices<IMapperCustomizer>())
             {
@@ -54,6 +54,6 @@ namespace Detached.Mappers.EntityFramework
 
         public JsonSerializerOptions JsonSerializerOptions { get; }
 
-        public DetachedQueryProvider QueryProvider { get; }
+        public EFQueryProvider QueryProvider { get; }
     }
 }

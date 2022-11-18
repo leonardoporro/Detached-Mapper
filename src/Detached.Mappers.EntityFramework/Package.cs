@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
-using Detached.Mappers.EntityFramework.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
@@ -21,25 +20,25 @@ namespace Detached.Mappers.EntityFramework
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder UseMapper(this DbContextOptionsBuilder dbContextBuilder, Action<DetachedConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder UseMapper(this DbContextOptionsBuilder dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
         {
-            DetachedConfigurationBuilder builder = new DetachedConfigurationBuilder();
+            EFMapperConfigurationBuilder builder = new EFMapperConfigurationBuilder();
 
             configure?.Invoke(builder);
 
-            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(builder));
+            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EFMapperDbContextOptionsExtension(builder));
 
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder<TDbContext> UseMapper<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<DetachedConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder<TDbContext> UseMapper<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
             where TDbContext : DbContext
         {
-            DetachedConfigurationBuilder builder = new DetachedConfigurationBuilder();
+            EFMapperConfigurationBuilder builder = new EFMapperConfigurationBuilder();
 
             configure?.Invoke(builder);
 
-            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new DetachedDbContextOptionsExtension(builder));
+            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EFMapperDbContextOptionsExtension(builder));
 
             return dbContextBuilder;
         }

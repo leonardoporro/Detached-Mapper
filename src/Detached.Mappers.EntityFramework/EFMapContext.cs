@@ -9,16 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public class DbMapContext : MapContext
+    public class EFMapContext : MapContext
     {
-        public DbMapContext(DbContext dbContext, DetachedQueryProvider queryProvider, MapParameters parameters)
+        public EFMapContext(DbContext dbContext, EFQueryProvider queryProvider, MapParameters parameters)
             : base(parameters)
         {
             QueryProvider = queryProvider;
             DbContext = dbContext;
         }
 
-        public DetachedQueryProvider QueryProvider { get; }
+        public EFQueryProvider QueryProvider { get; }
 
         public DbContext DbContext { get; }
 

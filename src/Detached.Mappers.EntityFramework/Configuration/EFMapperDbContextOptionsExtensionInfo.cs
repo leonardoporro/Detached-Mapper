@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Detached.Mappers.EntityFramework.Configuration
 {
-    public class DetachedDbContextOptionsExtensionInfo : DbContextOptionsExtensionInfo
+    public class EFMapperDbContextOptionsExtensionInfo : DbContextOptionsExtensionInfo
     {
-        public DetachedDbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
+        public EFMapperDbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
             : base(extension)
         {
         }

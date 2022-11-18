@@ -11,33 +11,22 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public static class DbContextExtensions
+    public static class MappingDbContextExtensions
     {
-        public static DbContextMapper GetMapper(this DbContext dbContext, object profileKey)
+        public static EFMapperServices GetMappingServices(this DbContext dbContext, object profileKey)
         {
-            DbContextMapperCollection collection = dbContext.GetService<DbContextMapperCollection>();
-            if (collection == null)
+            EFMapperServiceProvider services = dbContext.GetService<EFMapperServiceProvider>();
+            if (services == null)
             {
                 ThrowDetachedNotConfigured();
             }
 
-            return collection.GetMapper(profileKey, dbContext);
-        }
-
-        public static DbContextMapper GetMapper(this DbContext dbContext)
-        {
-            DbContextMapperCollection profiles = dbContext.GetService<DbContextMapperCollection>();
-            if (profiles == null)
-            {
-                ThrowDetachedNotConfigured();
-            }
-
-            return profiles.GetDefaultMapper(dbContext);
+            return services.GetMapperServices(profileKey, dbContext);
         }
 
         public static ITypeOptions GetTypeOptions(this DbContext dbContext, Type type)
         {
-            return dbContext.GetMapper().MapperOptions.GetTypeOptions(type);
+            return dbContext.GetMappingServices(null).MapperOptions.GetTypeOptions(type);
         }
 
         static void ThrowDetachedNotConfigured()
@@ -45,11 +34,11 @@ namespace Detached.Mappers.EntityFramework
             throw new ApplicationException($"Detached is not configured. Did you miss UseDetached or UseDetachedProfiles call?");
         }
 
-        public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, IQueryable<TEntity> query)
+        public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, IQueryable<TEntity> query, MapParameters parameters = null)
             where TEntity : class
             where TProjection : class
         {
-            return dbContext.GetMapper().QueryProvider.Project<TEntity, TProjection>(query);
+            return dbContext.GetMappingServices(null).QueryProvider.Project<TEntity, TProjection>(query);
         }
 
         public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
@@ -63,16 +52,16 @@ namespace Detached.Mappers.EntityFramework
         public static TEntity Map<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
-            DbContextMapper mapper = dbContext.GetMapper(); 
+            EFMapperServices mapper = dbContext.GetMappingServices(null);
 
             if (parameters == null)
             {
                 parameters = new MapParameters();
             }
 
-            var context = new DbMapContext(dbContext, mapper.QueryProvider, parameters);
+            var context = new EFMapContext(dbContext, mapper.QueryProvider, parameters);
 
-            return (TEntity)dbContext.GetMapper().Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
+            return (TEntity)dbContext.GetMappingServices(null).Mapper.Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }
 
         public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, Stream stream, MapParameters mapperParameters = null)
@@ -83,7 +72,7 @@ namespace Detached.Mappers.EntityFramework
                 mapperParameters = new MapParameters { AddAggregations = true };
             }
          
-            JsonSerializerOptions jsonSerializerOptions = GetMapper(dbContext).JsonSerializerOptions;
+            JsonSerializerOptions jsonSerializerOptions = dbContext.GetMappingServices(null).JsonSerializerOptions;
 
             foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, jsonSerializerOptions))
             {
@@ -102,7 +91,7 @@ namespace Detached.Mappers.EntityFramework
                 mapperParameters = new MapParameters { AddAggregations = true };
             }
 
-            JsonSerializerOptions jsonSerializerOptions = GetMapper(dbContext).JsonSerializerOptions;
+            JsonSerializerOptions jsonSerializerOptions = dbContext.GetMappingServices(null).JsonSerializerOptions;
          
             foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, jsonSerializerOptions))
             {
@@ -122,7 +111,7 @@ namespace Detached.Mappers.EntityFramework
             }
         }
 
-        public static async Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, string resourceName, Assembly assembly = null,  MapParameters mapperParameters = null)
+        public static async Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, string resourceName, Assembly assembly = null, MapParameters mapperParameters = null)
            where TEntity : class
         {
             if (assembly == null)

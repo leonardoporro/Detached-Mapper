@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions
 {
-    public class EntityFrameworkConvention : ITypeOptionsConvention
+    public class EFConventions : ITypeOptionsConvention
     {
         readonly IModel _model;
 
-        public EntityFrameworkConvention(IModel model)
+        public EFConventions(IModel model)
         {
             _model = model;
         }
