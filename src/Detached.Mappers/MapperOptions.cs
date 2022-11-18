@@ -114,13 +114,13 @@ namespace Detached.Mappers
 
         public virtual ClassTypeOptionsBuilder<TType> Type<TType>()
         {
-            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)));
+            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)), this);
         }
 
         [Obsolete("Use Type<TType>()")]
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
-            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)));
+            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)), this);
         }
 
         public virtual ITypeOptions GetTypeOptions(Type type)
@@ -181,6 +181,16 @@ namespace Detached.Mappers
                     || sourceType.IsAbstract()
                     || targetType.IsAbstract()
                     || !targetType.IsPrimitive();
+        }
+
+        public virtual bool IsPrimitive(Type type)
+        {
+            if (type.IsEnum)
+                return true;
+            else if (type.IsGenericType)
+                return Primitives.Contains(type.GetGenericTypeDefinition());
+            else
+                return Primitives.Contains(type);
         }
     }
 }

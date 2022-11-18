@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             await db.MapAsync<User>(new User
             {
@@ -36,7 +36,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string_associations_ordered()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             await db.MapJsonAsync<Role>(
                 Json(@"[
@@ -76,7 +76,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string_associations_not_ordered()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             await db.MapJsonAsync<User>(
                  Json(@"[
@@ -116,9 +116,9 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task import_aggregation_and_compositions()
         {
-            var options = await TestDbContext.CreateOptionsAsync();
+            var options = await DefaultTestDbContext.CreateOptionsAsync();
 
-            using (TestDbContext context = new TestDbContext(options))
+            using (DefaultTestDbContext context = new DefaultTestDbContext(options))
             {
                 await context.Database.EnsureCreatedAsync();
 
@@ -153,7 +153,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await context.SaveChangesAsync();
             }
 
-            using (TestDbContext context = new TestDbContext(options))
+            using (DefaultTestDbContext context = new DefaultTestDbContext(options))
             {
                 Invoice persistedInvoice = context.Invoices
                                                 .Where(i => i.Id == 1)
@@ -181,7 +181,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await context.SaveChangesAsync();
             }
 
-            using (TestDbContext context = new TestDbContext(options))
+            using (DefaultTestDbContext context = new DefaultTestDbContext(options))
             {
                 Invoice updatedInvoice = context.Invoices
                                                 .Where(i => i.Id == 1)

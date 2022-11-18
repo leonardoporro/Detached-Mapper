@@ -124,5 +124,98 @@ namespace Detached.Mappers.EntityFramework
                 await MapJsonAsync<TEntity>(dbContext, fileStream, mapperParameters);
             }
         }
+
+        // with profiles:
+
+        public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, object profileKey, IQueryable<TEntity> query, MapParameters parameters = null)
+            where TEntity : class
+            where TProjection : class
+        {
+            return dbContext.GetMappingServices(profileKey).QueryProvider.Project<TEntity, TProjection>(query);
+        }
+
+        public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object profileKey, object entityOrDTO, MapParameters parameters = null)
+            where TEntity : class
+        {
+            Task<TEntity> task = Task.Run(() => Map<TEntity>(dbContext, profileKey, entityOrDTO, parameters));
+            task.ConfigureAwait(false);
+            return task;
+        }
+
+        public static TEntity Map<TEntity>(this DbContext dbContext, object profileKey, object entityOrDTO, MapParameters parameters = null)
+            where TEntity : class
+        {
+            EFMapperServices mapper = dbContext.GetMappingServices(profileKey);
+
+            if (parameters == null)
+            {
+                parameters = new MapParameters();
+            }
+
+            var context = new EFMapContext(dbContext, mapper.QueryProvider, parameters);
+
+            return (TEntity)dbContext.GetMappingServices(profileKey).Mapper.Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
+        }
+
+        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, object profileKey, Stream stream, MapParameters mapperParameters = null)
+            where TEntity : class
+        {
+            if (mapperParameters == null)
+            {
+                mapperParameters = new MapParameters { AddAggregations = true };
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = dbContext.GetMappingServices(profileKey).JsonSerializerOptions;
+
+            foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, jsonSerializerOptions))
+            {
+                if (entity != null)
+                {
+                    await MapAsync<TEntity>(dbContext, entity, mapperParameters);
+                }
+            }
+        }
+
+        public static async Task MapJsonAsync<TEntity>(this DbContext dbContext, object profileKey, string json, MapParameters mapperParameters = null)
+            where TEntity : class
+        {
+            if (mapperParameters == null)
+            {
+                mapperParameters = new MapParameters { AddAggregations = true };
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = dbContext.GetMappingServices(profileKey).JsonSerializerOptions;
+
+            foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, jsonSerializerOptions))
+            {
+                if (entity != null)
+                {
+                    await MapAsync<TEntity>(dbContext, profileKey, entity, mapperParameters);
+                }
+            }
+        }
+
+        public static async Task MapJsonFileAsync<TEntity>(this DbContext dbContext, object profileKey, string filePath, MapParameters mapperParameters = null)
+           where TEntity : class
+        {
+            using (Stream fileStream = File.OpenRead(filePath))
+            {
+                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapperParameters);
+            }
+        }
+
+        public static async Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, object profileKey, string resourceName, Assembly assembly = null, MapParameters mapperParameters = null)
+           where TEntity : class
+        {
+            if (assembly == null)
+            {
+                assembly = Assembly.GetCallingAssembly();
+            }
+
+            using (Stream fileStream = assembly.GetManifestResourceStream(resourceName))
+            {
+                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapperParameters);
+            }
+        }
     }
 }

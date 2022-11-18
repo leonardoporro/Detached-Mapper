@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Tests.Model
 {
-    public class TestDbContext : DbContext
+    public class DefaultTestDbContext : DbContext
     {
-        public TestDbContext(DbContextOptions<TestDbContext> options)
+        public DefaultTestDbContext(DbContextOptions<DefaultTestDbContext> options)
             : base(options)
         {
         }
@@ -53,13 +53,13 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
                 .HasValue(typeof(RectangleDeliveryArea), DeliveryAreaType.Rectangle);
         }
 
-        public static async Task<DbContextOptions<TestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)
+        public static async Task<DbContextOptions<DefaultTestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)
         {
             var connection = new SqliteConnection($"DataSource=file:{dbName}?mode=memory&cache=shared");
 
             await connection.OpenAsync();
 
-            return new DbContextOptionsBuilder<TestDbContext>()
+            return new DbContextOptionsBuilder<DefaultTestDbContext>()
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
                     .UseSqlite(connection)
@@ -75,9 +75,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
             optionsBuilder.UseDetached(mapperOptions => { });
         }
 
-        public static async Task<TestDbContext> CreateAsync([CallerMemberName] string dbName = null)
+        public static async Task<DefaultTestDbContext> CreateAsync([CallerMemberName] string dbName = null)
         {
-            var context = new TestDbContext(await CreateOptionsAsync(dbName));
+            var context = new DefaultTestDbContext(await CreateOptionsAsync(dbName));
             await context.Database.EnsureCreatedAsync();
             return context;
         }

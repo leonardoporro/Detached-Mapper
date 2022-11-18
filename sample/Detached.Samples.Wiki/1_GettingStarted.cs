@@ -26,7 +26,7 @@ public class GettingStarted
 
     class TestDbContext : DbContext
     {
-        static SqliteConnection _connection = new SqliteConnection($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared");
+        static SqliteConnection _connection;
 
         static TestDbContext()
         {
@@ -36,7 +36,7 @@ public class GettingStarted
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(_connection).UseDetached();
+            optionsBuilder.UseSqlite(_connection).UseMapping();
         }
 
         public DbSet<User> Users { get; set; }

@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_success()
         {
-            TestDbContext dbContext = await TestDbContext.CreateAsync();
+            DefaultTestDbContext dbContext = await DefaultTestDbContext.CreateAsync();
 
             SellPoint sellPoint = dbContext.Map<SellPoint>(new
             {
@@ -35,7 +35,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_invalid_discriminator()
         {
-            TestDbContext dbContext = await TestDbContext.CreateAsync();
+            DefaultTestDbContext dbContext = await DefaultTestDbContext.CreateAsync();
 
             try
             {
@@ -62,7 +62,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_missing_discriminator()
         {
-            TestDbContext dbContext = await TestDbContext.CreateAsync();
+            DefaultTestDbContext dbContext = await DefaultTestDbContext.CreateAsync();
 
             try
             {

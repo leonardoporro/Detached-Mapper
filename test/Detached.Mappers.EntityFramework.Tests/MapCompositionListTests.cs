@@ -12,7 +12,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_composition_list()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             db.Roles.Add(new Role { Name = "admin" });
             db.Roles.Add(new Role { Name = "user" });

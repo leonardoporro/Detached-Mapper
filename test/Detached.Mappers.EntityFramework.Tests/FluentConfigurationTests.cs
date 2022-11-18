@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task apply_conventions_to_fluent()
         {
-            TestDbContext context = new TestDbContext(await TestDbContext.CreateOptionsAsync("ConfigDb"));
+            DefaultTestDbContext context = new DefaultTestDbContext(await DefaultTestDbContext.CreateOptionsAsync("ConfigDb"));
 
             ITypeOptions typeOptions = context.GetTypeOptions(typeof(ConfiguredTestClass));
 

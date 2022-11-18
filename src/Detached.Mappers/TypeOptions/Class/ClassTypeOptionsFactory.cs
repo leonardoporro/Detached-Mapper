@@ -19,7 +19,7 @@ namespace Detached.Mappers.TypeOptions.Class
             typeOptions.ClrType = type;
             typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
 
-            if (IsPrimitive(options, type))
+            if (options.IsPrimitive(type))
             {
                 typeOptions.Kind = TypeKind.Primitive;
             }
@@ -108,7 +108,7 @@ namespace Detached.Mappers.TypeOptions.Class
             return typeOptions;
         }
 
-        protected virtual bool ShouldMap(PropertyInfo propInfo)
+        public virtual bool ShouldMap(PropertyInfo propInfo)
         {
             bool result = true;
 
@@ -119,16 +119,6 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             return result;
-        }
-
-        protected virtual bool IsPrimitive(MapperOptions options, Type type)
-        {
-            if (type.IsEnum)
-                return true; 
-            else if (type.IsGenericType)
-                return options.Primitives.Contains(type.GetGenericTypeDefinition());
-            else
-                return options.Primitives.Contains(type);
         }
     }
 }

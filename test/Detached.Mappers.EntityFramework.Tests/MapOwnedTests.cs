@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_owned()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             Invoice invoice = await db.MapAsync<Invoice>(new InvoiceDTO
             {

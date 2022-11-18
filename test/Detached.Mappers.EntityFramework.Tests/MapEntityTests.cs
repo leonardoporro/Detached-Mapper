@@ -14,7 +14,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -70,7 +70,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity_not_found()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             db.Roles.Add(new Role { Id = 1, Name = "admin" });
             db.Roles.Add(new Role { Id = 2, Name = "user" });

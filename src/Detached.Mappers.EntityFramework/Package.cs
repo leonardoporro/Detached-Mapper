@@ -9,18 +9,18 @@ namespace Detached.Mappers.EntityFramework
     {
         public static DbContextOptionsBuilder UseDetached(this DbContextOptionsBuilder dbContextBuilder, Action<MapperOptions> configure = null)
         {
-            UseMapper(dbContextBuilder, cfg => cfg.DefaultProfile(configure));
+            UseMapping(dbContextBuilder, cfg => cfg.Default(configure));
             return dbContextBuilder;
         }
 
         public static DbContextOptionsBuilder<TDbContext> UseDetached<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<MapperOptions> configure = null)
             where TDbContext : DbContext
         {
-            UseMapper(dbContextBuilder, cfg => cfg.DefaultProfile(configure));
+            UseMapping(dbContextBuilder, cfg => cfg.Default(configure));
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder UseMapper(this DbContextOptionsBuilder dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
         {
             EFMapperConfigurationBuilder builder = new EFMapperConfigurationBuilder();
 
@@ -31,7 +31,7 @@ namespace Detached.Mappers.EntityFramework
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder<TDbContext> UseMapper<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder<TDbContext> UseMapping<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
             where TDbContext : DbContext
         {
             EFMapperConfigurationBuilder builder = new EFMapperConfigurationBuilder();

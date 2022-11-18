@@ -1,5 +1,4 @@
-﻿using AgileObjects.ReadableExpressions.Translations.Reflection;
-using Detached.Mappers.Annotations;
+﻿using Detached.Mappers.Annotations;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,23 +7,64 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
 {
     public class ClassTypeOptionsBuilder<TType>
     {
-        public ClassTypeOptionsBuilder(ClassTypeOptions typeOptions)
+        public ClassTypeOptionsBuilder(ClassTypeOptions typeOptions, MapperOptions mapperOptions)
         {
             TypeOptions = typeOptions;
+            MapperOptions = mapperOptions;
         }
 
         public ClassTypeOptions TypeOptions { get; }
+
+        public MapperOptions MapperOptions { get; }
 
         public ClassMemberOptionsBuilder<TType, TMember> Member<TMember>(Expression<Func<TType, TMember>> selector)
         {
             ClassMemberOptions memberOptions = GetMember(selector);
 
-            return new ClassMemberOptionsBuilder<TType, TMember>(TypeOptions, memberOptions);
+            return new ClassMemberOptionsBuilder<TType, TMember>(TypeOptions, memberOptions, MapperOptions);
         }
 
         public ClassTypeOptionsBuilder<TType> Constructor(Expression<Func<IMapContext, TType>> constructor)
         {
             TypeOptions.Constructor = constructor;
+            return this;
+        }
+
+        public ClassTypeOptionsBuilder<TType> IncludeAll()
+        {
+            foreach (var memberName in TypeOptions.MemberNames)
+            {
+                TypeOptions.GetMember(memberName).IsNotMapped(false);
+            }
+
+            return this;
+        }
+
+        public ClassTypeOptionsBuilder<TType> ExcludeAll()
+        {
+            foreach (var memberName in TypeOptions.MemberNames)
+            {
+                TypeOptions.GetMember(memberName).IsNotMapped(false);
+            }
+
+            return this;
+        }
+
+        public ClassTypeOptionsBuilder<TType> IncludePrimitives()
+        {
+            foreach (var memberName in TypeOptions.MemberNames)
+            {
+                IMemberOptions memberOptions = TypeOptions.GetMember(memberName);
+                if (MapperOptions.IsPrimitive(memberOptions.ClrType))
+                {
+                    memberOptions.IsNotMapped(false);
+                }
+                else
+                {
+                    memberOptions.IsNotMapped(true);
+                }
+            }
+
             return this;
         }
 

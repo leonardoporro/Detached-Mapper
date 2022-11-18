@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_dto_with_nullable_key_value()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             Customer customer = await db.MapAsync<Customer>(new CustomerDTO
             {
@@ -26,7 +26,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_dto_with_nullable_key_null()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
 
             Customer customer = await db.MapAsync<Customer>(new CustomerDTO
             {

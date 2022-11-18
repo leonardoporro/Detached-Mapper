@@ -12,7 +12,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_two_levels()
         {
-            TestDbContext db = await TestDbContext.CreateAsync();
+            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
             db.InvoiceTypes.Add(new InvoiceType() { Id = 1, });
             await db.SaveChangesAsync();
 

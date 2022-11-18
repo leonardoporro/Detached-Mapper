@@ -22,7 +22,7 @@ namespace Detached.Mappers.EntityFramework.Configuration
             return this;
         }
 
-        public EFMapperConfigurationBuilder DefaultProfile(Action<MapperOptions> configure = null)
+        public EFMapperConfigurationBuilder Default(Action<MapperOptions> configure = null)
         {
             configure?.Invoke(MapperOptions[EFMapperServiceProvider.DEFAULT_PROFILE_KEY]);
             return this;
