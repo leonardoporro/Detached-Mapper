@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.EntityFramework.Configuration
 {
     public interface IMapperCustomizer
     {

@@ -11,7 +11,15 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public bool TryGetValue(string key, out ClassMemberOptions options)
         {
-            return Dictionary.TryGetValue(key, out options);
+            if (Items.Count == 0)
+            {
+                options = null;
+                return false;
+            }
+            else
+            {
+                return Dictionary.TryGetValue(key, out options);
+            }
         }
     }
 }

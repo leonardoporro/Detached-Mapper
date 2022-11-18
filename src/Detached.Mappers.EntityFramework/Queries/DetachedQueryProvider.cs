@@ -1,5 +1,4 @@
-﻿using AgileObjects.ReadableExpressions;
-using Detached.Mappers.Annotations;
+﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeOptions;
 using Detached.Mappers.TypeOptions.Class;
@@ -7,6 +6,7 @@ using Detached.RuntimeTypes.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,12 +20,12 @@ namespace Detached.Mappers.EntityFramework.Queries
     public class DetachedQueryProvider
     {
         readonly MapperOptions _options;
-        IMemoryCache _memoryCache;
+        readonly ConcurrentDictionary<DetachedQueryCacheKey, object> _cache;
 
-        public DetachedQueryProvider(MapperOptions options, IMemoryCache memoryCache)
+        public DetachedQueryProvider(MapperOptions options)
         {
             _options = options;
-            _memoryCache = memoryCache;
+            _cache = new ConcurrentDictionary<DetachedQueryCacheKey, object>();
         }
 
         public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
@@ -34,7 +34,7 @@ namespace Detached.Mappers.EntityFramework.Queries
         {
             var key = new DetachedQueryCacheKey(typeof(TEntity), typeof(TProjection), QueryType.Projection);
 
-            var filter = _memoryCache.GetOrCreate(key, entry =>
+            var filter = (Expression<Func<TEntity, TProjection>>)_cache.GetOrAdd(key, fn =>
             {
                 ITypeOptions entityType = _options.GetTypeOptions(typeof(TEntity));
                 ITypeOptions projectionType = _options.GetTypeOptions(typeof(TProjection));
@@ -42,9 +42,8 @@ namespace Detached.Mappers.EntityFramework.Queries
                 var param = Parameter(entityType.ClrType, "e");
                 Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(entityType, projectionType, param));
 
-                entry.SetSize(1);
 
-                return (Expression<Func<TEntity, TProjection>>)projection;
+                return projection;
             });
 
             return query.Select(filter);
@@ -76,7 +75,7 @@ namespace Detached.Mappers.EntityFramework.Queries
         {
             var key = new DetachedQueryCacheKey(typeof(TSource), typeof(TTarget), QueryType.Load);
 
-            return _memoryCache.GetOrCreate(key, entry =>
+            return (DetachedQueryTemplate<TSource, TTarget>)_cache.GetOrAdd(key, fn =>
             {
                 ITypeOptions sourceType = _options.GetTypeOptions(typeof(TSource));
                 ITypeOptions targetType = _options.GetTypeOptions(typeof(TTarget));
@@ -86,8 +85,6 @@ namespace Detached.Mappers.EntityFramework.Queries
                 queryTemplate.SourceConstant = Constant(null, sourceType.ClrType);
                 queryTemplate.FilterExpression = CreateFilterExpression<TSource, TTarget>(sourceType, targetType, queryTemplate.SourceConstant);
                 queryTemplate.Includes = GetIncludes(sourceType, targetType);
-
-                entry.SetSize(1);
 
                 return queryTemplate;
             });

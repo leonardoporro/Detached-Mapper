@@ -26,8 +26,8 @@ namespace Detached.Mappers
 {
     public class MapperOptions
     {
-        readonly ConcurrentDictionary<Type, ITypeOptions> _options = new ConcurrentDictionary<Type, ITypeOptions>();
-        readonly ConcurrentDictionary<TypePair, ITypeMapper> _mappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
+        readonly ConcurrentDictionary<Type, ITypeOptions> _typeOptions = new ConcurrentDictionary<Type, ITypeOptions>();
+        readonly ConcurrentDictionary<TypePair, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
 
         public MapperOptions()
         {
@@ -112,6 +112,12 @@ namespace Detached.Mappers
 
         public virtual bool MergeCollections { get; set; } = false;
 
+        public virtual ClassTypeOptionsBuilder<TType> Type<TType>()
+        {
+            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)));
+        }
+
+        [Obsolete("Use Type<TType>()")]
         public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
         {
             return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)));
@@ -119,7 +125,7 @@ namespace Detached.Mappers
 
         public virtual ITypeOptions GetTypeOptions(Type type)
         {
-            return _options.GetOrAdd(type, keyType =>
+            return _typeOptions.GetOrAdd(type, keyType =>
             {
                 for (int i = TypeOptionsFactories.Count - 1; i >= 0; i--)
                 {
@@ -134,7 +140,7 @@ namespace Detached.Mappers
 
         public ITypeMapper GetTypeMapper(TypePair typePair)
         {
-            return _mappers.GetOrAdd(typePair, t =>
+            return _typeMappers.GetOrAdd(typePair, t =>
             {
                 ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
                 ITypeOptions targetType = GetTypeOptions(typePair.TargetType);

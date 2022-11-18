@@ -19,7 +19,7 @@ namespace Detached.Mappers
             return !typeof(IPatch).IsAssignableFrom(type) && _options.GetTypeOptions(type).IsComplex();
         }
  
-        public object Map(object source, Type sourceType, object target, Type targetType, IMapContext context = default)
+        public virtual object Map(object source, Type sourceType, object target, Type targetType, IMapContext context = default)
         {
             if (context == null)
             {
@@ -31,7 +31,7 @@ namespace Detached.Mappers
                 .Map(source, target, context);
         }
 
-        public TTarget Map<TSource, TTarget>(TSource source, TTarget target = default, IMapContext context = default)
+        public virtual TTarget Map<TSource, TTarget>(TSource source, TTarget target = default, IMapContext context = default)
         {
             if (context == null)
             {

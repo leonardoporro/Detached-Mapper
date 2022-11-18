@@ -48,7 +48,7 @@ namespace GraphInheritenceTests
                     // but this line is a test to drive it further
                     //options.Configure<OrganizationBase>().Constructor(x => new Customer());
 
-                    options.Configure<OrganizationBase>().Discriminator(o => o.OrganizationType)
+                    options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
                         .Value(nameof(Customer), typeof(Customer))
                         .Value(nameof(Government), typeof(Government))
                         .Value(nameof(GovernmentLeader), typeof(GovernmentLeader));

@@ -7,16 +7,16 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Detached.Mappers.EntityFramework.Context
+namespace Detached.Mappers.EntityFramework
 {
-    public class EntityFrameworkMapContext : MapContext
+    public class DbMapContext : MapContext
     {
-        public EntityFrameworkMapContext(DbContext dbContext, DetachedQueryProvider queryProvider, MapParameters parameters)
+        public DbMapContext(DbContext dbContext, DetachedQueryProvider queryProvider, MapParameters parameters)
             : base(parameters)
         {
             QueryProvider = queryProvider;
             DbContext = dbContext;
-        } 
+        }
 
         public DetachedQueryProvider QueryProvider { get; }
 
@@ -105,7 +105,7 @@ namespace Detached.Mappers.EntityFramework.Context
             IStateManager stateManager = DbContext.GetService<IStateManager>();
             IEntityType entityType = DbContext.Model.FindEntityType(typeof(TEntity));
             IKey keyType = entityType.FindPrimaryKey();
- 
+
             InternalEntityEntry internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
             if (internalEntry != null)
                 return new EntityEntry<TEntity>(internalEntry);

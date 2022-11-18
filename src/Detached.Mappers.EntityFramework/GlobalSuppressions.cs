@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.Context.EntityFrameworkMapContext.GetExistingEntry``2(``1)~Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{``0}")]
+[assembly: SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.Context.DbMapContext.GetExistingEntry``2(``1)~Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{``0}")]

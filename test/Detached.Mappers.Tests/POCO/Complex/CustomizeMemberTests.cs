@@ -13,7 +13,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
         public void customize_property()
         {
             MapperOptions modelOptions = new MapperOptions();
-            modelOptions.Configure<TargetEntity>()
+            modelOptions.Type<TargetEntity>()
                         .Member(m => m.Value)
                         .Setter(Lambda(
                                 Parameter(typeof(TargetEntity), out Expression entity),

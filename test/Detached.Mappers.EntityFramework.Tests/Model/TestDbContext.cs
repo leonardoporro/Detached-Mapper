@@ -34,7 +34,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
 
         public DbSet<SellPoint> SellPoints { get; set; }
 
-        public DbSet<ConventionTestClass> ConventionTests { get; set; }
+        public DbSet<ConfiguredTestClass> ConventionTests { get; set; }
  
         protected override void OnModelCreating(ModelBuilder mb)
         {
@@ -46,7 +46,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
                    ur => ur.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId))
                .HasKey(ur => new { ur.UserId, ur.RoleId });
 
-            mb.Entity<ConventionTestClass>().HasKey(c => new { c.CustomizedKey1, c.CustomizedKey2 });
+            mb.Entity<ConfiguredTestClass>().HasKey(c => new { c.CustomizedKey1, c.CustomizedKey2 });
 
             mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)
                 .HasValue(typeof(CircleDeliveryArea), DeliveryAreaType.Circle)
@@ -65,7 +65,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
                     .UseSqlite(connection)
                     .UseDetached(cfg =>
                     {
-                        ConventionTestClass.Configure(cfg);
+                        ConfiguredTestClass.Configure(cfg);
                     })
                     .Options;
         }
