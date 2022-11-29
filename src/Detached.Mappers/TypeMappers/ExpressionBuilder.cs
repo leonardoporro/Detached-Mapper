@@ -60,7 +60,7 @@ namespace Detached.Mappers.TypeMappers
                     ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
                     if (_options.ShouldMap(sourceMemberType, targetMemberType))
                     {
-                        ITypeMapper typeMapper = _options.GetTypeMapper(new TypePair(sourceMember.ClrType, targetMember.ClrType, TypePairFlags.None));
+                        ITypeMapper typeMapper = _options.GetTypeMapper(new TypeMapperKey(sourceMember.ClrType, targetMember.ClrType, TypeMapperKeyFlags.None));
                         sourceParamExpr = Call("Map", Constant(typeMapper, typeMapper.GetType()), sourceParamExpr, Default(targetMember.ClrType), contextExpr);
                     }
 
@@ -95,7 +95,7 @@ namespace Detached.Mappers.TypeMappers
         }
 
         public LambdaExpression BuildMapMembersExpression(
-            TypePair typePair,
+            TypeMapperKey typePair,
             ITypeOptions sourceType,
             ITypeOptions targetType,
             Func<IMemberOptions, IMemberOptions, bool> shouldMap)
@@ -168,7 +168,7 @@ namespace Detached.Mappers.TypeMappers
             IMemberOptions sourceMember,
             IMemberOptions targetMember)
         {
-            TypePair memberTypePair = new TypePair(sourceMember.ClrType, targetMember.ClrType, targetMember.IsComposition() ? TypePairFlags.Owned : TypePairFlags.None);
+            TypeMapperKey memberTypePair = new TypeMapperKey(sourceMember.ClrType, targetMember.ClrType, targetMember.IsComposition() ? TypeMapperKeyFlags.Owned : TypeMapperKeyFlags.None);
 
             ITypeOptions sourceMemberType = _options.GetTypeOptions(sourceMember.ClrType);
             ITypeOptions targetMemberType = _options.GetTypeOptions(targetMember.ClrType);
@@ -211,7 +211,7 @@ namespace Detached.Mappers.TypeMappers
             return memberSetExpr;
         }
 
-        public Expression BuildGetLazyMapperExpression(TypePair typePair)
+        public Expression BuildGetLazyMapperExpression(TypeMapperKey typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
             return Constant(_options.GetLazyTypeMapper(typePair), lazyType);

@@ -8,13 +8,13 @@ namespace Detached.Mappers.Json.TypeMappers
 {
     public class JsonTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return typeof(JsonValue).IsAssignableFrom(sourceType.ClrType)
                 && targetType.IsPrimitive();
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             Type mapperType = typeof(JsonValueTypeMapper<>).MakeGenericType(targetType.ClrType);
             return (ITypeMapper)Activator.CreateInstance(mapperType);

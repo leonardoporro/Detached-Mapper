@@ -3,9 +3,9 @@
     public class LazyTypeMapper<TSource, TTarget> : ILazyTypeMapper
     {
         readonly MapperOptions _options;
-        readonly TypePair _typePair;
+        readonly TypeMapperKey _typePair;
 
-        public LazyTypeMapper(MapperOptions options, TypePair typePair)
+        public LazyTypeMapper(MapperOptions options, TypeMapperKey typePair)
         {
             _options = options;
             _typePair = typePair;

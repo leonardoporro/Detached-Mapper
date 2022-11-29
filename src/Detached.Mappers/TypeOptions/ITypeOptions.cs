@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeOptions
 {
-    public enum TypeKind
+    public enum MappingStrategy
     {
         None,
         Primitive,
@@ -21,7 +21,7 @@ namespace Detached.Mappers.TypeOptions
 
         Dictionary<string, object> Annotations { get; }
 
-        TypeKind Kind { get; }
+        MappingStrategy MappingStrategy { get; }
 
         bool IsAbstract { get; }
 

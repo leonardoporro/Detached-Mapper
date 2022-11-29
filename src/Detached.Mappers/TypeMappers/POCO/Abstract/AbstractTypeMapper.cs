@@ -5,10 +5,10 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
     public class AbstractTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget>
     {
         readonly MapperOptions _options;
-        readonly TypePairFlags _flags;
+        readonly TypeMapperKeyFlags _flags;
         readonly Type _concreteTargetType;
 
-        public AbstractTypeMapper(MapperOptions options, TypePairFlags flags, Type concreteTargetType)
+        public AbstractTypeMapper(MapperOptions options, TypeMapperKeyFlags flags, Type concreteTargetType)
         {
             _options = options;
             _flags = flags;
@@ -32,7 +32,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
                 }
                 else
                 {
-                    ITypeMapper typeMapper = _options.GetTypeMapper(new TypePair(sourceType, targetType, _flags));
+                    ITypeMapper typeMapper = _options.GetTypeMapper(new TypeMapperKey(sourceType, targetType, _flags));
                     return (TTarget)typeMapper.Map(source, target, context);
                 }
             }

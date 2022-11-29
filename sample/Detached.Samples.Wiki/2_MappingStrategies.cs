@@ -2,21 +2,18 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-public class GettingStarted
+public class MappingStrategies
 {
     public static async Task Run()
     {
         TestDbContext dbContext = new TestDbContext();
         await dbContext.Database.EnsureCreatedAsync();
 
-        dbContext.Map<User>(new User { Id = 1, Name = "mapped from Entity" });
-        dbContext.Map<User>(new UserDTO { Id = 2, Name = "mapped from DTO" });
-        dbContext.Map<User>(new { Id = 3, Name = "mapped from Anonymous" });
-        dbContext.Map<User>(new Dictionary<string, object> { { "Id", 4 }, { "Name", "mapped from Dictionary" } });
+     
 
         await dbContext.SaveChangesAsync();
 
-        Console.WriteLine("Getting Started");
+        Console.WriteLine("Mapping Strategies");
         Console.WriteLine("----------------------------------------------------------------------------------------");
         foreach (User persistedUser in dbContext.Users)
         {

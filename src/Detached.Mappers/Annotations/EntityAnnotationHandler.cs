@@ -25,7 +25,7 @@ namespace Detached.Mappers.Annotations
 
         public static void IsEntity(this ITypeOptions type, bool value)
         {
-            if (type.Kind != TypeKind.Complex)
+            if (type.MappingStrategy != MappingStrategy.Complex)
             {
                 throw new MapperException($"Only complext types can be marked as Entities.");
             }

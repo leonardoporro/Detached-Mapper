@@ -15,14 +15,14 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             _options = options;
         }
 
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType.IsComplexOrEntity()
                    && targetType.IsEntity()
                    && targetType.IsConcrete();
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             ExpressionBuilder builder = new ExpressionBuilder(_options);
 
@@ -30,7 +30,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
 
             builder.BuildGetKeyExpressions(sourceType, targetType, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
  
-            if (typePair.Flags.HasFlag(TypePairFlags.Root))
+            if (typePair.Flags.HasFlag(TypeMapperKeyFlags.Root))
             {
                 Type mapperType = typeof(RootEntityTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, keyType);
                 LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => t.IsKey());
@@ -45,7 +45,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                             mapNoKeyMembers.Compile()
                        });
             }
-            else if (typePair.Flags.HasFlag(TypePairFlags.Owned))
+            else if (typePair.Flags.HasFlag(TypeMapperKeyFlags.Owned))
             {
                 Type mapperType = typeof(ComposedEntityTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, keyType);
                 LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => t.IsKey());

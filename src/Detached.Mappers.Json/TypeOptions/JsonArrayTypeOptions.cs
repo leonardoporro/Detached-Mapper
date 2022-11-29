@@ -16,7 +16,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
 
-        public TypeKind Kind => TypeKind.Collection;
+        public MappingStrategy MappingStrategy => MappingStrategy.Collection;
 
         public IEnumerable<string> MemberNames => null;
 

@@ -20,14 +20,14 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
             _options = options;
         }
 
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return ((sourceType.IsComplex() || sourceType.IsEntity()) && !sourceType.IsAbstract())
                  && (targetType.IsComplex() || targetType.IsEntity())
                  && targetType.IsInherited();
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             string targetMemberName = targetType.GetDiscriminatorName();
             string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
@@ -51,7 +51,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 
             foreach (var entry in targetType.GetDiscriminatorValues())
             {
-                ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ClrType, entry.Value, typePair.Flags));
+                ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ClrType, entry.Value, typePair.Flags));
                 table.Add(entry.Key, mapper);
             }
 

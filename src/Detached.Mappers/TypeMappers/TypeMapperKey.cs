@@ -2,16 +2,16 @@
 
 namespace Detached.Mappers.TypeMappers
 {
-    public enum TypePairFlags
+    public enum TypeMapperKeyFlags
     {
         None = 0,
         Root = 2,
         Owned = 4
     }
 
-    public struct TypePair
+    public struct TypeMapperKey
     {
-        public TypePair(Type sourceType, Type targetType, TypePairFlags flags)
+        public TypeMapperKey(Type sourceType, Type targetType, TypeMapperKeyFlags flags)
         {
             SourceType = sourceType;
             TargetType = targetType;
@@ -22,11 +22,11 @@ namespace Detached.Mappers.TypeMappers
 
         public Type TargetType { get; }
 
-        public TypePairFlags Flags { get; }
+        public TypeMapperKeyFlags Flags { get; }
 
         public override bool Equals(object obj)
         {
-            return obj is TypePair other
+            return obj is TypeMapperKey other
                 && other.SourceType == SourceType
                 && other.TargetType == TargetType
                 && other.Flags == Flags;

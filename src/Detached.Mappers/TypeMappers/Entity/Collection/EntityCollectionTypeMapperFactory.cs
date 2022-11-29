@@ -15,7 +15,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             _options = options;
         }
 
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             if (sourceType.IsCollection()
                    && !sourceType.IsAbstract()
@@ -31,13 +31,13 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             return false;
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             ExpressionBuilder builder = new ExpressionBuilder(_options);
 
             LambdaExpression construct = builder.BuildNewExpression(targetType);
 
-            ILazyTypeMapper itemMapper = _options.GetLazyTypeMapper(new TypePair(sourceType.ItemClrType, targetType.ItemClrType, typePair.Flags));
+            ILazyTypeMapper itemMapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ItemClrType, targetType.ItemClrType, typePair.Flags));
 
             ITypeOptions sourceItemType = _options.GetTypeOptions(sourceType.ItemClrType);
             ITypeOptions targetItemType = _options.GetTypeOptions(targetType.ItemClrType);

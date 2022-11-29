@@ -27,7 +27,7 @@ namespace Detached.Mappers
     public class MapperOptions
     {
         readonly ConcurrentDictionary<Type, ITypeOptions> _typeOptions = new ConcurrentDictionary<Type, ITypeOptions>();
-        readonly ConcurrentDictionary<TypePair, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
+        readonly ConcurrentDictionary<TypeMapperKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypeMapperKey, ITypeMapper>();
 
         public MapperOptions()
         {
@@ -138,7 +138,7 @@ namespace Detached.Mappers
             });
         }
 
-        public ITypeMapper GetTypeMapper(TypePair typePair)
+        public ITypeMapper GetTypeMapper(TypeMapperKey typePair)
         {
             return _typeMappers.GetOrAdd(typePair, t =>
             {
@@ -169,7 +169,7 @@ namespace Detached.Mappers
             return memberName;
         }
 
-        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
+        public ILazyTypeMapper GetLazyTypeMapper(TypeMapperKey typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
             return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });

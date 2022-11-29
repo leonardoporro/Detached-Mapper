@@ -21,21 +21,21 @@ namespace Detached.Mappers.TypeOptions.Class
 
             if (options.IsPrimitive(type))
             {
-                typeOptions.Kind = TypeKind.Primitive;
+                typeOptions.MappingStrategy = MappingStrategy.Primitive;
             }
             else if (type.IsEnumerable(out Type itemType))
             {
                 typeOptions.ItemClrType = itemType;
-                typeOptions.Kind = TypeKind.Collection;
+                typeOptions.MappingStrategy = MappingStrategy.Collection;
             }
             else if (type.IsNullable(out Type baseType))
             {
-                typeOptions.Kind = TypeKind.Nullable;
+                typeOptions.MappingStrategy = MappingStrategy.Nullable;
                 typeOptions.ItemClrType = baseType;
             }
             else
             {
-                typeOptions.Kind = TypeKind.Complex;
+                typeOptions.MappingStrategy = MappingStrategy.Complex;
 
                 bool canTryGet = typeof(IPatch).IsAssignableFrom(type); 
 

@@ -15,14 +15,14 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
             _options = options;
         }
 
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType.IsComplex()
                 && targetType.IsComplex()
                 && !targetType.IsEntity();
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             ExpressionBuilder builder = new ExpressionBuilder(_options);
 

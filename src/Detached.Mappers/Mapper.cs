@@ -27,7 +27,7 @@ namespace Detached.Mappers
             }
 
             return _options
-                .GetTypeMapper(new TypePair(sourceType, targetType, TypePairFlags.Root | TypePairFlags.Owned))
+                .GetTypeMapper(new TypeMapperKey(sourceType, targetType, TypeMapperKeyFlags.Root | TypeMapperKeyFlags.Owned))
                 .Map(source, target, context);
         }
 
@@ -39,7 +39,7 @@ namespace Detached.Mappers
             }
 
             return (TTarget)_options
-                .GetTypeMapper(new TypePair(typeof(TSource), typeof(TTarget), TypePairFlags.Root | TypePairFlags.Owned))
+                .GetTypeMapper(new TypeMapperKey(typeof(TSource), typeof(TTarget), TypeMapperKeyFlags.Root | TypeMapperKeyFlags.Owned))
                 .Map(source, target, context);
         }
     }

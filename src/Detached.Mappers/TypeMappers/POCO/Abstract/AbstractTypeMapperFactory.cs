@@ -14,12 +14,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
             _options = options; 
         }
 
-        public bool CanCreate(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             return sourceType.IsAbstract() || targetType.IsAbstract();
         }
 
-        public ITypeMapper Create(TypePair typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
         {
             Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
 
