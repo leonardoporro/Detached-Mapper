@@ -53,7 +53,7 @@ and then copies the values from the given DTO and set the correct states.
 Detached can handle DTO-Entity, DTO-DTO and Entity-Entity mapping.
 There are important tasks when mapping entities, like checking back references
 and merging collections. So that, classes representing entities should be marked
-with the [Entity] attribute or configured with ```modelOptions.Configure<Entity>().IsEntity()```.
+with the `[Entity]` attribute or configured with ```modelOptions.Configure<Entity>().IsEntity()```.
 For EntityFramework, entities are marked automatically when the correspondng DbSet exists.
 More info on configuration, later in this doc.
 
@@ -61,7 +61,7 @@ More info on configuration, later in this doc.
 Aggregations are the weak relations (B and A are independent), also known as "Has a".
 Compositions are the strong (B cannot exists without A), also known as "Owns a".
 
-This can be configured using the [Aggregation] and [Composition] attributes on the corresponding properties
+This can be configured using the `[Aggregation]` and `[Composition]` attributes on the corresponding properties
 or fluently using 
 ```cs modelOptions.Configure<Entity>().Member(e => e.Member).Composition()```.
 More info on configuration, later in this doc.
@@ -73,19 +73,19 @@ Assuming that associations exist, also helps reducing the ammount of data loaded
 **[Aggregation]** -> Link to an existing entity, is marked as Unmodified.
 **[Composition]** -> Create or update the entity, is marked as Created/Updated/Deleted.
 
-**(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
+**(Note: there is an internal parameter: `MapperParameters.AggregationAction`, that allows creating associated entities when they don't exist,
 this is used to import complex graphs from json without having to order by dependency)**.
 
 ###### Solution 3: DTOs and IPatch
 Detached copies only the properties that match (or are configured) from the DTO to the Entity,
 other properties are not overwritten.
-For partial updates, a DTO with the needed properties may be created, or a Dictionary&lt;string, object&gt;
+For partial updates, a DTO with the needed properties may be created, or a `Dictionary<string, object>`
 can be passed as a parameter. It also maps anonymous objects.
 
 Partial updates without manually creating new types are supported using the IPatch interface,
-the PatchProxyFactory and the PatchJsonConverter.
-IPatchs indicates when properties are dirty, and PatchJsonConverter can generate proxies of the 
-classes that auto-implement IPatch and deserialize json using that proxy.
+the `PatchProxyFactory` and the `PatchJsonConverter`.
+`IPatchs` indicates when properties are dirty, and `PatchJsonConverter` can generate proxies of the 
+classes that auto-implement `IPatch` and deserialize json using that proxy.
 More info on configuration, later in this doc.
 
 #### Getting Started
@@ -104,7 +104,7 @@ public class TestDbContext : DbContext
 ###### Register dependencies
 Detached needs a QueryProvider instance, that helps loading the current status of the entities to save
 and a Mapper instance that copies the given DTO/Entity state over the current entities.
-These services are added by calling UseDetached on DbContextBuilderOptions.
+These services are added by calling UseDetached on `DbContextBuilderOption`s.
 
 If working on ASP.NET, this is usually configured in the DI container at the beggining (Startup.cs).
 
@@ -120,9 +120,9 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ###### Perform a Map
-The MapAsync extension method can be called to load current state and copy DTO values.
-MapAsync returns the persisted entity (that comes from the DB) with the updated values. No updates are persisted
-until SaveChanges is called().
+The `MapAsync` extension method can be called to load current state and copy DTO values.
+`MapAsync` returns the persisted entity (that comes from the DB) with the updated values. No updates are persisted
+until `dbContext.SaveChanges()` is called.
 
 ```cs
 User attachedUser = await dbContext.MapAsync<User>(new UserDTO { Id = 1, Name = "NewName" });
@@ -159,15 +159,15 @@ Approaches to perform partial updates:
 1 - Use a DTO or a Dictionary or an Anonymous class that contains only the properties to update
 Mapper will copy only matching properties, as the other ones do not exist.
 
-2 - Programatically implement IPatch interface, that allows to mark properties as dirty.
-Mapper will check the value of IPatch.IsSet before copying the property value.
+2 - Programatically implement `IPatch` interface, that allows to mark properties as dirty.
+Mapper will check the value of `IPatch.IsSet` before copying the property value.
 
-3 - The Patch Type Proxy factory (Patch.Create) can be used to generate a new runtime type that inherits your class and implements IPatch automatically.
-This is done by overriding all property setters and adding an internal HashSet<string> to keep the values, so that, 
-**All properties must be marked as Virtual; otherwise, the proxy factory wont't be able to override them**.
+3 - The Patch Type Proxy factory `(Patch.Create)` can be used to generate a new runtime type that inherits your class and implements `IPatch` automatically.
+This is done by overriding all property setters and adding an internal `HashSet<string>` to keep the values, so that, 
+**All properties must be marked as `virtual`; otherwise, the proxy factory wont't be able to override them**.
  
 When sending a JSON with undefined properties, serializer leave them with their default values and the "undefined" state is lost during deserialization.
-That's why PatchJsonConverter allows to automatically deserialize some classes into Patch Proxy types directly, tracking the "undefined" information in the 
-form of IsSet() true/false calls.
+That's why `PatchJsonConverter` allows to automatically deserialize some classes into Patch Proxy types directly, tracking the "undefined" information in the 
+form of `IsSet()` true/false calls.
 
 See this library for source code and more info and samples: [Patch Types](https://github.com/leonardoporro/Detached-PatchTypes)
