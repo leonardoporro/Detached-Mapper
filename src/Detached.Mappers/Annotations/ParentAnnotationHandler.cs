@@ -1,13 +1,13 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Builder;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class ParentAnnotationHandler : AnnotationHandler<ParentAttribute>
     {
-        public override void Apply(ParentAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(ParentAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.IsParent(true);
         }
@@ -17,12 +17,12 @@ namespace Detached.Mappers.Annotations
     {
         const string KEY = "DETACHED_PARENT_REFERENCE";
 
-        public static bool IsParent(this IMemberOptions member)
+        public static bool IsParent(this ITypeMember member)
         {
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsParent(this IMemberOptions member, bool value)
+        public static void IsParent(this ITypeMember member, bool value)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -30,7 +30,7 @@ namespace Detached.Mappers.Annotations
                 member.Annotations.Remove(KEY);
         } 
 
-        public static void IsParent<TType, TMember>(this ClassMemberOptionsBuilder<TType, TMember> member, bool value)
+        public static void IsParent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
         {
             member.MemberOptions.IsParent(value);
         }

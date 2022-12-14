@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.TypeOptions
+namespace Detached.Mappers.Types
 {
-    public interface IMemberOptions
+    public interface ITypeMember
     {
         Dictionary<string, object> Annotations { get; }
- 
-        string Name { get; } 
+
+        string Name { get; }
 
         Type ClrType { get; }
 

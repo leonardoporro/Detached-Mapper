@@ -1,8 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.TypeMappers;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -36,8 +35,8 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             var filter = (Expression<Func<TEntity, TProjection>>)_cache.GetOrAdd(key, fn =>
             {
-                ITypeOptions entityType = _mapperServices.MapperOptions.GetTypeOptions(typeof(TEntity));
-                ITypeOptions projectionType = _mapperServices.MapperOptions.GetTypeOptions(typeof(TProjection));
+                IType entityType = _mapperServices.MapperOptions.GetType(typeof(TEntity));
+                IType projectionType = _mapperServices.MapperOptions.GetType(typeof(TProjection));
 
                 var param = Parameter(entityType.ClrType, "e");
                 Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(entityType, projectionType, param));
@@ -77,8 +76,8 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             return (EFQueryTemplate<TSource, TTarget>)_cache.GetOrAdd(key, fn =>
             {
-                ITypeOptions sourceType = _mapperServices.MapperOptions.GetTypeOptions(typeof(TSource));
-                ITypeOptions targetType = _mapperServices.MapperOptions.GetTypeOptions(typeof(TTarget));
+                IType sourceType = _mapperServices.MapperOptions.GetType(typeof(TSource));
+                IType targetType = _mapperServices.MapperOptions.GetType(typeof(TTarget));
 
                 EFQueryTemplate<TSource, TTarget> queryTemplate = new EFQueryTemplate<TSource, TTarget>();
 
@@ -90,7 +89,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             });
         }
 
-        Expression<Func<TTarget, bool>> CreateFilterExpression<TSource, TTarget>(ITypeOptions sourceType, ITypeOptions targetType, ConstantExpression sourceConstant)
+        Expression<Func<TTarget, bool>> CreateFilterExpression<TSource, TTarget>(IType sourceType, IType targetType, ConstantExpression sourceConstant)
         {
             var targetParam = Parameter(targetType.ClrType, "e");
 
@@ -98,12 +97,12 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
+                ITypeMember targetMember = targetType.GetMember(targetMemberName);
                 if (targetMember.IsKey())
                 {
                     string sourceMemberName = _mapperServices.MapperOptions.GetSourcePropertyName(sourceType, targetType, targetMemberName);
 
-                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
+                    ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember == null)
                     {
                         throw new MapperException($"Can't build query filter, key member {sourceMemberName} not found.");
@@ -136,10 +135,10 @@ namespace Detached.Mappers.EntityFramework.Queries
             return Lambda<Func<TTarget, bool>>(expression, targetParam);
         }
 
-        List<string> GetIncludes(ITypeOptions sourceType, ITypeOptions targetType)
+        List<string> GetIncludes(IType sourceType, IType targetType)
         {
             List<string> result = new List<string>();
-            Stack<ITypeOptions> stack = new Stack<ITypeOptions>();
+            Stack<IType> stack = new Stack<IType>();
 
             GetIncludes(sourceType, targetType, stack, null, result);
 
@@ -155,22 +154,22 @@ namespace Detached.Mappers.EntityFramework.Queries
             return result;
         }
 
-        void GetIncludes(ITypeOptions sourceType, ITypeOptions targetType, Stack<ITypeOptions> stack, string prefix, List<string> result)
+        void GetIncludes(IType sourceType, IType targetType, Stack<IType> stack, string prefix, List<string> result)
         {
             stack.Push(targetType);
 
             foreach (string targetMemberName in targetType.MemberNames)
             {
-                IMemberOptions targetMember = targetType.GetMember(targetMemberName);
+                ITypeMember targetMember = targetType.GetMember(targetMemberName);
                 if (!targetMember.IsParent())
                 {
                     string sourceMemberName = _mapperServices.MapperOptions.GetSourcePropertyName(sourceType, targetType, targetMemberName);
 
-                    IMemberOptions sourceMember = sourceType.GetMember(sourceMemberName);
+                    ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
                     if (sourceMember != null)
                     {
-                        ITypeOptions sourceMemberType = _mapperServices.MapperOptions.GetTypeOptions(sourceMember.ClrType);
-                        ITypeOptions targetMemberType = _mapperServices.MapperOptions.GetTypeOptions(targetMember.ClrType);
+                        IType sourceMemberType = _mapperServices.MapperOptions.GetType(sourceMember.ClrType);
+                        IType targetMemberType = _mapperServices.MapperOptions.GetType(targetMember.ClrType);
 
                         if (!stack.Contains(targetMemberType))
                         {
@@ -181,8 +180,8 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                                 if (targetMember.IsComposition())
                                 {
-                                    ITypeOptions sourceItemType = _mapperServices.MapperOptions.GetTypeOptions(sourceMemberType.ItemClrType);
-                                    ITypeOptions targetItemType = _mapperServices.MapperOptions.GetTypeOptions(targetMemberType.ItemClrType);
+                                    IType sourceItemType = _mapperServices.MapperOptions.GetType(sourceMemberType.ItemClrType);
+                                    IType targetItemType = _mapperServices.MapperOptions.GetType(targetMemberType.ItemClrType);
 
                                     GetIncludes(sourceItemType, targetItemType, stack, name + ".", result);
                                 }
@@ -206,12 +205,12 @@ namespace Detached.Mappers.EntityFramework.Queries
             stack.Pop();
         }
 
-        Expression CreateSelectProjection(ITypeOptions entityType, ITypeOptions projectionType, Expression entityExpr)
+        Expression CreateSelectProjection(IType entityType, IType projectionType, Expression entityExpr)
         {
             if (entityType.IsCollection())
             {
-                ITypeOptions entityItemType = _mapperServices.MapperOptions.GetTypeOptions(entityType.ItemClrType);
-                ITypeOptions projectionItemType = _mapperServices.MapperOptions.GetTypeOptions(projectionType.ItemClrType);
+                IType entityItemType = _mapperServices.MapperOptions.GetType(entityType.ItemClrType);
+                IType projectionItemType = _mapperServices.MapperOptions.GetType(projectionType.ItemClrType);
 
                 var param = Parameter(entityItemType.ClrType, "e");
                 var itemMap = CreateSelectProjection(entityItemType, projectionItemType, param);
@@ -226,19 +225,19 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                 foreach (string targetMemberName in entityType.MemberNames)
                 {
-                    IMemberOptions entityMember = entityType.GetMember(targetMemberName);
+                    ITypeMember entityMember = entityType.GetMember(targetMemberName);
 
                     if (entityMember.CanRead && !entityMember.IsNotMapped())
                     {
-                        IMemberOptions projectionMember = projectionType.GetMember(targetMemberName);
+                        ITypeMember projectionMember = projectionType.GetMember(targetMemberName);
 
                         if (projectionMember != null && projectionMember.CanWrite && !projectionMember.IsNotMapped())
                         {
                             PropertyInfo propInfo = projectionMember.GetPropertyInfo();
                             if (propInfo != null)
                             {
-                                ITypeOptions projectionMemberType = _mapperServices.MapperOptions.GetTypeOptions(projectionMember.ClrType);
-                                ITypeOptions entityMemberType = _mapperServices.MapperOptions.GetTypeOptions(entityMember.ClrType);
+                                IType projectionMemberType = _mapperServices.MapperOptions.GetType(projectionMember.ClrType);
+                                IType entityMemberType = _mapperServices.MapperOptions.GetType(entityMember.ClrType);
 
                                 Expression map = entityMember.BuildGetExpression(entityExpr, null);
                                 Expression body = CreateSelectProjection(entityMemberType, projectionMemberType, map);

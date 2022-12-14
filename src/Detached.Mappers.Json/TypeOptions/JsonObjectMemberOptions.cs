@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -8,7 +8,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonObjectMemberOptions : IMemberOptions
+    public class JsonObjectMemberOptions : ITypeMember
     {
         readonly string _memberName;
 

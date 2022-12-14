@@ -1,13 +1,13 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Builder;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class AggregationAnnotationHandler : AnnotationHandler<AggregationAttribute>
     {
-        public override void Apply(AggregationAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(AggregationAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.IsAggregation(true);
         }
@@ -17,12 +17,12 @@ namespace Detached.Mappers.Annotations
     {
         const string KEY = "DETACHED_AGGREGATION";
 
-        public static bool IsAssociation(this IMemberOptions member)
+        public static bool IsAssociation(this ITypeMember member)
         {
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsAggregation(this IMemberOptions member, bool value)
+        public static void IsAggregation(this ITypeMember member, bool value)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -30,7 +30,7 @@ namespace Detached.Mappers.Annotations
                 member.Annotations.Remove(KEY);
         }
 
-        public static void IsAssociation<TType, TMember>(this ClassMemberOptionsBuilder<TType, TMember> member, bool value)
+        public static void IsAssociation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
         {
             member.MemberOptions.IsAggregation(value);
         }

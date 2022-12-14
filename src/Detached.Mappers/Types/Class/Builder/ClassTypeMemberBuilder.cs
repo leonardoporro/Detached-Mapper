@@ -4,25 +4,25 @@ using System.Linq.Expressions;
 using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
-namespace Detached.Mappers.TypeOptions.Class.Builder
+namespace Detached.Mappers.Types.Class.Builder
 {
-    public class ClassMemberOptionsBuilder<TType, TMember> : ClassTypeOptionsBuilder<TType>
+    public class ClassTypeMemberBuilder<TType, TMember> : ClassTypeBuilder<TType>
     {
-        public ClassMemberOptionsBuilder(ClassTypeOptions typeOptions, ClassMemberOptions memberOptions, MapperOptions mapperOptions)
+        public ClassTypeMemberBuilder(ClassType typeOptions, ClassTypeMember memberOptions, MapperOptions mapperOptions)
             : base(typeOptions, mapperOptions)
         {
             MemberOptions = memberOptions;
         }
 
-        public ClassMemberOptions MemberOptions { get; }
+        public ClassTypeMember MemberOptions { get; }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Getter(LambdaExpression lambda)
+        public ClassTypeMemberBuilder<TType, TMember> Getter(LambdaExpression lambda)
         {
             MemberOptions.Getter = lambda;
             return this;
         }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Getter(Func<TType, IMapContext, TMember> fn)
+        public ClassTypeMemberBuilder<TType, TMember> Getter(Func<TType, IMapContext, TMember> fn)
         {
             Expression instance = null;
             if (fn.Target != null)
@@ -42,25 +42,25 @@ namespace Detached.Mappers.TypeOptions.Class.Builder
             return this;
         }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Exclude()
+        public ClassTypeMemberBuilder<TType, TMember> Exclude()
         {
             MemberOptions.IsNotMapped(true);
             return this;
         }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Include()
+        public ClassTypeMemberBuilder<TType, TMember> Include()
         {
             MemberOptions.IsNotMapped(false);
             return this;
         }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Setter(LambdaExpression lambda)
+        public ClassTypeMemberBuilder<TType, TMember> Setter(LambdaExpression lambda)
         {
             MemberOptions.Setter = lambda;
             return this;
         }
 
-        public ClassMemberOptionsBuilder<TType, TMember> Setter(Action<TType, TMember, IMapContext> fn)
+        public ClassTypeMemberBuilder<TType, TMember> Setter(Action<TType, TMember, IMapContext> fn)
         {
             Expression instance = null;
             if (fn.Target != null)

@@ -1,42 +1,36 @@
 ﻿using Detached.Mappers.Exceptions;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Abstract
 {
     public class AbstractTypeMapperFactory : ITypeMapperFactory
     {
-        readonly MapperOptions _options; 
-
-        public AbstractTypeMapperFactory(MapperOptions options)
+ 
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            _options = options; 
+            return typePair.SourceType.IsAbstract() || typePair.TargetType.IsAbstract();
         }
 
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            return sourceType.IsAbstract() || targetType.IsAbstract();
+            Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
+
+            Type concreteTargetType = typePair.TargetType.IsAbstract() && !typePair.TargetType.IsInherited() && typePair.TargetType.ClrType != typeof(object)
+                ? GetConcreteType(mapperOptions, typePair.TargetType.ClrType)
+                : typePair.TargetType.ClrType;
+
+            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { mapperOptions, typePair, concreteTargetType });
         }
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public Type GetConcreteType(MapperOptions mapperOptions, Type abstractType)
         {
-            Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
-
-            Type concreteTargetType = targetType.IsAbstract() && !targetType.IsInherited() && targetType.ClrType != typeof(object)
-                ? GetConcreteType(targetType.ClrType) 
-                : targetType.ClrType;
-            
-            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { _options, typePair.Flags, concreteTargetType });
-        }
-
-        public Type GetConcreteType(Type abstractType)
-        {
-            if (_options.ConcreteTypes.TryGetValue(abstractType, out Type type))
+            if (mapperOptions.ConcreteTypes.TryGetValue(abstractType, out Type type))
             {
                 return type;
             }
-            else if (abstractType.IsGenericType && _options.ConcreteTypes.TryGetValue(abstractType.GetGenericTypeDefinition(), out Type genericType))
+            else if (abstractType.IsGenericType && mapperOptions.ConcreteTypes.TryGetValue(abstractType.GetGenericTypeDefinition(), out Type genericType))
             {
                 return genericType.MakeGenericType(abstractType.GetGenericArguments());
             }

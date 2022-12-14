@@ -1,14 +1,14 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Builder;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class EntityAnnotationHandler : AnnotationHandler<EntityAttribute>
     {
-        public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             typeOptions.IsEntity(true);
         }
@@ -18,12 +18,12 @@ namespace Detached.Mappers.Annotations
     {
         const string KEY = "DETACHED_ENTITY";
 
-        public static bool IsEntity(this ITypeOptions type)
+        public static bool IsEntity(this IType type)
         {
             return type.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsEntity(this ITypeOptions type, bool value)
+        public static void IsEntity(this IType type, bool value)
         {
             if (type.MappingStrategy != MappingStrategy.Complex)
             {
@@ -36,7 +36,7 @@ namespace Detached.Mappers.Annotations
                 type.Annotations.Remove(KEY);
         }
 
-        public static void IsEntity<TType>(this ClassTypeOptionsBuilder<TType> type, bool value)
+        public static void IsEntity<TType>(this ClassTypeBuilder<TType> type, bool value)
         {
             type.TypeOptions.IsEntity(value);
         }

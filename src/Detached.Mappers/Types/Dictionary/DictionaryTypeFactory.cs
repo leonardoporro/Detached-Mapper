@@ -1,16 +1,17 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
+using Detached.Mappers.Types;
 using Detached.RuntimeTypes.Reflection;
 using System;
 
-namespace Detached.Mappers.TypeOptions.Dictionary
+namespace Detached.Mappers.Types.Dictionary
 {
-    public class DictionaryTypeOptionsFactory : ITypeOptionsFactory
+    public class DictionaryTypeFactory : ITypeFactory
     {
-        readonly DictionaryTypeOptions _typeOptions = new DictionaryTypeOptions();
+        readonly DictionaryType _typeOptions = new DictionaryType();
 
-        public ITypeOptions Create(MapperOptions options, Type type)
+        public IType Create(MapperOptions options, Type type)
         {
-            ITypeOptions result = null;
+            IType result = null;
 
             if (type.IsDictionary(out Type keyType, out Type valueType)
                 && keyType == typeof(string)

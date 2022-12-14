@@ -1,16 +1,16 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.Types.Class;
 using System.Linq;
 
-namespace Detached.Mappers.TypeOptions.Conventions
+namespace Detached.Mappers.Types.Conventions
 {
-    public class KeyOptionsConvention : ITypeOptionsConvention
+    public class KeyConvention : ITypeConvention
     {
-        public void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions)
+        public void Apply(MapperOptions modelOptions, ClassType typeOptions)
         {
             if (!typeOptions.Members.Any(m => m.IsKey()))
             {
-                foreach (ClassMemberOptions memberOptions in typeOptions.Members)
+                foreach (ClassTypeMember memberOptions in typeOptions.Members)
                 {
                     if (memberOptions.Name == "Id")
                     {

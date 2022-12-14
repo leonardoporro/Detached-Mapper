@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -8,7 +8,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonArrayTypeOptions : ITypeOptions
+    public class JsonArrayTypeOptions : IType
     {
         public Type ClrType => typeof(JsonArray);
 
@@ -27,7 +27,7 @@ namespace Detached.Mappers.Json.TypeOptions
             return New(ClrType);
         }
 
-        public IMemberOptions GetMember(string memberName)
+        public ITypeMember GetMember(string memberName)
         {
             throw new NotImplementedException();
         }

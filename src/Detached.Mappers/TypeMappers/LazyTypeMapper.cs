@@ -1,11 +1,13 @@
-﻿namespace Detached.Mappers.TypeMappers
+﻿using Detached.Mappers.TypePairs;
+
+namespace Detached.Mappers.TypeMappers
 {
     public class LazyTypeMapper<TSource, TTarget> : ILazyTypeMapper
     {
         readonly MapperOptions _options;
-        readonly TypeMapperKey _typePair;
+        readonly TypePair _typePair;
 
-        public LazyTypeMapper(MapperOptions options, TypeMapperKey typePair)
+        public LazyTypeMapper(MapperOptions options, TypePair typePair)
         {
             _options = options;
             _typePair = typePair;

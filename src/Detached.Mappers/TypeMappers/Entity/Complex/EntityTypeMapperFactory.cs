@@ -1,6 +1,6 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -8,33 +8,26 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
 {
     public class EntityTypeMapperFactory : ITypeMapperFactory
     {
-        readonly MapperOptions _options;
-
-        public EntityTypeMapperFactory(MapperOptions options)
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            _options = options;
+            return typePair.SourceType.IsComplexOrEntity()
+                   && typePair.TargetType.IsEntity()
+                   && typePair.TargetType.IsConcrete();
         }
 
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            return sourceType.IsComplexOrEntity()
-                   && targetType.IsEntity()
-                   && targetType.IsConcrete();
-        }
+            ExpressionBuilder builder = new ExpressionBuilder(mapperOptions);
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
-        {
-            ExpressionBuilder builder = new ExpressionBuilder(_options);
+            LambdaExpression construct = builder.BuildNewExpression(typePair.TargetType);
 
-            LambdaExpression construct = builder.BuildNewExpression(targetType);
+            builder.BuildGetKeyExpressions(typePair, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 
-            builder.BuildGetKeyExpressions(sourceType, targetType, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
- 
-            if (typePair.Flags.HasFlag(TypeMapperKeyFlags.Root))
+            if (typePair.ParentMember == null)
             {
-                Type mapperType = typeof(RootEntityTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, keyType);
-                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => t.IsKey());
-                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => !t.IsKey());
+                Type mapperType = typeof(RootEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
+                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
+                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => !t.IsKey());
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType,
                        new object[] {
@@ -45,11 +38,11 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                             mapNoKeyMembers.Compile()
                        });
             }
-            else if (typePair.Flags.HasFlag(TypeMapperKeyFlags.Owned))
+            else if (typePair.ParentMember.TargetMember.IsComposition())
             {
-                Type mapperType = typeof(ComposedEntityTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, keyType);
-                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => t.IsKey());
-                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => !t.IsKey());
+                Type mapperType = typeof(ComposedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
+                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
+                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => !t.IsKey());
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType,
                        new object[] {
@@ -62,8 +55,8 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             }
             else
             {
-                Type mapperType = typeof(AggregatedEntityTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, keyType);
-                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => t.IsKey());
+                Type mapperType = typeof(AggregatedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
+                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType,
                        new object[] {

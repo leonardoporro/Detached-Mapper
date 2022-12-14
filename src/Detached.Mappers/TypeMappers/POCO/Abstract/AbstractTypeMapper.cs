@@ -1,17 +1,19 @@
-﻿using System;
+﻿using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types;
+using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Abstract
 {
     public class AbstractTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget>
     {
         readonly MapperOptions _options;
-        readonly TypeMapperKeyFlags _flags;
+        readonly TypePair _typePair;
         readonly Type _concreteTargetType;
 
-        public AbstractTypeMapper(MapperOptions options, TypeMapperKeyFlags flags, Type concreteTargetType)
+        public AbstractTypeMapper(MapperOptions options, TypePair typePair, Type concreteTargetType)
         {
             _options = options;
-            _flags = flags;
+            _typePair = typePair;
             _concreteTargetType = concreteTargetType;
         }
 
@@ -32,7 +34,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
                 }
                 else
                 {
-                    ITypeMapper typeMapper = _options.GetTypeMapper(new TypeMapperKey(sourceType, targetType, _flags));
+                    IType concreteSourceType = _options.GetType(sourceType);
+                    IType concreteTargetType = _options.GetType(targetType);
+
+                    TypePair concreteTypePair = _options.GetTypePair(concreteSourceType, concreteTargetType, _typePair.ParentMember);
+                    ITypeMapper typeMapper = _options.GetTypeMapper(concreteTypePair);
+
                     return (TTarget)typeMapper.Map(source, target, context);
                 }
             }

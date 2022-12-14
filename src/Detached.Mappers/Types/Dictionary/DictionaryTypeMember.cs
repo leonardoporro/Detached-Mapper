@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Detached.Mappers.Types;
 using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 
-namespace Detached.Mappers.TypeOptions.Dictionary
+namespace Detached.Mappers.Types.Dictionary
 {
-    public class DictionaryMemberOptions : IMemberOptions
+    public class DictionaryTypeMember : ITypeMember
     {
         readonly string _name;
 
-        public DictionaryMemberOptions(string name)
+        public DictionaryTypeMember(string name)
         {
             _name = name;
         }

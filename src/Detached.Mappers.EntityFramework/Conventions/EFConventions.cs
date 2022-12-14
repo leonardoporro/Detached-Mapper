@@ -1,13 +1,12 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Conventions;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions
 {
-    public class EFConventions : ITypeOptionsConvention
+    public class EFConventions : ITypeConvention
     {
         readonly IModel _model;
 
@@ -16,7 +15,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
             _model = model;
         }
 
-        public void Apply(MapperOptions modelOptions, ClassTypeOptions typeOptions)
+        public void Apply(MapperOptions modelOptions, ClassType typeOptions)
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.ClrType);
 
@@ -36,7 +35,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 {
                     foreach (string memberName in typeOptions.MemberNames)
                     {
-                        ClassMemberOptions member = typeOptions.GetMember(memberName) as ClassMemberOptions;
+                        ClassTypeMember member = typeOptions.GetMember(memberName) as ClassTypeMember;
                         member.IsKey(keyMembers.Contains(memberName));
                     }
                 }

@@ -1,5 +1,5 @@
 using Detached.Mappers.Json.Tests.Fixture;
-using Detached.Mappers.TypeOptions.Conventions;
+using Detached.Mappers.Types.Conventions;
 using System.Text.Json.Nodes;
 using Xunit;
 

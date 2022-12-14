@@ -1,8 +1,10 @@
-﻿namespace Detached.Mappers.TypeOptions.Conventions
+﻿using Detached.Mappers.Types;
+
+namespace Detached.Mappers.Types.Conventions
 {
     public class CamelCasePropertyNameConvention : IPropertyNameConvention
     {
-        public string GetSourcePropertyName(ITypeOptions sourceType, ITypeOptions targetType, string targetMemberName)
+        public string GetSourcePropertyName(IType sourceType, IType targetType, string targetMemberName)
         {
             return char.ToLower(targetMemberName[0]) + targetMemberName.Substring(1);
         }

@@ -1,7 +1,8 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Exceptions;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,35 +14,28 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
 {
     public class InheritedTypeMapperFactory : ITypeMapperFactory
     {
-        readonly MapperOptions _options;
-
-        public InheritedTypeMapperFactory(MapperOptions options)
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            _options = options;
+            return ((typePair.SourceType.IsComplex() || typePair.SourceType.IsEntity()) && !typePair.SourceType.IsAbstract())
+               && (typePair.TargetType.IsComplex() || typePair.TargetType.IsEntity())
+               && typePair.TargetType.IsInherited();
         }
-
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+ 
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            return ((sourceType.IsComplex() || sourceType.IsEntity()) && !sourceType.IsAbstract())
-                 && (targetType.IsComplex() || targetType.IsEntity())
-                 && targetType.IsInherited();
-        }
+            string targetMemberName = typePair.TargetType.GetDiscriminatorName();
+            string sourceMemberName = mapperOptions.GetSourcePropertyName(typePair.SourceType, typePair.TargetType, targetMemberName);
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
-        {
-            string targetMemberName = targetType.GetDiscriminatorName();
-            string sourceMemberName = _options.GetSourcePropertyName(sourceType, targetType, targetMemberName);
-
-            IMemberOptions discriminatorMember = sourceType.GetMember(sourceMemberName);
+            ITypeMember discriminatorMember = typePair.SourceType.GetMember(sourceMemberName);
             if (discriminatorMember == null)
             {
-                throw new MapperException($"Discriminator member {targetType.GetDiscriminatorName()} does not exist in type {targetType.ClrType}");
+                throw new MapperException($"Discriminator member {typePair.TargetType.GetDiscriminatorName()} does not exist in type {typePair.TargetType.ClrType}");
             }
 
             var getDiscriminator =
                     Lambda(
-                        typeof(Func<,,>).MakeGenericType(sourceType.ClrType, typeof(IMapContext), discriminatorMember.ClrType),
-                        Parameter(typePair.SourceType, out Expression sourceExpr),
+                        typeof(Func<,,>).MakeGenericType(typePair.SourceType.ClrType, typeof(IMapContext), discriminatorMember.ClrType),
+                        Parameter(typePair.SourceType.ClrType, out Expression sourceExpr),
                         Parameter(typeof(IMapContext), out Expression contextExpr),
                         discriminatorMember.BuildGetExpression(sourceExpr, contextExpr)
                     ).Compile();
@@ -49,13 +43,17 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
             Type tableType = typeof(Dictionary<,>).MakeGenericType(discriminatorMember.ClrType, typeof(ILazyTypeMapper));
             IDictionary table = (IDictionary)Activator.CreateInstance(tableType);
 
-            foreach (var entry in targetType.GetDiscriminatorValues())
+            foreach (var entry in typePair.TargetType.GetDiscriminatorValues())
             {
-                ILazyTypeMapper mapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ClrType, entry.Value, typePair.Flags));
+                IType sourceDiscriminatorType = typePair.SourceType;
+                IType targetDiscriminatorType = mapperOptions.GetType(entry.Value);
+                TypePair discriminatorTypePair = mapperOptions.GetTypePair(sourceDiscriminatorType, targetDiscriminatorType, typePair.ParentMember);
+
+                ILazyTypeMapper mapper = mapperOptions.GetLazyTypeMapper(discriminatorTypePair);
                 table.Add(entry.Key, mapper);
             }
 
-            Type mapperType = typeof(InheritedTypeMapper<,,>).MakeGenericType(sourceType.ClrType, targetType.ClrType, discriminatorMember.ClrType);
+            Type mapperType = typeof(InheritedTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, discriminatorMember.ClrType);
             return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { getDiscriminator, table });
         }
     }

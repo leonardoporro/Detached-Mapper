@@ -6,19 +6,19 @@ using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeOptions.Class
+namespace Detached.Mappers.Types.Class
 {
-    public class ClassTypeOptions : ITypeOptions
+    public class ClassType : IType
     {
         public virtual Type ClrType { get; set; }
 
         public virtual Type ItemClrType { get; set; }
 
-        public virtual MappingStrategy MappingStrategy { get; set; } 
+        public virtual MappingStrategy MappingStrategy { get; set; }
 
         public virtual bool IsAbstract { get; set; }
 
-        public virtual ClassMemberOptionsCollection Members { get; set; } = new ClassMemberOptionsCollection();
+        public virtual ClassTypeMemberCollection Members { get; set; } = new ClassTypeMemberCollection();
 
         public virtual IEnumerable<string> MemberNames => Members.Keys;
 
@@ -26,9 +26,9 @@ namespace Detached.Mappers.TypeOptions.Class
 
         public virtual LambdaExpression Constructor { get; set; }
 
-        public virtual IMemberOptions GetMember(string memberName)
+        public virtual ITypeMember GetMember(string memberName)
         {
-            Members.TryGetValue(memberName, out ClassMemberOptions memberOptions);
+            Members.TryGetValue(memberName, out ClassTypeMember memberOptions);
             return memberOptions;
         }
 
@@ -54,6 +54,6 @@ namespace Detached.Mappers.TypeOptions.Class
             return result;
         }
 
-        public override string ToString() => $"{ClrType.GetFriendlyName()} (TypeOptions)";
+        public override string ToString() => $"{ClrType.GetFriendlyName()} (ClassType)";
     }
 }

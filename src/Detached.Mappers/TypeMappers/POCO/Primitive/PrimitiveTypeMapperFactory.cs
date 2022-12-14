@@ -1,19 +1,19 @@
-﻿using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+﻿using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Primitive
 {
     public class PrimitiveTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            return sourceType.IsPrimitive() && targetType.IsPrimitive();
+            return typePair.SourceType.IsPrimitive() && typePair.TargetType.IsPrimitive();
         }
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            Type mapperType = typeof(PrimitiveTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
+            Type mapperType = typeof(PrimitiveTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
             return (ITypeMapper)Activator.CreateInstance(mapperType);
         }
     }

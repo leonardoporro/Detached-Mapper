@@ -1,6 +1,7 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+﻿using AgileObjects.ReadableExpressions;
+using Detached.Mappers.Annotations;
+using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -8,29 +9,24 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
 {
     public class ComplexTypeMapperFactory : ITypeMapperFactory
     {
-        readonly MapperOptions _options;
-
-        public ComplexTypeMapperFactory(MapperOptions options)
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            _options = options;
+            return typePair.SourceType.IsComplex()
+                         && typePair.TargetType.IsComplex()
+                         && !typePair.TargetType.IsEntity();
         }
 
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            return sourceType.IsComplex()
-                && targetType.IsComplex()
-                && !targetType.IsEntity();
-        }
+            ExpressionBuilder builder = new ExpressionBuilder(mapperOptions);
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
-        {
-            ExpressionBuilder builder = new ExpressionBuilder(_options);
+            LambdaExpression construct = builder.BuildNewExpression(typePair.TargetType);
 
-            LambdaExpression construct = builder.BuildNewExpression(targetType);
+            LambdaExpression mapMembers = builder.BuildMapMembersExpression(typePair, (s, t) => true);
 
-            LambdaExpression mapMembers = builder.BuildMapMembersExpression(typePair, sourceType, targetType, (s, t) => true);
-                
-            Type mapperType = typeof(ComplexTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
+            string code = mapMembers.ToReadableString();
+
+            Type mapperType = typeof(ComplexTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { construct.Compile(), mapMembers.Compile() });
         }

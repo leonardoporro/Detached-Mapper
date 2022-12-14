@@ -1,21 +1,22 @@
-﻿using System;
+﻿using Detached.Mappers.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeOptions.Dictionary
+namespace Detached.Mappers.Types.Dictionary
 {
-    public class DictionaryTypeOptions : ITypeOptions
+    public class DictionaryType : IType
     {
         public Type ClrType => typeof(Dictionary<string, object>);
-        
+
         public Type ItemClrType => null;
 
         public MappingStrategy MappingStrategy => MappingStrategy.Complex;
 
         public Dictionary<string, object> Annotations { get; set; }
- 
+
         public IEnumerable<string> MemberNames => new string[0];
 
         public bool IsAbstract => false;
@@ -25,9 +26,9 @@ namespace Detached.Mappers.TypeOptions.Dictionary
             return New(typeof(Dictionary<string, object>));
         }
 
-        public IMemberOptions GetMember(string memberName)
+        public ITypeMember GetMember(string memberName)
         {
-            return new DictionaryMemberOptions(memberName);
+            return new DictionaryTypeMember(memberName);
         }
     }
 }

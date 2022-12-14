@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions.Class;
+﻿using Detached.Mappers.Types.Class;
 using System;
 
 namespace Detached.Mappers.Annotations
@@ -6,11 +6,11 @@ namespace Detached.Mappers.Annotations
     public abstract class AnnotationHandler<TAttribute> : IAnnotationHandler
         where TAttribute : Attribute
     {
-        public void Apply(Attribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions)
+        public void Apply(Attribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             Apply((TAttribute)annotation, modelOptions, typeOptions, memberOptions);
         }
 
-        public abstract void Apply(TAttribute annotation, MapperOptions modelOptions, ClassTypeOptions typeOptions, ClassMemberOptions memberOptions);
+        public abstract void Apply(TAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions);
     }
 }

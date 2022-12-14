@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
@@ -24,9 +24,9 @@ namespace Detached.Mappers.EntityFramework
             return services.GetMapperServices(profileKey, dbContext);
         }
 
-        public static ITypeOptions GetTypeOptions(this DbContext dbContext, Type type)
+        public static IType GetTypeOptions(this DbContext dbContext, Type type)
         {
-            return dbContext.GetMappingServices(null).MapperOptions.GetTypeOptions(type);
+            return dbContext.GetMappingServices(null).MapperOptions.GetType(type);
         }
 
         static void ThrowDetachedNotConfigured()

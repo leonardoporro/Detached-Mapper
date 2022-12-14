@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonNodeTypeOptions : ITypeOptions
+    public class JsonNodeTypeOptions : IType
     {
         public Type ClrType => typeof(JsonNode);
 
@@ -25,7 +25,7 @@ namespace Detached.Mappers.Json.TypeOptions
             throw new NotImplementedException();
         }
 
-        public IMemberOptions GetMember(string memberName)
+        public ITypeMember GetMember(string memberName)
         {
             return new JsonObjectMemberOptions(memberName);
         }

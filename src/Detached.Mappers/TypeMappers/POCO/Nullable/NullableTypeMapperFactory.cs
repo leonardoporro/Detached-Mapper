@@ -1,56 +1,64 @@
-﻿using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
+﻿using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Nullable
 {
     public class NullableTypeMapperFactory : ITypeMapperFactory
     {
-        readonly MapperOptions _options;
-
-        public NullableTypeMapperFactory(MapperOptions options)
+        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
         {
-            _options = options;
+            return typePair.SourceType.IsNullable() || typePair.TargetType.IsNullable();
         }
 
-        public bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
+        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
         {
-            return sourceType.IsNullable() || targetType.IsNullable();
-        }
+            IType sourceItemType = typePair.SourceType.ItemClrType != null
+                ? mapperOptions.GetType(typePair.SourceType.ItemClrType)
+                : typePair.SourceType;
 
-        public ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType)
-        {
-            if (sourceType.IsNullable() && targetType.IsNullable())
+            IType targetItemType = typePair.TargetType.ItemClrType != null
+                ? mapperOptions.GetType(typePair.TargetType.ItemClrType)
+                : typePair.TargetType;
+
+            TypePair itemTypePair = mapperOptions.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
+
+            if (typePair.SourceType.IsNullable() && typePair.TargetType.IsNullable())
             {
-                Type mapperType = typeof(NullableTypeMapper<,>).MakeGenericType(sourceType.ItemClrType, targetType.ItemClrType);
-                ILazyTypeMapper valueMapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ItemClrType, targetType.ItemClrType, typePair.Flags));
+                Type mapperType = typeof(NullableTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ItemClrType);
+                ILazyTypeMapper valueMapper = mapperOptions.GetLazyTypeMapper(itemTypePair);
+
                 return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
             }
-            else if (sourceType.IsNullable())
+            else if (typePair.SourceType.IsNullable())
             {
-                if (sourceType.ItemClrType == targetType.ClrType)
+                if (typePair.SourceType.ItemClrType == typePair.TargetType.ClrType)
                 {
-                    Type mapperType = typeof(NullableSourceTypeMapper<>).MakeGenericType(sourceType.ItemClrType);
+                    Type mapperType = typeof(NullableSourceTypeMapper<>).MakeGenericType(typePair.SourceType.ItemClrType);
+
                     return (ITypeMapper)Activator.CreateInstance(mapperType);
                 }
                 else
                 {
-                    Type mapperType = typeof(NullableSourceTypeMapper<,>).MakeGenericType(sourceType.ItemClrType, targetType.ClrType);
-                    ILazyTypeMapper valueMapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ItemClrType, targetType.ClrType, typePair.Flags));
+                    Type mapperType = typeof(NullableSourceTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ClrType);
+                    ILazyTypeMapper valueMapper = mapperOptions.GetLazyTypeMapper(itemTypePair);
+
                     return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
                 }
             }
             else
             {
-                if (sourceType.ClrType == targetType.ItemClrType)
+                if (typePair.SourceType.ClrType == typePair.TargetType.ItemClrType)
                 {
-                    Type mapperType = typeof(NullableTargetTypeMapper<>).MakeGenericType(targetType.ItemClrType);
+                    Type mapperType = typeof(NullableTargetTypeMapper<>).MakeGenericType(typePair.TargetType.ItemClrType);
                     return (ITypeMapper)Activator.CreateInstance(mapperType);
                 }
                 else
                 {
-                    Type mapperType = typeof(NullableTargetTypeMapper<,>).MakeGenericType(sourceType.ClrType, targetType.ItemClrType);
-                    ILazyTypeMapper valueMapper = _options.GetLazyTypeMapper(new TypeMapperKey(sourceType.ClrType, targetType.ItemClrType, typePair.Flags));
+                    Type mapperType = typeof(NullableTargetTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ItemClrType);
+                    ILazyTypeMapper valueMapper = mapperOptions.GetLazyTypeMapper(itemTypePair);
+
                     return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
                 }
             }

@@ -1,17 +1,17 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.Types;
 using System;
 using System.Text.Json.Nodes;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonTypeOptionsFactory : ITypeOptionsFactory
+    public class JsonTypeOptionsFactory : ITypeFactory
     {
-        readonly ITypeOptions _nodeOptions = new JsonNodeTypeOptions();
-        readonly ITypeOptions _arrayOptions = new JsonArrayTypeOptions();
-        readonly ITypeOptions _objectOptions = new JsonObjectTypeOptions();
-        readonly ITypeOptions _valueOptions = new JsonValueTypeOptions();
+        readonly IType _nodeOptions = new JsonNodeTypeOptions();
+        readonly IType _arrayOptions = new JsonArrayTypeOptions();
+        readonly IType _objectOptions = new JsonObjectTypeOptions();
+        readonly IType _valueOptions = new JsonValueTypeOptions();
 
-        public ITypeOptions Create(MapperOptions options, Type type)
+        public IType Create(MapperOptions options, Type type)
         {
             if (typeof(JsonArray).IsAssignableFrom(type))
                 return _arrayOptions;

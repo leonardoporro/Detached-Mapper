@@ -1,6 +1,6 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.EntityFramework.Tests.Model;
-using Detached.Mappers.TypeOptions;
+using Detached.Mappers.Types;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             DefaultTestDbContext context = new DefaultTestDbContext(await DefaultTestDbContext.CreateOptionsAsync("ConfigDb"));
 
-            ITypeOptions typeOptions = context.GetTypeOptions(typeof(ConfiguredTestClass));
+            IType typeOptions = context.GetTypeOptions(typeof(ConfiguredTestClass));
 
             Assert.True(typeOptions.IsEntity());
             Assert.True(typeOptions.GetMember(nameof(ConfiguredTestClass.CustomizedKey1)).IsKey());

@@ -1,5 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypeOptions.Conventions;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Conventions;
 using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
@@ -9,13 +11,13 @@ using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeOptions.Class
+namespace Detached.Mappers.Types.Class
 {
-    public class ClassTypeOptionsFactory : ITypeOptionsFactory
+    public class ClassTypeFactory : ITypeFactory
     {
-        public ITypeOptions Create(MapperOptions options, Type type)
+        public IType Create(MapperOptions options, Type type)
         {
-            ClassTypeOptions typeOptions = new ClassTypeOptions();
+            ClassType typeOptions = new ClassType();
             typeOptions.ClrType = type;
             typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
 
@@ -37,14 +39,14 @@ namespace Detached.Mappers.TypeOptions.Class
             {
                 typeOptions.MappingStrategy = MappingStrategy.Complex;
 
-                bool canTryGet = typeof(IPatch).IsAssignableFrom(type); 
+                bool canTryGet = typeof(IPatch).IsAssignableFrom(type);
 
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
                 {
                     if (ShouldMap(propInfo))
                     {
-                        ClassMemberOptions memberOptions = new ClassMemberOptions();
+                        ClassTypeMember memberOptions = new ClassTypeMember();
                         memberOptions.Name = propInfo.Name;
                         memberOptions.ClrType = propInfo.PropertyType;
                         memberOptions.PropertyInfo = propInfo;
@@ -99,7 +101,7 @@ namespace Detached.Mappers.TypeOptions.Class
             }
 
             // apply conventions.
-            foreach (ITypeOptionsConvention convention in options.TypeConventions)
+            foreach (ITypeConvention convention in options.TypeConventions)
             {
                 convention.Apply(options, typeOptions);
             }

@@ -1,5 +1,6 @@
 ﻿
 using AgileObjects.ReadableExpressions.Extensions;
+using Detached.Mappers.Types;
 using Detached.PatchTypes;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
-namespace Detached.Mappers.TypeOptions.Class
+namespace Detached.Mappers.Types.Class
 {
-    public class ClassMemberOptions : IMemberOptions
+    public class ClassTypeMember : ITypeMember
     {
         public virtual PropertyInfo PropertyInfo { get; set; }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Detached.Mappers.TypeOptions
+namespace Detached.Mappers.Types
 {
     public enum MappingStrategy
     {
@@ -13,10 +13,10 @@ namespace Detached.Mappers.TypeOptions
         Nullable
     }
 
-    public interface ITypeOptions
+    public interface IType
     {
-        Type ClrType { get; }        
-        
+        Type ClrType { get; }
+
         Type ItemClrType { get; }
 
         Dictionary<string, object> Annotations { get; }
@@ -26,8 +26,8 @@ namespace Detached.Mappers.TypeOptions
         bool IsAbstract { get; }
 
         IEnumerable<string> MemberNames { get; }
- 
-        IMemberOptions GetMember(string memberName);
+
+        ITypeMember GetMember(string memberName);
 
         Expression BuildNewExpression(Expression context, Expression discriminator);
     }

@@ -1,11 +1,11 @@
-﻿using Detached.Mappers.TypeOptions;
+﻿using Detached.Mappers.TypePairs;
 
 namespace Detached.Mappers.TypeMappers
 {
     public interface ITypeMapperFactory
     {
-        bool CanCreate(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType);
+        bool CanCreate(MapperOptions mapperOptions, TypePair typePair);
 
-        ITypeMapper Create(TypeMapperKey typePair, ITypeOptions sourceType, ITypeOptions targetType);
+        ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair);
     }
 }

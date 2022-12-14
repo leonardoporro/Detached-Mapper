@@ -7,7 +7,7 @@ namespace Detached.Mappers.Json
     {
         public static MapperOptions WithJson(this MapperOptions mapperOptions)
         {
-            mapperOptions.TypeOptionsFactories.Add(new JsonTypeOptionsFactory());
+            mapperOptions.TypeFactories.Add(new JsonTypeOptionsFactory());
             mapperOptions.TypeMapperFactories.Add(new JsonTypeMapperFactory());
             return mapperOptions;
         }

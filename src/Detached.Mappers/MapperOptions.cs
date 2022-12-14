@@ -11,11 +11,12 @@ using Detached.Mappers.TypeMappers.POCO.Complex;
 using Detached.Mappers.TypeMappers.POCO.Inherited;
 using Detached.Mappers.TypeMappers.POCO.Nullable;
 using Detached.Mappers.TypeMappers.POCO.Primitive;
-using Detached.Mappers.TypeOptions;
-using Detached.Mappers.TypeOptions.Class;
-using Detached.Mappers.TypeOptions.Class.Builder;
-using Detached.Mappers.TypeOptions.Conventions;
-using Detached.Mappers.TypeOptions.Dictionary;
+using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types.Class.Builder;
+using Detached.Mappers.Types.Conventions;
+using Detached.Mappers.Types.Dictionary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -26,8 +27,9 @@ namespace Detached.Mappers
 {
     public class MapperOptions
     {
-        readonly ConcurrentDictionary<Type, ITypeOptions> _typeOptions = new ConcurrentDictionary<Type, ITypeOptions>();
-        readonly ConcurrentDictionary<TypeMapperKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypeMapperKey, ITypeMapper>();
+        readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
+        readonly ConcurrentDictionary<(IType, IType), TypePair> _typePairs = new ConcurrentDictionary<(IType, IType), TypePair>();
+        readonly ConcurrentDictionary<TypePair, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
 
         public MapperOptions()
         {
@@ -52,27 +54,29 @@ namespace Detached.Mappers
                 typeof(Guid)
             };
 
-            TypeOptionsFactories = new List<ITypeOptionsFactory>
+            TypeFactories = new List<ITypeFactory>
             {
-                new ClassTypeOptionsFactory(),
-                new DictionaryTypeOptionsFactory()
+                new ClassTypeFactory(),
+                new DictionaryTypeFactory()
             };
+
+            TypeConventions = new List<ITypeConvention>
+            {
+                new KeyConvention()
+            };
+
+            TypePairFactory = new TypePairFactory();
 
             TypeMapperFactories = new List<ITypeMapperFactory>
             {
-                new CollectionTypeMapperFactory(this),
-                new ComplexTypeMapperFactory(this),
+                new CollectionTypeMapperFactory(),
+                new ComplexTypeMapperFactory(),
                 new PrimitiveTypeMapperFactory(),
-                new AbstractTypeMapperFactory(this),
-                new NullableTypeMapperFactory(this),
-                new InheritedTypeMapperFactory(this),
-                new EntityCollectionTypeMapperFactory(this),
-                new EntityTypeMapperFactory(this),
-            };
-
-            TypeConventions = new List<ITypeOptionsConvention>
-            {
-                new KeyOptionsConvention()
+                new AbstractTypeMapperFactory(),
+                new NullableTypeMapperFactory(),
+                new InheritedTypeMapperFactory(),
+                new EntityCollectionTypeMapperFactory(),
+                new EntityTypeMapperFactory(),
             };
 
             ConcreteTypes = new Dictionary<Type, Type>
@@ -100,11 +104,13 @@ namespace Detached.Mappers
 
         public Dictionary<Type, IAnnotationHandler> AnnotationHandlers { get; }
 
-        public virtual List<ITypeOptionsFactory> TypeOptionsFactories { get; }
+        public virtual List<ITypeFactory> TypeFactories { get; }
+
+        public virtual ITypePairFactory TypePairFactory { get; set; }
 
         public List<ITypeMapperFactory> TypeMapperFactories { get; }
 
-        public virtual List<ITypeOptionsConvention> TypeConventions { get; }
+        public virtual List<ITypeConvention> TypeConventions { get; }
 
         public virtual List<IPropertyNameConvention> PropertyNameConventions { get; }
 
@@ -112,24 +118,24 @@ namespace Detached.Mappers
 
         public virtual bool MergeCollections { get; set; } = false;
 
-        public virtual ClassTypeOptionsBuilder<TType> Type<TType>()
+        public virtual ClassTypeBuilder<TType> Type<TType>()
         {
-            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)), this);
+            return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
         }
 
         [Obsolete("Use Type<TType>()")]
-        public virtual ClassTypeOptionsBuilder<TType> Configure<TType>()
+        public virtual ClassTypeBuilder<TType> Configure<TType>()
         {
-            return new ClassTypeOptionsBuilder<TType>((ClassTypeOptions)GetTypeOptions(typeof(TType)), this);
+            return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
         }
 
-        public virtual ITypeOptions GetTypeOptions(Type type)
+        public virtual IType GetType(Type type)
         {
-            return _typeOptions.GetOrAdd(type, keyType =>
+            return _types.GetOrAdd(type, keyType =>
             {
-                for (int i = TypeOptionsFactories.Count - 1; i >= 0; i--)
+                for (int i = TypeFactories.Count - 1; i >= 0; i--)
                 {
-                    ITypeOptions typeOptions = TypeOptionsFactories[i].Create(this, keyType);
+                    IType typeOptions = TypeFactories[i].Create(this, keyType);
                     if (typeOptions != null)
                         return typeOptions;
                 }
@@ -138,28 +144,33 @@ namespace Detached.Mappers
             });
         }
 
-        public ITypeMapper GetTypeMapper(TypeMapperKey typePair)
+        public TypePair GetTypePair(IType sourceType, IType targetType, TypePairMember parentMember)
+        {
+            return _typePairs.GetOrAdd((sourceType, targetType), k =>
+            {
+                return TypePairFactory.Create(this, sourceType, targetType, parentMember);
+            });
+        }
+
+        public ITypeMapper GetTypeMapper(TypePair typePair)
         {
             return _typeMappers.GetOrAdd(typePair, t =>
             {
-                ITypeOptions sourceType = GetTypeOptions(typePair.SourceType);
-                ITypeOptions targetType = GetTypeOptions(typePair.TargetType);
-
                 for (int i = TypeMapperFactories.Count - 1; i >= 0; i--)
                 {
                     ITypeMapperFactory factory = TypeMapperFactories[i];
 
-                    if (factory.CanCreate(typePair, sourceType, targetType))
+                    if (factory.CanCreate(this, typePair))
                     {
-                        return factory.Create(typePair, sourceType, targetType);
+                        return factory.Create(this, typePair);
                     }
                 }
 
-                throw new MapperException($"No factory for {typePair.SourceType.GetFriendlyName()} -> {typePair.TargetType.GetFriendlyName()}");
+                throw new MapperException($"No factory for {typePair.SourceType.ClrType.GetFriendlyName()} -> {typePair.TargetType.ClrType.GetFriendlyName()}");
             });
         }
 
-        public string GetSourcePropertyName(ITypeOptions sourceType, ITypeOptions targetType, string memberName)
+        public string GetSourcePropertyName(IType sourceType, IType targetType, string memberName)
         {
             for (int i = PropertyNameConventions.Count - 1; i >= 0; i--)
             {
@@ -169,13 +180,13 @@ namespace Detached.Mappers
             return memberName;
         }
 
-        public ILazyTypeMapper GetLazyTypeMapper(TypeMapperKey typePair)
+        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
         {
-            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType, typePair.TargetType);
+            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
             return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });
         }
 
-        public virtual bool ShouldMap(ITypeOptions sourceType, ITypeOptions targetType)
+        public virtual bool ShouldMap(IType sourceType, IType targetType)
         {
             return sourceType != targetType
                     || sourceType.IsAbstract()
