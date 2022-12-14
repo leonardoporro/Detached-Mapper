@@ -53,7 +53,14 @@ and then copies the values from the given DTO and set the correct states.
 Detached can handle DTO-Entity, DTO-DTO and Entity-Entity mapping.
 There are important tasks when mapping entities, like checking back references
 and merging collections. So that, classes representing entities should be marked
-with the [Entity] attribute or configured with ```modelOptions.Configure<Entity>().IsEntity()```.
+with the [Entity] attribute or configured fluently within the `DbContext` registration method
+by calling: 
+```csharp
+detachedMapperOptions.Type<Entity>().IsEntity();
+```
+for each entity you would like
+to configure mapping for.
+
 For EntityFramework, entities are marked automatically when the correspondng DbSet exists.
 More info on configuration, later in this doc.
 
@@ -63,7 +70,30 @@ Compositions are the strong (B cannot exists without A), also known as "Owns a".
 
 This can be configured using the [Aggregation] and [Composition] attributes on the corresponding properties
 or fluently using 
-```cs modelOptions.Configure<Entity>().Member(e => e.Member).Composition()```.
+
+```csharp
+ services.AddDbContext<MyDbContext>(
+                    options =>
+                    {
+                        options.UseDetached(detachedMapperOptions => {                      
+                             
+                             // For the 'Entity' type (in the example):
+                            detachedMapperOptions.Type<Entity>().Member(i => i.Member).Composition();
+                            
+                            // Example: for the 'Author' type:
+                             detachedMapperOptions.Type<Author>().Member(i => i.AuthorTitle).Composition();
+                             
+                             // Example: for the 'Book' type:
+                              detachedMapperOptions.Type<Book>().Member(i => i.Barcode).Composition();
+                            
+                              // etc...
+                            
+                        });
+                        
+                        // Then continue your typical DbContext configuration  below...
+```
+
+
 More info on configuration, later in this doc.
 
 When mapping, detached **will only modify** the root entity (the one passed as a parameter) and
@@ -91,8 +121,8 @@ More info on configuration, later in this doc.
 #### Getting Started
 
 ###### Install Nu-Get package
-```cs
-Install-Package Detached.Mappers.EntityFramework -Version 6.0.2
+```powershell
+> Install-Package Detached.Mappers.EntityFramework -Version 6.0.2
 ```
 ###### Create your regular DbContext
 ```cs
@@ -143,12 +173,12 @@ class Invoice
 
 Or use MappingOptions when calling UseDetached to configure it:
 
-```cs
+```csharp
 services.AddDbContext<MainDbContext>(cfg =>
     {
         ...
         cfg.UseDetached(options => {
-            options.Configure<Invoice>().Member(i => i.Rows).Composition();
+            options.Type<Invoice>().Member(i => i.Rows).Composition();
         });
     });
 
