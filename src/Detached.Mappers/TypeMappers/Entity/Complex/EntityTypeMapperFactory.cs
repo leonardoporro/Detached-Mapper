@@ -38,7 +38,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                             mapNoKeyMembers.Compile()
                        });
             }
-            else if (typePair.ParentMember.TargetMember.IsComposition())
+            else if (typePair.ParentMember.IsComposition())
             {
                 Type mapperType = typeof(ComposedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
                 LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());

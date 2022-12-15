@@ -99,7 +99,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (memberPair.TargetMember.IsKey())
+                if (memberPair.IsKey())
                 {
                     if (memberPair.IsNotMapped())
                     {
