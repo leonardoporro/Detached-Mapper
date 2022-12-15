@@ -24,8 +24,6 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
 
             LambdaExpression mapMembers = builder.BuildMapMembersExpression(typePair, (s, t) => true);
 
-            string code = mapMembers.ToReadableString();
-
             Type mapperType = typeof(ComplexTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { construct.Compile(), mapMembers.Compile() });
