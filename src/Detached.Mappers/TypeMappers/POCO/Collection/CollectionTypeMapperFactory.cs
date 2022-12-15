@@ -10,25 +10,25 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
 {
     public class CollectionTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
+        public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsCollection()
                && typePair.TargetType.IsCollection()
-               && !mapperOptions.GetType(typePair.TargetType.ItemClrType).IsEntity(); // TODO: simplify.
+               && !mapper.Options.GetType(typePair.TargetType.ItemClrType).IsEntity(); // TODO: simplify.
         }
 
-        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
+        public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
             Type mapperType = typeof(CollectionTypeMapper<,,,>)
                    .MakeGenericType(typePair.SourceType.ClrType, typePair.SourceType.ItemClrType, typePair.TargetType.ClrType, typePair.TargetType.ItemClrType);
 
             Delegate construct = Lambda(New(typePair.TargetType.ClrType)).Compile();
 
-            IType sourceItemType = mapperOptions.GetType(typePair.SourceType.ItemClrType);
-            IType targetItemType = mapperOptions.GetType(typePair.TargetType.ItemClrType);
-            TypePair itemTypePair = mapperOptions.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
+            IType sourceItemType = mapper.Options.GetType(typePair.SourceType.ItemClrType);
+            IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
+            TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ILazyTypeMapper itemMapper = mapperOptions.GetLazyTypeMapper(itemTypePair);
+            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { construct, itemMapper });
         }

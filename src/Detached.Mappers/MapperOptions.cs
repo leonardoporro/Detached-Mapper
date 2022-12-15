@@ -1,7 +1,6 @@
 ﻿using AgileObjects.ReadableExpressions.Extensions;
 using Detached.Annotations;
 using Detached.Mappers.Annotations;
-using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeMappers.Entity.Collection;
 using Detached.Mappers.TypeMappers.Entity.Complex;
@@ -28,8 +27,7 @@ namespace Detached.Mappers
     public class MapperOptions
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
-        readonly ConcurrentDictionary<TypePairKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePairKey, ITypeMapper>();
+        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>(); 
 
         public MapperOptions()
         {
@@ -152,24 +150,6 @@ namespace Detached.Mappers
             });
         }
 
-        public ITypeMapper GetTypeMapper(TypePair typePair)
-        {
-            return _typeMappers.GetOrAdd(new TypePairKey(typePair.SourceType, typePair.TargetType, typePair.ParentMember), key =>
-            {
-                for (int i = TypeMapperFactories.Count - 1; i >= 0; i--)
-                {
-                    ITypeMapperFactory factory = TypeMapperFactories[i];
-
-                    if (factory.CanCreate(this, typePair))
-                    {
-                        return factory.Create(this, typePair);
-                    }
-                }
-
-                throw new MapperException($"No factory for {typePair.SourceType.ClrType.GetFriendlyName()} -> {typePair.TargetType.ClrType.GetFriendlyName()}");
-            });
-        }
-
         public string GetSourcePropertyName(IType sourceType, IType targetType, string memberName)
         {
             for (int i = PropertyNameConventions.Count - 1; i >= 0; i--)
@@ -178,12 +158,6 @@ namespace Detached.Mappers
             }
 
             return memberName;
-        }
-
-        public ILazyTypeMapper GetLazyTypeMapper(TypePair typePair)
-        {
-            Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
-            return (ILazyTypeMapper)Activator.CreateInstance(lazyType, new object[] { this, typePair });
         }
 
         public virtual bool ShouldMap(IType sourceType, IType targetType)

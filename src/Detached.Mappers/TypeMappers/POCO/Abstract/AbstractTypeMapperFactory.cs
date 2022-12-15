@@ -8,20 +8,20 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
     public class AbstractTypeMapperFactory : ITypeMapperFactory
     {
  
-        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
+        public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsAbstract() || typePair.TargetType.IsAbstract();
         }
 
-        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
+        public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
             Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
 
             Type concreteTargetType = typePair.TargetType.IsAbstract() && !typePair.TargetType.IsInherited() && typePair.TargetType.ClrType != typeof(object)
-                ? GetConcreteType(mapperOptions, typePair.TargetType.ClrType)
+                ? GetConcreteType(mapper.Options, typePair.TargetType.ClrType)
                 : typePair.TargetType.ClrType;
 
-            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { mapperOptions, typePair, concreteTargetType });
+            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { mapper, typePair, concreteTargetType });
         }
 
         public Type GetConcreteType(MapperOptions mapperOptions, Type abstractType)

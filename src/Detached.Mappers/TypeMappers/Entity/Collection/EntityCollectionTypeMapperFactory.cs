@@ -9,15 +9,15 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 {
     public class EntityCollectionTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
+        public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             if (typePair.SourceType.IsCollection()
                   && !typePair.SourceType.IsAbstract()
                   && typePair.TargetType.IsCollection()
                   && !typePair.TargetType.IsAbstract())
             {
-                IType sourceItemType = mapperOptions.GetType(typePair.TargetType.ItemClrType);
-                IType targetItemType = mapperOptions.GetType(typePair.TargetType.ItemClrType);
+                IType sourceItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
+                IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
 
                 return targetItemType.IsEntity() && sourceItemType.IsComplexOrEntity();
             }
@@ -25,22 +25,22 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             return false;
         }
  
-        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
+        public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
-            ExpressionBuilder builder = new ExpressionBuilder(mapperOptions);
+            ExpressionBuilder builder = new ExpressionBuilder(mapper);
 
             LambdaExpression construct = builder.BuildNewExpression(typePair.TargetType);
 
-            IType sourceItemType = mapperOptions.GetType(typePair.SourceType.ItemClrType);
-            IType targetItemType = mapperOptions.GetType(typePair.TargetType.ItemClrType);
-            TypePair itemTypePair = mapperOptions.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
+            IType sourceItemType = mapper.Options.GetType(typePair.SourceType.ItemClrType);
+            IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
+            TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ILazyTypeMapper itemMapper = mapperOptions.GetLazyTypeMapper(itemTypePair);
+            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
 
             builder.BuildGetKeyExpressions(itemTypePair, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 
             Type baseMapperType =
-                    mapperOptions.MergeCollections
+                    mapper.Options.MergeCollections
                         ? typeof(MergeEntityCollectionTypeMapper<,,,,>)
                         : typeof(EntityCollectionTypeMapper<,,,,>);
 

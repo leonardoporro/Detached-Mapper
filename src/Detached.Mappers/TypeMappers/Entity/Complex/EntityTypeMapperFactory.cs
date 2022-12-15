@@ -8,16 +8,16 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
 {
     public class EntityTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
+        public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsComplexOrEntity()
                    && typePair.TargetType.IsEntity()
                    && typePair.TargetType.IsConcrete();
         }
 
-        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
+        public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
-            ExpressionBuilder builder = new ExpressionBuilder(mapperOptions);
+            ExpressionBuilder builder = new ExpressionBuilder(mapper);
 
             LambdaExpression construct = builder.BuildNewExpression(typePair.TargetType);
 

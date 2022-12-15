@@ -9,16 +9,16 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
 {
     public class ComplexTypeMapperFactory : ITypeMapperFactory
     {
-        public bool CanCreate(MapperOptions mapperOptions, TypePair typePair)
+        public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsComplex()
                          && typePair.TargetType.IsComplex()
                          && !typePair.TargetType.IsEntity();
         }
 
-        public ITypeMapper Create(MapperOptions mapperOptions, TypePair typePair)
+        public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
-            ExpressionBuilder builder = new ExpressionBuilder(mapperOptions);
+            ExpressionBuilder builder = new ExpressionBuilder(mapper);
 
             LambdaExpression construct = builder.BuildNewExpression(typePair.TargetType);
 

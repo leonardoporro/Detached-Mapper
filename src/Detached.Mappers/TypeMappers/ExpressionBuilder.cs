@@ -13,11 +13,11 @@ namespace Detached.Mappers.TypeMappers
 {
     public class ExpressionBuilder
     {
-        readonly MapperOptions _mapperOptions;
+        readonly Mapper _mapper;
 
-        public ExpressionBuilder(MapperOptions mapperOptions)
+        public ExpressionBuilder(Mapper mapper)
         {
-            _mapperOptions = mapperOptions;
+            _mapper = mapper;
         }
 
         public void BuildGetKeyExpressions(
@@ -52,13 +52,13 @@ namespace Detached.Mappers.TypeMappers
 
                     Expression sourceParamExpr = pairMember.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
 
-                    IType sourceMemberType = _mapperOptions.GetType(pairMember.SourceMember.ClrType);
-                    IType targetMemberType = _mapperOptions.GetType(pairMember.TargetMember.ClrType);
+                    IType sourceMemberType = _mapper.Options.GetType(pairMember.SourceMember.ClrType);
+                    IType targetMemberType = _mapper.Options.GetType(pairMember.TargetMember.ClrType);
 
-                    if (_mapperOptions.ShouldMap(sourceMemberType, targetMemberType))
+                    if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                     {
-                        TypePair memberTypePair = _mapperOptions.GetTypePair(sourceMemberType, targetMemberType, null);
-                        ITypeMapper typeMapper = _mapperOptions.GetTypeMapper(memberTypePair);
+                        TypePair memberTypePair = _mapper.Options.GetTypePair(sourceMemberType, targetMemberType, null);
+                        ITypeMapper typeMapper = _mapper.GetTypeMapper(memberTypePair);
 
                         sourceParamExpr = Call("Map", Constant(typeMapper, typeMapper.GetType()), sourceParamExpr, Default(targetMemberType.ClrType), contextExpr);
                     }
@@ -125,7 +125,7 @@ namespace Detached.Mappers.TypeMappers
                     }
                     else if (isIncluded(memberPair.SourceMember, memberPair.TargetMember))
                     {
-                        Expression memberMapExpr = BuildMapSingleMemberExpression(memberPair, _mapperOptions, sourceExpr, targetExpr, contextExpr);
+                        Expression memberMapExpr = BuildMapSingleMemberExpression(memberPair, sourceExpr, targetExpr, contextExpr);
                         memberMapsExprs.Add(memberMapExpr);
                     }
                 }
@@ -148,14 +148,13 @@ namespace Detached.Mappers.TypeMappers
 
         private Expression BuildMapSingleMemberExpression(
             TypePairMember memberPair,
-            MapperOptions mapperOptions,
             Expression sourceExpr,
             Expression targetExpr,
             Expression contextExpr)
         {
-            IType sourceMemberType = _mapperOptions.GetType(memberPair.SourceMember.ClrType);
-            IType targetMemberType = _mapperOptions.GetType(memberPair.TargetMember.ClrType);
-            TypePair memberTypePair = mapperOptions.GetTypePair(sourceMemberType, targetMemberType, memberPair);
+            IType sourceMemberType = _mapper.Options.GetType(memberPair.SourceMember.ClrType);
+            IType targetMemberType = _mapper.Options.GetType(memberPair.TargetMember.ClrType);
+            TypePair memberTypePair = _mapper.Options.GetTypePair(sourceMemberType, targetMemberType, memberPair);
 
             Expression memberSetExpr;
 
@@ -164,7 +163,7 @@ namespace Detached.Mappers.TypeMappers
                 ParameterExpression outVar = Parameter(memberPair.SourceMember.ClrType, "outVar");
                 Expression sourceValueExpr = outVar;
 
-                if (_mapperOptions.ShouldMap(sourceMemberType, targetMemberType))
+                if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
                     Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
@@ -183,7 +182,7 @@ namespace Detached.Mappers.TypeMappers
             {
                 Expression sourceValueExpr = memberPair.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
 
-                if (_mapperOptions.ShouldMap(sourceMemberType, targetMemberType))
+                if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
                     Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
@@ -199,7 +198,7 @@ namespace Detached.Mappers.TypeMappers
         public Expression BuildGetLazyMapperExpression(TypePair typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
-            return Constant(_mapperOptions.GetLazyTypeMapper(typePair), lazyType);
+            return Constant(_mapper.GetLazyTypeMapper(typePair), lazyType);
         }
 
         public LambdaExpression BuildNewExpression(IType typeOptions)
