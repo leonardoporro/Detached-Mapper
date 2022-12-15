@@ -13,7 +13,10 @@ namespace Detached.Mappers.Annotations
             typeOptions.Entity(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class EntityAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_ENTITY";

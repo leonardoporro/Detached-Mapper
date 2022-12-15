@@ -14,7 +14,10 @@ namespace Detached.Mappers.Annotations
             memberOptions.NotMapped(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class NotMappedParentAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_NOT_MAPPED";

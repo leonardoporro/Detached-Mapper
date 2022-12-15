@@ -1,6 +1,4 @@
-﻿
-using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Mappers.Types;
+﻿using Detached.Mappers.Extensions;
 using Detached.PatchTypes;
 using System;
 using System.Collections.Generic;

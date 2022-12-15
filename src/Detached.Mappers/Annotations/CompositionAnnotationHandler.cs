@@ -12,7 +12,10 @@ namespace Detached.Mappers.Annotations
             memberOptions.Composition(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class CompositionAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_COMPOSITION";

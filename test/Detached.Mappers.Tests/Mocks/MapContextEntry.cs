@@ -1,4 +1,4 @@
-﻿using AgileObjects.ReadableExpressions.Extensions;
+﻿using Detached.Mappers.Extensions;
 
 namespace Detached.Mappers.Tests.Mocks
 {

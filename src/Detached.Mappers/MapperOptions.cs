@@ -1,6 +1,6 @@
-﻿using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Annotations;
+﻿using Detached.Annotations;
 using Detached.Mappers.Annotations;
+using Detached.Mappers.Extensions;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeMappers.Entity.Collection;
 using Detached.Mappers.TypeMappers.Entity.Complex;

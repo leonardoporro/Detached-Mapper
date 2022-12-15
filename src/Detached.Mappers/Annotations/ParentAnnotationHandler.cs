@@ -12,7 +12,10 @@ namespace Detached.Mappers.Annotations
             memberOptions.Parent(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class ParentAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_PARENT_REFERENCE";

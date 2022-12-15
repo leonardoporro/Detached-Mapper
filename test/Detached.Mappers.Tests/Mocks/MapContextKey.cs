@@ -1,5 +1,5 @@
-﻿using AgileObjects.ReadableExpressions.Extensions;
-using System;
+﻿using System;
+using Detached.Mappers.Extensions;
 
 namespace Detached.Mappers.Tests.Mocks
 {

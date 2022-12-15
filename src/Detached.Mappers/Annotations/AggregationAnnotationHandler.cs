@@ -12,7 +12,10 @@ namespace Detached.Mappers.Annotations
             memberOptions.Aggregation(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class AggregationAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_AGGREGATION";

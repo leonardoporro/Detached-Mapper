@@ -1,5 +1,5 @@
-﻿using AgileObjects.ReadableExpressions.Extensions;
-using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Exceptions;
+using Detached.Mappers.Extensions;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;

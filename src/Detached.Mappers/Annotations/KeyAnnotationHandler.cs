@@ -13,7 +13,10 @@ namespace Detached.Mappers.Annotations
             memberOptions.Key(true);
         }
     }
+}
 
+namespace Detached.Mappers
+{
     public static class KeyAnnotationHandlerHandlerExtensions
     {
         const string KEY = "DETACHED_KEY";
