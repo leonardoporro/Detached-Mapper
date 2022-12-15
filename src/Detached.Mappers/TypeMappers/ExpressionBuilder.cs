@@ -119,7 +119,7 @@ namespace Detached.Mappers.TypeMappers
             {
                 if (!memberPair.IsNotMapped())
                 {
-                    if (memberPair.TargetMember.IsParent())
+                    if (memberPair.IsParent())
                     {
                         memberMapsExprs.Add(BuildFindParentExpression(targetExpr, contextExpr, memberPair.TargetMember));
                     }

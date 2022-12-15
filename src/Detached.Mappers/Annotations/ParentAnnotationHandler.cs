@@ -1,4 +1,6 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers.TypePairs.Builder;
+using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
@@ -36,6 +38,24 @@ namespace Detached.Mappers
         public static void Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.MemberOptions.Parent(value);
+        }
+
+        public static bool IsParent(this TypePairMember member)
+        {
+            return member.Annotations.ContainsKey(KEY);
+        }
+
+        public static void Parent(this TypePairMember member, bool value = true)
+        {
+            if (value)
+                member.Annotations[KEY] = true;
+            else
+                member.Annotations.Remove(KEY);
+        }
+
+        public static void Parent<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        {
+            member.TypePairMember.NotMapped(value);
         }
     }
 }

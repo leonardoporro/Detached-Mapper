@@ -13,13 +13,13 @@ namespace Detached.Mappers.EntityFramework.Configuration
             _configBuilder = configBuilder;
         }
 
-        internal EFMapperServiceProvider Profiles { get; set; }
+        internal EFMapperProfiles Profiles { get; set; }
 
         public DbContextOptionsExtensionInfo Info { get; }
 
         public void ApplyServices(IServiceCollection services)
         {
-            services.AddSingleton(new EFMapperServiceProvider(_configBuilder));
+            services.AddSingleton(new EFMapperProfiles(_configBuilder));
         }
 
         public void Validate(IDbContextOptions options)

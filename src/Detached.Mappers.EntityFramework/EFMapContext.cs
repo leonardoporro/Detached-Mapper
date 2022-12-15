@@ -11,14 +11,14 @@ namespace Detached.Mappers.EntityFramework
 {
     public class EFMapContext : MapContext
     {
-        public EFMapContext(DbContext dbContext, EFQueryProvider queryProvider, MapParameters parameters)
+        public EFMapContext(DbContext dbContext, QueryProvider queryProvider, MapParameters parameters)
             : base(parameters)
         {
             QueryProvider = queryProvider;
             DbContext = dbContext;
         }
 
-        public EFQueryProvider QueryProvider { get; }
+        public QueryProvider QueryProvider { get; }
 
         public DbContext DbContext { get; }
 

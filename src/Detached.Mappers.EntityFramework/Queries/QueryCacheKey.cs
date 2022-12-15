@@ -4,9 +4,9 @@ namespace Detached.Mappers.EntityFramework.Queries
 {
     public enum QueryType { Projection, Load }
 
-    public class EFQueryCacheKey
+    public class QueryCacheKey
     {
-        public EFQueryCacheKey(Type sourceType, Type targetType, QueryType queryType)
+        public QueryCacheKey(Type sourceType, Type targetType, QueryType queryType)
         {
             SourceType = sourceType;
             TargetType = targetType;
@@ -21,7 +21,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         public override bool Equals(object obj)
         {
-            var other = obj as EFQueryCacheKey;
+            var other = obj as QueryCacheKey;
             return other != null
                 && SourceType == other.SourceType
                 && TargetType == other.TargetType
@@ -30,7 +30,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(typeof(EFQueryCacheKey), SourceType, TargetType, QueryType);
+            return HashCode.Combine(typeof(QueryCacheKey), SourceType, TargetType, QueryType);
         }
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using Xunit;
-using Detached.Mappers.Annotations;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {

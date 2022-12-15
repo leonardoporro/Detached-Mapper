@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             DefaultTestDbContext context = new DefaultTestDbContext(await DefaultTestDbContext.CreateOptionsAsync("ConfigDb"));
 
-            IType typeOptions = context.GetTypeOptions(typeof(ConfiguredTestClass));
+            IType typeOptions = context.GetMapper().Options.GetType(typeof(ConfiguredTestClass));
 
             Assert.True(typeOptions.IsEntity());
             Assert.True(typeOptions.GetMember(nameof(ConfiguredTestClass.CustomizedKey1)).IsKey());

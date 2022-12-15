@@ -73,7 +73,7 @@ Assuming that associations exist, also helps reducing the ammount of data loaded
 **[Aggregation]** -> Link to an existing entity, is marked as Unmodified.
 **[Composition]** -> Create or update the entity, is marked as Created/Updated/Deleted.
 
-**(Note: there is an internal parameter: MapperParameters.AggregationAction, that allows creating associated entities when they don't exist,
+**(Note: there is an internal parameter: mapParams.AggregationAction, that allows creating associated entities when they don't exist,
 this is used to import complex graphs from json without having to order by dependency)**.
 
 ###### Solution 3: DTOs and IPatch

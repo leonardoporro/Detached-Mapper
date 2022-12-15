@@ -40,17 +40,22 @@ namespace Detached.Mappers
             member.MemberOptions.NotMapped(value);
         }
 
+        public static bool IsNotMapped(this TypePairMember member)
+        {
+            return member.Annotations.ContainsKey(KEY);
+        }
+
+        public static bool IsMapped(this TypePairMember member)
+        {
+            return !member.Annotations.ContainsKey(KEY);
+        }
+
         public static void NotMapped(this TypePairMember member, bool value = true)
         {
             if (value)
                 member.Annotations[KEY] = true;
             else
                 member.Annotations.Remove(KEY);
-        }
-
-        public static bool IsNotMapped(this TypePairMember member)
-        {
-            return member.Annotations.ContainsKey(KEY);
         }
 
         public static void NotMapped<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)

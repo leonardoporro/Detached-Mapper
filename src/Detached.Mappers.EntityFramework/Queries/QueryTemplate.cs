@@ -8,7 +8,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.EntityFramework.Queries
 {
-    public class EFQueryTemplate<TSource, TTarget>
+    public class QueryTemplate<TSource, TTarget>
         where TTarget : class
         where TSource : class
     {

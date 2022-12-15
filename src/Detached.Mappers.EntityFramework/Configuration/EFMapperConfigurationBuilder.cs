@@ -9,7 +9,7 @@ namespace Detached.Mappers.EntityFramework.Configuration
 
         public EFMapperConfigurationBuilder()
         {
-            MapperOptions.Add(EFMapperServiceProvider.DEFAULT_PROFILE_KEY, new MapperOptions());
+            MapperOptions.Add(EFMapperProfiles.DEFAULT_PROFILE_KEY, new MapperOptions());
         }
 
         public EFMapperConfigurationBuilder AddProfile(object key, Action<MapperOptions> configure = null)
@@ -24,7 +24,7 @@ namespace Detached.Mappers.EntityFramework.Configuration
 
         public EFMapperConfigurationBuilder Default(Action<MapperOptions> configure = null)
         {
-            configure?.Invoke(MapperOptions[EFMapperServiceProvider.DEFAULT_PROFILE_KEY]);
+            configure?.Invoke(MapperOptions[EFMapperProfiles.DEFAULT_PROFILE_KEY]);
             return this;
         }
     }

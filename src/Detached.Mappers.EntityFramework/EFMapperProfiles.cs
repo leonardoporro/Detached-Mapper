@@ -6,20 +6,20 @@ using System.Collections.Generic;
 
 namespace Detached.Mappers.EntityFramework
 {
-    internal class EFMapperServiceProvider : Dictionary<object, EFMapperServices>
+    internal class EFMapperProfiles : Dictionary<object, EFMapper>
     {
         static internal string DEFAULT_PROFILE_KEY = "def";
 
-        readonly ConcurrentDictionary<object, EFMapperServices> _mappers;
+        readonly ConcurrentDictionary<object, EFMapper> _mappers;
         readonly EFMapperConfigurationBuilder _configBuilder;
 
-        public EFMapperServiceProvider(EFMapperConfigurationBuilder configBuilder)
+        public EFMapperProfiles(EFMapperConfigurationBuilder configBuilder)
         {
             _configBuilder = configBuilder;
-            _mappers = new ConcurrentDictionary<object, EFMapperServices>();
+            _mappers = new ConcurrentDictionary<object, EFMapper>();
         }
 
-        public EFMapperServices GetMapperServices(object profileKey, DbContext dbContext)
+        public EFMapper GetInstance(object profileKey, DbContext dbContext)
         {
             if (profileKey == null)
             {
@@ -33,7 +33,7 @@ namespace Detached.Mappers.EntityFramework
                     throw new ArgumentException($"No profile found for key '{profileKey}'. Did you miss UseDetachedProfiles or AddProfile call?");
                 }
 
-                return new EFMapperServices(dbContext, mapperOptions);
+                return new EFMapper(dbContext, mapperOptions);
             });
         }
     }

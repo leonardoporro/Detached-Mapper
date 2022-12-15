@@ -37,7 +37,7 @@ namespace Detached.Mappers.TypePairs
                         {
                             member.SourceMember = sourceMember;
                         }
-                        else if (!member.TargetMember.IsParent())
+                        else if (!member.IsParent())
                         {
                             member.NotMapped();
                         }

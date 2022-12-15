@@ -80,7 +80,6 @@ namespace Detached.Mappers.EntityFramework.Tests
             catch (Exception x)
             {
                 Assert.IsType<MapperException>(x);
-                Assert.Equal("Discriminator member AreaType does not exist in type Detached.Mappers.EntityFramework.Tests.Model.DeliveryArea", x.Message);
             }
 
             await dbContext.SaveChangesAsync();

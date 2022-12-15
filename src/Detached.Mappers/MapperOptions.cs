@@ -150,16 +150,6 @@ namespace Detached.Mappers
             });
         }
 
-        public string GetSourcePropertyName(IType sourceType, IType targetType, string memberName)
-        {
-            for (int i = PropertyNameConventions.Count - 1; i >= 0; i--)
-            {
-                memberName = PropertyNameConventions[i].GetSourcePropertyName(sourceType, targetType, memberName);
-            }
-
-            return memberName;
-        }
-
         public virtual bool ShouldMap(IType sourceType, IType targetType)
         {
             return sourceType != targetType
