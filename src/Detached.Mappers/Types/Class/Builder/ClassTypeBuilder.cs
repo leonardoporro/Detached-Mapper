@@ -47,7 +47,7 @@ namespace Detached.Mappers.Types.Class.Builder
         {
             foreach (var memberName in TypeOptions.MemberNames)
             {
-                TypeOptions.GetMember(memberName).IsNotMapped(false);
+                TypeOptions.GetMember(memberName).NotMapped(false);
             }
 
             return this;
@@ -57,7 +57,7 @@ namespace Detached.Mappers.Types.Class.Builder
         {
             foreach (var memberName in TypeOptions.MemberNames)
             {
-                TypeOptions.GetMember(memberName).IsNotMapped(false);
+                TypeOptions.GetMember(memberName).NotMapped(false);
             }
 
             return this;
@@ -70,11 +70,11 @@ namespace Detached.Mappers.Types.Class.Builder
                 ITypeMember memberOptions = TypeOptions.GetMember(memberName);
                 if (MapperOptions.IsPrimitive(memberOptions.ClrType))
                 {
-                    memberOptions.IsNotMapped(false);
+                    memberOptions.NotMapped(false);
                 }
                 else
                 {
-                    memberOptions.IsNotMapped(true);
+                    memberOptions.NotMapped(true);
                 }
             }
 
@@ -94,7 +94,7 @@ namespace Detached.Mappers.Types.Class.Builder
             foreach (string memberName in TypeOptions.MemberNames)
             {
                 ITypeMember memberOptions = TypeOptions.GetMember(memberName);
-                memberOptions.IsKey(false);
+                memberOptions.Key(false);
             }
 
             foreach (LambdaExpression selector in members)
@@ -105,7 +105,7 @@ namespace Detached.Mappers.Types.Class.Builder
 
                 if (TypeOptions.Members.TryGetValue(propInfo.Name, out ClassTypeMember memberOptions))
                 {
-                    memberOptions.IsKey(true);
+                    memberOptions.Key(true);
                 }
             }
 

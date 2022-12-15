@@ -21,7 +21,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
 
             if (entityType != null && !entityType.IsOwned())
             {
-                typeOptions.IsEntity(true);
+                typeOptions.Entity(true);
             }
 
             if (typeOptions.IsEntity())
@@ -36,7 +36,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
                     foreach (string memberName in typeOptions.MemberNames)
                     {
                         ClassTypeMember member = typeOptions.GetMember(memberName) as ClassTypeMember;
-                        member.IsKey(keyMembers.Contains(memberName));
+                        member.Key(keyMembers.Contains(memberName));
                     }
                 }
 

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using Xunit;
+using Detached.Mappers.Annotations;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
@@ -41,7 +42,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                     {
                         mapping.AddProfile(MappingProfiles.NameOnly, cfg =>
                         {
-                            cfg.Type<User>().Member(u => u.DateOfBirth).Exclude();
+                            cfg.Type<User>().Member(u => u.DateOfBirth).NotMapped();
                         });
 
                         mapping.AddProfile(MappingProfiles.All);

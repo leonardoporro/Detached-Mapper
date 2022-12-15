@@ -20,6 +20,11 @@ namespace Detached.Mappers.TypePairs
                     if (targetMember != null && targetMember.CanWrite)
                     {
                         TypePairMember member = new TypePairMember();
+                        
+                        foreach(var annotation in targetMember.Annotations)
+                        {
+                            member.Annotations[annotation.Key] = annotation.Value;
+                        }
 
                         member.TargetType = targetType;
                         member.SourceType = sourceType;
@@ -31,6 +36,10 @@ namespace Detached.Mappers.TypePairs
                         if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsNotMapped())
                         {
                             member.SourceMember = sourceMember;
+                        }
+                        else if (!member.TargetMember.IsParent())
+                        {
+                            member.NotMapped();
                         }
 
                         typePair.Members.Add(targetMemberName, member);

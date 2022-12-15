@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(ParentAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            memberOptions.IsParent(true);
+            memberOptions.Parent(true);
         }
     }
 
@@ -22,17 +22,17 @@ namespace Detached.Mappers.Annotations
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsParent(this ITypeMember member, bool value)
+        public static void Parent(this ITypeMember member, bool value = true)
         {
             if (value)
                 member.Annotations[KEY] = true;
             else
                 member.Annotations.Remove(KEY);
-        } 
+        }
 
-        public static void IsParent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
+        public static void Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.IsParent(value);
+            member.MemberOptions.Parent(value);
         }
     }
 }

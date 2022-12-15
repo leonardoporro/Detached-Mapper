@@ -10,7 +10,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            typeOptions.IsEntity(true);
+            typeOptions.Entity(true);
         }
     }
 
@@ -23,7 +23,7 @@ namespace Detached.Mappers.Annotations
             return type.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsEntity(this IType type, bool value)
+        public static void Entity(this IType type, bool value = true)
         {
             if (type.MappingStrategy != MappingStrategy.Complex)
             {
@@ -36,9 +36,9 @@ namespace Detached.Mappers.Annotations
                 type.Annotations.Remove(KEY);
         }
 
-        public static void IsEntity<TType>(this ClassTypeBuilder<TType> type, bool value)
+        public static void Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
         {
-            type.TypeOptions.IsEntity(value);
+            type.TypeOptions.Entity(value);
         }
     }
 }

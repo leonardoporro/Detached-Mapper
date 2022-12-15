@@ -1,8 +1,7 @@
-﻿using Detached.Mappers.Annotations;
-using System;
+﻿using System;
 using System.Linq.Expressions;
-using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Types.Class.Builder
 {
@@ -39,18 +38,6 @@ namespace Detached.Mappers.Types.Class.Builder
                    Call(instance, fn.Method, target, context)
                 );
 
-            return this;
-        }
-
-        public ClassTypeMemberBuilder<TType, TMember> Exclude()
-        {
-            MemberOptions.IsNotMapped(true);
-            return this;
-        }
-
-        public ClassTypeMemberBuilder<TType, TMember> Include()
-        {
-            MemberOptions.IsNotMapped(false);
             return this;
         }
 

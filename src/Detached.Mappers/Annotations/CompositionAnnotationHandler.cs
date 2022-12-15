@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(CompositionAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            memberOptions.IsComposition(true);
+            memberOptions.Composition(true);
         }
     }
 
@@ -22,7 +22,7 @@ namespace Detached.Mappers.Annotations
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsComposition(this ITypeMember member, bool value)
+        public static void Composition(this ITypeMember member, bool value)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -30,9 +30,9 @@ namespace Detached.Mappers.Annotations
                 member.Annotations.Remove(KEY);
         }
 
-        public static void IsComposition<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
+        public static void Composition<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
         {
-            member.MemberOptions.IsComposition(value);
+            member.MemberOptions.Composition(value);
         }
     }
 }

@@ -124,7 +124,7 @@ namespace Detached.Mappers.TypeMappers
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (memberPair.SourceMember != null)
+                if (!memberPair.IsNotMapped())
                 {
                     if (memberPair.TargetMember.IsParent())
                     {

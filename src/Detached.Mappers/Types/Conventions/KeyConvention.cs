@@ -14,7 +14,7 @@ namespace Detached.Mappers.Types.Conventions
                 {
                     if (memberOptions.Name == "Id")
                     {
-                        memberOptions.IsKey(true);
+                        memberOptions.Key(true);
                         return;
                     }
                 }

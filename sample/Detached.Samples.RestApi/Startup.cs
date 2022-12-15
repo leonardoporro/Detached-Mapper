@@ -40,7 +40,7 @@ namespace Detached.Mappers.Samples.RestApi
 
             services.Configure<MapperOptions>(m =>
             {
-                m.Type<User>().IsEntity(true);
+                m.Type<User>().Entity(true);
             });
         }
 

@@ -34,7 +34,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public static void Configure(MapperOptions mapperOptions)
         {
-            mapperOptions.Type<ConfiguredTestClass>().TypeOptions.IsEntity(true);
+            mapperOptions.Type<ConfiguredTestClass>().TypeOptions.Entity(true);
             mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey1).IsKey(true);
             mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey2).IsKey(true);
 

@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 using System;
 using System.Linq.Expressions;
 
@@ -21,6 +22,7 @@ namespace Detached.Mappers.TypePairs.Builder
                 throw new ArgumentException($"Member {memberName} doesn't exist on type {TypePairMember.SourceType}");
 
             TypePairMember.SourceMember = typeMember;
+            TypePairMember.NotMapped(false);
             return this;
         }
 

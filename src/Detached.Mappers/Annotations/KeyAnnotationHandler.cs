@@ -10,7 +10,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(KeyAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            memberOptions.IsKey(true);
+            memberOptions.Key(true);
         }
     }
 
@@ -23,7 +23,7 @@ namespace Detached.Mappers.Annotations
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsKey(this ITypeMember member, bool value)
+        public static void Key(this ITypeMember member, bool value)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -33,7 +33,7 @@ namespace Detached.Mappers.Annotations
 
         public static void IsKey<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
         {
-            member.MemberOptions.IsKey(value);
+            member.MemberOptions.Key(value);
         }
     }
 }

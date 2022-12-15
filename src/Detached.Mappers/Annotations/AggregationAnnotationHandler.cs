@@ -9,11 +9,11 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(AggregationAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            memberOptions.IsAggregation(true);
+            memberOptions.Aggregation(true);
         }
     }
 
-    public static class AssociationAnnotationHandlerExtensions
+    public static class AggregationAnnotationHandlerExtensions
     {
         const string KEY = "DETACHED_AGGREGATION";
 
@@ -22,7 +22,7 @@ namespace Detached.Mappers.Annotations
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void IsAggregation(this ITypeMember member, bool value)
+        public static void Aggregation(this ITypeMember member, bool value = true)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -30,9 +30,9 @@ namespace Detached.Mappers.Annotations
                 member.Annotations.Remove(KEY);
         }
 
-        public static void IsAssociation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
+        public static void Aggregation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.IsAggregation(value);
+            member.MemberOptions.Aggregation(value);
         }
     }
 }
