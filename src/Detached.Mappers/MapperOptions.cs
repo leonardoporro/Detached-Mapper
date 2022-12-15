@@ -28,8 +28,8 @@ namespace Detached.Mappers
     public class MapperOptions
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<(IType, IType), TypePair> _typePairs = new ConcurrentDictionary<(IType, IType), TypePair>();
-        readonly ConcurrentDictionary<TypePair, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePair, ITypeMapper>();
+        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
+        readonly ConcurrentDictionary<TypePairKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePairKey, ITypeMapper>();
 
         public MapperOptions()
         {
@@ -146,7 +146,7 @@ namespace Detached.Mappers
 
         public TypePair GetTypePair(IType sourceType, IType targetType, TypePairMember parentMember)
         {
-            return _typePairs.GetOrAdd((sourceType, targetType), k =>
+            return _typePairs.GetOrAdd(new TypePairKey(sourceType, targetType, parentMember), key =>
             {
                 return TypePairFactory.Create(this, sourceType, targetType, parentMember);
             });
@@ -154,7 +154,7 @@ namespace Detached.Mappers
 
         public ITypeMapper GetTypeMapper(TypePair typePair)
         {
-            return _typeMappers.GetOrAdd(typePair, t =>
+            return _typeMappers.GetOrAdd(new TypePairKey(typePair.SourceType, typePair.TargetType, typePair.ParentMember), key =>
             {
                 for (int i = TypeMapperFactories.Count - 1; i >= 0; i--)
                 {
