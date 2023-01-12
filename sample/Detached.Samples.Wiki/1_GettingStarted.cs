@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.EntityFramework;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-
+using Detached.Mappers;
 public class GettingStarted
 {
     public static async Task Run()
@@ -41,6 +41,11 @@ public class GettingStarted
                 cfg.Default(opts =>
                 {
                     opts.Type<User>().Constructor(x => new User { Name = "new!" });
+
+
+                    opts.Type<User>().Entity()
+                        .Member(u => u.Id).Key()
+                        
                 });
             });
         }

@@ -35,9 +35,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void NotMapped<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
+        public static ClassTypeMemberBuilder<TType, TMember> NotMapped<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.MemberOptions.NotMapped(value);
+            return member;
         }
 
         public static bool IsNotMapped(this TypePairMember member)
@@ -58,9 +59,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void NotMapped<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> NotMapped<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.TypePairMember.NotMapped(value);
+            return member;
         }
     }
 }

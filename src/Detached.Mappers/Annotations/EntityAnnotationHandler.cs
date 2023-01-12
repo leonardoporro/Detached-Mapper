@@ -39,9 +39,11 @@ namespace Detached.Mappers
                 type.Annotations.Remove(KEY);
         }
 
-        public static void Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
+        public static ClassTypeBuilder<TType> Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
         {
             type.TypeOptions.Entity(value);
+
+            return type;
         }
     }
 }

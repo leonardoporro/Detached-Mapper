@@ -35,9 +35,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
+        public static ClassTypeMemberBuilder<TType, TMember> Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.MemberOptions.Parent(value);
+            return member;
         }
 
         public static bool IsParent(this TypePairMember member)
@@ -53,9 +54,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Parent<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> Parent<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.TypePairMember.NotMapped(value);
+            return member;
         }
     }
 }

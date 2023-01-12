@@ -53,9 +53,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Key<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> Key<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.TypePairMember.NotMapped(value);
+            return member;
         }
     }
 }

@@ -35,9 +35,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Composition<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value)
+        public static ClassTypeMemberBuilder<TType, TMember> Composition<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.MemberOptions.Composition(value);
+            return member;
         }
 
         public static bool IsComposition(this TypePairMember member)
@@ -53,9 +54,10 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Composition<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> Composition<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.TypePairMember.NotMapped(value);
+            return member;
         }
     }
 }
