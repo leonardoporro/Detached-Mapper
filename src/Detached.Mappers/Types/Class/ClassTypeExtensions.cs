@@ -21,17 +21,17 @@ namespace Detached.Mappers.Types.Class
 
         public static bool IsPrimitive(this IType typeOptions)
         {
-            return typeOptions.MappingStrategy == MappingStrategy.Primitive;
+            return typeOptions.MappingSchema == MappingSchema.Primitive;
         }
 
         public static bool IsCollection(this IType typeOptions)
         {
-            return typeOptions.MappingStrategy == MappingStrategy.Collection;
+            return typeOptions.MappingSchema == MappingSchema.Collection;
         }
 
         public static bool IsComplex(this IType typeOptions)
         {
-            return typeOptions.MappingStrategy == MappingStrategy.Complex;
+            return typeOptions.MappingSchema == MappingSchema.Complex;
         }
 
         public static bool IsComplexOrEntity(this IType typeOptions)
@@ -41,7 +41,7 @@ namespace Detached.Mappers.Types.Class
 
         public static bool IsNullable(this IType typeOptions)
         {
-            return typeOptions.MappingStrategy == MappingStrategy.Nullable;
+            return typeOptions.MappingSchema == MappingSchema.Nullable;
         }
 
         public static bool IsAbstract(this IType typeOptions) => typeOptions.IsAbstract;

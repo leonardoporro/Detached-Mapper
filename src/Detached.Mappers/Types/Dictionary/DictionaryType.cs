@@ -13,7 +13,7 @@ namespace Detached.Mappers.Types.Dictionary
 
         public Type ItemClrType => null;
 
-        public MappingStrategy MappingStrategy => MappingStrategy.Complex;
+        public MappingSchema MappingSchema => MappingSchema.Complex;
 
         public Dictionary<string, object> Annotations { get; set; }
 

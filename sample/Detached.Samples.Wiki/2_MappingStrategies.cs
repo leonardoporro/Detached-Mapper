@@ -37,7 +37,9 @@ public class MappingStrategies
             {
                 cfg.Default(opts =>
                 {
-                    opts.Type<User>().Constructor(x => new User { Name = "new!" });
+                    opts.Type<User>()
+                        .Constructor(x => new User { Name = "new!" })
+                        .Member(x => x.Id).Key();
                 });
             });
         }

@@ -14,7 +14,7 @@ namespace Detached.Mappers.Types.Class
 
         public virtual Type ItemClrType { get; set; }
 
-        public virtual MappingStrategy MappingStrategy { get; set; }
+        public virtual MappingSchema MappingSchema { get; set; }
 
         public virtual bool IsAbstract { get; set; }
 

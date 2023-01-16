@@ -14,7 +14,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
 
-        public MappingStrategy MappingStrategy => MappingStrategy.None;
+        public MappingSchema MappingSchema => MappingSchema.None;
 
         public IEnumerable<string> MemberNames => null;
 

@@ -36,18 +36,7 @@ public class GettingStarted
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(_connection).UseMapping(cfg =>
-            {
-                cfg.Default(opts =>
-                {
-                    opts.Type<User>().Constructor(x => new User { Name = "new!" });
-
-
-                    opts.Type<User>().Entity()
-                        .Member(u => u.Id).Key()
-                        
-                });
-            });
+            optionsBuilder.UseSqlite(_connection).UseMapping();
         }
 
         public DbSet<User> Users { get; set; }
