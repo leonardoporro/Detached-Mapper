@@ -63,9 +63,16 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
                     .UseSqlite(connection)
-                    .UseDetached(cfg =>
+                    .UseMapping(profiles =>
                     {
-                        ConfiguredTestClass.Configure(cfg);
+                        profiles.Default(config =>
+                        {
+                            config.Type<Invoice>()
+                                  .Member(i => i.InvoiceType).Aggregation()
+                                  .Member(i => i.Rows).Composition();
+
+                            ConfiguredTestClass.Configure(config);
+                        });
                     })
                     .Options;
         }

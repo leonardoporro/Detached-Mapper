@@ -35,9 +35,11 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Aggregation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
+        public static ClassTypeMemberBuilder<TType, TMember> Aggregation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.MemberOptions.Aggregation(value);
+
+            return member;
         }
 
         public static bool IsAggregation(this TypePairMember member)
@@ -53,9 +55,11 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static void Aggregation<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> Aggregation<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.TypePairMember.NotMapped(value);
+
+            return member;
         }
     }
 }
