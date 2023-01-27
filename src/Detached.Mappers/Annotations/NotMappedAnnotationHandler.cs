@@ -35,9 +35,15 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static ClassTypeMemberBuilder<TType, TMember> NotMapped<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
+        public static ClassTypeMemberBuilder<TType, TMember> Exclude<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member)
         {
-            member.MemberOptions.NotMapped(value);
+            member.MemberOptions.NotMapped(true);
+            return member;
+        }
+
+        public static ClassTypeMemberBuilder<TType, TMember> Include<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
+        {
+            member.MemberOptions.NotMapped(false);
             return member;
         }
 
@@ -51,7 +57,7 @@ namespace Detached.Mappers
             return !member.Annotations.ContainsKey(KEY);
         }
 
-        public static void NotMapped(this TypePairMember member, bool value = true)
+        public static void Exclude(this TypePairMember member, bool value = true)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -59,9 +65,20 @@ namespace Detached.Mappers
                 member.Annotations.Remove(KEY);
         }
 
-        public static TypePairMemberBuilder<TType, TMember> NotMapped<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.NotMapped(value);
+            member.TypePairMember.Exclude(value);
+            return member;
+        }
+
+        public static void Include(this TypePairMember member, bool value = true)
+        {
+            member.Annotations.Remove(KEY);
+        }
+
+        public static TypePairMemberBuilder<TType, TMember> Include<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        {
+            member.TypePairMember.Include(value);
             return member;
         }
     }

@@ -55,7 +55,7 @@ namespace Detached.Mappers
 
         public static TypePairMemberBuilder<TType, TMember> Key<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.NotMapped(value);
+            member.TypePairMember.Exclude(value);
             return member;
         }
     }

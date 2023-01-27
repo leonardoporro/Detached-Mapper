@@ -41,7 +41,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                     {
                         mapping.AddProfile(MappingProfiles.NameOnly, cfg =>
                         {
-                            cfg.Type<User>().Member(u => u.DateOfBirth).NotMapped();
+                            cfg.Type<User>().Member(u => u.DateOfBirth).Exclude();
                         });
 
                         mapping.AddProfile(MappingProfiles.All);

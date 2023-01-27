@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Detached.Mappers.EntityFramework.Tests.Model.DTOs;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;

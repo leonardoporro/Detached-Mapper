@@ -39,7 +39,7 @@ namespace Detached.Mappers.TypePairs
                         }
                         else if (!member.IsParent())
                         {
-                            member.NotMapped();
+                            member.Exclude();
                         }
 
                         typePair.Members.Add(targetMemberName, member);

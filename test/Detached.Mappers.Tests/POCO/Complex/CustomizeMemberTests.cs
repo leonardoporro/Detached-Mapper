@@ -15,15 +15,17 @@ namespace Detached.Mappers.Tests.POCO.Complex
             MapperOptions modelOptions = new MapperOptions();
             modelOptions.Type<TargetEntity>()
                         .Member(m => m.Value)
-                        .Setter(Lambda(
-                                Parameter(typeof(TargetEntity), out Expression entity),
-                                Parameter(typeof(int), out Expression value),
-                                Parameter(typeof(IMapContext), out Expression context),
-                                Block(
-                                    Assign(Property(entity, nameof(TargetEntity.Value)), value),
-                                    Call("Add", Field(entity, "_modified"), Constant(nameof(TargetEntity.Value)))
-                                )
-                            ));
+                        .Setter((@this, value, mapContext) =>
+                            {
+                                @this.Value = value + 1;
+                            });
+
+            modelOptions.Type<SourceEntity>()
+                        .Member(m => m.Value)
+                        .Getter((@this, mapContext) =>
+                            {
+                                return @this.Value + 1;
+                            });
 
             Mapper mapper = new Mapper(modelOptions);
 
@@ -31,6 +33,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
 
             bool contains = result.IsSet(nameof(TargetEntity.Value));
             Assert.True(contains);
+            Assert.Equal(4, result.Value);
         }
 
         public class SourceEntity
@@ -40,7 +43,23 @@ namespace Detached.Mappers.Tests.POCO.Complex
 
         public class TargetEntity : IPatch
         {
-            public int Value { get; set; }
+            int _value;
+
+            public int Value
+            {
+                get
+                {
+                    return _value;
+                }
+                set
+                {
+                    if (_value != value)
+                    {
+                        _value = value;
+                        _modified.Add(nameof(Value));
+                    }
+                }
+            }
 
             readonly HashSet<string> _modified = new HashSet<string>();
 

@@ -35,7 +35,7 @@ namespace GraphInheritenceTests
 
             var addressIngolstadt = new Address()
             {
-                Street = "Hauptstraße",
+                Street = "Hauptstraï¿½e",
                 PostalCode = "85049",
                 City = "Ingolstadt",
                 //Country = countryDE // Problem by adding with ef as expected - must be by key
@@ -44,7 +44,7 @@ namespace GraphInheritenceTests
 
             var addressMunich = new Address()
             {
-                Street = "Terminalstraße Mitte",
+                Street = "Terminalstraï¿½e Mitte",
                 PostalCode = "85445",
                 City = "Oberding",
                 CountryId = 1

@@ -26,7 +26,7 @@ namespace Detached.Mappers.Tests.POCO.Configuration
             opts.Type<User>()
                 .FromType<UserDTO>()
                 .Member(u => u.Id).FromMember(u => u.Key)
-                .Member(u => u.Name).NotMapped();
+                .Member(u => u.Name).Exclude();
 
             Mapper mapper = new Mapper(opts);
             User user = mapper.Map<UserDTO, User>(new UserDTO { Key = 1, UserName = "leo" });

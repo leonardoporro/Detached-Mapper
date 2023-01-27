@@ -22,7 +22,7 @@ namespace Detached.Mappers.TypePairs.Builder
                 throw new ArgumentException($"Member {memberName} doesn't exist on type {TypePairMember.SourceType}");
 
             TypePairMember.SourceMember = typeMember;
-            TypePairMember.NotMapped(false);
+            TypePairMember.Exclude(false);
             return this;
         }
 
