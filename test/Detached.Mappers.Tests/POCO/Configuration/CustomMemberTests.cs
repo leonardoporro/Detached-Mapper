@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using Xunit;
-using static System.Linq.Expressions.Expression;
-using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+﻿using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Configuration
 {

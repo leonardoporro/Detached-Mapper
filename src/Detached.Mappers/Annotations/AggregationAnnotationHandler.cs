@@ -57,7 +57,7 @@ namespace Detached.Mappers
 
         public static TypePairMemberBuilder<TType, TMember> Aggregation<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.Exclude(value);
+            member.TypePairMember.Exclude();
 
             return member;
         }

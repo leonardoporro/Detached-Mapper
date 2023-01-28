@@ -57,28 +57,25 @@ namespace Detached.Mappers
             return !member.Annotations.ContainsKey(KEY);
         }
 
-        public static void Exclude(this TypePairMember member, bool value = true)
+        public static void Exclude(this TypePairMember member)
         {
-            if (value)
-                member.Annotations[KEY] = true;
-            else
-                member.Annotations.Remove(KEY);
+            member.Annotations[KEY] = true;
         }
 
         public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.Exclude(value);
+            member.TypePairMember.Exclude();
             return member;
         }
 
-        public static void Include(this TypePairMember member, bool value = true)
+        public static void Include(this TypePairMember member)
         {
             member.Annotations.Remove(KEY);
         }
 
         public static TypePairMemberBuilder<TType, TMember> Include<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.Include(value);
+            member.TypePairMember.Include();
             return member;
         }
     }

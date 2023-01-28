@@ -1,5 +1,5 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types;
+﻿using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using System;
 using System.Linq.Expressions;
 
@@ -22,7 +22,7 @@ namespace Detached.Mappers.TypePairs.Builder
                 throw new ArgumentException($"Member {memberName} doesn't exist on type {TypePairMember.SourceType}");
 
             TypePairMember.SourceMember = typeMember;
-            TypePairMember.Exclude(false);
+            TypePairMember.Include();
             return this;
         }
 
@@ -30,6 +30,21 @@ namespace Detached.Mappers.TypePairs.Builder
         {
             string memberName = ((MemberExpression)selector.Body).Member.Name;
             return FromMember(memberName);
+        }
+
+        public TypePairMemberBuilder<TSource, TTarget> FromValue<TMember>(Expression<Func<TSource, IMapContext, TMember>> expression)
+        {
+            TypePairMember.SourceMember = new ClassTypeMember
+            {
+                Getter = expression,
+                Setter = null,
+                CanTryGet = false,
+                ClrType = typeof(TMember),
+                Name = TypePairMember.TargetMember?.Name
+            };
+
+            TypePairMember.Include();
+            return this;
         }
     }
 }
