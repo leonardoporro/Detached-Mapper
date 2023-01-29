@@ -5,27 +5,22 @@ namespace Detached.Mappers.EntityFramework.Configuration
 {
     public class EFMapperConfigurationBuilder
     {
-        internal Dictionary<object, MapperOptions> MapperOptions { get; } = new Dictionary<object, MapperOptions>();
+        internal Dictionary<object, Action<MapperOptions>> MapperConfigurations { get; } = new Dictionary<object, Action<MapperOptions>>();
 
         public EFMapperConfigurationBuilder()
         {
-            MapperOptions.Add(EFMapperProfiles.DEFAULT_PROFILE_KEY, new MapperOptions());
+            
         }
 
-        public EFMapperConfigurationBuilder AddProfile(object key, Action<MapperOptions> configure = null)
+        public EFMapperConfigurationBuilder AddProfile(object key, Action<MapperOptions> configure)
         {
-            MapperOptions mapperOptions = new MapperOptions();
-            configure?.Invoke(mapperOptions);
-
-            MapperOptions.Add(key, mapperOptions);
-
+            MapperConfigurations.Add(key, configure);
             return this;
         }
 
-        public EFMapperConfigurationBuilder Default(Action<MapperOptions> configure = null)
+        public EFMapperConfigurationBuilder Default(Action<MapperOptions> configure)
         {
-            configure?.Invoke(MapperOptions[EFMapperProfiles.DEFAULT_PROFILE_KEY]);
-            return this;
+            return AddProfile(EFMapperProfiles.DEFAULT_PROFILE_KEY, configure);
         }
     }
 }

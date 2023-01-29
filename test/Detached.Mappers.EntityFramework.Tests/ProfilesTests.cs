@@ -44,7 +44,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                             cfg.Type<User>().Member(u => u.DateOfBirth).Exclude();
                         });
 
-                        mapping.AddProfile(MappingProfiles.All);
+                        mapping.AddProfile(MappingProfiles.All, opts => { });
                     });
             }
 

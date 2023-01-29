@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;

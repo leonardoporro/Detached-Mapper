@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Conventions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
@@ -28,9 +29,17 @@ namespace Detached.Mappers.EntityFramework
 
             return _mappers.GetOrAdd(profileKey, key =>
             {
-                if (!_configBuilder.MapperOptions.TryGetValue(profileKey, out MapperOptions mapperOptions))
+                if (!_configBuilder.MapperConfigurations.TryGetValue(profileKey, out Action<MapperOptions> mapperConfiguration))
                 {
                     throw new ArgumentException($"No profile found for key '{profileKey}'. Did you miss UseDetachedProfiles or AddProfile call?");
+                }
+
+                MapperOptions mapperOptions = new MapperOptions();
+                mapperOptions.TypeConventions.Add(new EFConventions(dbContext.Model));
+
+                if (mapperConfiguration != null)
+                {
+                    mapperConfiguration(mapperOptions);
                 }
 
                 return new EFMapper(dbContext, mapperOptions);
