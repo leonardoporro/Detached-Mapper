@@ -42,7 +42,6 @@ namespace Detached.Mappers.EntityFramework.Queries
                 var param = Parameter(entityType.ClrType, "e");
                 Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(typePair, param));
 
-
                 return projection;
             });
 
@@ -166,7 +165,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                     if (!stack.Contains(targetMemberType))
                     {
-                        if (targetMemberType.IsCollection())
+                        if (targetMemberType.IsCollection() && _mapper.Options.GetType(targetMemberType.ItemClrType).IsComplexOrEntity())
                         {
                             string name = prefix + memberPair.TargetMember.Name;
                             result.Add(name);

@@ -16,6 +16,7 @@ using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 using Detached.Mappers.Types.Conventions;
 using Detached.Mappers.Types.Dictionary;
+using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Detached.Mappers
     public class MapperOptions
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>(); 
+        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
 
         public MapperOptions()
         {
@@ -160,12 +161,9 @@ namespace Detached.Mappers
 
         public virtual bool IsPrimitive(Type type)
         {
-            if (type.IsEnum)
-                return true;
-            else if (type.IsGenericType)
-                return Primitives.Contains(type.GetGenericTypeDefinition());
-            else
-                return Primitives.Contains(type);
+            return Primitives.Contains(type)
+                || type.IsEnum
+                || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
         }
     }
 }
