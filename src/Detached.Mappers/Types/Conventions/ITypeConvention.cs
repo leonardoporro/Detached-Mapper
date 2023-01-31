@@ -4,6 +4,6 @@ namespace Detached.Mappers.Types.Conventions
 {
     public interface ITypeConvention
     {
-        void Apply(MapperOptions modelOptions, ClassType typeOptions);
+        void Apply(MapperOptions mapperOptions, ClassType typeOptions);
     }
 }

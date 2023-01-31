@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
 {
     public class AggregationAnnotationHandler : AnnotationHandler<AggregationAttribute>
     {
-        public override void Apply(AggregationAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(AggregationAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.Aggregation(true);
         }

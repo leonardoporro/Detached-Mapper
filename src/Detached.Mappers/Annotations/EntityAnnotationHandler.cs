@@ -8,7 +8,7 @@ namespace Detached.Mappers.Annotations
 {
     public class EntityAnnotationHandler : AnnotationHandler<EntityAttribute>
     {
-        public override void Apply(EntityAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(EntityAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             typeOptions.Entity(true);
         }

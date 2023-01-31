@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
 {
     public class ParentAnnotationHandler : AnnotationHandler<ParentAttribute>
     {
-        public override void Apply(ParentAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(ParentAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.Parent(true);
         }

@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
 {
     public class NotMappedAnnotationHandler : AnnotationHandler<NotMappedAttribute>
     {
-        public override void Apply(NotMappedAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(NotMappedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.NotMapped(true);
         }

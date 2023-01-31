@@ -6,7 +6,7 @@ namespace Detached.Mappers.Types.Conventions
 {
     public class KeyConvention : ITypeConvention
     {
-        public void Apply(MapperOptions modelOptions, ClassType typeOptions)
+        public void Apply(MapperOptions mapperOptions, ClassType typeOptions)
         {
             if (!typeOptions.Members.Any(m => m.IsKey()))
             {

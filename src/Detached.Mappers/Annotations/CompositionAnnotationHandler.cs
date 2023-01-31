@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
 {
     public class CompositionAnnotationHandler : AnnotationHandler<CompositionAttribute>
     {
-        public override void Apply(CompositionAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(CompositionAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.Composition(true);
         }

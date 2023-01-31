@@ -14,14 +14,14 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
+            DefaultTestDbContext dbContext = await DefaultTestDbContext.CreateAsync();
 
-            db.Roles.Add(new Role { Id = 1, Name = "admin" });
-            db.Roles.Add(new Role { Id = 2, Name = "user" });
-            db.UserTypes.Add(new UserType { Id = 1, Name = "system" });
-            await db.SaveChangesAsync();
+            dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
+            dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
+            dbContext.UserTypes.Add(new UserType { Id = 1, Name = "system" });
+            await dbContext.SaveChangesAsync();
 
-            await db.MapAsync<User>(new UserDTO
+            await dbContext.MapAsync<User>(new UserDTO
             {
                 Id = 1,
                 Name = "cr",
@@ -42,9 +42,9 @@ namespace Detached.Mappers.EntityFramework.Tests
                 UserType = new UserTypeDTO { Id = 1 }
             });
 
-            await db.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
-            User user = await db.Users.Where(u => u.Id == 1)
+            User user = await dbContext.Users.Where(u => u.Id == 1)
                     .Include(u => u.Roles)
                     .Include(u => u.Addresses)
                     .Include(u => u.Profile)

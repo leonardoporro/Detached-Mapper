@@ -5,6 +5,6 @@ namespace Detached.Mappers.Annotations
 {
     public interface IAnnotationHandler
     {
-        void Apply(Attribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions);
+        void Apply(Attribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions);
     }
 }

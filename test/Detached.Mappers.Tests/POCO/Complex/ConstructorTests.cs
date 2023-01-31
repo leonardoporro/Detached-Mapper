@@ -7,10 +7,10 @@ namespace Detached.Mappers.Tests.POCO.Complex
         [Fact]
         public void customize_constructor()
         {
-            MapperOptions modelOptions = new MapperOptions();
-            modelOptions.Type<TargetEntity>().Constructor(c => new TargetEntity(1));
+            MapperOptions mapperOptions = new MapperOptions();
+            mapperOptions.Type<TargetEntity>().Constructor(c => new TargetEntity(1));
 
-            Mapper mapper = new Mapper(modelOptions);
+            Mapper mapper = new Mapper(mapperOptions);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 

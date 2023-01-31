@@ -9,7 +9,7 @@ namespace Detached.Mappers.Annotations
 {
     public class KeyAnnotationHandler : AnnotationHandler<KeyAttribute>
     {
-        public override void Apply(KeyAttribute annotation, MapperOptions modelOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(KeyAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.Key(true);
         }

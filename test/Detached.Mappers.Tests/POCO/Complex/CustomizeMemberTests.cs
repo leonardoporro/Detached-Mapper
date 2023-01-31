@@ -12,22 +12,22 @@ namespace Detached.Mappers.Tests.POCO.Complex
         [Fact]
         public void customize_property()
         {
-            MapperOptions modelOptions = new MapperOptions();
-            modelOptions.Type<TargetEntity>()
+            MapperOptions mapperOptions = new MapperOptions();
+            mapperOptions.Type<TargetEntity>()
                         .Member(m => m.Value)
                         .Setter((@this, value, mapContext) =>
                             {
                                 @this.Value = value + 1;
                             });
 
-            modelOptions.Type<SourceEntity>()
+            mapperOptions.Type<SourceEntity>()
                         .Member(m => m.Value)
                         .Getter((@this, mapContext) =>
                             {
                                 return @this.Value + 1;
                             });
 
-            Mapper mapper = new Mapper(modelOptions);
+            Mapper mapper = new Mapper(mapperOptions);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 
