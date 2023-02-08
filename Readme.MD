@@ -26,7 +26,7 @@ Or [mail me](mailto:mail@leonardoporro.com.ar) for other methods.
 
 Big thanks to SysTec Computer GmbH [https://www.systec-computer.de/](https://www.systec-computer.de/) for their help on testing features and kindly donation.
 
-##### Related tools
+## Related tools
 Other packages built to provide features to the mapper:
 
 - [Runtime Types](https://github.com/leonardoporro/Detached-RuntimeTypes)
