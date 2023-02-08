@@ -1,5 +1,6 @@
 ![Detached Banner](banner.png?raw=true)
-**Map any DTOs directly to entities already attached to a DbContext!**
+
+**Map any DTO directly to entities already attached to a DbContext!**
 
 
 
