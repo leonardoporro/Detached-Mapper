@@ -4,7 +4,7 @@
 #### Solves disconnected entities, partial updates and automapping in a single step
 
 ## Getting started
-Check [getting started](https://github.com/leonardoporro/Detached-Mapper/wiki/Getting-Started) in the new wiki.
+Check [getting started](https://github.com/leonardoporro/Detached-Mapper/wiki/Getting-Started) on the new wiki.
 
 ## Play in .Net Fiddle
 A couple of examples to check library capabilities without installing anything.
