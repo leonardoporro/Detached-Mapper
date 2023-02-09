@@ -20,7 +20,7 @@ All feedback is welcome, I'll try to prioritize and fix everything, but I have l
 If something is blocking your project and you need help quickly, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
 
 ## Donations
-If you like my work and want to buy me a coffee/beer, that would be very welcomed!
+If you like my work and want to buy me a coffee/beer, that would be awesome!
 [Wise](https://wise.com/pay#yndiaJU7lFHauw0cZI1Td74rZSA)
 Or [mail me](mailto:mail@leonardoporro.com.ar) for other methods.
 
