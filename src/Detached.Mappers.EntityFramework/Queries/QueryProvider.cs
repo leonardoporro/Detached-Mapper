@@ -165,7 +165,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
                     if (!stack.Contains(targetMemberType))
                     {
-                        if (targetMemberType.IsCollection() && _mapper.Options.GetType(targetMemberType.ItemClrType).IsComplexOrEntity())
+                        if (targetMemberType.IsCollection() && _mapper.Options.GetType(targetMemberType.ItemClrType).IsEntity())
                         {
                             string name = prefix + memberPair.TargetMember.Name;
                             result.Add(name);
@@ -180,7 +180,7 @@ namespace Detached.Mappers.EntityFramework.Queries
                             }
 
                         }
-                        else if (targetMemberType.IsComplexOrEntity())
+                        else if (targetMemberType.IsEntity())
                         {
                             string name = prefix + memberPair.TargetMember.Name;
                             result.Add(name);

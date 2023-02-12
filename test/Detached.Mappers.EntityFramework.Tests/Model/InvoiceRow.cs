@@ -1,5 +1,6 @@
 ﻿using Detached.Annotations;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 
 namespace Detached.Mappers.EntityFramework.Tests.Model
 {
@@ -17,5 +18,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
         public virtual List<InvoiceRowDetail> RowDetails { get; set; }
 
         public byte[] RowVersion { get; set; }
+
+        [Parent]
+        public Invoice Invoice { get; set; }
     }
 }
