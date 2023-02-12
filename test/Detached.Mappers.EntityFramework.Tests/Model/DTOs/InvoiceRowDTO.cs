@@ -9,5 +9,7 @@
         public virtual double Quantity { get; set; }
 
         public virtual double Price { get; set; }
+
+        public byte[] RowVersion { get; set; }
     }
 }

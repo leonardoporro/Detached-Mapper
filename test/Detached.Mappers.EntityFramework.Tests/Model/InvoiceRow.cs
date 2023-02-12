@@ -15,5 +15,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
 
         [Composition]
         public virtual List<InvoiceRowDetail> RowDetails { get; set; }
+
+        public byte[] RowVersion { get; set; }
     }
 }

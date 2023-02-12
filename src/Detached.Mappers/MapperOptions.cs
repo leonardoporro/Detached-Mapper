@@ -156,7 +156,7 @@ namespace Detached.Mappers
             return sourceType != targetType
                     || sourceType.IsAbstract()
                     || targetType.IsAbstract()
-                    || !targetType.IsPrimitive();
+                    || (targetType.IsComplex() || targetType.IsCollection() && GetType(targetType.ItemClrType).IsComplex());
         }
 
         public virtual bool IsPrimitive(Type type)
