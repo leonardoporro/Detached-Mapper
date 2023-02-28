@@ -16,10 +16,10 @@ A couple of examples to check library capabilities without installing anything.
 Please use [GitHub Issues](https://github.com/leonardoporro/Detached-Mapper/issues) tab to report anything you find using the library.
 All feedback is welcome, I'll try to prioritize and fix everything, but I have limited personal time to work on this.
 
-## Support
-If something is blocking your project and you need help quickly, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
+## Urgent issues
+If something is blocking your project and you need help asap, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
 
-## Donations
+## Donations & Support
 If you like my work and want to buy me a coffee/beer, that would be awesome!
 [Wise](https://wise.com/pay#yndiaJU7lFHauw0cZI1Td74rZSA)
 Or [mail me](mailto:mail@leonardoporro.com.ar) for other methods.
