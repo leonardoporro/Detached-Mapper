@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace GraphInheritenceTests.ComplexModels
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
     public enum CustomerKindId : int
     {

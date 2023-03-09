@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GraphInheritenceTests.ComplexModels
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
     public abstract class OrganizationBase : IdBase
     {
@@ -24,8 +24,13 @@ namespace GraphInheritenceTests.ComplexModels
         [Aggregation]
         public Address ShipmentAddress { get; set; }
 
+        public int? NewAddressId { get; set; }
+
         [Composition]
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public Address NewAddress { get; set; }
+
+        [Composition]
+        public List<Tag> Tags { get; set; }// = new List<Tag>();
 
         [Composition]
         public List<OrganizationNotes> Notes { get; set; } = new List<OrganizationNotes>();
