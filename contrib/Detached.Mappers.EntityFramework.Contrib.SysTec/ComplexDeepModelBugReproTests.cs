@@ -753,5 +753,92 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).Name, Is.EqualTo("Austria"));
             Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).SubName, Is.EqualTo("Südtirol"));
         }
+
+        [Test]
+        public void _14_UpdateWithOldConcurrencyTokenShouldThrowDbUpdateConcurrencyException()
+        {
+            Student originalStudent;
+            using (var dbContext = new ComplexDbContext())
+            {
+                originalStudent = new Student()
+                {
+                    Age = 12,
+                    Name = "Chuck Norris"
+                };
+
+                dbContext.Add(originalStudent);
+                dbContext.SaveChanges();
+            }
+
+            using (var dbContext2 = new ComplexDbContext())
+            {
+                var studentDto = new StudentDTO()
+                {
+                    Id = originalStudent.Id,
+                    Name = "Changed Name",
+                    // Simulate different concurrency token
+                    ConcurrencyToken = originalStudent.ConcurrencyToken + 10,
+                    Age = 15
+                };
+
+                var mappedStudent = dbContext2.Map<Student>(studentDto);
+
+                // Assert That Concurrency Token should not be overwritten by map
+                Assert.That(mappedStudent.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken + 10));
+
+                Assert.Throws<DbUpdateConcurrencyException>(() => dbContext2.SaveChanges(),
+                    "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
+
+                // Following command is executed when dbContext2.SaveChanges() is called:
+
+                //Executed DbCommand (0ms) [Parameters=[@p3='1', @p0='15', @p1='12', @p4='1', @p2='Changed Name' (Size = 12)], CommandType='Text', CommandTimeout='30']
+                //UPDATE "Students" SET "Age" = @p0, "ConcurrencyToken" = @p1, "Name" = @p2
+                //WHERE "Id" = @p3 AND "ConcurrencyToken" = @p4;
+                //SELECT changes();
+
+                // The ConcurrencyToken (@p4) in the WHERE clause still is 1, although it should be 11
+                // Note: @p1 gets computed in the overwritten SaveChanges method, with postgresql xmin is used, which gets computed automatically on the db
+
+                // The default EFCore behavior is to throw a DbUpdateConcurrencyException when the concurrency token is different
+                // See Test _14_1
+            }
+        }
+
+        [Test]
+        public void _14_1_UpdateWithOldConcurrencyTokenShouldThrowDbUpdateConcurrencyException()
+        {
+            Student originalStudent;
+            using (var dbContext = new ComplexDbContext())
+            {
+                originalStudent = new Student()
+                {
+                    Age = 12,
+                    Name = "Chuck Norris"
+                };
+
+                dbContext.Add(originalStudent);
+                dbContext.SaveChanges();
+            }
+
+            using (var dbContext2 = new ComplexDbContext())
+            {
+                var updatedStudent = new Student()
+                {
+                    Id = originalStudent.Id,
+                    Name = "Changed Name",
+                    // Simulate different concurrency token
+                    ConcurrencyToken = originalStudent.ConcurrencyToken + 10,
+                    Age = 15
+                };
+
+                dbContext2.Update(updatedStudent);
+
+                // Assert That Concurrency Token should not be overwritten by map
+                Assert.That(updatedStudent.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken + 10));
+
+                Assert.Throws<DbUpdateConcurrencyException>(() => dbContext2.SaveChanges(),
+                    "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
+            }
+        }
     }
 }

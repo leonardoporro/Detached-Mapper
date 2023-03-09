@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
-    public abstract class IdBaseDTO
+    public abstract class IdBaseDTO : ConcurrencyStampBaseDTO
     {
         [Key]
         public int Id { get; set; }

@@ -50,7 +50,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     //options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
                     //    .Value(nameof(Customer), typeof(Customer))
                     //    .Value(nameof(Government), typeof(Government))
-                    //    .Value(nameof(SubGovernment), typeof(SubGovernment));
+                    //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
                 });
 
             //optionsBuilder.ConfigureWarnings(
@@ -104,24 +104,11 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             //var now = DateTime.Now;
             foreach (var changedEntity in ChangeTracker.Entries())
             {
-                if (changedEntity.Entity is IdBase entity)
+                if (changedEntity.Entity is ConcurrencyStampBase entity)
                 {
-                    switch (changedEntity.State)
-                    {
-                        case EntityState.Added:
-                            //entity.CreatedAt = now;
-                            //entity.ModifiedAt = null;
-                            break;
-
-                        case EntityState.Modified:
-                            //Entry(entity).Property(x => x.CreatedAt).IsModified = false;
-                            //entity.ModifiedAt = now;
-                            //if (entity is OrganizationNotes entity2)
-                            //{
-                            //    Entry(entity2).State = EntityState.Added;
-                            //}
-                            break;
-                    }
+                    // Simulate DB Trigger.
+                    // With postgresql we are using xmin column which gets updated automatically
+                    entity.ConcurrencyToken += 1;
                 }
             }
             try

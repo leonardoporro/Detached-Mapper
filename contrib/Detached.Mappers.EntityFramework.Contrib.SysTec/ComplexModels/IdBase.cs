@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
-    public abstract class IdBase
+    public abstract class IdBase : ConcurrencyStampBase
     {
         [Key]
         public int Id { get; set; }
