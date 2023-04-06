@@ -8,20 +8,36 @@ namespace Detached.Mappers.EntityFramework.Tests
     public class ProfilesTests
     {
         [Fact]
-        public void multiple_profiles_should_map_accordingly()
+        public void multiple_profiles_create_profile()
         {
             TestDbContext dbContext = new TestDbContext();
             dbContext.Database.EnsureCreated();
 
-            var dto = new { Id = 1, Name = "user name", DateOfBirth = DateTime.Now };
+            UserDTO dto = new UserDTO  { Id = 1, Name = "user name" };
 
-            User nameOnlyUser = dbContext.Map<User>(MappingProfiles.NameOnly, dto);
+            User newUser = dbContext.Map<User>(MappingProfiles.Create, dto);
 
-            Assert.Null(nameOnlyUser.DateOfBirth);
+            Assert.Equal(1, newUser.Id);
+            Assert.Equal("user name", newUser.Name);
+            Assert.Null(newUser.ModifiedDate);
+            Assert.NotNull(newUser.CreatedDate);
+        }
 
-            User allUser = dbContext.Map<User>(MappingProfiles.All, dto);
+        [Fact]
+        public void multiple_profiles_update_profile()
+        {
+            TestDbContext dbContext = new TestDbContext();
+            dbContext.Database.EnsureCreated();
 
-            Assert.NotNull(allUser.DateOfBirth);
+            UserDTO dto = new UserDTO { Id = 1, Name = "user name" };
+
+            User newUser = dbContext.Map<User>(MappingProfiles.Update, dto);
+
+            Assert.Equal(1, newUser.Id);
+            Assert.Equal("user name", newUser.Name);
+           
+            Assert.Null(newUser.CreatedDate);
+            Assert.NotNull(newUser.ModifiedDate);
         }
 
         public class TestDbContext : DbContext
@@ -39,12 +55,21 @@ namespace Detached.Mappers.EntityFramework.Tests
                 optionsBuilder.UseSqlite(_connection)
                     .UseMapping(mapping =>
                     {
-                        mapping.AddProfile(MappingProfiles.NameOnly, cfg =>
+                        mapping.AddProfile(MappingProfiles.Create, cfg =>
                         {
-                            cfg.Type<User>().Member(u => u.DateOfBirth).Exclude();
+                            cfg.Type<User>()
+                               .FromType<UserDTO>()
+                               .Member(u => u.CreatedDate)
+                               .FromValue((u, c) => (DateTime?)DateTime.Now);
                         });
 
-                        mapping.AddProfile(MappingProfiles.All, opts => { });
+                        mapping.AddProfile(MappingProfiles.Update, cfg =>
+                        {
+                            cfg.Type<User>()
+                               .FromType<UserDTO>()
+                               .Member(u => u.ModifiedDate)
+                               .FromValue((u, c) => (DateTime?)DateTime.Now);
+                        });
                     });
             }
 
@@ -55,15 +80,24 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string Name { get; set; } 
 
-            public DateTime? DateOfBirth { get; set; }
+            public DateTime? ModifiedDate { get; set; }
+
+            public DateTime? CreatedDate { get; set; }
+        }
+
+        public class UserDTO
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
         }
 
         public enum MappingProfiles
         {
-            All,
-            NameOnly
+            Create,
+            Update
         }
     }
 }
