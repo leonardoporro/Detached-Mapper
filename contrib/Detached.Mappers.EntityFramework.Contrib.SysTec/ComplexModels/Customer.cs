@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace GraphInheritenceTests.ComplexModels
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
     public class Customer : OrganizationBase
     {

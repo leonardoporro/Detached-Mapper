@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
-using GraphInheritenceTests.ComplexModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

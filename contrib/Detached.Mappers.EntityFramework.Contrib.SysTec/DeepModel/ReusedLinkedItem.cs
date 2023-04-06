@@ -1,8 +1,8 @@
 ﻿using Detached.Annotations;
-using GraphInheritenceTests.ComplexModels;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 using System.Collections.Generic;
 
-namespace GraphInheritenceTests.DeepModel
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel
 {
     /// <summary>
     /// Will be used multiple times to reproduce a bug

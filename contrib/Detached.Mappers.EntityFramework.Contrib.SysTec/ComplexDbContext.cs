@@ -1,7 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
-using GraphInheritenceTests.ComplexModels;
-using GraphInheritenceTests.DeepModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
@@ -11,16 +9,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
 
-namespace GraphInheritenceTests
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
     public class ComplexDbContext : DbContext
     {
-
         public DbSet<OrganizationList> OrganizationLists { get; set; }
         public DbSet<OrganizationBase> Organizations { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Government> Governments { get; set; }
+        public DbSet<SubGovernment> SubGovernments { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Country> Countries { get; set; }
 
@@ -48,10 +47,10 @@ namespace GraphInheritenceTests
                     // but this line is a test to drive it further
                     //options.Configure<OrganizationBase>().Constructor(x => new Customer());
 
-                    options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
-                        .Value(nameof(Customer), typeof(Customer))
-                        .Value(nameof(Government), typeof(Government))
-                        .Value(nameof(GovernmentLeader), typeof(GovernmentLeader));
+                    //options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
+                    //    .Value(nameof(Customer), typeof(Customer))
+                    //    .Value(nameof(Government), typeof(Government))
+                    //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
                 });
 
             //optionsBuilder.ConfigureWarnings(
@@ -64,7 +63,8 @@ namespace GraphInheritenceTests
             modelBuilder.Entity<OrganizationBase>()
                 .HasDiscriminator(o => o.OrganizationType)
                 .HasValue<Customer>(nameof(Customer))
-                .HasValue<Government>(nameof(Government));
+                .HasValue<Government>(nameof(Government))
+                .HasValue<SubGovernment>(nameof(SubGovernment));
 
             modelBuilder.Entity<OrganizationBase>()
                 .HasOne<Address>(o => o.PrimaryAddress);
@@ -104,24 +104,11 @@ namespace GraphInheritenceTests
             //var now = DateTime.Now;
             foreach (var changedEntity in ChangeTracker.Entries())
             {
-                if (changedEntity.Entity is IdBase entity)
+                if (changedEntity.Entity is ConcurrencyStampBase entity)
                 {
-                    switch (changedEntity.State)
-                    {
-                        case EntityState.Added:
-                            //entity.CreatedAt = now;
-                            //entity.ModifiedAt = null;
-                            break;
-
-                        case EntityState.Modified:
-                            //Entry(entity).Property(x => x.CreatedAt).IsModified = false;
-                            //entity.ModifiedAt = now;
-                            //if (entity is OrganizationNotes entity2)
-                            //{
-                            //    Entry(entity2).State = EntityState.Added;
-                            //}
-                            break;
-                    }
+                    // Simulate DB Trigger.
+                    // With postgresql we are using xmin column which gets updated automatically
+                    entity.ConcurrencyToken += 1;
                 }
             }
             try

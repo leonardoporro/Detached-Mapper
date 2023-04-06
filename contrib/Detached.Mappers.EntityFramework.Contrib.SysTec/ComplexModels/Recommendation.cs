@@ -1,7 +1,7 @@
 ﻿using Detached.Annotations;
 using System;
 
-namespace GraphInheritenceTests.ComplexModels
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
     public class Recommendation : IdBase
     {

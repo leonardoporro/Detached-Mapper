@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GraphInheritenceTests.ComplexModels
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {
     public abstract class NotesBase : IdBase
     {
