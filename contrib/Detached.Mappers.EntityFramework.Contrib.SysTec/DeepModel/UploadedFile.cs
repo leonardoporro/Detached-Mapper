@@ -1,6 +1,6 @@
-﻿using GraphInheritenceTests.ComplexModels;
+﻿using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 
-namespace GraphInheritenceTests.DeepModel
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel
 {
     public class UploadedFile : IdBase
     {

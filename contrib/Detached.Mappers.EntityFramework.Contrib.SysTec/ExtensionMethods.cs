@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GraphInheritenceTests
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
     public static class ExtensionMethods
     {

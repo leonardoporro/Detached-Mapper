@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
-    public class GovernmentLeaderDTO : GovernmentDTO
+    public class SubGovernmentDTO : GovernmentDTO
     {
-        public string LeaderName { get; set; }
+        public string SubName { get; set; }
     }
 }
