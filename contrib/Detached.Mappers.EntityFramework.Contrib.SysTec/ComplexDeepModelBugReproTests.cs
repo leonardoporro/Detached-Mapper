@@ -139,6 +139,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     _superCustomer.OrganizationType,
                     _superCustomer.PrimaryAddress,
                     _superCustomer.NewAddress,
+                    _superCustomer.ConcurrencyToken
                 });
 
                 // works, too
@@ -755,7 +756,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         }
 
         [Test]
-        public void _14_UpdateWithOldConcurrencyTokenShouldThrowDbUpdateConcurrencyException()
+        public void _14_1_UpdateWithOldConcurrencyToken_WithPureEFCore_ShouldThrowDbUpdateConcurrencyException()
         {
             Student originalStudent;
             using (var dbContext = new ComplexDbContext())
@@ -770,26 +771,88 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
             }
 
+            var client1Change = new Student()
+            {
+                Id = originalStudent.Id,
+                Name = "Changed Name",
+                ConcurrencyToken = originalStudent.ConcurrencyToken,
+                Age = 15
+            };
+
+            var client2ChangeInSameTime = new Student()
+            {
+                Id = originalStudent.Id,
+                Name = "other changed name",
+                ConcurrencyToken = originalStudent.ConcurrencyToken,
+                Age = 82
+            };
+
             using (var dbContext2 = new ComplexDbContext())
             {
-                var studentDto = new StudentDTO()
-                {
-                    Id = originalStudent.Id,
-                    Name = "Changed Name",
-                    // Simulate different concurrency token
-                    ConcurrencyToken = originalStudent.ConcurrencyToken + 10,
-                    Age = 15
-                };
+                dbContext2.Update(client1Change);
+                dbContext2.SaveChanges();
+            }
 
-                var mappedStudent = dbContext2.Map<Student>(studentDto);
-
-                // Assert That Concurrency Token should not be overwritten by map
-                Assert.That(mappedStudent.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken + 10));
-
+            using (var dbContext2 = new ComplexDbContext())
+            {
+                dbContext2.Update(client2ChangeInSameTime);
                 Assert.Throws<DbUpdateConcurrencyException>(() => dbContext2.SaveChanges(),
                     "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
+            }
+        }
 
-                // Following command is executed when dbContext2.SaveChanges() is called:
+        [Test]
+        public void _14_2_UpdateWithOldConcurrencyToken_WithMap_ShouldThrowDbUpdateConcurrencyException()
+        {
+            Student originalStudent;
+            using (var dbContext = new ComplexDbContext())
+            {
+                originalStudent = new Student()
+                {
+                    Age = 12,
+                    Name = "Chuck Norris"
+                };
+
+                dbContext.Add(originalStudent);
+                dbContext.SaveChanges();
+            }
+
+            var client1Change = new StudentDTO()
+            {
+                Id = originalStudent.Id,
+                Name = "Changed Name",
+                ConcurrencyToken = originalStudent.ConcurrencyToken,
+                Age = 15
+            };
+
+            var client2ChangeInSameTime = new StudentDTO()
+            {
+                Id = originalStudent.Id,
+                Name = "other change",
+                ConcurrencyToken = originalStudent.ConcurrencyToken,
+                Age = 82
+            };
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                Student mappedStudent = dbContext.Map<Student>(client1Change);
+
+                // Assert That Concurrency Token should not be overwritten by map
+                Assert.That(client1Change.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken));
+
+                dbContext.SaveChanges();
+            }
+            using (var dbContext = new ComplexDbContext())
+            {
+                Student mappedStudent = dbContext.Map<Student>(client2ChangeInSameTime);
+
+                // Assert That Concurrency Token should not be overwritten by map
+                Assert.That(client2ChangeInSameTime.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken));
+
+                Assert.Throws<DbUpdateConcurrencyException>(() => dbContext.SaveChanges(),
+                    "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
+
+                // Following command is executed when dbContext.SaveChanges() is called:
 
                 //Executed DbCommand (0ms) [Parameters=[@p3='1', @p0='15', @p1='12', @p4='1', @p2='Changed Name' (Size = 12)], CommandType='Text', CommandTimeout='30']
                 //UPDATE "Students" SET "Age" = @p0, "ConcurrencyToken" = @p1, "Name" = @p2
@@ -801,43 +864,6 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
                 // The default EFCore behavior is to throw a DbUpdateConcurrencyException when the concurrency token is different
                 // See Test _14_1
-            }
-        }
-
-        [Test]
-        public void _14_1_UpdateWithOldConcurrencyTokenShouldThrowDbUpdateConcurrencyException()
-        {
-            Student originalStudent;
-            using (var dbContext = new ComplexDbContext())
-            {
-                originalStudent = new Student()
-                {
-                    Age = 12,
-                    Name = "Chuck Norris"
-                };
-
-                dbContext.Add(originalStudent);
-                dbContext.SaveChanges();
-            }
-
-            using (var dbContext2 = new ComplexDbContext())
-            {
-                var updatedStudent = new Student()
-                {
-                    Id = originalStudent.Id,
-                    Name = "Changed Name",
-                    // Simulate different concurrency token
-                    ConcurrencyToken = originalStudent.ConcurrencyToken + 10,
-                    Age = 15
-                };
-
-                dbContext2.Update(updatedStudent);
-
-                // Assert That Concurrency Token should not be overwritten by map
-                Assert.That(updatedStudent.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken + 10));
-
-                Assert.Throws<DbUpdateConcurrencyException>(() => dbContext2.SaveChanges(),
-                    "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
             }
         }
     }
