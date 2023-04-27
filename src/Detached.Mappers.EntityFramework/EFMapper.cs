@@ -4,6 +4,7 @@ using Detached.Mappers.EntityFramework.Queries;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -47,12 +48,27 @@ namespace Detached.Mappers.EntityFramework
                 }
 
                 configureMapperMethodInfo.Invoke(dbContext, new[] { mapperOptions });
-            } 
+            }
+
+            ContextModel = new EFMapContextModel();
+
+            foreach (IEntityType entityType in dbContext.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.IsConcurrencyToken)
+                    {
+                        ContextModel.ConcurrencyTokens.Add(entityType.Name, property.Name);
+                    }
+                }
+            }
         }
 
         public JsonSerializerOptions JsonSerializerOptions { get; }
 
         public QueryProvider QueryProvider { get; }
+
+        public EFMapContextModel ContextModel { get; }
 
         public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
            where TEntity : class
@@ -77,7 +93,7 @@ namespace Detached.Mappers.EntityFramework
                 parameters = new MapParameters();
             }
 
-            var context = new EFMapContext(dbContext, QueryProvider, parameters);
+            var context = new EFMapContext(dbContext, QueryProvider, ContextModel, parameters);
 
             return (TEntity)Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }

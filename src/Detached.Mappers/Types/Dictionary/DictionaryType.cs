@@ -19,7 +19,7 @@ namespace Detached.Mappers.Types.Dictionary
 
         public IEnumerable<string> MemberNames => new string[0];
 
-        public bool IsAbstract => false;
+        public bool IsAbstract { get; set; } = false;
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {

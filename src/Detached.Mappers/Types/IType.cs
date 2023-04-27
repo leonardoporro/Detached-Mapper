@@ -23,7 +23,7 @@ namespace Detached.Mappers.Types
 
         MappingSchema MappingSchema { get; }
 
-        bool IsAbstract { get; }
+        bool IsAbstract { get; set; }
 
         IEnumerable<string> MemberNames { get; }
 

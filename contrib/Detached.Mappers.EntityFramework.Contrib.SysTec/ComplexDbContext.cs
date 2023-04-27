@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
@@ -51,6 +52,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     //    .Value(nameof(Customer), typeof(Customer))
                     //    .Value(nameof(Government), typeof(Government))
                     //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
+
+                    options.Type<OrganizationBaseDTO>().Abstract();
+
+                    options.Type<OrganizationBaseDTO>()
+                        .Discriminator(o => o.OrganizationType)
+                        .HasValue<GovernmentDTO>(nameof(Government))
+                        .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
                 });
 
             //optionsBuilder.ConfigureWarnings(

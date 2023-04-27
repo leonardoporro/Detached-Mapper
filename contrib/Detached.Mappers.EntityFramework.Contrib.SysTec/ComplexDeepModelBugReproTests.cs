@@ -189,6 +189,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 });
                 dbContext.SaveChanges();
             }
+
             using (var dbContext = new ComplexDbContext())
             {
                 var allOrganizations = dbContext.Organizations.Include(c => c.Tags).ToList();
@@ -728,7 +729,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 OrganizationType = nameof(SubGovernment),
                 PrimaryAddressId = 1,
                 Name = "Austria",
-                SubName = "Südtirol",
+                SubName = "Sï¿½dtirol",
             });
 
             OrganizationListDTO dto2;
@@ -752,7 +753,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
             Assert.That(dto2.Organizations[1], Is.TypeOf<SubGovernmentDTO>());
             Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).Name, Is.EqualTo("Austria"));
-            Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).SubName, Is.EqualTo("Südtirol"));
+            Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).SubName, Is.EqualTo("Sï¿½dtirol"));
         }
 
         [Test]

@@ -93,6 +93,7 @@ namespace Detached.Mappers
                 { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
                 { typeof(EntityAttribute), new EntityAnnotationHandler() },
                 { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
+                { typeof(NotAttachedAttribute), new NotAttachedAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() }
             };
 

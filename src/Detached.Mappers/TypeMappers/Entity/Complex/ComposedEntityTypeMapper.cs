@@ -56,17 +56,17 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                     TKey targetKey = _getTargetKey(target, context);
                     if (Equals(sourceKey, targetKey))
                     {
-                        target = context.TrackChange(target, source, targetKey, MapperActionType.Update);
-
                         context.PushResult(entityRef, target);
                         _mapNoKeyMembers(source, target, context);
                         context.PopResult();
+
+                        target = context.TrackChange(target, source, targetKey, MapperActionType.Update);
                     }
                     else
                     {
-                        context.TrackChange(target, source, targetKey, MapperActionType.Delete);
-
                         target = Create(source, context, sourceKey, entityRef);
+
+                        context.TrackChange(target, source, targetKey, MapperActionType.Delete);
                     }
                 }
             }

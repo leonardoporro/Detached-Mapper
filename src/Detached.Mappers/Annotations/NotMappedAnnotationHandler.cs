@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypePairs;
+﻿using Detached.Annotations;
+using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
@@ -10,6 +11,14 @@ namespace Detached.Mappers.Annotations
     public class NotMappedAnnotationHandler : AnnotationHandler<NotMappedAttribute>
     {
         public override void Apply(NotMappedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        {
+            memberOptions.NotMapped(true);
+        }
+    }
+
+    public class NotAttachedAnnotationHandler : AnnotationHandler<NotAttachedAttribute>
+    {
+        public override void Apply(NotAttachedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.NotMapped(true);
         }

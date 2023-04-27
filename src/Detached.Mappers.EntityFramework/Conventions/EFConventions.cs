@@ -46,11 +46,30 @@ namespace Detached.Mappers.EntityFramework.Conventions
 
                     foreach (var inheritedType in entityType.Model.GetEntityTypes())
                     {
-                        if (inheritedType.BaseType == entityType)
+                        if (IsBaseType(inheritedType, entityType)) //inheritedType.BaseType == entityType)
                         {
                             typeOptions.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
                         }
                     }
+                }
+            }
+        }
+
+        bool IsBaseType(IEntityType entityType, IEntityType baseType)
+        {
+            if (entityType.BaseType == baseType)
+            {
+                return true;
+            }
+            else
+            {
+                if (entityType.BaseType != null)
+                {
+                    return IsBaseType(entityType.BaseType, baseType);
+                }
+                else
+                {
+                    return false;
                 }
             }
         }
