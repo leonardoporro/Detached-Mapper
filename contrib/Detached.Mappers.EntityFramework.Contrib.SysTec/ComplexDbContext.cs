@@ -110,18 +110,30 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public override int SaveChanges()
         {
             //var now = DateTime.Now;
+            List<ConcurrencyStampBase> entities = new List<ConcurrencyStampBase>();
             foreach (var changedEntity in ChangeTracker.Entries())
             {
                 if (changedEntity.Entity is ConcurrencyStampBase entity)
                 {
-                    // Simulate DB Trigger.
-                    // With postgresql we are using xmin column which gets updated automatically
-                    entity.ConcurrencyToken += 1;
+                    entities.Add(entity);
                 }
             }
+
             try
             {
                 int result = base.SaveChanges();
+
+
+                if (entities.Count > 0)
+                {
+                    foreach (var entity in entities)
+                    {
+                        Entry(entity).Reload();
+                        entity.ConcurrencyToken++;
+                    }
+                    base.SaveChanges();
+                }
+
                 return result;
             }
             catch (DbUpdateConcurrencyException ex)
