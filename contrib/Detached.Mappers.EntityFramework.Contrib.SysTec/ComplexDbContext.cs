@@ -113,7 +113,8 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             List<ConcurrencyStampBase> entities = new List<ConcurrencyStampBase>();
             foreach (var changedEntity in ChangeTracker.Entries())
             {
-                if (changedEntity.Entity is ConcurrencyStampBase entity)
+                if (changedEntity.Entity is ConcurrencyStampBase entity
+                    && (changedEntity.State == EntityState.Added || changedEntity.State == EntityState.Modified))
                 {
                     entities.Add(entity);
                 }
