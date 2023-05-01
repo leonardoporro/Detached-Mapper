@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Conventions;
 using Detached.PatchTypes;
@@ -15,7 +14,7 @@ namespace Detached.Mappers.Types.Class
 {
     public class ClassTypeFactory : ITypeFactory
     {
-        public IType Create(MapperOptions options, Type type)
+        public virtual IType Create(MapperOptions options, Type type)
         {
             ClassType typeOptions = new ClassType();
             typeOptions.ClrType = type;

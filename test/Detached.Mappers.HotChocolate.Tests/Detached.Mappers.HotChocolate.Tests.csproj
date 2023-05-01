@@ -21,4 +21,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Detached.Mappers.HotChocolate\Detached.Mappers.HotChocolate.csproj" />
+  </ItemGroup>
+
 </Project>
