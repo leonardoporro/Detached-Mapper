@@ -15,7 +15,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
         public override TTarget Map(Optional<TSource> source, TTarget target, IMapContext context)
         {
             if (source.IsEmpty)
-                return default;
+                return target;
             else
                 return _typeMapper.Value.Map(source.Value, target, context);
         }
@@ -29,7 +29,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
             if (source.HasValue)
                 return source.Value;
             else
-                return default;
+                return target;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Detached.Mappers.HotChocolate.Tests
     public class OptionalSourceTests
     {
         [Fact]
-        public void map_optional_source()
+        public void map_optional_source_set()
         {
             MapperOptions mapperOptions = new MapperOptions();
             mapperOptions.WithHotChocolate();
@@ -33,6 +33,36 @@ namespace Detached.Mappers.HotChocolate.Tests
             Assert.Equal("dto", entity.Name);
             Assert.NotNull(entity.Nested);
             Assert.Equal("subdto", entity.Nested.Name);
+        }
+
+        [Fact]
+        public void map_optional_source_unset()
+        {
+            MapperOptions mapperOptions = new MapperOptions();
+            mapperOptions.WithHotChocolate();
+
+            Mapper mapper = new Mapper(mapperOptions);
+
+            DTO dto = new DTO()
+            {
+                Id = 1,
+                Nested = new Optional<SubDTO>(
+                   new SubDTO
+                   {
+                       Id = 2,
+                       Name = "subdto"
+                   }
+                )
+            };
+
+            Entity entity = new Entity();
+            entity.Name = "entity";
+
+            Entity mapped = mapper.Map<DTO, Entity>(dto, entity);
+
+            Assert.Equal("entity", mapped.Name);
+            Assert.NotNull(mapped.Nested);
+            Assert.Equal("subdto", mapped.Nested.Name);
         }
 
         public class DTO
