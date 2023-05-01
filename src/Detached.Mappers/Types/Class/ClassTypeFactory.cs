@@ -37,60 +37,13 @@ namespace Detached.Mappers.Types.Class
             else
             {
                 typeOptions.MappingSchema = MappingSchema.Complex;
-
-                bool canTryGet = typeof(IPatch).IsAssignableFrom(type);
-
+ 
                 // generate members.
                 foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
                 {
                     if (ShouldMap(propInfo))
                     {
-                        ClassTypeMember memberOptions = new ClassTypeMember();
-                        memberOptions.Name = propInfo.Name;
-                        memberOptions.ClrType = propInfo.PropertyType;
-                        memberOptions.PropertyInfo = propInfo;
- 
-                        if (canTryGet)
-                        {
-                            memberOptions.TryGetter =
-                                Lambda(
-                                    Parameter(type, out Expression instanceExpr),
-                                    Parameter(propInfo.PropertyType, out Expression outVar),
-                                    Block(
-                                        Variable(typeof(bool), out Expression resultExpr),
-                                        If(Call("IsSet", Convert(instanceExpr, typeof(IPatch)), Constant(memberOptions.Name)),
-                                            Block(
-                                                Assign(outVar, Property(instanceExpr, propInfo)),
-                                                Assign(resultExpr, Constant(true))
-                                            ),
-                                            Block(
-                                                Assign(outVar, Default(outVar.Type)),
-                                                Assign(resultExpr, Constant(false))
-                                            )
-                                        ),
-                                        resultExpr
-                                    )
-                                );
-                        }
-
-                        // generate getter.
-                        if (propInfo.CanRead)
-                        {
-                            memberOptions.Getter = Lambda(
-                                    Parameter(type, out Expression instanceExpr),
-                                    Property(instanceExpr, propInfo)
-                                );
-                        }
-
-                        // generate setter.
-                        if (propInfo.CanWrite)
-                        {
-                            memberOptions.Setter = Lambda(
-                                   Parameter(type, out Expression instanceExpr),
-                                   Parameter(propInfo.PropertyType, out Expression valueExpr),
-                                   Assign(Property(instanceExpr, propInfo), valueExpr)
-                               );
-                        }
+                        ClassTypeMember memberOptions = CreateMember(type, propInfo);
 
                         // apply member attributes.
                         foreach (Attribute annotation in propInfo.GetCustomAttributes())
@@ -129,6 +82,58 @@ namespace Detached.Mappers.Types.Class
 
             // manual configuration is applied after all of this.
             return typeOptions;
+        }
+
+        protected virtual ClassTypeMember CreateMember(Type type, PropertyInfo propInfo)
+        {
+            ClassTypeMember memberOptions = new ClassTypeMember();
+            memberOptions.Name = propInfo.Name;
+            memberOptions.ClrType = propInfo.PropertyType;
+            memberOptions.PropertyInfo = propInfo;
+
+            if (typeof(IPatch).IsAssignableFrom(type))
+            {
+                memberOptions.TryGetter =
+                    Lambda(
+                        Parameter(type, out Expression instanceExpr),
+                        Parameter(propInfo.PropertyType, out Expression outVar),
+                        Block(
+                            Variable(typeof(bool), out Expression resultExpr),
+                            If(Call("IsSet", Convert(instanceExpr, typeof(IPatch)), Constant(memberOptions.Name)),
+                                Block(
+                                    Assign(outVar, Property(instanceExpr, propInfo)),
+                                    Assign(resultExpr, Constant(true))
+                                ),
+                                Block(
+                                    Assign(outVar, Default(outVar.Type)),
+                                    Assign(resultExpr, Constant(false))
+                                )
+                            ),
+                            resultExpr
+                        )
+                    );
+            }
+
+            // generate getter.
+            if (propInfo.CanRead)
+            {
+                memberOptions.Getter = Lambda(
+                        Parameter(type, out Expression instanceExpr),
+                        Property(instanceExpr, propInfo)
+                    );
+            }
+
+            // generate setter.
+            if (propInfo.CanWrite)
+            {
+                memberOptions.Setter = Lambda(
+                       Parameter(type, out Expression instanceExpr),
+                       Parameter(propInfo.PropertyType, out Expression valueExpr),
+                       Assign(Property(instanceExpr, propInfo), valueExpr)
+                   );
+            }
+
+            return memberOptions;
         }
 
         public virtual bool ShouldMap(PropertyInfo propInfo)
