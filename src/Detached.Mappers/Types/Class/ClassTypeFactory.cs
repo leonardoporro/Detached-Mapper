@@ -49,7 +49,29 @@ namespace Detached.Mappers.Types.Class
                         memberOptions.Name = propInfo.Name;
                         memberOptions.ClrType = propInfo.PropertyType;
                         memberOptions.PropertyInfo = propInfo;
-                        memberOptions.CanTryGet = canTryGet;
+ 
+                        if (canTryGet)
+                        {
+                            memberOptions.TryGetter =
+                                Lambda(
+                                    Parameter(type, out Expression instanceExpr),
+                                    Parameter(propInfo.PropertyType, out Expression outVar),
+                                    Block(
+                                        Variable(typeof(bool), out Expression resultExpr),
+                                        If(Call("IsSet", Convert(instanceExpr, typeof(IPatch)), Constant(memberOptions.Name)),
+                                            Block(
+                                                Assign(outVar, Property(instanceExpr, propInfo)),
+                                                Assign(resultExpr, Constant(true))
+                                            ),
+                                            Block(
+                                                Assign(outVar, Default(outVar.Type)),
+                                                Assign(resultExpr, Constant(false))
+                                            )
+                                        ),
+                                        resultExpr
+                                    )
+                                );
+                        }
 
                         // generate getter.
                         if (propInfo.CanRead)

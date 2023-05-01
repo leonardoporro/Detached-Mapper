@@ -1,11 +1,9 @@
 ﻿using Detached.Mappers.Extensions;
-using Detached.PatchTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
-using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Types.Class
 {
@@ -23,12 +21,15 @@ namespace Detached.Mappers.Types.Class
 
         public virtual LambdaExpression Setter { get; set; }
 
+        public virtual LambdaExpression TryGetter { get; set; }
+
         public bool CanRead => Getter != null;
 
         public bool CanWrite => Setter != null;
 
-        public bool CanTryGet { get; set; }
+        public bool CanTryGet => TryGetter != null;
 
+      
         public virtual Expression BuildGetExpression(Expression instance, Expression context)
         {
             return Import(Getter, instance, context);
@@ -41,20 +42,7 @@ namespace Detached.Mappers.Types.Class
 
         public virtual Expression BuildTryGetExpression(Expression instance, Expression context, Expression outVar)
         {
-            return Block(
-                Variable(typeof(bool), out Expression resultExpr),
-                If(Call("IsSet", Convert(instance, typeof(IPatch)), Constant(Name)),
-                    Block(
-                        Assign(outVar, BuildGetExpression(instance, context)),
-                        Assign(resultExpr, Constant(true))
-                    ),
-                    Block(
-                        Assign(outVar, Default(outVar.Type)),
-                        Assign(resultExpr, Constant(false))
-                    )
-                ),
-                resultExpr
-            );
+            return Import(TryGetter, instance, outVar, context);
         }
 
         public override string ToString() => $"{Name} [{ClrType.GetFriendlyName()}] (MemberOptions)";

@@ -38,7 +38,7 @@ namespace Detached.Mappers.TypePairs.Builder
             {
                 Getter = expression,
                 Setter = null,
-                CanTryGet = false,
+                TryGetter = null,
                 ClrType = typeof(TMember),
                 Name = TypePairMember.TargetMember?.Name
             };
