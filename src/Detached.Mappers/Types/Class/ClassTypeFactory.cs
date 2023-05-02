@@ -14,88 +14,94 @@ namespace Detached.Mappers.Types.Class
 {
     public class ClassTypeFactory : ITypeFactory
     {
-        public virtual IType Create(MapperOptions options, Type type)
+        public virtual IType Create(MapperOptions options, Type clrType)
         {
-            ClassType typeOptions = new ClassType();
-            typeOptions.ClrType = type;
-            typeOptions.Abstract(type == typeof(object) || type.IsAbstract || type.IsInterface);
+            ClassType classType = new ClassType();
+            classType.ClrType = clrType;
+            classType.Abstract(clrType == typeof(object) || clrType.IsAbstract || clrType.IsInterface);
 
-            if (options.IsPrimitive(type))
+            if (options.IsPrimitive(clrType))
             {
-                typeOptions.MappingSchema = MappingSchema.Primitive;
+                classType.MappingSchema = MappingSchema.Primitive;
             }
-            else if (type.IsEnumerable(out Type itemType))
+            else if (clrType.IsEnumerable(out Type itemType))
             {
-                typeOptions.ItemClrType = itemType;
-                typeOptions.MappingSchema = MappingSchema.Collection;
-            }
-            else if (type.IsNullable(out Type baseType))
-            {
-                typeOptions.MappingSchema = MappingSchema.Nullable;
-                typeOptions.ItemClrType = baseType;
+                classType.ItemClrType = itemType;
+                classType.MappingSchema = MappingSchema.Collection;
             }
             else
             {
-                typeOptions.MappingSchema = MappingSchema.Complex;
- 
+                classType.MappingSchema = MappingSchema.Complex;
+
                 // generate members.
-                foreach (PropertyInfo propInfo in type.GetRuntimeProperties())
+                foreach (PropertyInfo propInfo in clrType.GetRuntimeProperties())
                 {
                     if (ShouldMap(propInfo))
                     {
-                        ClassTypeMember memberOptions = CreateMember(type, propInfo);
+                        ClassTypeMember memberOptions = CreateMember(classType, propInfo);
 
                         // apply member attributes.
                         foreach (Attribute annotation in propInfo.GetCustomAttributes())
                         {
                             if (options.AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
                             {
-                                handler.Apply(annotation, options, typeOptions, memberOptions);
+                                handler.Apply(annotation, options, classType, memberOptions);
                             }
                         }
 
-                        typeOptions.Members.Add(memberOptions);
+                        classType.Members.Add(memberOptions);
                     }
                 }
             }
 
-            ConstructorInfo constructorInfo = typeOptions.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-            if (!typeOptions.IsAbstract() && constructorInfo != null)
+            if (clrType.IsNullable(out Type baseType))
             {
-                typeOptions.Constructor = Lambda(New(constructorInfo));
+                classType.MappingSchema = MappingSchema.None;
+                classType.ItemClrType = baseType;
             }
 
+            CreateConstructor(classType);
+
             // apply type attributes.
-            foreach (Attribute annotation in type.GetCustomAttributes())
+            foreach (Attribute annotation in clrType.GetCustomAttributes())
             {
                 if (options.AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
                 {
-                    handler.Apply(annotation, options, typeOptions, null);
+                    handler.Apply(annotation, options, classType, null);
                 }
             }
 
             // apply conventions.
             foreach (ITypeConvention convention in options.TypeConventions)
             {
-                convention.Apply(options, typeOptions);
+                convention.Apply(options, classType);
             }
 
             // manual configuration is applied after all of this.
-            return typeOptions;
+            return classType;
         }
 
-        protected virtual ClassTypeMember CreateMember(Type type, PropertyInfo propInfo)
+        protected virtual void CreateConstructor(ClassType classType)
+        {
+            ConstructorInfo constructorInfo = classType.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+            if (!classType.IsAbstract() && constructorInfo != null)
+            {
+                classType.Constructor = Lambda(New(constructorInfo));
+            }
+        }
+
+        protected virtual ClassTypeMember CreateMember(ClassType classType, PropertyInfo propInfo)
         {
             ClassTypeMember memberOptions = new ClassTypeMember();
             memberOptions.Name = propInfo.Name;
             memberOptions.ClrType = propInfo.PropertyType;
             memberOptions.PropertyInfo = propInfo;
 
-            if (typeof(IPatch).IsAssignableFrom(type))
+            if (typeof(IPatch).IsAssignableFrom(classType.ClrType))
             {
                 memberOptions.TryGetter =
                     Lambda(
-                        Parameter(type, out Expression instanceExpr),
+                        Parameter(classType.ClrType, out Expression instanceExpr),
                         Parameter(propInfo.PropertyType, out Expression outVar),
                         Block(
                             Variable(typeof(bool), out Expression resultExpr),
@@ -118,7 +124,7 @@ namespace Detached.Mappers.Types.Class
             if (propInfo.CanRead)
             {
                 memberOptions.Getter = Lambda(
-                        Parameter(type, out Expression instanceExpr),
+                        Parameter(classType.ClrType, out Expression instanceExpr),
                         Property(instanceExpr, propInfo)
                     );
             }
@@ -127,7 +133,7 @@ namespace Detached.Mappers.Types.Class
             if (propInfo.CanWrite)
             {
                 memberOptions.Setter = Lambda(
-                       Parameter(type, out Expression instanceExpr),
+                       Parameter(classType.ClrType, out Expression instanceExpr),
                        Parameter(propInfo.PropertyType, out Expression valueExpr),
                        Assign(Property(instanceExpr, propInfo), valueExpr)
                    );

@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
+using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -41,7 +42,7 @@ namespace Detached.Mappers.Types.Class
 
         public static bool IsNullable(this IType typeOptions)
         {
-            return typeOptions.MappingSchema == MappingSchema.Nullable;
+            return typeOptions.ClrType.IsNullable(out _);
         }
 
         public static bool IsConcrete(this IType typeOptions)

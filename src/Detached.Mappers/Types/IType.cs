@@ -9,8 +9,7 @@ namespace Detached.Mappers.Types
         None,
         Primitive,
         Complex,
-        Collection,
-        Nullable
+        Collection
     }
 
     public interface IType
