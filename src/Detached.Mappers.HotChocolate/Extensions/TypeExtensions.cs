@@ -1,5 +1,7 @@
 ﻿using Detached.Mappers.HotChocolate.Types;
 using Detached.Mappers.Types;
+using HotChocolate;
+using System;
 
 namespace Detached.Mappers.HotChocolate.Extensions
 {
@@ -7,7 +9,12 @@ namespace Detached.Mappers.HotChocolate.Extensions
     {
         public static bool IsOptional(this IType type)
         {
-            return type.Annotations.ContainsKey(OptionalClassTypeFactory.OPTIONAL_ANNOTATION);
+            return type.ClrType.IsOptional();
+        }
+
+        public static bool IsOptional(this Type clrType)
+        {
+            return clrType.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(Optional<>);
         }
     }
 }
