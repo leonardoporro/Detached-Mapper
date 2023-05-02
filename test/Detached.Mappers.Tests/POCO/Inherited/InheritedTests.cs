@@ -17,8 +17,8 @@ namespace Detached.Mappers.Tests.POCO.Inherited
             MapperOptions mapperOptions = new MapperOptions();
             mapperOptions.Type<Animal>()
                 .Discriminator(a => a.AnimalType)
-                .Value("cat", typeof(Cat))
-                .Value("fish", typeof(Fish));
+                .HasValue("cat", typeof(Cat))
+                .HasValue("fish", typeof(Fish));
 
             Mapper mapper = new Mapper(mapperOptions);
 

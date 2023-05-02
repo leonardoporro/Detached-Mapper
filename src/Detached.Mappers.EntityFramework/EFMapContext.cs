@@ -11,16 +11,23 @@ namespace Detached.Mappers.EntityFramework
 {
     public class EFMapContext : MapContext
     {
-        public EFMapContext(DbContext dbContext, QueryProvider queryProvider, MapParameters parameters)
+        public EFMapContext(
+            DbContext dbContext, 
+            QueryProvider queryProvider, 
+            EFMapContextModel model,
+            MapParameters parameters)
             : base(parameters)
         {
             QueryProvider = queryProvider;
             DbContext = dbContext;
+            ContextModel = model;
         }
 
         public QueryProvider QueryProvider { get; }
 
         public DbContext DbContext { get; }
+
+        public EFMapContextModel ContextModel { get; }
 
         public override TTarget TrackChange<TTarget, TSource, TKey>(TTarget entity, TSource source, TKey key, MapperActionType actionType)
         {
@@ -82,6 +89,16 @@ namespace Detached.Mappers.EntityFramework
                 {
                     switch (actionType)
                     {
+                        case MapperActionType.Update:
+
+                            if (ContextModel.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
+                            {
+                                PropertyEntry concurrencyTokenProperty = entry.Property(concurrencyTokenName);
+                                concurrencyTokenProperty.OriginalValue = concurrencyTokenProperty.CurrentValue;
+                            }
+
+                            break;
+
                         case MapperActionType.Create:
                             entry.State = EntityState.Added;
                             break;

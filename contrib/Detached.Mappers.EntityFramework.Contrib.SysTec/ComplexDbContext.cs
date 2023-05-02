@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
@@ -51,6 +52,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     //    .Value(nameof(Customer), typeof(Customer))
                     //    .Value(nameof(Government), typeof(Government))
                     //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
+
+                    options.Type<OrganizationBaseDTO>().Abstract();
+
+                    options.Type<OrganizationBaseDTO>()
+                        .Discriminator(o => o.OrganizationType)
+                        .HasValue<GovernmentDTO>(nameof(Government))
+                        .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
                 });
 
             //optionsBuilder.ConfigureWarnings(
@@ -102,18 +110,31 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public override int SaveChanges()
         {
             //var now = DateTime.Now;
+            List<ConcurrencyStampBase> entities = new List<ConcurrencyStampBase>();
             foreach (var changedEntity in ChangeTracker.Entries())
             {
-                if (changedEntity.Entity is ConcurrencyStampBase entity)
+                if (changedEntity.Entity is ConcurrencyStampBase entity
+                    && (changedEntity.State == EntityState.Added || changedEntity.State == EntityState.Modified))
                 {
-                    // Simulate DB Trigger.
-                    // With postgresql we are using xmin column which gets updated automatically
-                    entity.ConcurrencyToken += 1;
+                    entities.Add(entity);
                 }
             }
+
             try
             {
                 int result = base.SaveChanges();
+
+
+                if (entities.Count > 0)
+                {
+                    foreach (var entity in entities)
+                    {
+                        Entry(entity).Reload();
+                        entity.ConcurrencyToken++;
+                    }
+                    base.SaveChanges();
+                }
+
                 return result;
             }
             catch (DbUpdateConcurrencyException ex)

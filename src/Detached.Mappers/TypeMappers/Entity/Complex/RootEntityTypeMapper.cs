@@ -38,12 +38,21 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                 {
                     target = _construct(context);
                     _mapKeyMembers(source, target, context);
+
+                    context.PushResult(new EntityRef(key, typeof(TTarget)), target);
+                    _mapNoKeyMembers(source, target, context);
+                    context.PopResult();
+
                     target = context.TrackChange(target, source, key, MapperActionType.Create);
                 }
+                else
+                {
+                    context.PushResult(new EntityRef(key, typeof(TTarget)), target);
+                    _mapNoKeyMembers(source, target, context);
+                    context.PopResult();
 
-                context.PushResult(new EntityRef(key, typeof(TTarget)), target);
-                _mapNoKeyMembers(source, target, context);
-                context.PopResult();
+                    target = context.TrackChange(target, source, key, MapperActionType.Update);
+                }
             }
             else
             {

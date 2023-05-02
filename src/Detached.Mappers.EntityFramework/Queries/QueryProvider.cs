@@ -40,13 +40,15 @@ namespace Detached.Mappers.EntityFramework.Queries
                 TypePair typePair = _mapper.Options.GetTypePair(entityType, projectionType, null);
 
                 var param = Parameter(entityType.ClrType, "e");
-                Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(typePair, param));
+                Expression projection = ToLambda(entityType.ClrType, param, CreateSelectProjection(typePair, param, 0));
 
                 return projection;
             });
 
             return query.Select(filter);
         }
+
+        public static int MaxProjectionDetph { get; set; } = 5;
 
         public Task<TTarget> LoadAsync<TSource, TTarget>(IQueryable<TTarget> queryable, TSource source)
             where TSource : class
@@ -198,39 +200,142 @@ namespace Detached.Mappers.EntityFramework.Queries
             stack.Pop();
         }
 
-        Expression CreateSelectProjection(TypePair typePair, Expression entityExpr)
+        Expression CreateSelectProjection(TypePair typePair, Expression entityExpr, int depth)
         {
-            if (typePair.SourceType.IsCollection())
+            if (depth > MaxProjectionDetph)
             {
-                IType entityItemType = _mapper.Options.GetType(typePair.SourceType.ItemClrType);
-                IType projectionItemType = _mapper.Options.GetType(typePair.TargetType.ItemClrType);
-                TypePair itemTypePair = _mapper.Options.GetTypePair(entityItemType, projectionItemType, typePair.ParentMember);
-
-                var param = Parameter(entityItemType.ClrType, "e");
-                var itemMap = CreateSelectProjection(itemTypePair, param);
-
-                LambdaExpression lambda = ToLambda(entityItemType.ClrType, param, itemMap);
-
-                return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), entityExpr, lambda));
+                entityExpr = null;
+            }
+            else if (typePair.SourceType.IsCollection())
+            {
+                entityExpr = ResolveCollection(typePair, entityExpr, depth);
             }
             else if (typePair.SourceType.IsComplexOrEntity())
             {
-                List<MemberBinding> bindings = new List<MemberBinding>();
-
-                foreach (TypePairMember memberPair in typePair.Members.Values)
+                string discriminatorName = typePair.TargetType.GetDiscriminatorName();
+                if (discriminatorName != null)
                 {
-                    if (memberPair.IsMapped())
+                    entityExpr = ResolveInheritance(typePair, entityExpr, depth);
+                }
+                else
+                {
+                    entityExpr = BindMembers(typePair, entityExpr, depth);
+                }
+            }
+
+            return entityExpr;
+        }
+
+        private Expression ResolveCollection(TypePair typePair, Expression entityExpr, int depth)
+        {
+            IType entityItemType = _mapper.Options.GetType(typePair.SourceType.ItemClrType);
+            IType projectionItemType = _mapper.Options.GetType(typePair.TargetType.ItemClrType);
+            TypePair itemTypePair = _mapper.Options.GetTypePair(entityItemType, projectionItemType, typePair.ParentMember);
+
+            var param = Parameter(entityItemType.ClrType, "e");
+            var itemMap = CreateSelectProjection(itemTypePair, param, depth + 1);
+            if (itemMap != null)
+            {
+
+                LambdaExpression bodyExpr = ToLambda(entityItemType.ClrType, param, itemMap);
+                return Call("ToList", typeof(Enumerable), Call("Select", typeof(Enumerable), entityExpr, bodyExpr));
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        Expression ResolveInheritance(TypePair typePair, Expression entityExpr, int depth)
+        {
+            string discriminatorName = typePair.TargetType.GetDiscriminatorName();
+            
+            var targetDiscriminatorValues = typePair.TargetType.GetDiscriminatorValues().ToList();
+            var sourceDiscriminatorValues = typePair.SourceType.GetDiscriminatorValues();
+
+            foreach (var entry in targetDiscriminatorValues)
+            {
+                if (!sourceDiscriminatorValues.ContainsKey(entry.Key))
+                {
+                    throw new MapperException($"Cannot resolve inheritance. Source type '{typePair.SourceType}' does not contain value '{entry.Key}' for target type '{typePair.TargetType}.'");
+                }
+            }
+
+            ITypeMember discriminatorMember = typePair.Members[discriminatorName].SourceMember;
+
+            Expression discriminatorPropertyExpr = Property(entityExpr, discriminatorMember.GetPropertyInfo());
+
+            return ResolveInheritance(typePair, 
+                sourceDiscriminatorValues, 
+                targetDiscriminatorValues, 
+                discriminatorPropertyExpr,  
+                0, 
+                entityExpr, 
+                depth);
+        }
+
+        Expression ResolveInheritance(
+            TypePair typePair,
+            Dictionary<object, Type> sourceDiscriminatorValues,
+            List<KeyValuePair<object, Type>> targetDiscriminatorValues,
+            Expression discriminatorPropertyExpr,
+            int index, 
+            Expression entityExpr, 
+            int depth)
+        {
+            object targetDiscriminatorValue = targetDiscriminatorValues[index].Key;
+            Type targetDiscriminatorClrType = targetDiscriminatorValues[index].Value;
+            IType targetDiscriminatorType = _mapper.Options.GetType(targetDiscriminatorClrType);
+
+            Type sourceDiscriminatorClrType = sourceDiscriminatorValues[targetDiscriminatorValue];
+            IType sourceDiscriminatorType = _mapper.Options.GetType(sourceDiscriminatorClrType);
+
+            TypePair concreteTypePair = _mapper.Options.GetTypePair(sourceDiscriminatorType, targetDiscriminatorType, typePair.ParentMember);
+
+            var bindingMemberExpression = BindMembers(concreteTypePair, Convert(entityExpr, sourceDiscriminatorClrType), depth + 1);
+
+            bindingMemberExpression = Convert(bindingMemberExpression, typePair.TargetType.ClrType);
+
+            if (index < sourceDiscriminatorValues.Count - 2)
+            {
+                var discriminatorCheckCondition = Equal(discriminatorPropertyExpr, Constant(targetDiscriminatorValue));
+
+                var innerExpression = ResolveInheritance(
+                    typePair, 
+                    sourceDiscriminatorValues,
+                    targetDiscriminatorValues,
+                    discriminatorPropertyExpr,
+                    index + 1, 
+                    entityExpr, 
+                    depth + 1);
+
+                return Condition(discriminatorCheckCondition, bindingMemberExpression, innerExpression);
+            }
+            else
+            {
+                return bindingMemberExpression;
+            }
+        }
+
+        private Expression BindMembers(TypePair typePair, Expression entityExpr, int depth)
+        {
+            List<MemberBinding> bindings = new List<MemberBinding>();
+
+            foreach (TypePairMember memberPair in typePair.Members.Values)
+            {
+                if (memberPair.IsMapped())
+                {
+                    PropertyInfo propInfo = memberPair.TargetMember.GetPropertyInfo();
+                    if (propInfo != null)
                     {
-                        PropertyInfo propInfo = memberPair.TargetMember.GetPropertyInfo();
-                        if (propInfo != null)
+                        IType projectionMemberType = _mapper.Options.GetType(memberPair.TargetMember.ClrType);
+                        IType entityMemberType = _mapper.Options.GetType(memberPair.SourceMember.ClrType);
+                        TypePair memberTypePair = _mapper.Options.GetTypePair(entityMemberType, projectionMemberType, memberPair);
+
+                        Expression map = memberPair.SourceMember.BuildGetExpression(entityExpr, null);
+                        Expression body = CreateSelectProjection(memberTypePair, map, depth + 1);
+                        if (body != null)
                         {
-                            IType projectionMemberType = _mapper.Options.GetType(memberPair.TargetMember.ClrType);
-                            IType entityMemberType = _mapper.Options.GetType(memberPair.SourceMember.ClrType);
-                            TypePair memberTypePair = _mapper.Options.GetTypePair(entityMemberType, projectionMemberType, memberPair);
-
-                            Expression map = memberPair.SourceMember.BuildGetExpression(entityExpr, null);
-                            Expression body = CreateSelectProjection(memberTypePair, map);
-
                             if (entityMemberType.IsComplexOrEntity())
                             {
                                 map = Condition(NotEqual(map, Constant(null, map.Type)), body, Constant(null, body.Type));
@@ -244,13 +349,9 @@ namespace Detached.Mappers.EntityFramework.Queries
                         }
                     }
                 }
+            }
 
-                return MemberInit(New(typePair.TargetType.ClrType), bindings.ToArray());
-            }
-            else
-            {
-                return entityExpr;
-            }
+            return MemberInit(New(typePair.TargetType.ClrType), bindings.ToArray());
         }
 
         LambdaExpression ToLambda(Type type, ParameterExpression paramExpr, Expression body)

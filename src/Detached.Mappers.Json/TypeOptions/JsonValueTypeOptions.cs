@@ -18,7 +18,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public IEnumerable<string> MemberNames => null;
 
-        public bool IsAbstract => false;
+        public bool IsAbstract { get; set; } = false; 
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {

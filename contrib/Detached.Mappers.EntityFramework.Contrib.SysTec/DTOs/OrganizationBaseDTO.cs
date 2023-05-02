@@ -10,8 +10,6 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
 {
     public class OrganizationBaseDTO : IdBaseDTO
     {
-        [InheritanceDiscriminator(Value = nameof(Government), EntityType = typeof(Government), MappingType = typeof(GovernmentDTO))]
-        [InheritanceDiscriminator(Value = nameof(SubGovernment), EntityType = typeof(SubGovernment), MappingType = typeof(SubGovernmentDTO))]
         public string OrganizationType { get; set; }
 
         public string Name { get; set; }

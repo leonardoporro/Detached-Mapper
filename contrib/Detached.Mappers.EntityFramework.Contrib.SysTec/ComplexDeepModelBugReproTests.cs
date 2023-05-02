@@ -171,7 +171,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             _superCustomer.Tags = new List<Tag>
             {
                 // Tag1 removed - will not be sent back by client
-                new Tag() { Id = _tag2.Id, Name = "Changed Marketing Campaign1" },
+                new Tag() { Id = _tag2.Id, Name = "Changed Marketing Campaign1", ConcurrencyToken = 2 },
                 new Tag() { Id = 0, Name = "new Tag" },
                 new Tag() { Id = 0, Name = "new Tag2" }
             };
@@ -187,8 +187,10 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     _superCustomer.OrganizationType,
                     _superCustomer.Tags
                 });
+
                 dbContext.SaveChanges();
             }
+
             using (var dbContext = new ComplexDbContext())
             {
                 var allOrganizations = dbContext.Organizations.Include(c => c.Tags).ToList();
@@ -647,7 +649,8 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 Id = 1,
                 Name = "Mike",
-                Age = 25
+                Age = 25,
+                ConcurrencyToken = 1
             };
 
             var mathDTO = new CourseDTO()
@@ -655,6 +658,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Id = 1,
                 CourseName = "Math",
                 ClassRoomNumber = 314,
+                ConcurrencyToken = 1,
                 Students = new()
             };
 

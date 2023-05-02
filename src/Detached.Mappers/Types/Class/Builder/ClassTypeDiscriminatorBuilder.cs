@@ -11,9 +11,16 @@ namespace Detached.Mappers.Types.Class.Builder
 
         public ClassType TypeOptions { get; }
 
-        public ClassTypeDiscriminatorBuilder<TType, TMember> Value(TMember value, Type instantiationType)
+        public ClassTypeDiscriminatorBuilder<TType, TMember> HasValue(TMember value, Type instantiationType)
         {
             TypeOptions.GetDiscriminatorValues()[value] = instantiationType;
+
+            return this;
+        }
+
+        public ClassTypeDiscriminatorBuilder<TType, TMember> HasValue<TInstantiation>(TMember value)
+        {
+            HasValue(value, typeof(TInstantiation));
 
             return this;
         }
