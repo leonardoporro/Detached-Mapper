@@ -18,7 +18,7 @@ namespace Detached.Mappers.Types.Class
         {
             ClassType typeOptions = new ClassType();
             typeOptions.ClrType = type;
-            typeOptions.IsAbstract = type == typeof(object) || type.IsAbstract || type.IsInterface;
+            typeOptions.Abstract(type == typeof(object) || type.IsAbstract || type.IsInterface);
 
             if (options.IsPrimitive(type))
             {
@@ -60,7 +60,7 @@ namespace Detached.Mappers.Types.Class
             }
 
             ConstructorInfo constructorInfo = typeOptions.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-            if (!typeOptions.IsAbstract && constructorInfo != null)
+            if (!typeOptions.IsAbstract() && constructorInfo != null)
             {
                 typeOptions.Constructor = Lambda(New(constructorInfo));
             }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Detached.Mappers.Types;
-using static System.Linq.Expressions.Expression;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
+using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Types.Dictionary
 {
@@ -23,8 +22,6 @@ namespace Detached.Mappers.Types.Dictionary
         public bool IsKey => false;
 
         public string Name => _name;
-
-        public bool IsComposition => false;
 
         public Type ClrType => typeof(object);
 

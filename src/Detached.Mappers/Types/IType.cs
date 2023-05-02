@@ -21,9 +21,7 @@ namespace Detached.Mappers.Types
 
         Dictionary<string, object> Annotations { get; }
 
-        MappingSchema MappingSchema { get; }
-
-        bool IsAbstract { get; set; }
+        MappingSchema MappingSchema { get; } 
 
         IEnumerable<string> MemberNames { get; }
 

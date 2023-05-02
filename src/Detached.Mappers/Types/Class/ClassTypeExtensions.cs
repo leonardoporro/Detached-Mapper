@@ -44,8 +44,6 @@ namespace Detached.Mappers.Types.Class
             return typeOptions.MappingSchema == MappingSchema.Nullable;
         }
 
-        public static bool IsAbstract(this IType typeOptions) => typeOptions.IsAbstract;
-
         public static bool IsConcrete(this IType typeOptions)
         {
             return !(typeOptions.IsAbstract() || typeOptions.IsInherited());

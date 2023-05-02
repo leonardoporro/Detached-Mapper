@@ -8,6 +8,11 @@ namespace Detached.Mappers.Json.TypeOptions
 {
     public class JsonNodeTypeOptions : IType
     {
+        public JsonNodeTypeOptions()
+        {
+            this.Abstract(true);
+        }
+
         public Type ClrType => typeof(JsonNode);
 
         public Type ItemClrType => default;
@@ -16,9 +21,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public MappingSchema MappingSchema => MappingSchema.None;
 
-        public IEnumerable<string> MemberNames => null;
-
-        public bool IsAbstract { get; set; } = true;
+        public IEnumerable<string> MemberNames => null; 
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {

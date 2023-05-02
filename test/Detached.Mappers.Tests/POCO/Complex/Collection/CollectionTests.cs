@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Collection
+namespace Detached.Mappers.Tests.POCO.Complex.Collection
 {
     public class CollectionTests
     {

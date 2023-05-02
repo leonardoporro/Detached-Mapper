@@ -12,9 +12,7 @@ namespace Detached.Mappers.Types.Class
 
         public virtual Type ItemClrType { get; set; }
 
-        public virtual MappingSchema MappingSchema { get; set; }
-
-        public virtual bool IsAbstract { get; set; }
+        public virtual MappingSchema MappingSchema { get; set; } 
 
         public virtual ClassTypeMemberCollection Members { get; set; } = new ClassTypeMemberCollection();
 

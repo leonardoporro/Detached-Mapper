@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -15,11 +14,10 @@ namespace Detached.Mappers.Types.Dictionary
 
         public MappingSchema MappingSchema => MappingSchema.Complex;
 
-        public Dictionary<string, object> Annotations { get; set; }
+        public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        
 
         public IEnumerable<string> MemberNames => new string[0];
-
-        public bool IsAbstract { get; set; } = false;
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {
