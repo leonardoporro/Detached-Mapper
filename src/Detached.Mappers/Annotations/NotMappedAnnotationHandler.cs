@@ -27,9 +27,9 @@ namespace Detached.Mappers.Annotations
 
 namespace Detached.Mappers
 {
-    public static class NotMappedParentAnnotationHandlerExtensions
+    public static class NotMappedAnnotationHandlerExtensions
     {
-        const string KEY = "DETACHED_NOT_MAPPED";
+        public const string KEY = "DETACHED_NOT_MAPPED";
 
         public static bool IsNotMapped(this ITypeMember member)
         {

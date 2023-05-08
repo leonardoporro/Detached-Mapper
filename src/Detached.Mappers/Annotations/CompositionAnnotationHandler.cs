@@ -20,7 +20,7 @@ namespace Detached.Mappers
 {
     public static class CompositionAnnotationHandlerExtensions
     {
-        const string KEY = "DETACHED_COMPOSITION";
+        public const string KEY = "DETACHED_COMPOSITION";
 
         public static bool IsComposition(this ITypeMember member)
         {

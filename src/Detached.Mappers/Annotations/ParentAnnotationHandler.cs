@@ -1,6 +1,6 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.TypePairs;
+using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
@@ -20,7 +20,7 @@ namespace Detached.Mappers
 {
     public static class ParentAnnotationHandlerExtensions
     {
-        const string KEY = "DETACHED_PARENT_REFERENCE";
+        public const string KEY = "DETACHED_PARENT_REFERENCE";
 
         public static bool IsParent(this ITypeMember member)
         {

@@ -20,7 +20,7 @@ namespace Detached.Mappers
 {
     public static class KeyAnnotationHandlerHandlerExtensions
     {
-        const string KEY = "DETACHED_KEY";
+        public const string KEY = "DETACHED_KEY";
 
         public static bool IsKey(this ITypeMember member)
         {

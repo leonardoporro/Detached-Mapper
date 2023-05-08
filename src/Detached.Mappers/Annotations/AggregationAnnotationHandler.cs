@@ -20,7 +20,7 @@ namespace Detached.Mappers
 {
     public static class AggregationAnnotationHandlerExtensions
     {
-        const string KEY = "DETACHED_AGGREGATION";
+        public const string KEY = "DETACHED_AGGREGATION";
 
         public static bool IsAggregation(this ITypeMember member)
         {

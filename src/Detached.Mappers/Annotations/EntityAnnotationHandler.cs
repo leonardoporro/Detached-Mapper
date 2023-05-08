@@ -19,7 +19,7 @@ namespace Detached.Mappers
 {
     public static class EntityAnnotationHandlerExtensions
     {
-        const string KEY = "DETACHED_ENTITY";
+        public const string KEY = "DETACHED_ENTITY";
 
         public static bool IsEntity(this IType type)
         {
