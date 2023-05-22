@@ -8,6 +8,8 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
         public string Name { get; set; }
 
         public int Age { get; set; }
+        
+        public StudentGrades Grades { get; set; }
 
         [Aggregation]
         public List<Course> Courses { get; set; }

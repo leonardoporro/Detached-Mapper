@@ -870,5 +870,161 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 // See Test _14_1
             }
         }
+        
+        
+        [Test]
+        public void _15_1_AddEntityWithOwnedTypes_ShouldAlsoStoreOwnedTypeValues()
+        {
+            var newStudentDto = new StudentDTO()
+            {
+                Age = 16,
+                Name = "Chuck Norris",
+                Grades = new StudentGrades()
+                {
+                    English = "A+",
+                    ComputerScience = "C++",
+                    Math = "A+"
+                }
+            };
+
+            Student newStudentEntity;
+            
+            using (var dbContext = new ComplexDbContext())
+            {
+                newStudentEntity = dbContext.Map<Student>(newStudentDto);
+                
+                // Assert that the owned type is mapped correctly
+                Assert.That(newStudentEntity.Grades, Is.Not.Null);
+                Assert.That(newStudentEntity.Grades.English, Is.EqualTo("A+"));
+                Assert.That(newStudentEntity.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(newStudentEntity.Grades.Math, Is.EqualTo("A+"));
+                
+                dbContext.SaveChanges();
+            }
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                var studentFromDb = dbContext.Students.Single(s => s.Id == newStudentEntity.Id);
+                
+                // Assert that the owned type is stored in the db
+                Assert.That(studentFromDb.Grades, Is.Not.Null);
+                Assert.That(studentFromDb.Grades.English, Is.EqualTo("A+"));
+                Assert.That(studentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(studentFromDb.Grades.Math, Is.EqualTo("A+"));
+            }
+            
+            // Following Insert statement is executed:
+            // Executed DbCommand (0ms) [Parameters=[@p0='16', @p1='0', @p2='Chuck Norris' (Size = 12)], CommandType='Text', CommandTimeout='30']
+            // INSERT INTO "Students" ("Age", "ConcurrencyToken", "Name")
+            // VALUES (@p0, @p1, @p2);
+            // SELECT "Id"
+            // FROM "Students"
+            // WHERE changes() = 1 AND "rowid" = last_insert_rowid();
+            
+            // As you can see, none of the OwnedType columns are present in the statement
+            
+            // Test _15_2 shows the EF Core default behavior which stores the owned type values in the db
+            // Test _15_3 shows that the storing of owned types already works with Detached.Mappers when updating an entity
+        }
+
+        [Test]
+        public void _15_2_AddEntityWithOwnedTypes_WithPureEFCore_ShouldAlsoStoreOwnedTypeValues()
+        {
+            var newStudent = new Student()
+            {
+                Age = 16,
+                Name = "Chuck Norris",
+                Grades = new StudentGrades()
+                {
+                    English = "A+",
+                    ComputerScience = "C++",
+                    Math = "A+"
+                }
+            };
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                dbContext.Add(newStudent);
+                dbContext.SaveChanges();
+                
+                Assert.That(newStudent.Grades, Is.Not.Null);
+                Assert.That(newStudent.Grades.English, Is.EqualTo("A+"));
+                Assert.That(newStudent.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(newStudent.Grades.Math, Is.EqualTo("A+"));
+            }
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                var newStudentFromDb = dbContext.Students.Single(s => s.Id == newStudent.Id);
+                Assert.That(newStudentFromDb.Grades, Is.Not.Null);
+                Assert.That(newStudentFromDb.Grades.English, Is.EqualTo("A+"));
+                Assert.That(newStudentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(newStudentFromDb.Grades.Math, Is.EqualTo("A+"));
+            }
+            
+            // Following Insert statement is executed:
+            // Executed DbCommand (0ms) [Parameters=[@p0='16', @p1='0', @p2='Chuck Norris' (Size = 12), @p3='C++' (Size = 3), @p4='A+' (Size = 2), @p5='A+' (Size = 2)], CommandType='Text', CommandTimeout='30']
+            // INSERT INTO "Students" ("Age", "ConcurrencyToken", "Name", "Grades_ComputerScience", "Grades_English", "Grades_Math")
+            // VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+            // SELECT "Id"
+            // FROM "Students"
+            // WHERE changes() = 1 AND "rowid" = last_insert_rowid();
+            
+        }
+
+        [Test]
+        public void _15_3_UpdateEntityWithOwnedTypes_AlsoUpdatesOwnedTypeValues()
+        {
+            var newStudentDto = new StudentDTO()
+            {
+                Age = 16,
+                Name = "Chuck Norris",
+                Grades = new StudentGrades()
+                {
+                    English = "A+",
+                    ComputerScience = "C++",
+                    Math = "A+"
+                }
+            };
+
+            Student newStudentEntity;
+            
+            using (var dbContext = new ComplexDbContext())
+            {
+                // Store student first
+                newStudentEntity = dbContext.Map<Student>(newStudentDto);
+                dbContext.SaveChanges();
+            }
+            
+            newStudentDto.Id = newStudentEntity.Id;
+            newStudentDto.ConcurrencyToken = newStudentEntity.ConcurrencyToken;
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                // Now update the student
+                var updatedStudentEntity = dbContext.Map<Student>(newStudentDto);
+                dbContext.SaveChanges();
+                
+                Assert.That(updatedStudentEntity.Grades, Is.Not.Null);
+                Assert.That(updatedStudentEntity.Grades.English, Is.EqualTo("A+"));
+                Assert.That(updatedStudentEntity.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(updatedStudentEntity.Grades.Math, Is.EqualTo("A+"));
+            }
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                var updatedStudentFromDb = dbContext.Students.Single(s => s.Id == newStudentEntity.Id);
+                Assert.That(updatedStudentFromDb.Grades, Is.Not.Null);
+                Assert.That(updatedStudentFromDb.Grades.English, Is.EqualTo("A+"));
+                Assert.That(updatedStudentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
+                Assert.That(updatedStudentFromDb.Grades.Math, Is.EqualTo("A+"));
+            }
+            
+            // Following Update statement is executed:
+            // Executed DbCommand (0ms) [Parameters=[@p3='1', @p4='1', @p0='C++' (Size = 3), @p1='A+' (Size = 2), @p2='A+' (Size = 2)], CommandType='Text', CommandTimeout='30']
+            // UPDATE "Students" SET "Grades_ComputerScience" = @p0, "Grades_English" = @p1, "Grades_Math" = @p2
+            // WHERE "Id" = @p3 AND "ConcurrencyToken" = @p4;
+            // SELECT changes();
+        }
     }
 }
