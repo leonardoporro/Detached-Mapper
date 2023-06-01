@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
@@ -533,7 +535,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 var mapped = dbContext.Map<Customer>(twoChangedCustomer);
 
-                Assert.That(mapped.Recommendations, Has.Count.EqualTo(1), "Entity reference has been duplicated, but shouldn't!");
+                Assert.That(mapped.Recommendations, Has.Count.EqualTo(1), "EntityinheritanceBaseOneDTO reference has been duplicated, but shouldn't!");
 
                 dbContext.SaveChanges();
             }
@@ -604,7 +606,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
                 // System Null Reference Exception: 
-                // We Projecting a Entity on a DTO which has not all Properties on it.
+                // We Projecting a EntityinheritanceBaseOneDTO on a DTO which has not all Properties on it.
                 // The type of the missing property doesnt matter (Tested with primitive, lists and complex types).
                 IQueryable<CountryDTOWithoutPicture> dtosQuery = dbContext.Project<Country, CountryDTOWithoutPicture>(dbContext.Countries);
                 var dto = dtosQuery.SingleOrDefault(item => item.IsoCode == "DEU");
@@ -868,6 +870,38 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
                 // The default EFCore behavior is to throw a DbUpdateConcurrencyException when the concurrency token is different
                 // See Test _14_1
+            }
+        }
+
+        [Test]
+
+        public void _15_TryBaseListToLinkWithEntity_WithMap_ShouldThrowDbUpdateConcurrencyException()
+        {
+            var dto = new EntityOneDTO()
+            {
+                BaseHeads = new()
+                {
+                    new EntityTwoDTO()
+                    {
+                        Discriminator = nameof(EntityTwo)
+                    },
+                    new EntityFourDTO()
+                    {
+                        Discriminator = nameof(EntityFour),
+                        BaseStationOneSeconds = new()
+                        {
+                            new EntityThreeDTO()
+                            {
+                                Discriminator = nameof(EntityThree)
+                            }
+                        }
+                    }
+                }
+            };
+            
+            using (var dbContext = new ComplexDbContext())
+            {
+                var mappedEntityOne = dbContext.Map<EntityOne>(dto);
             }
         }
     }

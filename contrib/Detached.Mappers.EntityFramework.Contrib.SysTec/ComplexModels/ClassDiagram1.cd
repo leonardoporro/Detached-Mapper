@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel.BaseHead" Collapsed="true">
+    <Position X="6.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\BaseModel\BaseHead.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel.BaseStationOneFirst" Collapsed="true">
+    <Position X="7.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\BaseModel\BaseStationOneFirst.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel.BaseStationOneFirstOne" Collapsed="true">
+    <Position X="6.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\BaseModel\BaseStationOneFirstOne.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel.BaseStationOneSecond" Collapsed="true">
+    <Position X="4.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\BaseModel\BaseStationOneSecond.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel.BaseStationOneSecondOne" Collapsed="true">
+    <Position X="4.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\BaseModel\BaseStationOneSecondOne.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.EntityFour" Collapsed="true">
+    <Position X="8.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\EntityFour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.EntityOne" Collapsed="true">
+    <Position X="11.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>ComplexModels\inheritance\EntityOne.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.EntityThree" Collapsed="true">
+    <Position X="4.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\EntityThree.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.EntityTwo" Collapsed="true">
+    <Position X="6.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ComplexModels\inheritance\EntityTwo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
