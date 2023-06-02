@@ -40,7 +40,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 }
 
                 IProperty discriminator = entityType.FindDiscriminatorProperty();
-                if (discriminator != null && entityType.BaseType == null)
+                if (discriminator != null && (entityType.BaseType == null ||entityType.IsAbstract()))
                 {
                     typeOptions.SetDiscriminatorName(discriminator.Name);
 
