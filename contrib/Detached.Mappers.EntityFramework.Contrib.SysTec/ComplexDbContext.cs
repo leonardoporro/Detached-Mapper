@@ -71,12 +71,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                         .Discriminator(o => o.OrganizationType)
                         .HasValue<GovernmentDTO>(nameof(Government))
                         .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
-                    
+
                     options.Type<BaseHead>()
                         .Discriminator(o => o.Discriminator)
                         .HasValue<EntityTwo>(nameof(EntityTwo))
                         .HasValue<EntityThree>(nameof(EntityThree))
-                        .HasValue<EntityFour>(nameof(EntityFour));
+                        .HasValue<EntityFour>(nameof(EntityFour))
+                        .HasValue<EntityFive>(nameof(EntityFive));
 
                     /*
                      //Workaround for Test 15

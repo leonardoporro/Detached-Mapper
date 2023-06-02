@@ -8,4 +8,7 @@ public class EntityFour : BaseStationOneFirst
 {
     [Composition]
     public List<BaseStationOneSecond> BaseStationOneSeconds { get; set; } = new();
+    
+    [Composition]
+    public List<EntityThree> EntityThrees { get; set; } = new();
 }

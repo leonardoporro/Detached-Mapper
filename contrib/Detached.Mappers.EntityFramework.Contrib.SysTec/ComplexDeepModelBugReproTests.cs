@@ -1052,6 +1052,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                             {
                                 Discriminator = nameof(EntityThree)
                             }
+                        },
+                        EntityThrees = new()
+                        {
+                            new EntityFiveDTO()
+                            {
+                                Discriminator = nameof(EntityFive)
+                            }
                         }
                     }
                 }
