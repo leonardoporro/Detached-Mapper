@@ -875,7 +875,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
         [Test]
 
-        public void _15_TryBaseListToLinkWithEntity_WithMap_ShouldThrowDbUpdateConcurrencyException()
+        public void _16_TryBaseListToLinkWithEntity_WithMap_ShouldNotThrow()
         {
             var dto = new EntityOneDTO()
             {
@@ -902,6 +902,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (var dbContext = new ComplexDbContext())
             {
                 var mappedEntityOne = dbContext.Map<EntityOne>(dto);
+                dbContext.SaveChanges();
             }
         }
     }
