@@ -1,3 +1,4 @@
+using Detached.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;

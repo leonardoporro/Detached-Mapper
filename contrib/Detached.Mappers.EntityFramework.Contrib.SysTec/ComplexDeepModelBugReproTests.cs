@@ -881,7 +881,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Name = "Chuck Norris",
                 // This class is marked as owned with the [Owned] attribute
                 // StudentGrades also is a property of the corresponding Student class
-                Grades = new StudentGrades()
+                Grades = new StudentGradesDTO()
                 {
                     English = "A+",
                     ComputerScience = "C++",
@@ -981,7 +981,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 Age = 16,
                 Name = "Chuck Norris",
-                Grades = new StudentGrades()
+                Grades = new StudentGradesDTO()
                 {
                     English = "A+",
                     ComputerScience = "C++",
