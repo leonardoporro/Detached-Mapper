@@ -54,7 +54,9 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                 else
                 {
                     TKey targetKey = _getTargetKey(target, context);
-                    if (Equals(sourceKey, targetKey))
+                    bool isOwnedEntityWithoutKey = targetKey is NoKey && sourceKey is NoKey;
+                    //Problem with Owned Entities: sourcekey and targetKey are both NoKey with the same properties, but Equals does not recognize them as equal values
+                    if (Equals(sourceKey, targetKey) || isOwnedEntityWithoutKey)
                     {
                         context.PushResult(entityRef, target);
                         _mapNoKeyMembers(source, target, context);

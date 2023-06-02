@@ -9,6 +9,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 
         public int Age { get; set; }
         
+        [Composition]
         public StudentGrades Grades { get; set; }
 
         [Aggregation]

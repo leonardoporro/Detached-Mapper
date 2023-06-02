@@ -18,7 +18,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.ClrType);
 
-            if (entityType != null && !entityType.IsOwned())
+            if (entityType != null)
             {
                 typeOptions.Entity(true);
             }
