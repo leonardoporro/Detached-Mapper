@@ -8,9 +8,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
 using Microsoft.Extensions.Logging;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
@@ -35,6 +38,15 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public DbSet<Student> Students { get; set; }
         public DbSet<Course> Courses { get; set; }
 
+        public DbSet<EntityOne> EntityOnes { get; set; }
+        
+        public DbSet<EntityTwo> EntityTwos { get; set; }
+        
+        public DbSet<EntityThree> EntityThrees { get; set; }
+        
+        public DbSet<EntityFour> EntityFours { get; set; }
+        
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
@@ -59,6 +71,25 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                         .Discriminator(o => o.OrganizationType)
                         .HasValue<GovernmentDTO>(nameof(Government))
                         .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
+
+                    options.Type<BaseHead>()
+                        .Discriminator(o => o.Discriminator)
+                        .HasValue<EntityTwo>(nameof(EntityTwo))
+                        .HasValue<EntityThree>(nameof(EntityThree))
+                        .HasValue<EntityFour>(nameof(EntityFour))
+                        .HasValue<EntityFive>(nameof(EntityFive));
+
+                    /*
+                     //Workaround for Test 15
+                    options.Type<BaseStationOneSecond>()
+                        .Discriminator(o => o.Discriminator)
+                        .HasValue<EntityThree>(nameof(EntityThree));
+
+                    options.Type<BaseStationOneFirst>()
+                        .Discriminator(o => o.Discriminator)
+                        .HasValue<EntityFour>(nameof(EntityFour))
+                        .HasValue<EntityTwo>(nameof(EntityTwo)); */
+
                 });
 
             //optionsBuilder.ConfigureWarnings(
@@ -98,13 +129,20 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 entity.HasOne(s => s.Parent);
                 entity.HasMany(s => s.Children)
-                .WithOne()
-                .HasForeignKey(s => s.ParentId);
+                    .WithOne()
+                    .HasForeignKey(s => s.ParentId);
             });
 
             modelBuilder.Entity<Customer>()
                 .HasMany<Recommendation>(c => c.Recommendations)
                 .WithOne(r => r.RecommendedBy);
+
+            modelBuilder.Entity<BaseHead>()
+                .UseTphMappingStrategy()
+                .HasDiscriminator(b => b.Discriminator)
+                .HasValue<EntityTwo>(nameof(EntityTwo))
+                .HasValue<EntityThree>(nameof(EntityThree))
+                .HasValue<EntityFour>(nameof(EntityFour));
         }
 
         public override int SaveChanges()

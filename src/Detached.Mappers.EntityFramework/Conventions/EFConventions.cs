@@ -18,7 +18,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
         {
             IEntityType entityType = _model.FindEntityType(typeOptions.ClrType);
 
-            if (entityType != null && !entityType.IsOwned())
+            if (entityType != null)
             {
                 typeOptions.Entity(true);
             }
@@ -40,7 +40,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 }
 
                 IProperty discriminator = entityType.FindDiscriminatorProperty();
-                if (discriminator != null && entityType.BaseType == null)
+                if (discriminator != null && (entityType.BaseType == null || entityType.IsAbstract()))
                 {
                     typeOptions.SetDiscriminatorName(discriminator.Name);
 
