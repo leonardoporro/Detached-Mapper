@@ -2,7 +2,7 @@
 
 namespace Detached.Mappers.TypeMappers.Entity.Complex;
 
-public class ComposedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSource, TTarget>
+public class OwnedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSource, TTarget>
     where TSource : class
     where TTarget : class
     where TKey : IEntityKey
@@ -13,7 +13,7 @@ public class ComposedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSour
     private readonly Action<TSource, TTarget, IMapContext> _mapKeyMembers;
     private readonly Action<TSource, TTarget, IMapContext> _mapNoKeyMembers;
 
-    public ComposedEntityTypeMapper(
+    public OwnedEntityTypeMapper(
         Func<IMapContext, TTarget> construct,
         Func<TSource, IMapContext, TKey> getSourceKey,
         Func<TTarget, IMapContext, TKey> getTargetKey,
@@ -31,12 +31,9 @@ public class ComposedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSour
     {
         if (source == null)
         {
-            if (target != null)
-            {
-                var sourceKey = _getTargetKey(target, context);
-                context.TrackChange(target, source, sourceKey, MapperActionType.Delete);
-                target = null;
-            }
+            if (target == null) return target;
+            var sourceKey = _getTargetKey(target, context);
+            target = context.TrackChange(target, source, sourceKey, MapperActionType.Load);
         }
         else
         {
@@ -54,23 +51,14 @@ public class ComposedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSour
             else
             {
                 var targetKey = _getTargetKey(target, context);
-                if (Equals(sourceKey, targetKey))
-                {
-                    context.PushResult(entityRef, target);
-                    _mapNoKeyMembers(source, target, context);
-                    context.PopResult();
 
-                    target = context.TrackChange(target, source, targetKey, MapperActionType.Update);
-                }
-                else
-                {
-                    target = Create(source, context, sourceKey, entityRef);
+                context.PushResult(entityRef, target);
+                _mapNoKeyMembers(source, target, context);
+                context.PopResult();
 
-                    context.TrackChange(target, source, targetKey, MapperActionType.Delete);
-                }
+                target = context.TrackChange(target, source, targetKey, MapperActionType.Update);
             }
         }
-
         return target;
     }
 

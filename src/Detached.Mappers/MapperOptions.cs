@@ -22,6 +22,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Detached.Mappers
 {
@@ -95,7 +96,8 @@ namespace Detached.Mappers
                 { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
                 { typeof(NotAttachedAttribute), new NotAttachedAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() },
-                { typeof(AbstractAttribute), new AbstractAnnotationHandler() }
+                { typeof(AbstractAttribute), new AbstractAnnotationHandler() },
+                { typeof(OwnedAttribute), new OwnedAnnotationHandler()}
             };
 
             PropertyNameConventions = new List<IPropertyNameConvention>();

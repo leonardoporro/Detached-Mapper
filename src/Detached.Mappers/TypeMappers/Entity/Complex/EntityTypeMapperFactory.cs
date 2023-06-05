@@ -53,6 +53,21 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                             mapNoKeyMembers.Compile()
                        });
             }
+            else if (typePair.TargetType.IsOwned() || typePair.SourceType.IsOwned())
+            {
+                Type mapperType = typeof(OwnedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
+                LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
+                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => !t.IsKey());
+
+                return (ITypeMapper)Activator.CreateInstance(mapperType,
+                    new object[] {
+                        construct.Compile(),
+                        getSourceKeyExpr.Compile(),
+                        getTargetKeyExpr.Compile(),
+                        mapKeyMembers.Compile(),
+                        mapNoKeyMembers.Compile()
+                    });
+            }
             else
             {
                 Type mapperType = typeof(AggregatedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
