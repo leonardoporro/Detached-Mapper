@@ -1124,7 +1124,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             }
         }  
         [Test]
-        public void _18_TryItemsAreMovedFromOneListToAnother_WithMap_ShouldNotThrow()
+        public void _18_TryToUseOwnedEntitiesInInheritance_WithMap_ShouldNotThrow()
         {
             var dto = new ArtikelDTO()
             {
@@ -1149,6 +1149,10 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (var dbContext = new ComplexDbContext())
             {
                 dbUpdated = dbContext.Artikel.First();
+                Assert.That(dbUpdated.OwnedOne, Is.Not.Null);
+                Assert.That(dbUpdated.OwnedTwo, Is.Not.Null);
+                Assert.That(dbUpdated.OwnedOne.DateTime, Is.Not.Null);
+                Assert.That(dbUpdated.OwnedTwo.Bool, Is.True);
             }
         }    
     }
