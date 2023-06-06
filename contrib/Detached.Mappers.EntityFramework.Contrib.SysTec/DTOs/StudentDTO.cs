@@ -13,6 +13,6 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
         
         public int Age { get; set; }
         
-        public StudentGradesDTO Grades { get; set; }
+        public StudentGrades Grades { get; set; }
     }
 }

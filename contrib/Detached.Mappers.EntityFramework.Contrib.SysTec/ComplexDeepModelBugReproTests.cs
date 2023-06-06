@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -884,7 +886,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Name = "Chuck Norris",
                 // This class is marked as owned with the [Owned] attribute
                 // StudentGrades also is a property of the corresponding Student class
-                Grades = new StudentGradesDTO()
+                Grades = new StudentGrades()
                 {
                     English = "A+",
                     ComputerScience = "C++",
@@ -984,7 +986,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 Age = 16,
                 Name = "Chuck Norris",
-                Grades = new StudentGradesDTO()
+                Grades = new StudentGrades()
                 {
                     English = "A+",
                     ComputerScience = "C++",
@@ -1119,6 +1121,34 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 var mappedEntityOne = dbContext.Map<Angebot>(dtoAfterSave);
                 dbContext.SaveChanges();
+            }
+        }  
+        [Test]
+        public void _18_TryItemsAreMovedFromOneListToAnother_WithMap_ShouldNotThrow()
+        {
+            var dto = new ArtikelDTO()
+            {
+                OwnedOne = new OwnedOneDTO()
+                {
+                    DateTime = DateTime.Now,
+                },
+                OwnedTwo = new OwnedTwoDTO()
+                {
+                    Bool = true
+                }
+            };
+            
+            Artikel dbUpdated;
+            using (var dbContext = new ComplexDbContext())
+            { 
+                var mappedEntityOne = dbContext.Map<Artikel>(dto);
+                dbContext.SaveChanges();
+                dbUpdated = dbContext.Artikel.First();
+            }
+
+            using (var dbContext = new ComplexDbContext())
+            {
+                dbUpdated = dbContext.Artikel.First();
             }
         }    
     }
