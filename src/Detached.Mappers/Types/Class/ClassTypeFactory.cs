@@ -74,7 +74,7 @@ namespace Detached.Mappers.Types.Class
             // apply conventions.
             foreach (ITypeConvention convention in options.TypeConventions)
             {
-                convention.Apply(options, classType);
+                 convention.Apply(options, classType);
             }
 
             // manual configuration is applied after all of this.
