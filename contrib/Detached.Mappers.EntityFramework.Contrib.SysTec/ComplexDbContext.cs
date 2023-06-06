@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
 using Microsoft.Extensions.Logging;
@@ -55,7 +56,9 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         
         public DbSet<UeberschriftPosition> UeberschriftPositionen { get; set; }
         
+        public DbSet<Artikel> Artikel { get; set; }
         
+        public DbSet<Zubehoer> Zubehoer { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
@@ -158,6 +161,12 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .HasDiscriminator(p => p.Positionsart)
                 .HasValue<ArtikelPosition>(nameof(ArtikelPosition))
                 .HasValue<UeberschriftPosition>(nameof(UeberschriftPosition));
+            
+            modelBuilder.Entity<ArtikelBase>()
+                .UseTphMappingStrategy()
+                .HasDiscriminator(a => a.Discriminator)
+                .HasValue<Artikel>(nameof(Artikel))
+                .HasValue<Zubehoer>(nameof(Zubehoer));
         }
 
         public override int SaveChanges()

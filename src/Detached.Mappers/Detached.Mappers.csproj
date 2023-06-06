@@ -3,7 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <Version>7.1.0</Version>
+        <Version>7.1.2</Version>
         <Authors>Leonardo Porro</Authors>
         <Company />
         <Product>Detached</Product>
@@ -16,6 +16,7 @@
         <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>11</LangVersion>
+        <PackageId>Detached.Mappers.Systec</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
