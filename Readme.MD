@@ -21,7 +21,7 @@ If something is blocking your project and you need help asap, contact me at my [
 
 ## Donations & Support
 
-![BuyCoffeeBanner](buy_coffee.png)
+[![BuyCoffeeBanner](buy_coffee.png)](https://bmc.link/lporro)
 
 If you like my work and want to [Buy me a Coffee](https://bmc.link/lporro), that would be awesome! ([mail me](mailto:mail@leonardoporro.com.ar) if that doesn't work for you)
 
