@@ -20,9 +20,8 @@ All feedback is welcome, I'll try to prioritize and fix everything, but I have l
 If something is blocking your project and you need help asap, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
 
 ## Donations & Support
-If you like my work and want to buy me a coffee/beer, that would be awesome!
-[Wise](https://wise.com/pay/r/cC2IHKtDVSHBNsHmNAIe6rznQNw)
-Or [mail me](mailto:mail@leonardoporro.com.ar) for other methods.
+If you like my work and want to buy me a (Buy me a Coffee)[https://bmc.link/lporro], that would be awesome!
+([mail me](mailto:mail@leonardoporro.com.ar) if that doesn't work)
 
 Big thanks to SysTec Computer GmbH [https://www.systec-computer.de/](https://www.systec-computer.de/) for their help on testing features and kindly donation.
 
