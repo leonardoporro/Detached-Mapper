@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,14 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public DbSet<EntityThree> EntityThrees { get; set; }
         
         public DbSet<EntityFour> EntityFours { get; set; }
+        
+        public DbSet<Angebot> Angebote { get; set; }
+        
+        public DbSet<PositionBase> Positionen { get; set; }
+        
+        public DbSet<ArtikelPosition> ArtikelPositionen { get; set; }
+        
+        public DbSet<UeberschriftPosition> UeberschriftPositionen { get; set; }
         
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -143,6 +152,12 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .HasValue<EntityTwo>(nameof(EntityTwo))
                 .HasValue<EntityThree>(nameof(EntityThree))
                 .HasValue<EntityFour>(nameof(EntityFour));
+            
+            modelBuilder.Entity<PositionBase>()
+                .UseTphMappingStrategy()
+                .HasDiscriminator(p => p.Positionsart)
+                .HasValue<ArtikelPosition>(nameof(ArtikelPosition))
+                .HasValue<UeberschriftPosition>(nameof(UeberschriftPosition));
         }
 
         public override int SaveChanges()

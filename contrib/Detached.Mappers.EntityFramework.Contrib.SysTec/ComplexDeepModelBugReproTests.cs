@@ -10,7 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -1070,5 +1072,54 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
             }
         }
+        
+        [Test]
+        public void _17_TryItemsAreMovedFromOneListToAnother_WithMap_ShouldNotThrow()
+        {
+            var dto = new AngebotDTO()
+            {
+                Positionen = new()
+                {
+                    new ArtikelPositionDTO()
+                    {
+                        Positionsart = nameof(ArtikelPosition),
+                    }
+                }
+            };
+            Angebot dbUpdated;
+            using (var dbContext = new ComplexDbContext())
+            { 
+                var mappedEntityOne = dbContext.Map<Angebot>(dto);
+                dbContext.SaveChanges();
+                dbUpdated = dbContext.Angebote.Include(a => a.Positionen).ThenInclude(p => ((UeberschriftPosition)p).Positionen).First();
+            }
+            var dtoAfterSave = new AngebotDTO()
+            {
+                ConcurrencyToken = dbUpdated.ConcurrencyToken,
+                Id = dbUpdated.Id,
+                Positionen = new()
+                {
+                    new UeberschriftPositionDTO()
+                    {
+                        Positionsart = nameof(UeberschriftPosition),
+                        Positionen = new()
+                        {
+                            new ArtikelPositionDTO()
+                            {
+                                ConcurrencyToken = dbUpdated.Positionen.First().ConcurrencyToken,
+                                Positionsart = nameof(ArtikelPosition),
+                                Id = dbUpdated.Positionen.First().Id
+                            }
+                        }
+                    }
+                }
+            };
+            
+            using (var dbContext = new ComplexDbContext())
+            {
+                var mappedEntityOne = dbContext.Map<Angebot>(dtoAfterSave);
+                dbContext.SaveChanges();
+            }
+        }    
     }
 }
