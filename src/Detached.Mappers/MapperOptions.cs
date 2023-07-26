@@ -92,10 +92,11 @@ namespace Detached.Mappers
                 { typeof(AggregationAttribute), new AggregationAnnotationHandler() },
                 { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
                 { typeof(EntityAttribute), new EntityAnnotationHandler() },
-                { typeof(NotMappedAttribute), new NotMappedAnnotationHandler() },
-                { typeof(NotAttachedAttribute), new NotAttachedAnnotationHandler() },
+                { typeof(NotMappedAttribute), new MapIgnoreAnnotationHandler() },
+                { typeof(MapIgnoreAttribute), new NotAttachedAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() },
-                { typeof(AbstractAttribute), new AbstractAnnotationHandler() }
+                { typeof(AbstractAttribute), new AbstractAnnotationHandler() },
+                { typeof(MapCopyAttribute), new MapCopyAnnotationHandler() }
             };
 
             PropertyNameConventions = new List<IPropertyNameConvention>();

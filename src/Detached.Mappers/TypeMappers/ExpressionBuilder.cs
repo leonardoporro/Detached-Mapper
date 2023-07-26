@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers.Entity;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
@@ -182,7 +183,14 @@ namespace Detached.Mappers.TypeMappers
             {
                 Expression sourceValueExpr = memberPair.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
 
-                if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
+                bool forceCopy = memberPair.IsMapCopy();
+
+                if (forceCopy && sourceMemberType.ClrType != targetMemberType.ClrType)
+                {
+                    throw new MapperException($"[MapCopy] can only be used when source and target types are the same. Source = {sourceMemberType.ClrType}, Target = {targetMemberType.ClrType}");
+                }
+
+                if (!memberPair.IsMapCopy() && _mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
                     Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);

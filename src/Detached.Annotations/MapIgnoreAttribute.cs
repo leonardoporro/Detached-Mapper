@@ -3,7 +3,7 @@
 namespace Detached.Annotations
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-    public sealed class NotAttachedAttribute : Attribute
+    public sealed class MapIgnoreAttribute : Attribute
     {
     }
 }

@@ -13,7 +13,7 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(NotMappedAnnotationHandlerExtensions.KEY));
+            Assert.True(member.Annotations.ContainsKey(MapIgnoreAnnotationHandlerExtensions.KEY));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(NotMappedAnnotationHandlerExtensions.KEY));
+            Assert.True(member.Annotations.ContainsKey(MapIgnoreAnnotationHandlerExtensions.KEY));
         }
 
         [Fact]
@@ -40,12 +40,12 @@ namespace Detached.Mappers.Annotation.Tests
             Mapper mapper = new Mapper(mapperOptions);
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
 
-            Assert.False(type.Annotations.ContainsKey(NotMappedAnnotationHandlerExtensions.KEY));
+            Assert.False(type.Annotations.ContainsKey(MapIgnoreAnnotationHandlerExtensions.KEY));
         }
 
         public class AnnotatedEntity
         {
-            [NotAttached]
+            [MapIgnore]
             public List<AnnotatedEntity> Items { get; set; }
         }
 
