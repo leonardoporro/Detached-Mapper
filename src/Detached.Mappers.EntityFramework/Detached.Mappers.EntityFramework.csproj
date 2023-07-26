@@ -13,7 +13,7 @@
     <NeutralLanguage />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>logo.png</PackageIcon>
-    <PackageId>Detached.Mappers.EntityFramework.Systec</PackageId>
+    <PackageId>Detached.Mappers.EntityFramework</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
