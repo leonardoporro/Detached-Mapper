@@ -11,17 +11,20 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
         Func<TTarget, IMapContext, TKey> _getTargetKey;
         Func<IMapContext, TTarget> _construct;
         Action<TSource, TTarget, IMapContext> _mapKeyMembers;
+        Action<TSource, TTarget, IMapContext> _mapNoKeyMembers;
 
         public AggregatedEntityTypeMapper(
             Func<IMapContext, TTarget> construct,
             Func<TSource, IMapContext, TKey> getSourceKey,
             Func<TTarget, IMapContext, TKey> getTargetKey,
-            Action<TSource, TTarget, IMapContext> mapKeyMembers)
+            Action<TSource, TTarget, IMapContext> mapKeyMembers,
+            Action<TSource, TTarget, IMapContext> mapNoKeyMembers)
         {
             _construct = construct;
             _getSourceKey = getSourceKey;
             _getTargetKey = getTargetKey;
             _mapKeyMembers = mapKeyMembers;
+            _mapNoKeyMembers = mapNoKeyMembers;
         }
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
@@ -55,6 +58,9 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
         {
             TTarget target = _construct(context);
             _mapKeyMembers(source, target, context);
+
+            // map only primitives!
+            _mapNoKeyMembers(source, target, context);
 
             return context.TrackChange(target, source, sourceKey, MapperActionType.Attach);
         }

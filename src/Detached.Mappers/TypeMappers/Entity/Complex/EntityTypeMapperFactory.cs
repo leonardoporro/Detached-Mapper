@@ -57,13 +57,18 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             {
                 Type mapperType = typeof(AggregatedEntityTypeMapper<,,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);
                 LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
+                LambdaExpression mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) =>
+                {
+                    return mapper.Options.GetType(t.ClrType).IsPrimitive();
+                });
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType,
                        new object[] {
                             construct.Compile(),
                             getSourceKeyExpr.Compile(),
                             getTargetKeyExpr.Compile(),
-                            mapKeyMembers.Compile()
+                            mapKeyMembers.Compile(),
+                            mapNoKeyMembers.Compile()
                        });
             }
         }
