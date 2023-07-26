@@ -24,7 +24,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
 
             if (source != null)
             {
-                result = (TTarget)(object)new List<TTargetItem>();
+                result = Activator.CreateInstance<TTarget>();
 
                 ITypeMapper<TSourceItem, TTargetItem> itemMapper = _itemMapper.Value;
 
