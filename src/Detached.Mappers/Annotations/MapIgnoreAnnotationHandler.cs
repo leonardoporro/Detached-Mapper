@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers.Annotations
 {
-    public class NotMappedAnnotationHandler : AnnotationHandler<NotMappedAttribute>
+    public class MapIgnoreAnnotationHandler : AnnotationHandler<NotMappedAttribute>
     {
         public override void Apply(NotMappedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
@@ -16,9 +16,9 @@ namespace Detached.Mappers.Annotations
         }
     }
 
-    public class NotAttachedAnnotationHandler : AnnotationHandler<NotAttachedAttribute>
+    public class NotAttachedAnnotationHandler : AnnotationHandler<MapIgnoreAttribute>
     {
-        public override void Apply(NotAttachedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.NotMapped(true);
         }
@@ -27,9 +27,9 @@ namespace Detached.Mappers.Annotations
 
 namespace Detached.Mappers
 {
-    public static class NotMappedAnnotationHandlerExtensions
+    public static class MapIgnoreAnnotationHandlerExtensions
     {
-        public const string KEY = "DETACHED_NOT_MAPPED";
+        public const string KEY = "DETACHED_MAP_IGNORE";
 
         public static bool IsNotMapped(this ITypeMember member)
         {

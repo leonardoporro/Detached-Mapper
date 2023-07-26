@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Complex.Collection
@@ -40,6 +41,20 @@ namespace Detached.Mappers.Tests.POCO.Complex.Collection
             Assert.Equal("Item 1", targetType.ComplexCollection[0].Name);
             Assert.Equal("Item 2", targetType.ComplexCollection[1].Name);
             Assert.Equal("Item 3", targetType.ComplexCollection[2].Name);
+        }
+
+        [Fact]
+        public void map_list_to_collection()
+        {
+            List<int> ints = new List<int> { 1, 2, 3, 4, 5 };
+
+            Collection<string> result = mapper.Map<List<int>, Collection<string>>(ints);
+
+            Assert.Equal("1", result[0]);
+            Assert.Equal("2", result[1]);
+            Assert.Equal("3", result[2]);
+            Assert.Equal("4", result[3]);
+            Assert.Equal("5", result[4]);
         }
 
         public class TargetType

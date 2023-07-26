@@ -15,14 +15,15 @@ A couple of examples to check library capabilities without installing anything.
 ## Issues and feedback
 Please use [GitHub Issues](https://github.com/leonardoporro/Detached-Mapper/issues) tab to report anything you find using the library.
 All feedback is welcome, I'll try to prioritize and fix everything, but I have limited personal time to work on this.
-
+ert
 ## Urgent issues
 If something is blocking your project and you need help asap, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
 
 ## Donations & Support
-If you like my work and want to buy me a coffee/beer, that would be awesome!
-[Wise](https://wise.com/pay#yndiaJU7lFHauw0cZI1Td74rZSA)
-Or [mail me](mailto:mail@leonardoporro.com.ar) for other methods.
+
+[![BuyCoffeeBanner](buy_coffee.png)](https://bmc.link/lporro)
+
+If you like my work and want to [Buy me a Coffee](https://bmc.link/lporro), that would be awesome! ([mail me](mailto:mail@leonardoporro.com.ar) if that doesn't work for you)
 
 Big thanks to SysTec Computer GmbH [https://www.systec-computer.de/](https://www.systec-computer.de/) for their help on testing features and kindly donation.
 
