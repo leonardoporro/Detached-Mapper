@@ -3,6 +3,7 @@ using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using System;
+using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;
 
@@ -22,7 +23,10 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
             Type mapperType = typeof(CollectionTypeMapper<,,,>)
                    .MakeGenericType(typePair.SourceType.ClrType, typePair.SourceType.ItemClrType, typePair.TargetType.ClrType, typePair.TargetType.ItemClrType);
 
-            Delegate construct = Lambda(New(typePair.TargetType.ClrType)).Compile();
+            Delegate construct = Lambda(
+                Parameter("context", typeof(IMapContext), out Expression context),
+                typePair.TargetType.BuildNewExpression(context, null)                
+            ).Compile();
 
             IType sourceItemType = mapper.Options.GetType(typePair.SourceType.ItemClrType);
             IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
