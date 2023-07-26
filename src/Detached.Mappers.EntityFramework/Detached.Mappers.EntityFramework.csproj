@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <Version>7.1.2</Version>
     <Version>7.1.1</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
@@ -13,6 +14,7 @@
     <NeutralLanguage />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>logo.png</PackageIcon>
+    <PackageId>Detached.Mappers.EntityFramework.Systec</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
