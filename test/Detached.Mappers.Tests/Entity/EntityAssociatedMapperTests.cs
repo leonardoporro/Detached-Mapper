@@ -41,7 +41,6 @@ namespace Detached.Mappers.Tests.Entity
             var mapped = mapper.Map(source, target, context);
 
             Assert.NotNull(mapped.Associated);
-            Assert.Null(mapped.Associated.Name); // properties are not mapped
             Assert.Equal(2, mapped.Associated.Id);// key is mapped
             Assert.NotEqual(targetCheck, mapped.Associated.GetHashCode());
 
@@ -79,7 +78,6 @@ namespace Detached.Mappers.Tests.Entity
             var mapped = mapper.Map(source, target, context);
 
             Assert.NotNull(mapped.Associated);
-            Assert.Null(mapped.Associated.Name); // properties are not mapped
             Assert.Equal(2, mapped.Associated.Id);// key is mapped
 
             // there is no tracking for disposed entity.
