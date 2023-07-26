@@ -25,7 +25,12 @@ If something is blocking your project and you need help asap, contact me at my [
 
 If you like my work and want to [Buy me a Coffee](https://bmc.link/lporro), that would be awesome! ([mail me](mailto:mail@leonardoporro.com.ar) if that doesn't work for you)
 
-Big thanks to SysTec Computer GmbH [https://www.systec-computer.de/](https://www.systec-computer.de/) for their help on testing features and kindly donation.
+Thanks for your feedback and kindly donations!:
+- The entire team of SysTec Computer GmbH(https://www.systec-computer.de/)
+- @traiannemes
+- @MichaelM223
+
+And thanks to all the people who gave it a try and reported issues! Thanks for your help and patience.
 
 ## Related tools
 Other packages built to provide features to the mapper:
