@@ -96,7 +96,7 @@ namespace Detached.Mappers
                 { typeof(MapIgnoreAttribute), new NotAttachedAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() },
                 { typeof(AbstractAttribute), new AbstractAnnotationHandler() },
-                { typeof(MapCopyAttribute), new MapCopyAnnotationHandler() }
+                { typeof(PrimitiveAttribute), new PrimitiveAnnotationHandler() }
             };
 
             PropertyNameConventions = new List<IPropertyNameConvention>();

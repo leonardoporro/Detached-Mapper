@@ -1,15 +1,15 @@
 ﻿using Detached.Annotations;
 using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Copy
+namespace Detached.Mappers.Tests.POCO.Primitive
 {
-    public class MapCopySucceedTests
+    public class AsPrimitiveSucceedTests
     {
         Mapper mapper = new Mapper();
 
 
         [Fact]
-        public void map_copy_succeed()
+        public void map_as_primitive_succeeds()
         {
             RootDTO dto = new RootDTO
             {
@@ -39,7 +39,7 @@ namespace Detached.Mappers.Tests.POCO.Copy
             public InnerClass Mapped { get; set; }
 
             [Composition]
-            [MapCopy]
+            [Primitive]
             public InnerClass Copied { get; set; }
         }
 

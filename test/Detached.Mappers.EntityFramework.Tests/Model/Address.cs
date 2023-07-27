@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Detached.Annotations;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Detached.Mappers.EntityFramework.Tests.Model
 {
@@ -10,5 +12,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
         public virtual string Street { get; set; }
 
         public virtual string Number { get; set; }
+
+
+        [Primitive]
+        public List<Tag> Tags { get; set; }
     }
 }

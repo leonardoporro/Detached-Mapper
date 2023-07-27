@@ -35,6 +35,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
 
         public DbSet<SellPoint> SellPoints { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
         public DbSet<ConfiguredTestClass> ConventionTests { get; set; }
  
         protected override void OnModelCreating(ModelBuilder mb)
@@ -52,6 +54,10 @@ namespace Detached.Mappers.EntityFramework.Tests.Model
             mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)
                 .HasValue(typeof(CircleDeliveryArea), DeliveryAreaType.Circle)
                 .HasValue(typeof(RectangleDeliveryArea), DeliveryAreaType.Rectangle);
+
+            mb.Entity<Address>()
+              .Property(a => a.Tags)
+              .HasConversion(new TagListConverter());
         }
 
         public static async Task<DbContextOptions<DefaultTestDbContext>> CreateOptionsAsync([CallerMemberName] string dbName = null)

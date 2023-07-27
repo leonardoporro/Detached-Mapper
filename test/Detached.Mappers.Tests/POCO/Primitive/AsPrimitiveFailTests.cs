@@ -2,15 +2,15 @@
 using Detached.Mappers.Exceptions;
 using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Copy
+namespace Detached.Mappers.Tests.POCO.Primitive
 {
-    public class MapCopyFailTests
+    public class AsPrimitiveFailTests
     {
         Mapper mapper = new Mapper();
 
 
         [Fact]
-        public void map_copy_fail_different_types()
+        public void map_as_primitive_fails_different_types()
         {
             RootDTO dto = new RootDTO
             {
@@ -20,7 +20,7 @@ namespace Detached.Mappers.Tests.POCO.Copy
 
             Assert.Throws<MapperException>(() => mapper.Map<RootDTO, RootEntity>(dto));
         }
- 
+
 
         public class RootDTO
         {
@@ -35,7 +35,7 @@ namespace Detached.Mappers.Tests.POCO.Copy
             public InnerEntityClass Mapped { get; set; }
 
             [Composition]
-            [MapCopy]
+            [Primitive]
             public InnerEntityClass Copied { get; set; }
         }
 

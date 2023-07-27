@@ -160,7 +160,7 @@ namespace Detached.Mappers.EntityFramework.Queries
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (memberPair.IsMapped() && !memberPair.IsParent())
+                if (memberPair.IsMapped() && !memberPair.IsParent() && !memberPair.IsSetAsPrimitive())
                 {
                     IType sourceMemberType = _mapper.Options.GetType(memberPair.SourceMember.ClrType);
                     IType targetMemberType = _mapper.Options.GetType(memberPair.TargetMember.ClrType);

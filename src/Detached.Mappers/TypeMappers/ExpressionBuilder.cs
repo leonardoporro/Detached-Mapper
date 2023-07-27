@@ -183,14 +183,14 @@ namespace Detached.Mappers.TypeMappers
             {
                 Expression sourceValueExpr = memberPair.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
 
-                bool forceCopy = memberPair.IsMapCopy();
+                bool forceCopy = memberPair.IsSetAsPrimitive();
 
                 if (forceCopy && sourceMemberType.ClrType != targetMemberType.ClrType)
                 {
-                    throw new MapperException($"[MapCopy] can only be used when source and target types are the same. Source = {sourceMemberType.ClrType}, Target = {targetMemberType.ClrType}");
+                    throw new MapperException($"[Primitive] can only be used when source and target types are the same. Source = {sourceMemberType.ClrType}, Target = {targetMemberType.ClrType}");
                 }
 
-                if (!memberPair.IsMapCopy() && _mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
+                if (!forceCopy && _mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
                     Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
