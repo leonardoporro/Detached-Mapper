@@ -47,7 +47,7 @@ namespace Detached.Mappers.Types.Class.Builder
         {
             foreach (var memberName in TypeOptions.MemberNames)
             {
-                TypeOptions.GetMember(memberName).NotMapped(false);
+                TypeOptions.GetMember(memberName).Ignore(false);
             }
 
             return this;
@@ -57,7 +57,7 @@ namespace Detached.Mappers.Types.Class.Builder
         {
             foreach (var memberName in TypeOptions.MemberNames)
             {
-                TypeOptions.GetMember(memberName).NotMapped(false);
+                TypeOptions.GetMember(memberName).Ignore(false);
             }
 
             return this;
@@ -70,11 +70,11 @@ namespace Detached.Mappers.Types.Class.Builder
                 ITypeMember memberOptions = TypeOptions.GetMember(memberName);
                 if (MapperOptions.IsPrimitive(memberOptions.ClrType))
                 {
-                    memberOptions.NotMapped(false);
+                    memberOptions.Ignore(false);
                 }
                 else
                 {
-                    memberOptions.NotMapped(true);
+                    memberOptions.Ignore(true);
                 }
             }
 

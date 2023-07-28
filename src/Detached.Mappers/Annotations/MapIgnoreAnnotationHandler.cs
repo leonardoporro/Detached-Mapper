@@ -12,15 +12,7 @@ namespace Detached.Mappers.Annotations
     {
         public override void Apply(NotMappedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
-            memberOptions.NotMapped(true);
-        }
-    }
-
-    public class NotAttachedAnnotationHandler : AnnotationHandler<MapIgnoreAttribute>
-    {
-        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
-        {
-            memberOptions.NotMapped(true);
+            memberOptions.Ignore(true);
         }
     }
 }
@@ -31,12 +23,12 @@ namespace Detached.Mappers
     {
         public const string KEY = "DETACHED_MAP_IGNORE";
 
-        public static bool IsNotMapped(this ITypeMember member)
+        public static bool IsIgnored(this ITypeMember member)
         {
             return member.Annotations.ContainsKey(KEY);
         }
 
-        public static void NotMapped(this ITypeMember member, bool value = true)
+        public static void Ignore(this ITypeMember member, bool value = true)
         {
             if (value)
                 member.Annotations[KEY] = true;
@@ -46,17 +38,17 @@ namespace Detached.Mappers
 
         public static ClassTypeMemberBuilder<TType, TMember> Exclude<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member)
         {
-            member.MemberOptions.NotMapped(true);
+            member.MemberOptions.Ignore(true);
             return member;
         }
 
         public static ClassTypeMemberBuilder<TType, TMember> Include<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.NotMapped(false);
+            member.MemberOptions.Ignore(false);
             return member;
         }
 
-        public static bool IsNotMapped(this TypePairMember member)
+        public static bool IsIgnored(this TypePairMember member)
         {
             return member.Annotations.ContainsKey(KEY);
         }

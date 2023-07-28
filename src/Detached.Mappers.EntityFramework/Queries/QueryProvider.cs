@@ -102,7 +102,7 @@ namespace Detached.Mappers.EntityFramework.Queries
             {
                 if (memberPair.IsKey())
                 {
-                    if (memberPair.IsNotMapped())
+                    if (memberPair.IsIgnored())
                     {
                         throw new MapperException($"Can't build query filter, key member {memberPair.TargetMember.Name} is not mapped.");
                     }

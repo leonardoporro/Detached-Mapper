@@ -43,7 +43,7 @@ namespace Detached.Mappers.TypeMappers
                     Expression targetParamExpr = pairMember.TargetMember.BuildGetExpression(targetExpr, contextExpr);
                     targetParamExprList.Add(targetParamExpr);
  
-                    if (pairMember.SourceMember == null || !pairMember.SourceMember.CanRead || pairMember.SourceMember.IsNotMapped())
+                    if (pairMember.SourceMember == null || !pairMember.SourceMember.CanRead || pairMember.SourceMember.IsIgnored())
                     {
                         keyType = typeof(NoKey);
                         getSourceKeyExpr = Lambda(New(typeof(NoKey)), new[] { sourceExpr, contextExpr });
@@ -118,7 +118,7 @@ namespace Detached.Mappers.TypeMappers
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (!memberPair.IsNotMapped())
+                if (!memberPair.IsIgnored())
                 {
                     if (memberPair.IsParent())
                     {
