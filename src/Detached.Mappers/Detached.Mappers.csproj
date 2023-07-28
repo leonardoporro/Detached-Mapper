@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>7.1.4</Version>
+	<Version>8.0.0-preview.1</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
@@ -18,11 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Detached.RuntimeTypes" Version="6.0.0" />
-    <PackageReference Include="Detached.PatchTypes" Version="6.0.0" />
+    <PackageReference Include="Detached.RuntimeTypes" Version="6.0.5" />
+	<PackageReference Include="Detached.PatchTypes" Version="6.0.5" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0-preview.6.23329.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0-preview.6.23329.7" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
