@@ -1,7 +1,5 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
-using Detached.Mappers.Types;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -81,7 +79,8 @@ namespace Detached.Mappers.Types.Class.Builder
             return this;
         }
 
-        public ClassTypeDiscriminatorBuilder<TType, TMember> Discriminator<TMember>(Expression<Func<TType, TMember>> selector)
+        public ClassTypeDiscriminatorBuilder<TType, TMember> Discriminator<TMember>(
+            Expression<Func<TType, TMember>> selector)
         {
             ClassTypeMember memberOptions = GetMember(selector);
             TypeOptions.SetDiscriminatorName(memberOptions.Name);

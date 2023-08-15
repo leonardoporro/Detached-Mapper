@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Types.Class;
 using System.Linq;
 
 namespace Detached.Mappers.Types.Conventions

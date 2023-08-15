@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.Types;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypePairs
 {

@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
-using Detached.Mappers.Annotations;
 
 namespace Detached.Mappers.Samples.RestApi
 {
@@ -38,10 +37,7 @@ namespace Detached.Mappers.Samples.RestApi
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
 
-            services.Configure<MapperOptions>(m =>
-            {
-                m.Type<User>().Entity(true);
-            });
+            services.Configure<MapperOptions>(m => { m.Type<User>().Entity(true); });
         }
 
         public class User { }
@@ -55,10 +51,7 @@ namespace Detached.Mappers.Samples.RestApi
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
 
             if (env.IsDevelopment())
             {
@@ -71,10 +64,7 @@ namespace Detached.Mappers.Samples.RestApi
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
         void Seed(MainDbContext db)

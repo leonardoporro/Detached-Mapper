@@ -1,5 +1,3 @@
-using Detached.Mappers;
-using Detached.Mappers.HotChocolate;
 using Detached.PatchTypes;
 using HotChocolate;
 using Xunit;
@@ -21,11 +19,11 @@ namespace Detached.Mappers.HotChocolate.Tests
                 Id = 1,
                 Name = "dto",
                 Nested = new Optional<SubDTO>(
-                   new SubDTO
-                   {
-                       Id = 2,
-                       Name = "subdto"
-                   }
+                    new SubDTO
+                    {
+                        Id = 2,
+                        Name = "subdto"
+                    }
                 )
             };
 
@@ -48,11 +46,11 @@ namespace Detached.Mappers.HotChocolate.Tests
             {
                 Id = 1,
                 Nested = new Optional<SubDTO>(
-                   new SubDTO
-                   {
-                       Id = 2,
-                       Name = "subdto"
-                   }
+                    new SubDTO
+                    {
+                        Id = 2,
+                        Name = "subdto"
+                    }
                 )
             };
 

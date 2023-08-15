@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Detached.Mappers.TypeMappers.POCO.Nullable
+﻿namespace Detached.Mappers.TypeMappers.POCO.Nullable
 {
     public class NullableTypeMapper<TSource, TTarget> : TypeMapper<TSource?, TTarget?>
         where TSource : struct

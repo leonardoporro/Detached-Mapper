@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Types;
-
-namespace Detached.Mappers.Types.Conventions
+﻿namespace Detached.Mappers.Types.Conventions
 {
     public class CamelCasePropertyNameConvention : IPropertyNameConvention
     {
