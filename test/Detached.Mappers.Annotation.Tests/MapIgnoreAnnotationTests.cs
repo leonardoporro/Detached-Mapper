@@ -13,7 +13,7 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(MapIgnoreAnnotationHandlerExtensions.KEY));
+            Assert.True(Attribute.IsDefined(typeof(AnnotatedEntity).GetProperty(nameof(AnnotatedEntity.Items)), typeof(MapIgnoreAttribute)));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(MapIgnoreAnnotationHandlerExtensions.KEY));
+            Assert.True(Attribute.IsDefined(typeof(AnnotatedEntity).GetProperty(nameof(AnnotatedEntity.Items)), typeof(MapIgnoreAttribute)));
         }
 
         [Fact]
