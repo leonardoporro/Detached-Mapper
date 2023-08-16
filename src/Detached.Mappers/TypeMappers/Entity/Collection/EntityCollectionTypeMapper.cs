@@ -13,22 +13,30 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
         readonly Func<TSourceItem, IMapContext, TKey> _getSourceKey;
         readonly Func<TTargetItem, IMapContext, TKey> _getTargetKey;
         readonly LazyTypeMapper<TSourceItem, TTargetItem> _itemMapper;
+        private readonly bool _mapNullCollectionToEmptyCollection;
         readonly Func<IMapContext, TTarget> _construct;
 
         public EntityCollectionTypeMapper(Func<IMapContext, TTarget> construct,
                                           Func<TSourceItem, IMapContext, TKey> getSourceKey,
                                           Func<TTargetItem, IMapContext, TKey> getTargetKey,
-                                          LazyTypeMapper<TSourceItem, TTargetItem> itemMapper)
+                                          LazyTypeMapper<TSourceItem, TTargetItem> itemMapper,
+                                          bool mapNullCollectionToEmptyCollection = true)
 
         {
             _construct = construct;
             _getSourceKey = getSourceKey;
             _getTargetKey = getTargetKey;
             _itemMapper = itemMapper;
+            _mapNullCollectionToEmptyCollection = mapNullCollectionToEmptyCollection;
         }
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
+            if (source == null && _mapNullCollectionToEmptyCollection == false)
+            {
+                return target;
+            }
+
             TTarget result = _construct(context);
             Dictionary<TKey, TTargetItem> table = new Dictionary<TKey, TTargetItem>();
 

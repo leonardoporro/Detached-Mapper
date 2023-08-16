@@ -51,7 +51,8 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                             construct.Compile(),
                             getSourceKeyExpr.Compile(),
                             getTargetKeyExpr.Compile(),
-                            itemMapper
+                            itemMapper,
+                            mapper.Options.MapEntityNullCollectionToEmptyCollection
                         });
         }
     }

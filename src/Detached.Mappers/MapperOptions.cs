@@ -119,6 +119,8 @@ namespace Detached.Mappers
 
         public virtual bool MergeCollections { get; set; } = false;
 
+        public virtual bool MapEntityNullCollectionToEmptyCollection { get; set; } = true;
+
         public virtual ClassTypeBuilder<TType> Type<TType>()
         {
             return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
