@@ -12,7 +12,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_dto_with_nullable_key_value()
         {
-            NullableKeyTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<NullableKeyTestDbContext>();
 
             Customer customer = await dbContext.MapAsync<Customer>(new CustomerDTO
             {
@@ -27,7 +27,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_dto_with_nullable_key_null()
         {
-            NullableKeyTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<NullableKeyTestDbContext>();
 
             Customer customer = await dbContext.MapAsync<Customer>(new CustomerDTO
             {
@@ -55,6 +55,11 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class NullableKeyTestDbContext : TestDbContext
         {
+            protected NullableKeyTestDbContext(DbContextOptions options) 
+                : base(options)
+            {
+            }
+
             public DbSet<Customer> Customers { get; set; }
         }
     }

@@ -18,7 +18,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_property_with_value_converter()
         {
-            ValueConverterTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<ValueConverterTestDbContext>();
 
             var address = await dbContext.MapAsync<Address>(new Address
             {
@@ -92,6 +92,10 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ValueConverterTestDbContext : TestDbContext
         {
+            protected ValueConverterTestDbContext(DbContextOptions options) : base(options)
+            {
+            }
+
             public DbSet<Address> Addresses { get; set; }
         }
     }

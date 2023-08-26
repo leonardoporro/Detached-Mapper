@@ -17,7 +17,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            EntityTestDbContext dbContext = new(); 
+            var dbContext = await TestDbContext.Create<EntityTestDbContext>(); 
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -73,7 +73,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity_not_found()
         {
-            EntityTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<EntityTestDbContext>();
 
             await Assert.ThrowsAsync<MapperException>(() =>
                 dbContext.MapAsync<User>(new UserDTO
@@ -208,6 +208,11 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class EntityTestDbContext : TestDbContext
         {
+            protected EntityTestDbContext(DbContextOptions options) 
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
 
             public DbSet<Role> Roles { get; set; }

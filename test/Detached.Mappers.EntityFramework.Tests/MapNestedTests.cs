@@ -14,7 +14,8 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_two_levels()
         {
-            NestedTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<NestedTestDbContext>();
+
             dbContext.InvoiceTypes.Add(new InvoiceType() { Id = 1, });
 
             await dbContext.SaveChangesAsync();
@@ -127,6 +128,10 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class NestedTestDbContext : TestDbContext
         {
+            protected NestedTestDbContext(DbContextOptions options) : base(options)
+            {
+            }
+
             public DbSet<Invoice> Invoices { get; set; }
 
             public DbSet<InvoiceType> InvoiceTypes { get; set; }

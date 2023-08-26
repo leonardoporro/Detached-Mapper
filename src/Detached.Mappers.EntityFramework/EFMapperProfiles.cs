@@ -14,9 +14,18 @@ namespace Detached.Mappers.EntityFramework
         readonly ConcurrentDictionary<object, EFMapper> _mappers;
         readonly EFMapperConfigurationBuilder _configBuilder;
 
-        public EFMapperProfiles(EFMapperConfigurationBuilder configBuilder)
+        public EFMapperProfiles(Action<EFMapperConfigurationBuilder> configure)
         {
-            _configBuilder = configBuilder;
+            _configBuilder = new EFMapperConfigurationBuilder();
+
+            if (configure != null)
+            {
+                configure(_configBuilder);
+            } else
+            {
+                _configBuilder.Default(mapperOptions => { });
+            }
+
             _mappers = new ConcurrentDictionary<object, EFMapper>();
         }
 

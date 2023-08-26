@@ -15,7 +15,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity_nokey_dto()
         {
-            KeylessTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<KeylessTestDbContext>();
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -58,8 +58,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public virtual DateTime DateOfBirth { get; set; }
 
-            public virtual List<Role> Roles { get; set; }  
-        } 
+            public virtual List<Role> Roles { get; set; }
+        }
 
         public class Role
         {
@@ -81,12 +81,17 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public virtual Role Role { get; set; }
         }
- 
+
         public class KeylessTestDbContext : TestDbContext
         {
+            protected KeylessTestDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
 
-            public DbSet<Role> Roles { get; set; } 
+            public DbSet<Role> Roles { get; set; }
 
             protected override void OnModelCreating(ModelBuilder mb)
             {

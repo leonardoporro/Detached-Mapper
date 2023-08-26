@@ -1,25 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Detached.Mappers.EntityFramework.Configuration
 {
     public class EFMapperDbContextOptionsExtension : IDbContextOptionsExtension
     {
-        readonly EFMapperConfigurationBuilder _configBuilder;
-
-        public EFMapperDbContextOptionsExtension(EFMapperConfigurationBuilder configBuilder)
+        public EFMapperDbContextOptionsExtension(Action<EFMapperConfigurationBuilder> configure)
         {
             Info = new EFMapperDbContextOptionsExtensionInfo(this);
-            _configBuilder = configBuilder;
+            Configure = configure;
         }
-
-        internal EFMapperProfiles Profiles { get; set; }
 
         public DbContextOptionsExtensionInfo Info { get; }
 
+        public Action<EFMapperConfigurationBuilder> Configure { get; } 
+
         public void ApplyServices(IServiceCollection services)
         {
-            services.AddSingleton(new EFMapperProfiles(_configBuilder));
+            services.AddSingleton(new EFMapperProfiles(Configure));
         }
 
         public void Validate(IDbContextOptions options)

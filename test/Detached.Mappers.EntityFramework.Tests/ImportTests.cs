@@ -17,7 +17,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string()
         {
-            ImportTestDbContext dbContext = new ImportTestDbContext();
+            var dbContext = await TestDbContext.Create<ImportTestDbContext>();
 
             await dbContext.MapAsync<User>(new User
             {
@@ -40,7 +40,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string_associations_ordered()
         {
-            ImportTestDbContext dbContext = new ImportTestDbContext();
+            var dbContext = await TestDbContext.Create<ImportTestDbContext>();
 
             await dbContext.MapJsonAsync<Role>(
                 Json(@"[
@@ -80,7 +80,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_json_string_associations_not_ordered()
         {
-            ImportTestDbContext dbContext = new ImportTestDbContext();
+            var dbContext = await TestDbContext.Create<ImportTestDbContext>();
 
             await dbContext.MapJsonAsync<User>(
                  Json(@"[
@@ -120,7 +120,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task import_aggregation_and_compositions()
         {
-            using (ImportTestDbContext dbContext = new ImportTestDbContext())
+            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>())
             {
                 // add some invoice types. aggregations are top level independent entities, and expected to be there 
                 // when the root entity is mapped.
@@ -153,7 +153,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (ImportTestDbContext dbContext = new ImportTestDbContext())
+            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>())
             {
                 Invoice persistedInvoice = dbContext.Invoices
                                                 .Where(i => i.Id == 1)
@@ -181,7 +181,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (ImportTestDbContext dbContext = new ImportTestDbContext())
+            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>())
             {
                 Invoice updatedInvoice = dbContext.Invoices
                                                 .Where(i => i.Id == 1)
@@ -327,14 +327,18 @@ namespace Detached.Mappers.EntityFramework.Tests
         }
 
         public class ImportTestDbContext : TestDbContext
-        { 
+        {
+            protected ImportTestDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
 
             public DbSet<Invoice> Invoices { get; set; }
 
             protected override void OnModelCreating(ModelBuilder mb)
             {
-
                 mb.Entity<User>()
                    .HasMany(u => u.Roles)
                    .WithMany(r => r.Users)

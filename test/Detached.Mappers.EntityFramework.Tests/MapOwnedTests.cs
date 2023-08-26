@@ -15,7 +15,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public async Task map_owned()
         {
             Invoice invoice;
-            using (OwnedTestDbContext dbContext = new())
+            using (var dbContext = await TestDbContext.Create<OwnedTestDbContext>())
             {
                 invoice = await dbContext.MapAsync<Invoice>(new InvoiceDTO
                 {
@@ -30,7 +30,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (OwnedTestDbContext dbContext = new())
+            using (var dbContext = await TestDbContext.Create<OwnedTestDbContext>())
             {
                 Invoice persisted = dbContext.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
                 Assert.NotNull(persisted);
@@ -77,6 +77,11 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class OwnedTestDbContext : TestDbContext
         {
+            protected OwnedTestDbContext(DbContextOptions options) 
+                : base(options)
+            {
+            }
+
             public DbSet<Invoice> Invoices { get; set; }
         }
     }

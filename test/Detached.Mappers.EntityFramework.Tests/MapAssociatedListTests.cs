@@ -16,7 +16,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_associated_list()
         {
-            AssociationTestDbContext dbContext = new(); 
+            var dbContext = await TestDbContext.Create<AssociationTestDbContext>(); 
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2,  Name = "user" });
@@ -153,6 +153,11 @@ namespace Detached.Mappers.EntityFramework.Tests
  
         public class AssociationTestDbContext : TestDbContext
         {
+            protected AssociationTestDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
 
             public DbSet<Role> Roles { get; set; }

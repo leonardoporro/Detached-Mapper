@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_getter_only_collection()
         {
-            ReadOnlyPropertyTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<ReadOnlyPropertyTestDbContext>();
 
             var result = dbContext.Map<User>(new
             {
@@ -50,7 +50,12 @@ namespace Detached.Mappers.EntityFramework.Tests
         }
 
         public class ReadOnlyPropertyTestDbContext : TestDbContext
-        { 
+        {
+            protected ReadOnlyPropertyTestDbContext(DbContextOptions options) 
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
         }
     }

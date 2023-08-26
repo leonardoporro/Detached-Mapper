@@ -16,7 +16,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_input()
         {
-            InputTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<InputTestDbContext>();
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
@@ -157,6 +157,11 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InputTestDbContext : TestDbContext
         {
+            protected InputTestDbContext(DbContextOptions options) 
+                : base(options)
+            {
+            }
+
             public DbSet<User> Users { get; set; }
 
             public DbSet<Role> Roles { get; set; }

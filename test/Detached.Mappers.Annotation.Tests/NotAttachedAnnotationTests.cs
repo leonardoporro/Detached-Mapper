@@ -46,12 +46,12 @@ namespace Detached.Mappers.Annotation.Tests
         public class AnnotatedEntity
         {
             [MapIgnore]
-            public List<AnnotatedEntity> Items { get; set; }
+            public List<AnnotatedEntity>? Items { get; set; }
         }
 
         public class Entity
         {
-            public List<Entity> Items { get; set; }
+            public List<Entity>? Items { get; set; }
         }
     }
 }

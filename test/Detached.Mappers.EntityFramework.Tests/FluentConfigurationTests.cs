@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task apply_conventions_to_fluent()
         {
-            FluentTestDbContext dbContext = new();
+            var dbContext = await TestDbContext.Create<FluentTestDbContext>();
 
             IType typeOptions = dbContext.GetMapper().Options.GetType(typeof(ConfiguredTestClass));
 
@@ -36,8 +36,13 @@ namespace Detached.Mappers.EntityFramework.Tests
         }
 
         public class FluentTestDbContext : TestDbContext
-        { 
-            protected override void OnMapperCreating(EFMapperConfigurationBuilder builder)
+        {
+            protected FluentTestDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void ConfigureMapping(EFMapperConfigurationBuilder builder)
             {
                 builder.Default(mapperOptions =>
                 {
