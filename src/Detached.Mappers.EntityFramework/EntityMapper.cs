@@ -1,12 +1,6 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Detached.Mappers.EntityFramework.Conventions;
-using Detached.Mappers.EntityFramework.Queries;
+﻿using Detached.Mappers.EntityFramework.Queries;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public class EFMapper : Mapper
+    public class EntityMapper : Mapper
     {
-        public EFMapper(DbContext dbContext, MapperOptions mapperOptions)
+        public EntityMapper(MapperOptions mapperOptions, Dictionary<string, string> concurrencyTokens)
             : base(mapperOptions)
         {
             JsonSerializerOptions = new JsonSerializerOptions();
@@ -29,46 +23,15 @@ namespace Detached.Mappers.EntityFramework
             JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
             JsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory());
 
-            QueryProvider = new QueryProvider(this); 
-
-            Options.TypeConventions.Add(new EFConventions(dbContext.Model));
-
-            foreach (IMapperCustomizer customizer in dbContext.GetInfrastructure().GetServices<IMapperCustomizer>())
-            {
-                customizer.Customize(dbContext, mapperOptions);
-            }
-
-            MethodInfo configureMapperMethodInfo = dbContext.GetType().GetMethod("OnMapperCreating");
-            if (configureMapperMethodInfo != null)
-            {
-                var parameters = configureMapperMethodInfo.GetParameters();
-                if (parameters.Length != 1 && parameters[0].ParameterType != typeof(MapperOptions))
-                {
-                    throw new ArgumentException($"ConfigureMapper method must have a single argument of type MapperOptions");
-                }
-
-                configureMapperMethodInfo.Invoke(dbContext, new[] { mapperOptions });
-            }
-
-            ContextModel = new EFMapContextModel();
-
-            foreach (IEntityType entityType in dbContext.Model.GetEntityTypes())
-            {
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.IsConcurrencyToken)
-                    {
-                        ContextModel.ConcurrencyTokens.Add(entityType.Name, property.Name);
-                    }
-                }
-            }
+            QueryProvider = new QueryProvider(this);
+            ConcurrencyTokens = concurrencyTokens;
         }
 
         public JsonSerializerOptions JsonSerializerOptions { get; }
 
-        public QueryProvider QueryProvider { get; }
+        public Dictionary<string, string> ConcurrencyTokens { get; }
 
-        public EFMapContextModel ContextModel { get; }
+        public QueryProvider QueryProvider { get; } 
 
         public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
            where TEntity : class
@@ -93,7 +56,7 @@ namespace Detached.Mappers.EntityFramework
                 parameters = new MapParameters();
             }
 
-            var context = new EFMapContext(dbContext, QueryProvider, ContextModel, parameters);
+            var context = new EntityMapContext(this, dbContext, QueryProvider, parameters);
 
             return (TEntity)Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }

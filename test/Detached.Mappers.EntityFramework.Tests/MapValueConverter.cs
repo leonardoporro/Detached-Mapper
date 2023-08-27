@@ -92,7 +92,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ValueConverterTestDbContext : TestDbContext
         {
-            protected ValueConverterTestDbContext(DbContextOptions options) : base(options)
+            public ValueConverterTestDbContext(DbContextOptions<ValueConverterTestDbContext> options) 
+                : base(options)
             {
             }
 

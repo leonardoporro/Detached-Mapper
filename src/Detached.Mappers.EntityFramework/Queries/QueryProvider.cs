@@ -19,9 +19,9 @@ namespace Detached.Mappers.EntityFramework.Queries
     public class QueryProvider
     {
         readonly ConcurrentDictionary<QueryCacheKey, object> _cache;
-        readonly EFMapper _mapper;
+        readonly EntityMapper _mapper;
 
-        public QueryProvider(EFMapper mapper)
+        public QueryProvider(EntityMapper mapper)
         {
             _mapper = mapper;
             _cache = new ConcurrentDictionary<QueryCacheKey, object>();

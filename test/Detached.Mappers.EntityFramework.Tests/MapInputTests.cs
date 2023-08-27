@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -25,6 +26,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             User user = new User
             {
+                Id = 1,
                 Name = "test user",
                 Roles = new List<Role>
                 {
@@ -33,10 +35,11 @@ namespace Detached.Mappers.EntityFramework.Tests
                 },
                 Addresses = new List<Address>
                 {
-                    new Address { Street = "original street", Number = "123" }
+                    new Address { Id = 1, Street = "original street", Number = "123" }
                 },
                 Profile = new UserProfile
                 {
+                    Id = 1,
                     FirstName = "test",
                     LastName = "user"
                 },
@@ -87,6 +90,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class User
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -107,6 +111,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserProfile
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string FirstName { get; set; }
@@ -117,6 +122,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Role
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -138,6 +144,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserType
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -148,6 +155,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Address
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Street { get; set; }
@@ -157,7 +165,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InputTestDbContext : TestDbContext
         {
-            protected InputTestDbContext(DbContextOptions options) 
+            public InputTestDbContext(DbContextOptions<InputTestDbContext> options) 
                 : base(options)
             {
             }

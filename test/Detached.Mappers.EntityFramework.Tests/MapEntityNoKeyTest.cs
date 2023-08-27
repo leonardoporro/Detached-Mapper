@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -52,6 +53,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class User
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -64,6 +66,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Role
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -84,7 +87,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class KeylessTestDbContext : TestDbContext
         {
-            protected KeylessTestDbContext(DbContextOptions options)
+            public KeylessTestDbContext(DbContextOptions<KeylessTestDbContext> options)
                 : base(options)
             {
             }

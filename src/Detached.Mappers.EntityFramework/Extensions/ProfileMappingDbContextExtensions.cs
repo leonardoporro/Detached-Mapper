@@ -10,15 +10,15 @@ namespace Detached.Mappers.EntityFramework
 {
     public static class ProfileMappingDbContextExtensions
     {
-        public static EFMapper GetMapper(this DbContext dbContext, object profileKey)
+        public static EntityMapper GetMapper(this DbContext dbContext, object profileKey = null)
         {
-            EFMapperProfiles services = dbContext.GetService<EFMapperProfiles>();
+            var services = dbContext.GetService<EntityMapperServices>();
             if (services == null)
             {
                 throw new MapperException($"Detached is not configured. Did you miss UseMapping() call?");
             }
 
-            return services.GetInstance(profileKey, dbContext);
+            return services.GetMapper(dbContext, profileKey);
         }
 
         public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, object profileKey, IQueryable<TEntity> query, MapParameters mapParams = null)

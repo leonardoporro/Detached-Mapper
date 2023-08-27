@@ -1,11 +1,9 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Data.SQLite;
-using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -17,7 +15,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task multiple_profiles_create_profile()
         {
-            ProfilesTestDbContext dbContext = await ProfilesTestDbContext.Create();
+            var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
 
             UserDTO dto = new UserDTO { Id = 1, Name = "user name" };
 
@@ -32,7 +30,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task multiple_profiles_update_profile()
         {
-            ProfilesTestDbContext dbContext = await ProfilesTestDbContext.Create();
+            var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
             dbContext.Database.EnsureCreated();
 
             UserDTO dto = new UserDTO { Id = 1, Name = "user name" }; 
@@ -48,6 +46,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class User
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
             public string Name { get; set; }
@@ -70,44 +70,30 @@ namespace Detached.Mappers.EntityFramework.Tests
             Update
         }
 
-        public class ProfilesTestDbContext : DbContext
+        public class ProfilesTestDbContext : TestDbContext
         {
-            public ProfilesTestDbContext(DbContextOptions options) 
+            public ProfilesTestDbContext(DbContextOptions<ProfilesTestDbContext> options) 
                 : base(options)
             {
             }
 
-            public static async Task<ProfilesTestDbContext> Create([CallerMemberName]string dbName = null)
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
-                var connection = new SQLiteConnection($"DataSource=file:{dbName}?mode=memory&cache=shared");
-                await connection.OpenAsync();
+                builder.AddProfile(MappingProfiles.Create, cfg =>
+                {
+                    cfg.Type<User>()
+                       .FromType<UserDTO>()
+                       .Member(u => u.CreatedDate)
+                       .FromValue((u, c) => (DateTime?)DateTime.Now);
+                });
 
-                var options = new DbContextOptionsBuilder<ProfilesTestDbContext>()
-                    .UseSqlite(connection)
-                    .UseMapping(builder =>
-                    {
-                        builder.AddProfile(MappingProfiles.Create, cfg =>
-                        {
-                            cfg.Type<User>()
-                               .FromType<UserDTO>()
-                               .Member(u => u.CreatedDate)
-                               .FromValue((u, c) => (DateTime?)DateTime.Now);
-                        });
-
-                        builder.AddProfile(MappingProfiles.Update, cfg =>
-                        {
-                            cfg.Type<User>()
-                               .FromType<UserDTO>()
-                               .Member(u => u.ModifiedDate)
-                               .FromValue((u, c) => (DateTime?)DateTime.Now);
-                        });
-                    }).Options;
-
-                var dbContext = new ProfilesTestDbContext(options);
-                
-                await dbContext.Database.EnsureCreatedAsync();
-
-                return dbContext;
+                builder.AddProfile(MappingProfiles.Update, cfg =>
+                {
+                    cfg.Type<User>()
+                       .FromType<UserDTO>()
+                       .Member(u => u.ModifiedDate)
+                       .FromValue((u, c) => (DateTime?)DateTime.Now);
+                });
             }
         }
     }

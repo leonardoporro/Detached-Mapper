@@ -4,11 +4,10 @@ using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Xunit;
-using static Detached.Mappers.EntityFramework.Tests.ProfilesTests;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
@@ -18,7 +17,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_success()
         {
-            InheritanceTestDbContext dbContext = await InheritanceTestDbContext.Create();
+            var dbContext = await TestDbContext.Create<InheritanceTestDbContext>();
 
             SellPoint sellPoint = dbContext.Map<SellPoint>(new
             {
@@ -42,7 +41,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_invalid_discriminator()
         {
-            InheritanceTestDbContext dbContext = await InheritanceTestDbContext.Create();
+            var dbContext = await TestDbContext.Create<InheritanceTestDbContext>();
 
             try
             {
@@ -69,7 +68,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_inherited_entities_missing_discriminator()
         {
-            InheritanceTestDbContext dbContext = await InheritanceTestDbContext.Create();
+            var dbContext = await TestDbContext.Create<InheritanceTestDbContext>();
 
             try
             {
@@ -94,6 +93,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class SellPoint
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
             [Composition]
@@ -108,6 +109,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public abstract class DeliveryArea
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
             public DeliveryAreaType AreaType { get; set; }
@@ -143,9 +146,9 @@ namespace Detached.Mappers.EntityFramework.Tests
             public double Radius { get; set; }
         }
 
-        public class InheritanceTestDbContext : DbContext
+        public class InheritanceTestDbContext : TestDbContext
         {
-            public InheritanceTestDbContext(DbContextOptions options)
+            public InheritanceTestDbContext(DbContextOptions<InheritanceTestDbContext> options)
                 : base(options)
             {
             }
@@ -155,24 +158,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)
                     .HasValue(typeof(CircleDeliveryArea), DeliveryAreaType.Circle)
                     .HasValue(typeof(RectangleDeliveryArea), DeliveryAreaType.Rectangle);
-            }
-
-            public static async Task<InheritanceTestDbContext> Create([CallerMemberName] string dbName = null)
-            {
-                var connection = new SQLiteConnection($"DataSource=file:{dbName}?mode=memory&cache=shared");
-                await connection.OpenAsync();
-
-                var options = new DbContextOptionsBuilder<InheritanceTestDbContext>()
-                    .UseSqlite(connection)
-                    .UseMapping()
-                    .Options;
-
-                var dbContext = new InheritanceTestDbContext(options);
-
-                await dbContext.Database.EnsureCreatedAsync();
-
-                return dbContext;
-            }
+            } 
         }
     }
 }

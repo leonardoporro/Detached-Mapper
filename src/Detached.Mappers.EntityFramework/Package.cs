@@ -10,7 +10,7 @@ namespace Detached.Mappers.EntityFramework
         [Obsolete("Call UseMapping instead.")]
         public static DbContextOptionsBuilder UseDetached(this DbContextOptionsBuilder dbContextBuilder, Action<MapperOptions> configure = null)
         {
-            UseMapping(dbContextBuilder, cfg => cfg.Default(configure));
+            UseMapping(dbContextBuilder);
             return dbContextBuilder;
         }
 
@@ -18,21 +18,29 @@ namespace Detached.Mappers.EntityFramework
         public static DbContextOptionsBuilder<TDbContext> UseDetached<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<MapperOptions> configure = null)
             where TDbContext : DbContext
         {
-            UseMapping(dbContextBuilder, cfg => cfg.Default(configure));
+            UseMapping(dbContextBuilder);
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
         {
-            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EFMapperDbContextOptionsExtension(configure));
+            EntityMapperServices services = new EntityMapperServices();
+
+            if (configure != null)
+            {
+                EntityMapperOptionsBuilder builder = new EntityMapperOptionsBuilder(dbContextBuilder.Options.ContextType, services);
+                configure(builder);
+            }
+
+            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EntityMapperDbContextOptionsExtension(services));
 
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder<TDbContext> UseMapping<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EFMapperConfigurationBuilder> configure = null)
+        public static DbContextOptionsBuilder<TDbContext> UseMapping<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
             where TDbContext : DbContext
         {
-            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EFMapperDbContextOptionsExtension(configure));
+            UseMapping(dbContextBuilder, configure); 
 
             return dbContextBuilder;
         }

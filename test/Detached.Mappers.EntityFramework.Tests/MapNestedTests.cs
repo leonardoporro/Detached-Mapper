@@ -2,6 +2,8 @@
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -84,6 +86,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class Invoice
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             [Aggregation]
@@ -95,6 +99,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceRow
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Description { get; set; }
@@ -114,6 +120,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceRowDetail
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
             public string Description { get; set; }
@@ -121,6 +129,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceType
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -128,7 +138,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class NestedTestDbContext : TestDbContext
         {
-            protected NestedTestDbContext(DbContextOptions options) : base(options)
+            public NestedTestDbContext(DbContextOptions<NestedTestDbContext> options)
+                : base(options)
             {
             }
 

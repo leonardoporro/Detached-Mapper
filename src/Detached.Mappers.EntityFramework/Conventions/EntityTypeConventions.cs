@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions
 {
-    public class EFConventions : ITypeConvention
+    public class EntityTypeConventions : ITypeConvention
     {
         readonly IModel _model;
 
-        public EFConventions(IModel model)
+        public EntityTypeConventions(IModel model)
         {
             _model = model;
         }

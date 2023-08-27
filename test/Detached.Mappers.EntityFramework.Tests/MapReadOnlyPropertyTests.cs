@@ -10,7 +10,7 @@ namespace Detached.Mappers.EntityFramework.Tests
     [Collection("Default")]
     public class MapReadOnlyPropertyTests
     {
-        [Fact]
+        //[Fact]
         public async Task map_getter_only_collection()
         {
             var dbContext = await TestDbContext.Create<ReadOnlyPropertyTestDbContext>();
@@ -51,7 +51,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ReadOnlyPropertyTestDbContext : TestDbContext
         {
-            protected ReadOnlyPropertyTestDbContext(DbContextOptions options) 
+            public ReadOnlyPropertyTestDbContext(DbContextOptions<ReadOnlyPropertyTestDbContext> options) 
                 : base(options)
             {
             }

@@ -8,11 +8,6 @@ namespace Detached.Mappers.EntityFramework
 {
     public static class MappingDbContextExtensions
     {
-        public static EFMapper GetMapper(this DbContext dbContext)
-        {
-            return dbContext.GetMapper(null);
-        }
-
         public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, IQueryable<TEntity> query, MapParameters mapParams = null)
             where TEntity : class
             where TProjection : class

@@ -9,25 +9,25 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public class EFMapContext : MapContext
+    public class EntityMapContext : MapContext
     {
-        public EFMapContext(
+        public EntityMapContext(
+            EntityMapper mapper,
             DbContext dbContext, 
-            QueryProvider queryProvider, 
-            EFMapContextModel model,
+            QueryProvider queryProvider,  
             MapParameters parameters)
             : base(parameters)
         {
+            Mapper = mapper;
             QueryProvider = queryProvider;
-            DbContext = dbContext;
-            ContextModel = model;
+            DbContext = dbContext; 
         }
+
+        public EntityMapper Mapper { get; }
 
         public QueryProvider QueryProvider { get; }
 
-        public DbContext DbContext { get; }
-
-        public EFMapContextModel ContextModel { get; }
+        public DbContext DbContext { get; } 
 
         public override TTarget TrackChange<TTarget, TSource, TKey>(TTarget entity, TSource source, TKey key, MapperActionType actionType)
         {
@@ -91,7 +91,7 @@ namespace Detached.Mappers.EntityFramework
                     {
                         case MapperActionType.Update:
 
-                            if (ContextModel.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
+                            if (Mapper.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
                             {
                                 PropertyEntry concurrencyTokenProperty = entry.Property(concurrencyTokenName);
                                 concurrencyTokenProperty.OriginalValue = concurrencyTokenProperty.CurrentValue;

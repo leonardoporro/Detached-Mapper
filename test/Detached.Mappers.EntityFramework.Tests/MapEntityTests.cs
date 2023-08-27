@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -91,6 +92,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class User
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -126,6 +128,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserProfile
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string FirstName { get; set; }
@@ -145,6 +148,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Role
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -173,6 +177,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserType
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -190,6 +195,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Address
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Street { get; set; }
@@ -208,7 +214,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class EntityTestDbContext : TestDbContext
         {
-            protected EntityTestDbContext(DbContextOptions options) 
+            public EntityTestDbContext(DbContextOptions<EntityTestDbContext> options) 
                 : base(options)
             {
             }

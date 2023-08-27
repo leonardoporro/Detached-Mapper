@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -136,11 +137,13 @@ namespace Detached.Mappers.EntityFramework.Tests
 				                            'invoiceType': { 'id': 2 },
 				                            'rows': [
 					                            {
+                                                    'id': 1,
 						                            'description': 'prod 1', 
 						                            'quantity': 5,
 						                            'price': 25
 					                            },
 					                            {
+                                                    'id': 2,
 						                            'description': 'prod 2',
 						                            'quantity': 3,
 						                            'price': 100
@@ -153,7 +156,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>())
+            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>(false))
             {
                 Invoice persistedInvoice = dbContext.Invoices
                                                 .Where(i => i.Id == 1)
@@ -181,7 +184,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>())
+            using (var dbContext = await TestDbContext.Create<ImportTestDbContext>(false))
             {
                 Invoice updatedInvoice = dbContext.Invoices
                                                 .Where(i => i.Id == 1)
@@ -202,6 +205,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class User
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -222,6 +226,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserProfile
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string FirstName { get; set; }
@@ -231,6 +236,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Role
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -252,6 +258,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class UserType
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -262,6 +269,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         public class Address
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Street { get; set; }
@@ -271,6 +279,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class Invoice
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             [Aggregation]
@@ -285,6 +295,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceRow
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Description { get; set; }
@@ -304,6 +316,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceRowDetail
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
             public string Description { get; set; }
@@ -311,6 +325,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InvoiceType
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
@@ -328,7 +344,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ImportTestDbContext : TestDbContext
         {
-            protected ImportTestDbContext(DbContextOptions options)
+            public ImportTestDbContext(DbContextOptions<ImportTestDbContext> options)
                 : base(options)
             {
             }

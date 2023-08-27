@@ -37,14 +37,14 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class FluentTestDbContext : TestDbContext
         {
-            protected FluentTestDbContext(DbContextOptions options)
+            public FluentTestDbContext(DbContextOptions<FluentTestDbContext> options)
                 : base(options)
             {
             }
 
-            protected override void ConfigureMapping(EFMapperConfigurationBuilder builder)
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
-                builder.Default(mapperOptions =>
+                builder.ConfigureMapper(mapperOptions =>
                 {
                     mapperOptions.Type<ConfiguredTestClass>().TypeOptions.Entity(true);
                     mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey1).Key(true);

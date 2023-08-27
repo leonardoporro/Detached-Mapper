@@ -2,6 +2,8 @@
 using Detached.Annotations;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -19,6 +21,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
                 invoice = await dbContext.MapAsync<Invoice>(new InvoiceDTO
                 {
+                    Id = 1,
                     ShippingAddress = new ShippingAddressDTO
                     {
                         Line1 = "Zeballos St. 2135",
@@ -30,7 +33,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 await dbContext.SaveChangesAsync();
             }
 
-            using (var dbContext = await TestDbContext.Create<OwnedTestDbContext>())
+            using (var dbContext = await TestDbContext.Create<OwnedTestDbContext>(false))
             {
                 Invoice persisted = dbContext.Invoices.FirstOrDefault(i => i.Id == invoice.Id);
                 Assert.NotNull(persisted);
@@ -43,6 +46,8 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class Invoice
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public virtual int Id { get; set; }
 
             [Composition]
@@ -77,7 +82,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class OwnedTestDbContext : TestDbContext
         {
-            protected OwnedTestDbContext(DbContextOptions options) 
+            public OwnedTestDbContext(DbContextOptions<OwnedTestDbContext> options) 
                 : base(options)
             {
             }

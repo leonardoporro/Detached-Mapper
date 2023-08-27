@@ -55,7 +55,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class NullableKeyTestDbContext : TestDbContext
         {
-            protected NullableKeyTestDbContext(DbContextOptions options) 
+            public NullableKeyTestDbContext(DbContextOptions<NullableKeyTestDbContext> options) 
                 : base(options)
             {
             }
