@@ -13,26 +13,26 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
         readonly Func<TSourceItem, IMapContext, TKey> _getSourceKey;
         readonly Func<TTargetItem, IMapContext, TKey> _getTargetKey;
         readonly LazyTypeMapper<TSourceItem, TTargetItem> _itemMapper;
-        private readonly bool _mapNullCollectionToEmptyCollection;
+        private readonly EntityCollectionNullBehavior _entityCollectionNullBehavior;
         readonly Func<IMapContext, TTarget> _construct;
 
         public MergeEntityCollectionTypeMapper(Func<IMapContext, TTarget> construct,
                                           Func<TSourceItem, IMapContext, TKey> getSourceKey,
                                           Func<TTargetItem, IMapContext, TKey> getTargetKey,
                                           LazyTypeMapper<TSourceItem, TTargetItem> itemMapper,
-                                          bool mapNullCollectionToEmptyCollection = true)
+                                          EntityCollectionNullBehavior entityCollectionNullBehavior)
 
         {
             _construct = construct;
             _getSourceKey = getSourceKey;
             _getTargetKey = getTargetKey;
             _itemMapper = itemMapper;
-            _mapNullCollectionToEmptyCollection = mapNullCollectionToEmptyCollection;
+            _entityCollectionNullBehavior = entityCollectionNullBehavior;
         }
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
-            if (source == null && _mapNullCollectionToEmptyCollection == false)
+            if (source == null && _entityCollectionNullBehavior == EntityCollectionNullBehavior.Ignore)
             {
                 return target;
             }

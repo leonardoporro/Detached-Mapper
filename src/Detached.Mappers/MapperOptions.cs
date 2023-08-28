@@ -16,7 +16,6 @@ using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 using Detached.Mappers.Types.Conventions;
 using Detached.Mappers.Types.Dictionary;
-using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -119,7 +118,7 @@ namespace Detached.Mappers
 
         public virtual bool MergeCollections { get; set; } = false;
 
-        public virtual bool MapEntityNullCollectionToEmptyCollection { get; set; } = true;
+        public virtual EntityCollectionNullBehavior EntityCollectionNullBehavior { get; set; }
 
         public virtual ClassTypeBuilder<TType> Type<TType>()
         {

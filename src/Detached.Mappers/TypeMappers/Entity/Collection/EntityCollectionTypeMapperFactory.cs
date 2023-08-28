@@ -52,7 +52,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                             getSourceKeyExpr.Compile(),
                             getTargetKeyExpr.Compile(),
                             itemMapper,
-                            mapper.Options.MapEntityNullCollectionToEmptyCollection
+                            mapper.Options.EntityCollectionNullBehavior
                         });
         }
     }
