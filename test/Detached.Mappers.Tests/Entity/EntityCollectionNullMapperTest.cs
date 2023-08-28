@@ -40,7 +40,7 @@ namespace Detached.Mappers.Tests.Entity
         }
 
         /// <summary>
-        /// Test default behaviour of mapper (clear target collection if source is null)
+        /// Test ignore behaviour of entity collection mapper (leave target collection as-is)
         /// </summary>
         [Fact]
         public void map_null_collection_ignore()
