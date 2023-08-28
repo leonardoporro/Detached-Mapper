@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Detached.Mappers.Annotation.Tests
 {
-    public class NotAttachedAnnotationTests
+    public class MapIgnoreAnnotationTests
     {
         [Fact]
         public void attribute_must_set_annotation()

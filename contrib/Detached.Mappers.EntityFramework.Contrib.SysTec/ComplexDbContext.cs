@@ -41,23 +41,23 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public DbSet<Course> Courses { get; set; }
 
         public DbSet<EntityOne> EntityOnes { get; set; }
-        
+
         public DbSet<EntityTwo> EntityTwos { get; set; }
-        
+
         public DbSet<EntityThree> EntityThrees { get; set; }
-        
+
         public DbSet<EntityFour> EntityFours { get; set; }
-        
+
         public DbSet<Angebot> Angebote { get; set; }
-        
+
         public DbSet<PositionBase> Positionen { get; set; }
-        
+
         public DbSet<ArtikelPosition> ArtikelPositionen { get; set; }
-        
+
         public DbSet<UeberschriftPosition> UeberschriftPositionen { get; set; }
-        
+
         public DbSet<Artikel> Artikel { get; set; }
-        
+
         public DbSet<Zubehoer> Zubehoer { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -66,42 +66,45 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .EnableSensitiveDataLogging()
                 .LogTo(message => Debug.WriteLine(message), LogLevel.Information)
                 .EnableDetailedErrors()
-                .UseDetached(options =>
+                .UseMapping(config =>
                 {
-                    // not what we want, because OrganizationBase can be Customer or Government
-                    // but this line is a test to drive it further
-                    //options.Configure<OrganizationBase>().Constructor(x => new Customer());
+                    config.Default(options =>
+                    {
+                        // not what we want, because OrganizationBase can be Customer or Government
+                        // but this line is a test to drive it further
+                        //options.Configure<OrganizationBase>().Constructor(x => new Customer());
 
-                    //options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
-                    //    .Value(nameof(Customer), typeof(Customer))
-                    //    .Value(nameof(Government), typeof(Government))
-                    //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
+                        //options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
+                        //    .Value(nameof(Customer), typeof(Customer))
+                        //    .Value(nameof(Government), typeof(Government))
+                        //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
 
-                    options.Type<OrganizationBaseDTO>().Abstract();
+                        //options.Type<OrganizationBaseDTO>().Abstract();
 
-                    options.Type<OrganizationBaseDTO>()
-                        .Discriminator(o => o.OrganizationType)
-                        .HasValue<GovernmentDTO>(nameof(Government))
-                        .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
+                        //options.Type<OrganizationBaseDTO>()
+                        //    .Discriminator(o => o.OrganizationType)
+                        //    .HasValue<GovernmentDTO>(nameof(Government))
+                        //    .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
 
-                    options.Type<BaseHead>()
-                        .Discriminator(o => o.Discriminator)
-                        .HasValue<EntityTwo>(nameof(EntityTwo))
-                        .HasValue<EntityThree>(nameof(EntityThree))
-                        .HasValue<EntityFour>(nameof(EntityFour))
-                        .HasValue<EntityFive>(nameof(EntityFive));
+                        options.Type<BaseHead>()
+                            .Discriminator(o => o.Discriminator)
+                            .HasValue<EntityTwo>(nameof(EntityTwo))
+                            .HasValue<EntityThree>(nameof(EntityThree))
+                            .HasValue<EntityFour>(nameof(EntityFour))
+                            .HasValue<EntityFive>(nameof(EntityFive));
 
-                    /*
-                     //Workaround for Test 15
-                    options.Type<BaseStationOneSecond>()
-                        .Discriminator(o => o.Discriminator)
-                        .HasValue<EntityThree>(nameof(EntityThree));
+                        /*
+                         //Workaround for Test 15
+                        options.Type<BaseStationOneSecond>()
+                            .Discriminator(o => o.Discriminator)
+                            .HasValue<EntityThree>(nameof(EntityThree));
 
-                    options.Type<BaseStationOneFirst>()
-                        .Discriminator(o => o.Discriminator)
-                        .HasValue<EntityFour>(nameof(EntityFour))
-                        .HasValue<EntityTwo>(nameof(EntityTwo)); */
+                        options.Type<BaseStationOneFirst>()
+                            .Discriminator(o => o.Discriminator)
+                            .HasValue<EntityFour>(nameof(EntityFour))
+                            .HasValue<EntityTwo>(nameof(EntityTwo)); */
 
+                    });
                 });
 
             //optionsBuilder.ConfigureWarnings(
@@ -155,13 +158,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .HasValue<EntityTwo>(nameof(EntityTwo))
                 .HasValue<EntityThree>(nameof(EntityThree))
                 .HasValue<EntityFour>(nameof(EntityFour));
-            
+
             modelBuilder.Entity<PositionBase>()
                 .UseTphMappingStrategy()
                 .HasDiscriminator(p => p.Positionsart)
                 .HasValue<ArtikelPosition>(nameof(ArtikelPosition))
                 .HasValue<UeberschriftPosition>(nameof(UeberschriftPosition));
-            
+
             modelBuilder.Entity<ArtikelBase>()
                 .UseTphMappingStrategy()
                 .HasDiscriminator(a => a.Discriminator)

@@ -1,5 +1,6 @@
-﻿using Detached.Mappers.EntityFramework.Queries;
-using Detached.PatchTypes;
+﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Queries;
+using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.IO;
@@ -10,45 +11,60 @@ using System.Threading.Tasks;
 
 namespace Detached.Mappers.EntityFramework
 {
-    public class EntityMapper : Mapper
+    public class EntityMapper
     {
-        public EntityMapper(MapperOptions mapperOptions, Dictionary<string, string> concurrencyTokens)
-            : base(mapperOptions)
-        {
-            JsonSerializerOptions = new JsonSerializerOptions();
-            JsonSerializerOptions.AllowTrailingCommas = true;
-            JsonSerializerOptions.IgnoreReadOnlyProperties = true;
-            JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            JsonSerializerOptions.PropertyNameCaseInsensitive = false;
-            JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-            JsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory());
+        readonly Dictionary<ProfileKey, Mapper> _mappers = new();
+        readonly Dictionary<ProfileKey, QueryProvider> _queryProviders = new();
 
-            QueryProvider = new QueryProvider(this);
-            ConcurrencyTokens = concurrencyTokens;
+        public EntityMapper(EntityMapperOptions options)
+        {
+            Options = options;
+
+            foreach (var entry in options.MapperOptions)
+            {
+                _mappers.Add(entry.Key, new Mapper(entry.Value));
+                _queryProviders.Add(entry.Key, new QueryProvider(entry.Value));
+            }
         }
 
-        public JsonSerializerOptions JsonSerializerOptions { get; }
+        public EntityMapperOptions Options { get; }
 
-        public Dictionary<string, string> ConcurrencyTokens { get; }
+        public Mapper GetMapper(ProfileKey profileKey)
+        {
+            if (!_mappers.TryGetValue(profileKey, out var mapper))
+            {
+                throw new MapperException($"Profile {profileKey.Value} not found.");
+            }
 
-        public QueryProvider QueryProvider { get; } 
+            return mapper;
+        }
 
-        public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
+        public QueryProvider GetQueryProvider(ProfileKey profileKey)
+        {
+            if (!_queryProviders.TryGetValue(profileKey, out var mapper))
+            {
+                throw new MapperException($"Profile {profileKey.Value} not found.");
+            }
+
+            return mapper;
+        }
+
+        public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query, ProfileKey profileKey)
            where TEntity : class
            where TProjection : class
         {
-            return QueryProvider.Project<TEntity, TProjection>(query);
+            return GetQueryProvider(profileKey).Project<TEntity, TProjection>(query);
         }
 
-        public Task<TEntity> MapAsync<TEntity>(DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
+        public Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
-            Task<TEntity> task = Task.Run(() => Map<TEntity>(dbContext, entityOrDTO, parameters));
+            var task = Task.Run(() => Map<TEntity>(dbContext, profileKey, entityOrDTO, parameters));
             task.ConfigureAwait(false);
             return task;
         }
 
-        public TEntity Map<TEntity>(DbContext dbContext, object entityOrDTO, MapParameters parameters = null)
+        public TEntity Map<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
             if (parameters == null)
@@ -56,12 +72,12 @@ namespace Detached.Mappers.EntityFramework
                 parameters = new MapParameters();
             }
 
-            var context = new EntityMapContext(this, dbContext, QueryProvider, parameters);
+            var context = new EntityMapContext(Options.ConcurrencyTokens, dbContext, GetQueryProvider(profileKey), parameters);
 
-            return (TEntity)Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
+            return (TEntity)GetMapper(profileKey).Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }
 
-        public async Task MapJsonAsync<TEntity>(DbContext dbContext, Stream stream, MapParameters mapParams = null)
+        public async Task MapJsonAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, Stream stream, MapParameters mapParams = null)
             where TEntity : class
         {
             if (mapParams == null)
@@ -69,16 +85,16 @@ namespace Detached.Mappers.EntityFramework
                 mapParams = new MapParameters { AddAggregations = true };
             }
 
-            foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, JsonSerializerOptions))
+            foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, Options.JsonSerializerOptions))
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(dbContext, entity, mapParams);
+                    await MapAsync<TEntity>(dbContext, profileKey, entity, mapParams);
                 }
             }
         }
 
-        public async Task MapJsonAsync<TEntity>(DbContext dbContext, string json, MapParameters mapParams = null)
+        public async Task MapJsonAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string json, MapParameters mapParams = null)
             where TEntity : class
         {
             if (mapParams == null)
@@ -86,25 +102,25 @@ namespace Detached.Mappers.EntityFramework
                 mapParams = new MapParameters { AddAggregations = true };
             }
 
-            foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, JsonSerializerOptions))
+            foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, Options.JsonSerializerOptions))
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(dbContext, entity, mapParams);
+                    await MapAsync<TEntity>(dbContext, profileKey, entity, mapParams);
                 }
             }
         }
 
-        public async Task MapJsonFileAsync<TEntity>(DbContext dbContext, string filePath, MapParameters mapParams = null)
+        public async Task MapJsonFileAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string filePath, MapParameters mapParams = null)
            where TEntity : class
         {
             using (Stream fileStream = File.OpenRead(filePath))
             {
-                await MapJsonAsync<TEntity>(dbContext, fileStream, mapParams);
+                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapParams);
             }
         }
 
-        public async Task MapJsonResourceAsync<TEntity>(DbContext dbContext, string resourceName, Assembly assembly = null, MapParameters mapParams = null)
+        public async Task MapJsonResourceAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string resourceName, Assembly assembly = null, MapParameters mapParams = null)
            where TEntity : class
         {
             if (assembly == null)
@@ -114,7 +130,7 @@ namespace Detached.Mappers.EntityFramework
 
             using (Stream fileStream = assembly.GetManifestResourceStream(resourceName))
             {
-                await MapJsonAsync<TEntity>(dbContext, fileStream, mapParams);
+                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapParams);
             }
         }
     }

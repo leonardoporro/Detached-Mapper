@@ -6,24 +6,25 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections.Generic;
 
 namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapContext : MapContext
     {
         public EntityMapContext(
-            EntityMapper mapper,
+            Dictionary<string, string> concurrencyTokens,
             DbContext dbContext, 
             QueryProvider queryProvider,  
             MapParameters parameters)
             : base(parameters)
         {
-            Mapper = mapper;
+            ConcurrencyTokens = concurrencyTokens;
             QueryProvider = queryProvider;
             DbContext = dbContext; 
         }
 
-        public EntityMapper Mapper { get; }
+        public Dictionary<string, string> ConcurrencyTokens { get; }
 
         public QueryProvider QueryProvider { get; }
 
@@ -91,7 +92,7 @@ namespace Detached.Mappers.EntityFramework
                     {
                         case MapperActionType.Update:
 
-                            if (Mapper.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
+                            if (ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
                             {
                                 PropertyEntry concurrencyTokenProperty = entry.Property(concurrencyTokenName);
                                 concurrencyTokenProperty.OriginalValue = concurrencyTokenProperty.CurrentValue;
