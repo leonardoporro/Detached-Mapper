@@ -27,7 +27,6 @@ public class TellDbContext : DbContext
             .EnableSensitiveDataLogging()
             .LogTo(message => Debug.WriteLine(message), LogLevel.Information)
             .EnableDetailedErrors()
-            .UseDetached()
             .UseMapping(builder =>
             {
                 builder.Default(options =>

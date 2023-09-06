@@ -30,7 +30,7 @@ namespace Detached.Mappers.Samples.RestApi
 
             services.AddDbContext<MainDbContext>(cfg =>
             {
-                cfg.UseSqlServer(Configuration.GetConnectionString("MainDb"));
+                cfg.UseSqlite(Configuration.GetConnectionString("MainDb"));
                 cfg.UseDetached();
             });
 
