@@ -82,7 +82,10 @@ namespace Detached.Mappers.EntityFramework
         {
             if (mapParams == null)
             {
-                mapParams = new MapParameters { AddAggregations = true };
+                mapParams = new MapParameters
+                {
+                    MissingAggregationBehavior = MissingAggregationBehavior.Create
+                };
             }
 
             foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, Options.JsonSerializerOptions))
@@ -99,7 +102,10 @@ namespace Detached.Mappers.EntityFramework
         {
             if (mapParams == null)
             {
-                mapParams = new MapParameters { AddAggregations = true };
+                mapParams = new MapParameters
+                {
+                    MissingAggregationBehavior = MissingAggregationBehavior.Create
+                };
             }
 
             foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, Options.JsonSerializerOptions))

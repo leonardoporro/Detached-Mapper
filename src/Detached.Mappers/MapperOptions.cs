@@ -117,9 +117,7 @@ namespace Detached.Mappers
         public virtual List<IPropertyNameConvention> PropertyNameConventions { get; }
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
-
-        public virtual bool MergeCollections { get; set; } = false;
-
+ 
         public virtual ClassTypeBuilder<TType> Type<TType>()
         {
             return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
@@ -142,7 +140,7 @@ namespace Detached.Mappers
                         return typeOptions;
                 }
 
-                throw new InvalidOperationException($"Can't get options for type {type.GetFriendlyName()}.");
+                throw new InvalidOperationException($"Can't get options for type {keyType.GetFriendlyName()}.");
             });
         }
 

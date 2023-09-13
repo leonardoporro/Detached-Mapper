@@ -22,19 +22,16 @@ namespace Detached.Mappers.Json.Tests
             // create options. Json lib is a separate package to avoid adding System.Text.Json dependency to the main lib, call WithJson() to integrate.
             MapperOptions mapperOptions = new MapperOptions().WithJson();
 
-            // this flag indicates the mapper to preserve target items of associated collections. the default option is to remove them.
-            // notice that ConnectionOptions is marked as [Entity] and has a [Key]. the library will pair collection items by key 
-            // before update, delete or create.
-            // an internal hash table is used to speed up this, so the order of the mapped collection is not guaranteed.
-            mapperOptions.MergeCollections = true;
-
             mapperOptions.PropertyNameConventions.Add(new CamelCasePropertyNameConvention());
 
             // create the mapper.
             Mapper mapper = new Mapper(mapperOptions);
 
             // WHEN base file is mapped.
-            mapper.Map(optionsFile, options);
+            MapContext mapContext = new MapContext();
+            mapContext.Parameters.CompositeCollectionBehavior = CompositeCollectionBehavior.Append;
+
+            mapper.Map(optionsFile, options, mapContext);
 
             // THEN the values are correct.
             Assert.Equal("*", options.AllowedHosts);
@@ -45,7 +42,7 @@ namespace Detached.Mappers.Json.Tests
             Assert.Equal("Server=tcp:myserver2.database.windows.net,1433;Database=myDataBase;", options.ConnectionStrings.FirstOrDefault(c => c.Name == "cnn2").Value);
 
             // WHEN first file is mapped.
-            mapper.Map(optionsFile1, options);
+            mapper.Map(optionsFile1, options, mapContext);
 
             // THEN cnn2 connection changes, the rest of the values are preserved.
             Assert.Equal("*", options.AllowedHosts);
@@ -56,7 +53,7 @@ namespace Detached.Mappers.Json.Tests
             Assert.Equal("Server=tcp:db.google.com,1433;Database=myDataBase;", options.ConnectionStrings.FirstOrDefault(c => c.Name == "cnn2").Value);
 
             // WHEN second file is mapped.
-            mapper.Map(optionsFile2, options);
+            mapper.Map(optionsFile2, options, mapContext);
 
             // THEN AllowedHosts changes, the rest of the values are preserved.
             Assert.Equal("subdomain.google.com", options.AllowedHosts);
@@ -67,7 +64,7 @@ namespace Detached.Mappers.Json.Tests
             Assert.Equal("Server=tcp:db.google.com,1433;Database=myDataBase;", options.ConnectionStrings.FirstOrDefault(c => c.Name == "cnn2").Value);
 
             // WHEN the third file is mapped.
-            mapper.Map(optionsFile3, options);
+            mapper.Map(optionsFile3, options, mapContext);
 
             // THEN only Logging.Level changes.
             Assert.NotNull(options.Logging);

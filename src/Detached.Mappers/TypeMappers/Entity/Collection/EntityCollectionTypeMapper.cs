@@ -56,9 +56,19 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                 }
             }
 
-            foreach (TTargetItem targetItem in table.Values)
+            if (context.Parameters.CompositeCollectionBehavior == CompositeCollectionBehavior.Append)
             {
-                _itemMapper.Value.Map(null, targetItem, context);
+                foreach (TTargetItem targetItem in table.Values)
+                {
+                    result.Add(targetItem);
+                }
+            }
+            else
+            {
+                foreach (TTargetItem targetItem in table.Values)
+                {
+                    _itemMapper.Value.Map(null, targetItem, context);
+                }
             }
 
             return result;

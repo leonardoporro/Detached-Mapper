@@ -41,7 +41,7 @@ namespace Detached.Mappers.EntityFramework
 
                 TTarget loadedEntity = GetExistingEntry<TTarget, TKey>(key)?.Entity;
 
-                if (loadedEntity == null && !Parameters.Upsert)
+                if (loadedEntity == null && Parameters.MissingRootBehavior != MissingRootBehavior.Create)
                 {
                     throw new MapperException($"Entity {typeof(TTarget)} with key [{string.Join(", ", key.ToObject())}] does not exist.");
                 }
@@ -58,7 +58,7 @@ namespace Detached.Mappers.EntityFramework
                     switch (actionType)
                     {
                         case MapperActionType.Attach:
-                            if (Parameters.AddAggregations)
+                            if (Parameters.MissingAggregationBehavior == MissingAggregationBehavior.Create)
                             {
                                 entry.Reload();
                                 if (entry.State == EntityState.Detached)
@@ -72,10 +72,11 @@ namespace Detached.Mappers.EntityFramework
                             }
                             break;
                         case MapperActionType.Create:
-                            if (!key.IsEmpty && Parameters.AssociateExistingCompositions)
+                            if (!key.IsEmpty && Parameters.ExistingCompositionBehavior == ExistingCompositionBehavior.Associate)
                             {
                                 entry.Reload();
                             }
+
                             if (entry.State == EntityState.Detached)
                             {
                                 entry.State = EntityState.Added;
