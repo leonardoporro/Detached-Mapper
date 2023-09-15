@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers.EntityFramework.Configuration;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
