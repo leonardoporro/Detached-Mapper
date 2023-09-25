@@ -2,15 +2,14 @@
 using Detached.Annotations;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    [Collection("Default")]
     public class MapOwnedTests
     {
         [Fact]

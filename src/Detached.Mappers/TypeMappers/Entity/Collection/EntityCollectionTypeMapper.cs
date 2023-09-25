@@ -29,7 +29,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
-            TTarget result = _construct(context);
+            
             Dictionary<TKey, TTargetItem> table = new Dictionary<TKey, TTargetItem>();
 
             if (target != null)
@@ -40,6 +40,13 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                     table.Add(targetKey, targetItem);
                 }
             }
+
+            TTarget result = target;
+
+            if (target == null)
+                result = _construct(context);
+            else
+                result.Clear();
 
             if (source != null)
             {

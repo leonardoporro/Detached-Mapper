@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.EntityFramework.Queries;
+﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Queries;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -6,25 +7,24 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System.Collections.Generic;
 
 namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapContext : MapContext
     {
         public EntityMapContext(
-            Dictionary<string, string> concurrencyTokens,
+            EntityMapperOptions mapperOptions,
             DbContext dbContext, 
             QueryProvider queryProvider,  
             MapParameters parameters)
             : base(parameters)
         {
-            ConcurrencyTokens = concurrencyTokens;
+            Options = mapperOptions;
             QueryProvider = queryProvider;
             DbContext = dbContext; 
         }
 
-        public Dictionary<string, string> ConcurrencyTokens { get; }
+        public EntityMapperOptions Options { get; }
 
         public QueryProvider QueryProvider { get; }
 
@@ -58,6 +58,7 @@ namespace Detached.Mappers.EntityFramework
                     switch (actionType)
                     {
                         case MapperActionType.Attach:
+
                             if (Parameters.MissingAggregationBehavior == MissingAggregationBehavior.Create)
                             {
                                 entry.Reload();
@@ -70,8 +71,10 @@ namespace Detached.Mappers.EntityFramework
                             {
                                 entry.State = EntityState.Unchanged;
                             }
+
                             break;
                         case MapperActionType.Create:
+
                             if (!key.IsEmpty && Parameters.ExistingCompositionBehavior == ExistingCompositionBehavior.Associate)
                             {
                                 entry.Reload();
@@ -83,6 +86,7 @@ namespace Detached.Mappers.EntityFramework
                             }
                             break;
                         case MapperActionType.Delete:
+
                             entry.State = EntityState.Deleted;
                             break;
                     }
@@ -93,7 +97,7 @@ namespace Detached.Mappers.EntityFramework
                     {
                         case MapperActionType.Update:
 
-                            if (ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
+                            if (Options.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string concurrencyTokenName))
                             {
                                 PropertyEntry concurrencyTokenProperty = entry.Property(concurrencyTokenName);
                                 concurrencyTokenProperty.OriginalValue = concurrencyTokenProperty.CurrentValue;
@@ -118,7 +122,7 @@ namespace Detached.Mappers.EntityFramework
             where TEntity : class
             where TKey : IEntityKey
         {
-            if (typeof(TKey) == typeof(NoKey))
+            if (key.IsEmpty)
                 return null;
 
             IStateManager stateManager = DbContext.GetService<IStateManager>();

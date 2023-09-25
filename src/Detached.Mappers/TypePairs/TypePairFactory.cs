@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.TypePairs
@@ -16,8 +17,9 @@ namespace Detached.Mappers.TypePairs
             {
                 foreach (string targetMemberName in memberNames)
                 {
-                    ITypeMember targetMember = targetType.GetMember(targetMemberName);
-                    if (targetMember != null && targetMember.CanWrite)
+                    ITypeMember targetMember = targetType.GetMember(targetMemberName); 
+
+                    if (targetMember != null)
                     {
                         TypePairMember member = new TypePairMember();
                         

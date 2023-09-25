@@ -72,7 +72,7 @@ namespace Detached.Mappers.EntityFramework
                 parameters = new MapParameters();
             }
 
-            var context = new EntityMapContext(Options.ConcurrencyTokens, dbContext, GetQueryProvider(profileKey), parameters);
+            var context = new EntityMapContext(Options, dbContext, GetQueryProvider(profileKey), parameters);
 
             return (TEntity)GetMapper(profileKey).Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
         }

@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using System;
@@ -41,7 +40,12 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
             Type baseMapperType = typeof(EntityCollectionTypeMapper<,,,,>);
 
-            Type mapperType = baseMapperType.MakeGenericType(typePair.SourceType.ClrType, typePair.SourceType.ItemClrType, typePair.TargetType.ClrType, typePair.TargetType.ItemClrType, keyType);
+            Type mapperType = baseMapperType.MakeGenericType(
+                typePair.SourceType.ClrType, 
+                typePair.SourceType.ItemClrType, 
+                typePair.TargetType.ClrType, 
+                typePair.TargetType.ItemClrType, 
+                keyType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType,
                             construct.Compile(),

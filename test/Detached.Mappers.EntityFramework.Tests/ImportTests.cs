@@ -12,7 +12,6 @@ using static Detached.Mappers.EntityFramework.Tests.Extensions.StringExtensions;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    [Collection("Default")]
     public class ImportTests
     {
         [Fact]

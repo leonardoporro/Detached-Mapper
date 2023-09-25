@@ -7,7 +7,6 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    [Collection("Default")]
     public class FluentConfigurationTests
     {
         [Fact]

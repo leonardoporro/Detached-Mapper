@@ -7,13 +7,12 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    [Collection("Default")]
-    public class MapReadOnlyPropertyTests
+    public class MapAssociatedInterfaceTests
     {
-        //[Fact]
-        public async Task map_getter_only_collection()
+        [Fact]
+        public async Task map_collection_interface()
         {
-            var dbContext = await TestDbContext.Create<ReadOnlyPropertyTestDbContext>();
+            var dbContext = await TestDbContext.Create<CollectionNoSetterTestDbContext>();
 
             var result = dbContext.Map<User>(new
             {
@@ -37,7 +36,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Name { get; set; }
 
             [Composition]
-            public List<Address> Addresses { get; } = new List<Address>();
+            public IList<Address> Addresses { get; set; }
         }
 
         public class Address
@@ -49,9 +48,9 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Line2 { get; set; }
         }
 
-        public class ReadOnlyPropertyTestDbContext : TestDbContext
+        public class CollectionNoSetterTestDbContext : TestDbContext
         {
-            public ReadOnlyPropertyTestDbContext(DbContextOptions<ReadOnlyPropertyTestDbContext> options) 
+            public CollectionNoSetterTestDbContext(DbContextOptions<CollectionNoSetterTestDbContext> options) 
                 : base(options)
             {
             }

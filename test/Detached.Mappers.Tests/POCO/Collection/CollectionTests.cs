@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using Xunit;
 
-namespace Detached.Mappers.Tests.POCO.Complex.Collection
+namespace Detached.Mappers.Tests.POCO.Collection
 {
     public class CollectionTests
     {

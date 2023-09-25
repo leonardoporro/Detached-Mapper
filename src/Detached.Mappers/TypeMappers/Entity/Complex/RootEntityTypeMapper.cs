@@ -39,11 +39,13 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                     target = _construct(context);
                     _mapKeyMembers(source, target, context);
 
+                    target = context.TrackChange(target, source, key, MapperActionType.Create);
+
                     context.PushResult(new EntityRef(key, typeof(TTarget)), target);
                     _mapNoKeyMembers(source, target, context);
                     context.PopResult();
 
-                    target = context.TrackChange(target, source, key, MapperActionType.Create);
+
                 }
                 else
                 {

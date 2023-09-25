@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.EntityFramework.Configuration;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -13,7 +12,6 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    [Collection("Default")]
     public class MapValueConverter
     {
         [Fact]
