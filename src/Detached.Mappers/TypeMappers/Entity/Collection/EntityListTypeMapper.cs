@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Detached.Mappers.TypeMappers.Entity.Collection
 {
-    public class EntityCollectionTypeMapper<TSource, TSourceItem, TTarget, TTargetItem, TKey> : TypeMapper<TSource, TTarget>
+    public class EntityListTypeMapper<TSource, TSourceItem, TTarget, TTargetItem, TKey> : TypeMapper<TSource, TTarget>
         where TSource : IEnumerable<TSourceItem>
-        where TTarget : ICollection<TTargetItem>
+        where TTarget : IList<TTargetItem>
         where TSourceItem : class
         where TTargetItem : class
         where TKey : IEntityKey
@@ -15,7 +15,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
         readonly LazyTypeMapper<TSourceItem, TTargetItem> _itemMapper;
         readonly Func<IMapContext, TTarget> _construct;
 
-        public EntityCollectionTypeMapper(Func<IMapContext, TTarget> construct,
+        public EntityListTypeMapper(Func<IMapContext, TTarget> construct,
                                           Func<TSourceItem, IMapContext, TKey> getSourceKey,
                                           Func<TTargetItem, IMapContext, TKey> getTargetKey,
                                           LazyTypeMapper<TSourceItem, TTargetItem> itemMapper)
@@ -29,16 +29,17 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
-            TTarget result = _construct(context);
             Dictionary<TKey, TTargetItem> table = new Dictionary<TKey, TTargetItem>();
 
-            if (target != null)
+            if (target == null)
             {
-                foreach (TTargetItem targetItem in target)
-                {
-                    TKey targetKey = _getTargetKey(targetItem, context);
-                    table.Add(targetKey, targetItem);
-                }
+                target = _construct(context);
+            }
+
+            foreach (TTargetItem targetItem in target)
+            {
+                TKey targetKey = _getTargetKey(targetItem, context);
+                table.Add(targetKey, targetItem);
             }
 
             if (source != null)
@@ -49,29 +50,32 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
                     if (table.TryGetValue(sourceKey, out TTargetItem targetItem))
                     {
+                        _itemMapper.Value.Map(sourceItem, targetItem, context);
                         table.Remove(sourceKey);
                     }
-
-                    result.Add(_itemMapper.Value.Map(sourceItem, targetItem, context));
+                    else
+                    {
+                        target.Add(_itemMapper.Value.Map(sourceItem, null, context));
+                    }
                 }
             }
 
-            if (context.Parameters.CompositeCollectionBehavior == CompositeCollectionBehavior.Append)
+            if (context.Parameters.CompositeCollectionBehavior != CompositeCollectionBehavior.Append)
             {
-                foreach (TTargetItem targetItem in table.Values)
+                for (int i = target.Count - 1; i >= 0; i--)
                 {
-                    result.Add(targetItem);
-                }
-            }
-            else
-            {
-                foreach (TTargetItem targetItem in table.Values)
-                {
-                    _itemMapper.Value.Map(null, targetItem, context);
+                    TTargetItem targetItem = target[i];
+                    TKey targetKey = _getTargetKey(targetItem, context);
+
+                    if (table.ContainsKey(targetKey))
+                    {
+                        _itemMapper.Value.Map(null, targetItem, context);
+                        target.RemoveAt(i);
+                    }
                 }
             }
 
-            return result;
+            return target;
         }
     }
 }

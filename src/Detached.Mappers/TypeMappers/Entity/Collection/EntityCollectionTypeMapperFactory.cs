@@ -1,7 +1,9 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
+using Detached.RuntimeTypes.Reflection;
 using System;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeMappers.Entity.Collection
@@ -23,7 +25,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
             return false;
         }
- 
+
         public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
             ExpressionBuilder builder = new ExpressionBuilder(mapper);
@@ -38,13 +40,15 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
             builder.BuildGetKeyExpressions(itemTypePair, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 
-            Type baseMapperType = typeof(EntityCollectionTypeMapper<,,,,>);
+            Type baseMapperType = typePair.TargetType.ClrType.IsList(out _)
+                ? typeof(EntityListTypeMapper<,,,,>)
+                : typeof(EntityCollectionTypeMapper<,,,,>);
 
             Type mapperType = baseMapperType.MakeGenericType(
-                typePair.SourceType.ClrType, 
-                typePair.SourceType.ItemClrType, 
-                typePair.TargetType.ClrType, 
-                typePair.TargetType.ItemClrType, 
+                typePair.SourceType.ClrType,
+                typePair.SourceType.ItemClrType,
+                typePair.TargetType.ClrType,
+                typePair.TargetType.ItemClrType,
                 keyType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType,
