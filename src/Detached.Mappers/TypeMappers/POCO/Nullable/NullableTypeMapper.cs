@@ -16,7 +16,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
         public override TTarget? Map(TSource? source, TTarget? target, IMapContext context)
         {
             if (source.HasValue)
-                return (TTarget?)_baseMapper.Value.Map(source.Value, target ?? default(TTarget), context);
+                return (TTarget?)_baseMapper.Map(source.Value, target ?? default(TTarget), context);
             else
                 return null;
         }

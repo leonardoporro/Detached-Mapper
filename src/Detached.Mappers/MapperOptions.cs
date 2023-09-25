@@ -16,7 +16,7 @@ using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 using Detached.Mappers.Types.Conventions;
 using Detached.Mappers.Types.Dictionary;
-using Detached.RuntimeTypes.Reflection;
+using Detached.PatchTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers
 {
-    public class MapperOptions
+    public class MapperOptions : IPatchTypeInfoProvider
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
         readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
@@ -165,6 +165,11 @@ namespace Detached.Mappers
             return Primitives.Contains(type)
                 || type.IsEnum
                 || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
+        }
+
+        bool IPatchTypeInfoProvider.ShouldPatch(Type type)
+        {
+            return !typeof(IPatch).IsAssignableFrom(type) && GetType(type).IsComplex();
         }
     }
 }

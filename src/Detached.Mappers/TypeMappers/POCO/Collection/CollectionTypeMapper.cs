@@ -26,11 +26,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
             {
                 result = _construct(context);
 
-                ITypeMapper<TSourceItem, TTargetItem> itemMapper = _itemMapper.Value;
-
                 foreach (TSourceItem sourceItem in source)
                 {
-                    result.Add(itemMapper.Map(sourceItem, default, context));
+                    result.Add(_itemMapper.Map(sourceItem, default, context));
                 }
             }
 

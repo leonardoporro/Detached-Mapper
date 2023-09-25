@@ -5,7 +5,10 @@ namespace Detached.Mappers.TypePairs
 {
     public struct TypePairKey
     {
-        public TypePairKey(IType sourceType, IType targetType, TypePairMember parentMember)
+        public TypePairKey(
+            IType sourceType, 
+            IType targetType, 
+            TypePairMember parentMember)
         {
             SourceType = sourceType;
             TargetType = targetType;
@@ -16,7 +19,7 @@ namespace Detached.Mappers.TypePairs
 
         public IType TargetType { get; }
 
-        public TypePairMember ParentMember { get; }
+        public TypePairMember ParentMember { get; } 
 
         public override bool Equals(object obj)
         {

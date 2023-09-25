@@ -17,7 +17,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
             if (Equals(source, null))
                 return default;
             else
-                return _typeMapper.Value.Map(source, target, context);
+                return _typeMapper.Map(source, target, context);
         }
     }
 

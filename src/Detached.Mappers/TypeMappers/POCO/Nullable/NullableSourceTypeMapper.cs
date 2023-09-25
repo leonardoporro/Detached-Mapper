@@ -15,7 +15,7 @@
             if (source == null)
                 return default;
             else
-                return _typeMapper.Value.Map(source.Value, target, context);
+                return _typeMapper.Map(source.Value, target, context);
         }
     }
 

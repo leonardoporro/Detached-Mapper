@@ -52,7 +52,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                         table.Remove(sourceKey);
                     }
 
-                    result.Add(_itemMapper.Value.Map(sourceItem, targetItem, context));
+                    result.Add(_itemMapper.Map(sourceItem, targetItem, context));
                 }
             }
 
@@ -67,7 +67,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             {
                 foreach (TTargetItem targetItem in table.Values)
                 {
-                    _itemMapper.Value.Map(null, targetItem, context);
+                    _itemMapper.Map(null, targetItem, context);
                 }
             }
 

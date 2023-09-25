@@ -3,7 +3,6 @@ using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using System;
-using System.Collections;
 using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeMappers.Entity.Collection
@@ -36,7 +35,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
             TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
+            ITypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
 
             builder.BuildGetKeyExpressions(itemTypePair, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 

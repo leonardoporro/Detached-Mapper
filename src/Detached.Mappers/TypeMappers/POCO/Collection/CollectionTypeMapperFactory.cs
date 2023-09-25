@@ -25,16 +25,16 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
 
             Delegate construct = Lambda(
                 Parameter("context", typeof(IMapContext), out Expression context),
-                typePair.TargetType.BuildNewExpression(context, null)                
+                typePair.TargetType.BuildNewExpression(context, null)
             ).Compile();
 
             IType sourceItemType = mapper.Options.GetType(typePair.SourceType.ItemClrType);
             IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
             TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
+            ITypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
 
-            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { construct, itemMapper });
+            return (ITypeMapper)Activator.CreateInstance(mapperType, construct, itemMapper);
         }
     }
 }

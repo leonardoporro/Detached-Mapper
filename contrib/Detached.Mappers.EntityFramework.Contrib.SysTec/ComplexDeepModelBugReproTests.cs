@@ -1,8 +1,13 @@
 using Detached.Mappers;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 using GraphInheritenceTests.DTOs;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -10,13 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {

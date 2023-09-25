@@ -15,7 +15,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
         public override Optional<TTarget> Map(Optional<TSource> source, Optional<TTarget> target, IMapContext context)
         {
             if (source.HasValue)
-                return (Optional<TTarget>)_baseMapper.Value.Map(source.Value, target.Value, context);
+                return (Optional<TTarget>)_baseMapper.Map(source.Value, target.Value, context);
             else
                 return target;
         }

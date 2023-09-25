@@ -50,12 +50,12 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
                     if (table.TryGetValue(sourceKey, out TTargetItem targetItem))
                     {
-                        _itemMapper.Value.Map(sourceItem, targetItem, context);
+                        _itemMapper.Map(sourceItem, targetItem, context);
                         table.Remove(sourceKey);
                     }
                     else
                     {
-                        target.Add(_itemMapper.Value.Map(sourceItem, null, context));
+                        target.Add(_itemMapper.Map(sourceItem, null, context));
                     }
                 }
             }
@@ -69,7 +69,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
                     if (table.ContainsKey(targetKey))
                     {
-                        _itemMapper.Value.Map(null, targetItem, context);
+                        _itemMapper.Map(null, targetItem, context);
                         target.RemoveAt(i);
                     }
                 }
