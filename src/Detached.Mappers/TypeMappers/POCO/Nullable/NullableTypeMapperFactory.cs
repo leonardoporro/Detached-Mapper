@@ -27,7 +27,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
             if (typePair.SourceType.IsNullable() && typePair.TargetType.IsNullable())
             {
                 Type mapperType = typeof(NullableTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ItemClrType);
-                ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
             }
@@ -42,7 +42,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
                 else
                 {
                     Type mapperType = typeof(NullableSourceTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ClrType);
-                    ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                     return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
@@ -57,7 +57,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
                 else
                 {
                     Type mapperType = typeof(NullableTargetTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ItemClrType);
-                    ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                     return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }

@@ -63,14 +63,6 @@ namespace Detached.Mappers
             });
         }
 
-        public ITypeMapper GetLazyTypeMapper(TypePair typePair)
-        {
-            Type lazyType = typeof(LazyTypeMapper<,>)
-                .MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
-
-            return (ITypeMapper)Activator.CreateInstance(lazyType, this, typePair);
-        }
-
         public Expression Bind<TSource, TTarget>()
         {
             return null;

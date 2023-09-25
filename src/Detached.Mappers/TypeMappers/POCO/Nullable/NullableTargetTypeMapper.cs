@@ -3,9 +3,9 @@
     public class NullableTargetTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget?>
         where TTarget : struct
     {
-        readonly LazyTypeMapper<TSource, TTarget> _typeMapper;
+        readonly ITypeMapper<TSource, TTarget> _typeMapper;
 
-        public NullableTargetTypeMapper(LazyTypeMapper<TSource, TTarget> typeMapper)
+        public NullableTargetTypeMapper(ITypeMapper<TSource, TTarget> typeMapper)
         {
             _typeMapper = typeMapper;
         }

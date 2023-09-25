@@ -28,7 +28,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
             if (typePair.SourceType.IsOptional() && typePair.TargetType.IsOptional())
             {
                 Type mapperType = typeof(OptionalTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ItemClrType);
-                ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                 return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
             }
@@ -43,7 +43,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
                 else
                 {
                     Type mapperType = typeof(OptionalSourceTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ClrType);
-                    ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                     return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
@@ -58,7 +58,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
                 else
                 {
                     Type mapperType = typeof(OptionalTargetTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ItemClrType);
-                    ITypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
                     return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }

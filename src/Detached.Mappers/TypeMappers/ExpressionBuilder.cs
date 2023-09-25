@@ -35,7 +35,6 @@ namespace Detached.Mappers.TypeMappers
 
             foreach (TypePairMember pairMember in typePair.Members.Values)
             {
-                
                 if (pairMember.IsKey())
                 {
                     keyParamTypes.Add(pairMember.TargetMember.ClrType);
@@ -205,7 +204,10 @@ namespace Detached.Mappers.TypeMappers
         public Expression BuildGetMapperExpression(TypePair typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
-            return Constant(_mapper.GetLazyTypeMapper(typePair), lazyType);
+
+            var memberMapper = (ITypeMapper)Activator.CreateInstance(lazyType, _mapper, typePair);
+
+            return Constant(memberMapper, lazyType);
         }
 
         public LambdaExpression BuildNewExpression(IType typeOptions)

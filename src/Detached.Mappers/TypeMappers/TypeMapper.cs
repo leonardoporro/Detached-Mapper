@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Detached.Mappers.TypeMappers
+﻿namespace Detached.Mappers.TypeMappers
 {
     public abstract class TypeMapper<TSource, TTarget> : ITypeMapper<TSource, TTarget>
     {

@@ -32,7 +32,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
             IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
             TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ITypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
+            ITypeMapper itemMapper = mapper.GetTypeMapper(itemTypePair);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType, construct, itemMapper);
         }

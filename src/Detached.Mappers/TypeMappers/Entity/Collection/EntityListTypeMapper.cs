@@ -12,13 +12,13 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
     {
         readonly Func<TSourceItem, IMapContext, TKey> _getSourceKey;
         readonly Func<TTargetItem, IMapContext, TKey> _getTargetKey;
-        readonly LazyTypeMapper<TSourceItem, TTargetItem> _itemMapper;
+        readonly ITypeMapper<TSourceItem, TTargetItem> _itemMapper;
         readonly Func<IMapContext, TTarget> _construct;
 
         public EntityListTypeMapper(Func<IMapContext, TTarget> construct,
-                                          Func<TSourceItem, IMapContext, TKey> getSourceKey,
-                                          Func<TTargetItem, IMapContext, TKey> getTargetKey,
-                                          LazyTypeMapper<TSourceItem, TTargetItem> itemMapper)
+                                    Func<TSourceItem, IMapContext, TKey> getSourceKey,
+                                    Func<TTargetItem, IMapContext, TKey> getTargetKey,
+                                    ITypeMapper<TSourceItem, TTargetItem> itemMapper)
 
         {
             _construct = construct;

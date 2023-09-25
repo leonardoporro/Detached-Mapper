@@ -5,9 +5,9 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
 {
     public class OptionalTargetTypeMapper<TSource, TTarget> : TypeMapper<TSource, Optional<TTarget>>
     {
-        readonly LazyTypeMapper<TSource, TTarget> _typeMapper;
+        readonly ITypeMapper<TSource, TTarget> _typeMapper;
 
-        public OptionalTargetTypeMapper(LazyTypeMapper<TSource, TTarget> typeMapper)
+        public OptionalTargetTypeMapper(ITypeMapper<TSource, TTarget> typeMapper)
         {
             _typeMapper = typeMapper;
         }

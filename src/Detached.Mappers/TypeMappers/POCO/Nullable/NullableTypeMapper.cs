@@ -6,9 +6,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
         where TSource : struct
         where TTarget : struct
     {
-        readonly LazyTypeMapper<TSource, TTarget> _baseMapper;
+        readonly ITypeMapper<TSource, TTarget> _baseMapper;
 
-        public NullableTypeMapper(LazyTypeMapper<TSource, TTarget> baseMapper)
+        public NullableTypeMapper(ITypeMapper<TSource, TTarget> baseMapper)
         {
             _baseMapper = baseMapper;
         }
