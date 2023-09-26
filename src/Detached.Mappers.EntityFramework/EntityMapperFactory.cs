@@ -14,8 +14,6 @@ namespace Detached.Mappers.EntityFramework
         readonly ConcurrentDictionary<Type, EntityMapperOptions> _options = new();
         readonly ConcurrentDictionary<Type, EntityMapper> _mappers = new();
 
-        public static EntityMapperFactory Instance { get; } = new();
-
         public virtual void RegisterConfigureAction(Type dbContexType, Action<EntityMapperOptionsBuilder> configureAction)
         {
             _configureActions.TryAdd(dbContexType, configureAction);
@@ -30,6 +28,11 @@ namespace Detached.Mappers.EntityFramework
                 if (_configureActions.TryRemove(key, out var configureAction))
                 {
                     configureAction(builder);
+                }
+
+                if (_configureActions.TryRemove(typeof(DbContext), out var genericConfigureAction))
+                {
+                    genericConfigureAction(builder);
                 }
 
                 foreach (IEntityMapperCustomizer customizer in dbContext.GetInfrastructure().GetServices<IEntityMapperCustomizer>())

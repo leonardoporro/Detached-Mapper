@@ -53,7 +53,9 @@ namespace Detached.Mappers.EntityFramework
            where TEntity : class
            where TProjection : class
         {
-            return GetQueryProvider(profileKey).Project<TEntity, TProjection>(query);
+            var projection = GetMapper(profileKey).Bind<TEntity, TProjection>();
+
+            return query.Select(projection);
         }
 
         public Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)

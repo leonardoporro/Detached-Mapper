@@ -1,6 +1,8 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Annotations;
 using Detached.Mappers.Extensions;
+using Detached.Mappers.TypeBinders;
+using Detached.Mappers.TypeBinders.Binders;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeMappers.Entity.Collection;
 using Detached.Mappers.TypeMappers.Entity.Complex;
@@ -28,7 +30,7 @@ namespace Detached.Mappers
     public class MapperOptions : IPatchTypeInfoProvider
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
+        readonly ConcurrentDictionary<TypeMapperKey, TypePair> _typePairs = new ConcurrentDictionary<TypeMapperKey, TypePair>();
 
         public MapperOptions()
         {
@@ -99,6 +101,15 @@ namespace Detached.Mappers
                 { typeof(PrimitiveAttribute), new PrimitiveAnnotationHandler() }
             };
 
+            TypeBinders = new List<ITypeBinder>
+            {
+                new PrimitiveTypeBinder(),
+                new ComplexTypeBinder(),
+                new CollectionTypeBinder(),
+                new InheritedTypeBinder(),
+                new NullableTypeBinder()
+            };
+
             PropertyNameConventions = new List<IPropertyNameConvention>();
         }
 
@@ -117,7 +128,9 @@ namespace Detached.Mappers
         public virtual List<IPropertyNameConvention> PropertyNameConventions { get; }
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
- 
+
+        public virtual List<ITypeBinder> TypeBinders { get; }
+
         public virtual ClassTypeBuilder<TType> Type<TType>()
         {
             return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
@@ -146,10 +159,17 @@ namespace Detached.Mappers
 
         public TypePair GetTypePair(IType sourceType, IType targetType, TypePairMember parentMember)
         {
-            return _typePairs.GetOrAdd(new TypePairKey(sourceType, targetType, parentMember), key =>
+            return _typePairs.GetOrAdd(new TypeMapperKey(sourceType, targetType, parentMember), key =>
             {
                 return TypePairFactory.Create(this, sourceType, targetType, parentMember);
             });
+        }
+
+        public virtual bool IsPrimitive(Type type)
+        {
+            return Primitives.Contains(type)
+                || type.IsEnum
+                || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
         }
 
         public virtual bool ShouldMap(IType sourceType, IType targetType)
@@ -160,14 +180,7 @@ namespace Detached.Mappers
                     || (targetType.IsComplex() || targetType.IsCollection() && GetType(targetType.ItemClrType).IsComplex());
         }
 
-        public virtual bool IsPrimitive(Type type)
-        {
-            return Primitives.Contains(type)
-                || type.IsEnum
-                || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
-        }
-
-        bool IPatchTypeInfoProvider.ShouldPatch(Type type)
+        public virtual bool ShouldPatch(Type type)
         {
             return !typeof(IPatch).IsAssignableFrom(type) && GetType(type).IsComplex();
         }

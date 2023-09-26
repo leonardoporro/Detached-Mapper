@@ -1,43 +1,48 @@
-﻿using Detached.Mappers.EntityFramework;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
-using Microsoft.Extensions.Logging;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
     public class ComplexDbContext : DbContext
     {
         public DbSet<OrganizationList> OrganizationLists { get; set; }
+
         public DbSet<OrganizationBase> Organizations { get; set; }
+
         public DbSet<Customer> Customers { get; set; }
+
         public DbSet<Government> Governments { get; set; }
+
         public DbSet<SubGovernment> SubGovernments { get; set; }
+
         public DbSet<Address> Addresses { get; set; }
+
         public DbSet<Country> Countries { get; set; }
 
         public DbSet<OrganizationNotes> OrganizationNotes { get; set; }
+
         public DbSet<CustomerKind> CustomerKinds { get; set; }
+
         public DbSet<Recommendation> Recommendations { get; set; }
 
         public DbSet<TodoItem> TodoItems { get; set; }
+
         public DbSet<ReusedLinkedItem> ReusedLinkedItems { get; set; }
+
         public DbSet<UploadedFile> UploadedFiles { get; set; }
 
         public DbSet<Student> Students { get; set; }
+
         public DbSet<Course> Courses { get; set; }
 
         public DbSet<EntityOne> EntityOnes { get; set; }
@@ -59,6 +64,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public DbSet<Artikel> Artikel { get; set; }
 
         public DbSet<Zubehoer> Zubehoer { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
@@ -69,47 +75,21 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .UseMapping(config =>
                 {
                     config.Default(options =>
-                    {
-                        // not what we want, because OrganizationBase can be Customer or Government
-                        // but this line is a test to drive it further
-                        //options.Configure<OrganizationBase>().Constructor(x => new Customer());
-
-                        //options.Type<OrganizationBase>().Discriminator(o => o.OrganizationType)
-                        //    .Value(nameof(Customer), typeof(Customer))
-                        //    .Value(nameof(Government), typeof(Government))
-                        //    .Value(nameof(SubGovernment), typeof(GovernmentLeader));
-
-                        //options.Type<OrganizationBaseDTO>().Abstract();
-
-                        //options.Type<OrganizationBaseDTO>()
-                        //    .Discriminator(o => o.OrganizationType)
-                        //    .HasValue<GovernmentDTO>(nameof(Government))
-                        //    .HasValue<SubGovernmentDTO>(nameof(SubGovernment));
+                    { 
+                        options.Type<OrganizationBaseDTO>()
+                            .Discriminator(o => o.OrganizationType)
+                            .HasValue<GovernmentDTO>(nameof(Government))
+                            .HasValue<SubGovernmentDTO>(nameof(SubGovernment))
+                            .HasValue<CustomerDTO>(nameof(Customer));
 
                         options.Type<BaseHead>()
                             .Discriminator(o => o.Discriminator)
                             .HasValue<EntityTwo>(nameof(EntityTwo))
                             .HasValue<EntityThree>(nameof(EntityThree))
                             .HasValue<EntityFour>(nameof(EntityFour))
-                            .HasValue<EntityFive>(nameof(EntityFive));
-
-                        /*
-                         //Workaround for Test 15
-                        options.Type<BaseStationOneSecond>()
-                            .Discriminator(o => o.Discriminator)
-                            .HasValue<EntityThree>(nameof(EntityThree));
-
-                        options.Type<BaseStationOneFirst>()
-                            .Discriminator(o => o.Discriminator)
-                            .HasValue<EntityFour>(nameof(EntityFour))
-                            .HasValue<EntityTwo>(nameof(EntityTwo)); */
-
+                            .HasValue<EntityFive>(nameof(EntityFive));  
                     });
-                });
-
-            //optionsBuilder.ConfigureWarnings(
-            //    w => w.Ignore(CoreEventId.NavigationBaseIncludeIgnored)
-            //);
+                }); 
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -20,6 +20,12 @@ namespace Detached.Mappers.TypePairs
 
         public Dictionary<string, TypePairMember> Members { get; } = new Dictionary<string, TypePairMember>();
 
+        public TypePairMember GetMember(string name)
+        {
+            Members.TryGetValue(name, out TypePairMember member);
+            return member;
+        }
+
         public override string ToString()
         {
             return $"TypePair ({SourceType} -> {TargetType})";

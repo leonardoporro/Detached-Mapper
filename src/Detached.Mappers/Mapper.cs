@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.Extensions;
+using Detached.Mappers.TypeBinders;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
@@ -10,8 +11,9 @@ using System.Linq.Expressions;
 namespace Detached.Mappers
 {
     public class Mapper
-    { 
-        readonly ConcurrentDictionary<TypePairKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypePairKey, ITypeMapper>();
+    {
+        readonly ConcurrentDictionary<TypeMapperKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypeMapperKey, ITypeMapper>();
+        readonly ConcurrentDictionary<TypeBoundKey, Expression> _typeBindings = new ConcurrentDictionary<TypeBoundKey, Expression>();
 
         public Mapper(MapperOptions options = null)
         {
@@ -24,7 +26,7 @@ namespace Detached.Mappers
         {
             _typeMappers.Clear();
         }
- 
+
         public virtual object Map(object source, Type sourceClrType, object target, Type targetClrType, IMapContext context = default)
         {
             if (context == null)
@@ -45,9 +47,31 @@ namespace Detached.Mappers
             return (TTarget)Map(source, typeof(TSource), target, typeof(TTarget), context);
         }
 
+        public Expression<Func<TSource, TTarget>> Bind<TSource, TTarget>()
+        {
+            return (Expression<Func<TSource, TTarget>>)Bind(typeof(TSource), typeof(TTarget));
+        }
+
+        public Expression Bind(Type sourceClrType, Type targetClrType)
+        {
+            return _typeBindings.GetOrAdd(new TypeBoundKey(sourceClrType, targetClrType), key =>
+            {
+                var sourceType = Options.GetType(key.SourceClrType);
+                var targetType = Options.GetType(key.TargetClrType);
+                var typePair = Options.GetTypePair(sourceType, targetType, null);
+
+                var delegateType = typeof(Func<,>).MakeGenericType(sourceClrType, targetClrType);
+
+                var param = Expression.Parameter(sourceClrType, "e");
+                var body = GetTypeBinder(typePair).Bind(this, typePair, param);
+
+                return Expression.Lambda(delegateType, body, param);
+            });
+        }
+
         public ITypeMapper GetTypeMapper(TypePair typePair)
         {
-            return _typeMappers.GetOrAdd(new TypePairKey(typePair.SourceType, typePair.TargetType, typePair.ParentMember), key =>
+            return _typeMappers.GetOrAdd(new TypeMapperKey(typePair.SourceType, typePair.TargetType, typePair.ParentMember), key =>
             {
                 for (int i = Options.TypeMapperFactories.Count - 1; i >= 0; i--)
                 {
@@ -63,9 +87,18 @@ namespace Detached.Mappers
             });
         }
 
-        public Expression Bind<TSource, TTarget>()
+        public ITypeBinder GetTypeBinder(TypePair typePair)
         {
-            return null;
+            for (int i = Options.TypeBinders.Count - 1; i >= 0; i--)
+            {
+                ITypeBinder typeBinder = Options.TypeBinders[i];
+                if (typeBinder.CanBind(this, typePair))
+                {
+                    return typeBinder;
+                }
+            }
+
+            throw new MapperException($"No binder for {typePair.SourceType.ClrType.GetFriendlyName()} -> {typePair.TargetType.ClrType.GetFriendlyName()}");
         }
     }
 }

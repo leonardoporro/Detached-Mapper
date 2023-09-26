@@ -1,13 +1,14 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.TypePairs;
+using Detached.Mappers.Types;
 using System;
 
-namespace Detached.Mappers.TypePairs
+namespace Detached.Mappers.TypeMappers
 {
-    public struct TypePairKey
+    public struct TypeMapperKey
     {
-        public TypePairKey(
-            IType sourceType, 
-            IType targetType, 
+        public TypeMapperKey(
+            IType sourceType,
+            IType targetType,
             TypePairMember parentMember)
         {
             SourceType = sourceType;
@@ -19,18 +20,18 @@ namespace Detached.Mappers.TypePairs
 
         public IType TargetType { get; }
 
-        public TypePairMember ParentMember { get; } 
+        public TypePairMember ParentMember { get; }
 
         public override bool Equals(object obj)
         {
-            return obj is TypePairKey other
+            return obj is TypeMapperKey other
                 && other.SourceType == SourceType
                 && other.TargetType == TargetType;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(SourceType, TargetType, ParentMember);
+            return HashCode.Combine(typeof(TypeMapperKey), SourceType, TargetType, ParentMember);
         }
     }
 }
