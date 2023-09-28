@@ -2,8 +2,6 @@
 using Detached.Mappers.EntityFramework.Profiles;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

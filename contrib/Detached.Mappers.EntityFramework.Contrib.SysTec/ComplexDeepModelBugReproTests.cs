@@ -1124,7 +1124,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         [Test]
         public void _18_TryToUseOwnedEntitiesInInheritance_WithMap_ShouldNotThrow()
         {
-            var dto = new ArtikelDTO()
+            var dto = new ArtikelDTO() // notice that I set Discriminator to a not null value in the constructor.
             {
                 OwnedOne = new OwnedOneDTO()
                 {

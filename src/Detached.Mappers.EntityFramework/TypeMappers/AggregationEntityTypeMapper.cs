@@ -13,12 +13,13 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
             Func<TSource, IMapContext, TKey> getSourceKey,
             Func<TTarget, IMapContext, TKey> getTargetKey,
             Action<TSource, TTarget, IMapContext> mapKeyMembers,
-            Action<TSource, TTarget, IMapContext> mapNoKeyMembers)
-            : base(construct, getSourceKey, getTargetKey, mapKeyMembers, mapNoKeyMembers)
+            Action<TSource, TTarget, IMapContext> mapNoKeyMembers,
+            string concurrencyTokenName)
+            : base(construct, getSourceKey, getTargetKey, mapKeyMembers, mapNoKeyMembers, concurrencyTokenName)
         {
         }
 
-        public override TTarget Map(TSource source, TTarget target, IMapContext context)
+        public override TTarget Map(TSource source, TTarget target, IMapContext mapContext)
         {
             if (source == null)
             {
@@ -26,19 +27,19 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
             }
             else
             {
-                TKey sourceKey = GetSourceKey(source, context);
+                TKey sourceKey = GetSourceKey(source, mapContext);
 
                 if (target != null)
                 {
-                    TKey targetKey = GetTargetKey(target, context);
+                    TKey targetKey = GetTargetKey(target, mapContext);
                     if (!Equals(sourceKey, targetKey))
                     {
-                        target = Attach(source, sourceKey, context);
+                        target = Attach(source, sourceKey, mapContext);
                     }
                 }
                 else
                 {
-                    target = Attach(source, sourceKey, context);
+                    target = Attach(source, sourceKey, mapContext);
                 }
             }
 

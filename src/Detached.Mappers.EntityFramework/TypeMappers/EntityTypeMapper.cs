@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Detached.Mappers.EntityFramework.TypeMappers
 {
@@ -19,13 +19,15 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
             Func<TSource, IMapContext, TKey> getSourceKey,
             Func<TTarget, IMapContext, TKey> getTargetKey,
             Action<TSource, TTarget, IMapContext> mapKeyMembers,
-            Action<TSource, TTarget, IMapContext> mapNoKeyMembers)
+            Action<TSource, TTarget, IMapContext> mapNoKeyMembers,
+            string concurrencyTokenName)
         {
             Construct = construct;
             GetSourceKey = getSourceKey;
             GetTargetKey = getTargetKey;
             MapKeyMembers = mapKeyMembers;
             MapMembers = mapNoKeyMembers;
+            ConcurrencyTokenName = concurrencyTokenName;
         }
 
         protected Action<TSource, TTarget, IMapContext> MapKeyMembers { get; }
@@ -37,6 +39,8 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
         protected Func<TTarget, IMapContext, TKey> GetTargetKey { get; }
 
         protected Func<TSource, IMapContext, TKey> GetSourceKey { get; }
+
+        protected string ConcurrencyTokenName { get; set; }
 
         protected virtual TTarget Create(TSource source, TKey key, IMapContext mapContext, EntityRef entityRef)
         {
@@ -71,11 +75,11 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
 
             MapMembers(source, target, mapContext);
 
-            //if (Options.ConcurrencyTokens.TryGetValue(entry.Metadata.Name, out string tokenName))
-            //{
-            //    PropertyEntry tokenProperty = entry.Property(tokenName);
-            //    tokenProperty.OriginalValue = tokenProperty.CurrentValue;
-            //}
+            if (ConcurrencyTokenName != null)
+            {
+                PropertyEntry tokenProperty = entry.Property(ConcurrencyTokenName);
+                tokenProperty.OriginalValue = tokenProperty.CurrentValue;
+            } 
 
             mapContext.Pop();
 
@@ -127,17 +131,8 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
 
             EntityEntry<TTarget> entry;
 
-            var stateManager = dbContext.GetService<IStateManager>();
-            var entityType = dbContext.Model.FindEntityType(typeof(TTarget));
-            var keyType = entityType.FindPrimaryKey();
-            var internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
-
-            if (internalEntry != null)
-            {
-                entry = new EntityEntry<TTarget>(internalEntry);
-            }
-            else
-            {
+            if (key.IsEmpty || (entry = GetExistingEntry(key, dbContext)) == null)
+            { 
                 TTarget target = Construct(mapContext);
                 MapKeyMembers(source, target, mapContext);
 
@@ -145,6 +140,20 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
             }
 
             return entry;
+        }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "I still need to use internal things to make this library work.")]
+        public EntityEntry<TTarget> GetExistingEntry(TKey key, DbContext dbContext)
+        {
+            var stateManager = dbContext.GetService<IStateManager>();
+            var entityType = dbContext.Model.FindEntityType(typeof(TTarget));
+            var keyType = entityType.FindPrimaryKey();
+            var internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
+
+            if (internalEntry != null)
+                return new EntityEntry<TTarget>(internalEntry);
+            else
+                return null;
         }
     }
 }

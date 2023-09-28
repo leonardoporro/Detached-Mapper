@@ -26,7 +26,8 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
             LambdaExpression getTargetKeyExpr;
             LambdaExpression mapKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => t.IsKey());
             LambdaExpression mapNoKeyMembers;
-          
+
+            string concurrencyTokenName = typePair.TargetType.GetConcurrencyTokenName();
 
             builder.BuildGetKeyExpressions(typePair, out getSourceKeyExpr, out getTargetKeyExpr, out keyType);
 
@@ -51,7 +52,8 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
                 getSourceKeyExpr.Compile(),
                 getTargetKeyExpr.Compile(),
                 mapKeyMembers.Compile(),
-                mapNoKeyMembers.Compile()
+                mapNoKeyMembers.Compile(),
+                concurrencyTokenName
             );
         }
     }

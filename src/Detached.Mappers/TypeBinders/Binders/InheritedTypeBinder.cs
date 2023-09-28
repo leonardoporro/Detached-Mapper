@@ -26,7 +26,7 @@ namespace Detached.Mappers.TypeBinders.Binders
 
             if (sourceName != targetName)
             {
-                throw new MapperException($"Discriminator members '{typePair.SourceType}.{sourceName}' and '{typePair.TargetType}.{targetName}' doesn't match.");
+               throw new MapperException($"Discriminator members '{typePair.SourceType}.{sourceName}' and '{typePair.TargetType}.{targetName}' doesn't match.");
             }
 
             var member = typePair.GetMember(sourceName);

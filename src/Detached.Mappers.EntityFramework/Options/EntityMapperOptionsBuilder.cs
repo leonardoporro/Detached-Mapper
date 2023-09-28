@@ -3,9 +3,7 @@ using Detached.Mappers.EntityFramework.Profiles;
 using Detached.Mappers.EntityFramework.TypeMappers;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Detached.Mappers.EntityFramework.Configuration
@@ -26,8 +24,7 @@ namespace Detached.Mappers.EntityFramework.Configuration
             Options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
             Options.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
             Options.JsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory());
-            
-            Options.ConcurrencyTokens = GetConcurrencyTokens();
+          
             Options.MapperOptions.TryAdd(new ProfileKey(null), CreateMapperOptions());
         }
 
@@ -59,24 +56,6 @@ namespace Detached.Mappers.EntityFramework.Configuration
             mapperOptions.TypeMapperFactories.Add(new EntityTypeMapperFactory());
 
             return mapperOptions;
-        }
-
-        Dictionary<string, string> GetConcurrencyTokens()
-        {
-            var result = new Dictionary<string, string>();
-
-            foreach (IEntityType entityType in _dbContext.Model.GetEntityTypes())
-            {
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.IsConcurrencyToken)
-                    {
-                        result.Add(entityType.Name, property.Name);
-                    }
-                }
-            }
-
-            return result;
         }
     }
 }
