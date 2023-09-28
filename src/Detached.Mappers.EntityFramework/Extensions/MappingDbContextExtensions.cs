@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
+﻿using Detached.Mappers.EntityFramework.Profiles;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;

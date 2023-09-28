@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Detached.Mappers.EntityFramework.Configuration
+namespace Detached.Mappers.EntityFramework.Profiles
 {
     public struct ProfileKey
     {

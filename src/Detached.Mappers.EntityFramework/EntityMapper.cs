@@ -1,7 +1,9 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
-using Detached.Mappers.EntityFramework.Queries;
+using Detached.Mappers.EntityFramework.Profiles;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,8 +15,7 @@ namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapper
     {
-        readonly Dictionary<ProfileKey, Mapper> _mappers = new();
-        readonly Dictionary<ProfileKey, QueryProvider> _queryProviders = new();
+        readonly Dictionary<ProfileKey, Profile> _profiles = new();
 
         public EntityMapper(EntityMapperOptions options)
         {
@@ -22,62 +23,69 @@ namespace Detached.Mappers.EntityFramework
 
             foreach (var entry in options.MapperOptions)
             {
-                _mappers.Add(entry.Key, new Mapper(entry.Value));
-                _queryProviders.Add(entry.Key, new QueryProvider(entry.Value));
+                _profiles.Add(entry.Key, new Profile(entry.Value));
             }
         }
 
         public EntityMapperOptions Options { get; }
 
-        public Mapper GetMapper(ProfileKey profileKey)
+        public Profile GetProfile(ProfileKey profileKey)
         {
-            if (!_mappers.TryGetValue(profileKey, out var mapper))
+            if (!_profiles.TryGetValue(profileKey, out var profile))
             {
                 throw new MapperException($"Profile {profileKey.Value} not found.");
             }
 
-            return mapper;
-        }
-
-        public QueryProvider GetQueryProvider(ProfileKey profileKey)
-        {
-            if (!_queryProviders.TryGetValue(profileKey, out var mapper))
-            {
-                throw new MapperException($"Profile {profileKey.Value} not found.");
-            }
-
-            return mapper;
+            return profile;
         }
 
         public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query, ProfileKey profileKey)
            where TEntity : class
            where TProjection : class
         {
-            var projection = GetMapper(profileKey).Bind<TEntity, TProjection>();
+            var projection = GetProfile(profileKey).Mapper.Bind<TEntity, TProjection>();
 
             return query.Select(projection);
         }
 
-        public Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
+        public async Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
             where TEntity : class
         {
-            var task = Task.Run(() => Map<TEntity>(dbContext, profileKey, entityOrDTO, parameters));
-            task.ConfigureAwait(false);
-            return task;
+            var profile = GetProfile(profileKey);
+
+            var target = await profile.Loader.LoadAsync(dbContext, typeof(TEntity), entityOrDTO);
+
+            return Map<TEntity>(dbContext, profile, entityOrDTO, target, parameters);
         }
 
         public TEntity Map<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
-            where TEntity : class
+           where TEntity : class
+        {
+            var profile = GetProfile(profileKey);
+
+            var target = profile.Loader.Load(dbContext, typeof(TEntity), entityOrDTO);
+
+            return Map<TEntity>(dbContext, profile, entityOrDTO, target, parameters);
+        }
+
+        TTarget Map<TTarget>(DbContext dbContext, Profile profile, object entityOrDTO, object target, MapParameters parameters)
+            where TTarget : class
         {
             if (parameters == null)
             {
                 parameters = new MapParameters();
             }
 
-            var context = new EntityMapContext(Options, dbContext, GetQueryProvider(profileKey), parameters);
+            if (target == null && parameters.MissingRootBehavior != MissingRootBehavior.Create)
+            {
+                throw new MapperException($"Entity {typeof(TTarget)} does not exist and MissingRootBehavior is set to Throw.");
+            }
 
-            return (TEntity)GetMapper(profileKey).Map(entityOrDTO, entityOrDTO.GetType(), null, typeof(TEntity), context);
+            var mapContext = new EntityMapContext(Options, dbContext, parameters);
+
+            return (TTarget)profile.Mapper.Map(entityOrDTO, entityOrDTO.GetType(), target, typeof(TTarget), mapContext);
         }
+
 
         public async Task MapJsonAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, Stream stream, MapParameters mapParams = null)
             where TEntity : class

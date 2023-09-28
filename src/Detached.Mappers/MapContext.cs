@@ -24,12 +24,12 @@ namespace Detached.Mappers
             return entity;
         }
 
-        public virtual void PushResult<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target)
+        public virtual void Push<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target)
         {
             _objectStack.AddLast((keyOrSource, target));
         }
 
-        public virtual void PopResult()
+        public virtual void Pop()
         {
             _objectStack.RemoveLast();
         }

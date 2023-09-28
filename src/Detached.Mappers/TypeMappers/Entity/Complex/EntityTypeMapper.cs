@@ -37,17 +37,17 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             MapKeyMembers(source, target, context);
             target = context.TrackChange(target, source, key, MapperActionType.Create);
 
-            context.PushResult(entityRef, target);
+            context.Push(entityRef, target);
             MapMembers(source, target, context);
-            context.PopResult();
+            context.Pop();
             return target;
         }
 
         protected virtual TTarget Merge(TSource source, TTarget target, TKey key, IMapContext context, EntityRef entityRef)
         {
-            context.PushResult(entityRef, target);
+            context.Push(entityRef, target);
             MapMembers(source, target, context);
-            context.PopResult();
+            context.Pop();
 
             return context.TrackChange(target, source, key, MapperActionType.Update);
         }

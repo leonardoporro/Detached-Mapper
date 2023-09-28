@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
+﻿using Detached.Mappers.EntityFramework.Profiles;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,7 +24,7 @@ namespace Detached.Mappers.EntityFramework
 
         public static Mapper GetMapper(this DbContext dbContext, ProfileKey profileKey)
         {
-            return GetEntityMapper(dbContext).GetMapper(profileKey);
+            return GetEntityMapper(dbContext).GetProfile(profileKey).Mapper;
         }
 
         public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, object profileKey, IQueryable<TEntity> query, MapParameters mapParams = null)

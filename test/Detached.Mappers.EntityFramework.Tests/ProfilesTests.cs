@@ -76,6 +76,8 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
             }
 
+            public DbSet<User> Users { get; set; }
+
             public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
                 builder.AddProfile(MappingProfiles.Create, cfg =>

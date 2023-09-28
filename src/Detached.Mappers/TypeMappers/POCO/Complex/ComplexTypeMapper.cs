@@ -34,11 +34,11 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
                     target = _construct(context);
                 }
 
-                context.PushResult(source, target);
+                context.Push(source, target);
 
                 _mapMembers(source, target, context);
 
-                context.PopResult();
+                context.Pop();
 
                 return target;
             }

@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Profiles;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Types;
 using Microsoft.EntityFrameworkCore;

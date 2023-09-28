@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json;
+using Detached.Mappers.EntityFramework.Profiles;
 
 namespace Detached.Mappers.EntityFramework.Configuration
 {

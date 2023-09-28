@@ -68,7 +68,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
             }
 
-            public User Users { get; set; }
+            public DbSet<User> Users { get; set; }
 
             public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {

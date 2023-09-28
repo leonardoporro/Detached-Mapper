@@ -152,6 +152,8 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
             }
 
+            public DbSet<SellPoint> SellPoints { get; set; }
+
             protected override void OnModelCreating(ModelBuilder mb)
             {
                 mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)

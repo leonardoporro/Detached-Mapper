@@ -1,4 +1,6 @@
 ﻿using Detached.Mappers.EntityFramework.Conventions;
+using Detached.Mappers.EntityFramework.Profiles;
+using Detached.Mappers.EntityFramework.TypeMappers;
 using Detached.PatchTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -52,7 +54,10 @@ namespace Detached.Mappers.EntityFramework.Configuration
         MapperOptions CreateMapperOptions()
         {
             var mapperOptions = new MapperOptions();
+            
             mapperOptions.TypeConventions.Add(new EntityTypeConventions(_dbContext.Model));
+            mapperOptions.TypeMapperFactories.Add(new EntityTypeMapperFactory());
+
             return mapperOptions;
         }
 
