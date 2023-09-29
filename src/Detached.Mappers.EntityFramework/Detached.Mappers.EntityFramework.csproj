@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>7.2.0</Version> 
+    <Version>7.2.1</Version> 
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
