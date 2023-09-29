@@ -9,18 +9,18 @@ public class UnitTest1
     {
         var correctedTitle = @"The Dragon's Path";
         var correctedName = @"Daniel Abraham";
+        // create the sqlite db.
+        new TellDbContext().Database.EnsureCreated();
+
         using (var context = new TellDbContext())
         {
-            // create the sqlite db.
-            context.Database.EnsureCreated();
-            var newCreator = context.Map<Creator>(new Creator
+            context.Map<Creator>(new Creator
             {
                 FullName = "Daniel Abraham.", PrimaryLanguage = "EN",
                 Works = new() { new Work { Title = @"The Dragons Path", Language = "EN" } }
             });
             context.SaveChanges();
         }
-
 
         using (var context = new TellDbContext())
         {
@@ -38,8 +38,8 @@ public class UnitTest1
                 Id = newId, FullName = "Daniel Abraham",
                 Works = new()
                 {
-                    new Work { Title = correctedTitle, Language = "EN", Id = 2, CreatorId = newId },
-                    new Work { Title = @"The King's Blood", Language = "EN", CreatorId = newId },
+                    new Work { Title = correctedTitle, Language = "EN", Id = 2, Creator = new Creator { Id = newId } },
+                    new Work { Title = @"The King's Blood", Language = "EN", Creator = new Creator { Id = newId } },
                 }
             });
             context.SaveChanges();

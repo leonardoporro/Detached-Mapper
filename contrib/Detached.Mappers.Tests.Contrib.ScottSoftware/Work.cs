@@ -8,7 +8,6 @@ public class Work
 
     public string Language { get; set; }
 
-    public int CreatorId { get; set; }
-
     public Creator Creator { get; set; }
+    public int? CreatorId { get; set; }
 }
