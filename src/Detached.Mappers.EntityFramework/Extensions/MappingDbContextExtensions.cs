@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Detached.Mappers.EntityFramework.Profiles;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,52 +9,47 @@ namespace Detached.Mappers.EntityFramework
 {
     public static class MappingDbContextExtensions
     {
-        public static EFMapper GetMapper(this DbContext dbContext)
-        {
-            return dbContext.GetMapper(null);
-        }
-
         public static IQueryable<TProjection> Project<TEntity, TProjection>(this DbContext dbContext, IQueryable<TEntity> query, MapParameters mapParams = null)
             where TEntity : class
             where TProjection : class
         {
-            return dbContext.GetMapper().Project<TEntity, TProjection>(query);
+            return dbContext.GetEntityMapper().Project<TEntity, TProjection>(query, ProfileKey.Empty);
         }
 
         public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetMapper().MapAsync<TEntity>(dbContext, entityOrDTO, mapParams);
+            return dbContext.GetEntityMapper().MapAsync<TEntity>(dbContext, ProfileKey.Empty, entityOrDTO, mapParams);
         }
 
         public static TEntity Map<TEntity>(this DbContext dbContext, object entityOrDTO, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetMapper().Map<TEntity>(dbContext, entityOrDTO, mapParams);
+            return dbContext.GetEntityMapper().Map<TEntity>(dbContext, ProfileKey.Empty, entityOrDTO, mapParams);
         }
 
         public static Task MapJsonAsync<TEntity>(this DbContext dbContext, Stream stream, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetMapper().MapJsonAsync<TEntity>(dbContext, stream, mapParams);
+            return dbContext.GetEntityMapper().MapJsonAsync<TEntity>(dbContext, ProfileKey.Empty, stream, mapParams);
         }
 
         public static Task MapJsonAsync<TEntity>(this DbContext dbContext, string json, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetMapper().MapJsonAsync<TEntity>(dbContext, json, mapParams);
+            return dbContext.GetEntityMapper().MapJsonAsync<TEntity>(dbContext, ProfileKey.Empty, json, mapParams);
         }
 
         public static Task MapJsonFileAsync<TEntity>(this DbContext dbContext, string filePath, MapParameters mapParams = null)
            where TEntity : class
         {
-            return dbContext.GetMapper().MapJsonFileAsync<TEntity>(dbContext, filePath, mapParams);
+            return dbContext.GetEntityMapper().MapJsonFileAsync<TEntity>(dbContext, ProfileKey.Empty, filePath, mapParams);
         }
 
         public static Task MapJsonResourceAsync<TEntity>(this DbContext dbContext, string resourceName, Assembly assembly = null, MapParameters mapParams = null)
            where TEntity : class
         {
-            return dbContext.GetMapper().MapJsonResourceAsync<TEntity>(dbContext, resourceName, assembly, mapParams);
+            return dbContext.GetEntityMapper().MapJsonResourceAsync<TEntity>(dbContext, ProfileKey.Empty, resourceName, assembly, mapParams);
         }
     }
 }

@@ -7,12 +7,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
         where TSource : class, IEnumerable<TSourceItem>
         where TTarget : class, ICollection<TTargetItem>
     {
-        readonly LazyTypeMapper<TSourceItem, TTargetItem> _itemMapper;
+        readonly ITypeMapper<TSourceItem, TTargetItem> _itemMapper;
         readonly Func<IMapContext, TTarget> _construct;
 
         public CollectionTypeMapper(
             Func<IMapContext, TTarget> construct,
-            LazyTypeMapper<TSourceItem, TTargetItem> itemMapper)
+            ITypeMapper<TSourceItem, TTargetItem> itemMapper)
         {
             _construct = construct;
             _itemMapper = itemMapper;
@@ -26,11 +26,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Collection
             {
                 result = _construct(context);
 
-                ITypeMapper<TSourceItem, TTargetItem> itemMapper = _itemMapper.Value;
-
                 foreach (TSourceItem sourceItem in source)
                 {
-                    result.Add(itemMapper.Map(sourceItem, default, context));
+                    result.Add(_itemMapper.Map(sourceItem, default, context));
                 }
             }
 

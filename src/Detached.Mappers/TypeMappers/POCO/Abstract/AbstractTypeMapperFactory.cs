@@ -7,7 +7,6 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
 {
     public class AbstractTypeMapperFactory : ITypeMapperFactory
     {
- 
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsAbstract() || typePair.TargetType.IsAbstract();
@@ -21,7 +20,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
                 ? GetConcreteType(mapper.Options, typePair.TargetType.ClrType)
                 : typePair.TargetType.ClrType;
 
-            return (ITypeMapper)Activator.CreateInstance(mapperType, new object[] { mapper, typePair, concreteTargetType });
+            return (ITypeMapper)Activator.CreateInstance(mapperType, mapper, typePair, concreteTargetType);
         }
 
         public Type GetConcreteType(MapperOptions mapperOptions, Type abstractType)

@@ -2,29 +2,19 @@
 
 namespace Detached.Mappers.TypeMappers.Entity.Complex
 {
-    public class AggregatedEntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSource, TTarget>
+    public class AggregatedEntityTypeMapper<TSource, TTarget, TKey> : EntityTypeMapper<TSource, TTarget, TKey>
         where TSource : class
         where TTarget : class
         where TKey : IEntityKey
     {
-        Func<TSource, IMapContext, TKey> _getSourceKey;
-        Func<TTarget, IMapContext, TKey> _getTargetKey;
-        Func<IMapContext, TTarget> _construct;
-        Action<TSource, TTarget, IMapContext> _mapKeyMembers;
-        Action<TSource, TTarget, IMapContext> _mapNoKeyMembers;
-
         public AggregatedEntityTypeMapper(
             Func<IMapContext, TTarget> construct,
             Func<TSource, IMapContext, TKey> getSourceKey,
             Func<TTarget, IMapContext, TKey> getTargetKey,
             Action<TSource, TTarget, IMapContext> mapKeyMembers,
             Action<TSource, TTarget, IMapContext> mapNoKeyMembers)
+            : base(construct, getSourceKey, getTargetKey, mapKeyMembers, mapNoKeyMembers)
         {
-            _construct = construct;
-            _getSourceKey = getSourceKey;
-            _getTargetKey = getTargetKey;
-            _mapKeyMembers = mapKeyMembers;
-            _mapNoKeyMembers = mapNoKeyMembers;
         }
 
         public override TTarget Map(TSource source, TTarget target, IMapContext context)
@@ -33,13 +23,13 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             {
                 target = null;
             }
-            else 
+            else
             {
-                TKey sourceKey = _getSourceKey(source, context);
+                TKey sourceKey = GetSourceKey(source, context);
 
                 if (target != null)
                 {
-                    TKey targetKey = _getTargetKey(target, context);
+                    TKey targetKey = GetTargetKey(target, context);
                     if (!Equals(sourceKey, targetKey))
                     {
                         target = Attach(source, sourceKey, context);
@@ -52,17 +42,6 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
             }
 
             return target;
-        }
-
-        TTarget Attach(TSource source, TKey sourceKey, IMapContext context)
-        {
-            TTarget target = _construct(context);
-            _mapKeyMembers(source, target, context);
-
-            // map only primitives!
-            _mapNoKeyMembers(source, target, context);
-
-            return context.TrackChange(target, source, sourceKey, MapperActionType.Attach);
         }
     }
 }

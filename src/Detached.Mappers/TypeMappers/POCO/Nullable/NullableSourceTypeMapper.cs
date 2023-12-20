@@ -3,9 +3,9 @@
     public class NullableSourceTypeMapper<TSource, TTarget> : TypeMapper<TSource?, TTarget>
         where TSource : struct
     {
-        readonly LazyTypeMapper<TSource, TTarget> _typeMapper;
+        readonly ITypeMapper<TSource, TTarget> _typeMapper;
 
-        public NullableSourceTypeMapper(LazyTypeMapper<TSource, TTarget> typeMapper)
+        public NullableSourceTypeMapper(ITypeMapper<TSource, TTarget> typeMapper)
         {
             _typeMapper = typeMapper;
         }
@@ -15,7 +15,7 @@
             if (source == null)
                 return default;
             else
-                return _typeMapper.Value.Map(source.Value, target, context);
+                return _typeMapper.Map(source.Value, target, context);
         }
     }
 

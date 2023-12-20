@@ -13,9 +13,9 @@ namespace Detached.Mappers
             where TSource : class
             where TKey : IEntityKey;
 
-        void PushResult<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target);
+        void Push<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, TTarget target);
 
-        void PopResult();
+        void Pop();
 
         bool TryGetResult<TKeyOrSource, TTarget>(TKeyOrSource keyOrSource, out TTarget target)
             where TTarget : class;

@@ -1,6 +1,8 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Annotations;
 using Detached.Mappers.Extensions;
+using Detached.Mappers.TypeBinders;
+using Detached.Mappers.TypeBinders.Binders;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypeMappers.Entity.Collection;
 using Detached.Mappers.TypeMappers.Entity.Complex;
@@ -16,6 +18,7 @@ using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 using Detached.Mappers.Types.Conventions;
 using Detached.Mappers.Types.Dictionary;
+using Detached.PatchTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,10 +27,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers
 {
-    public class MapperOptions
+    public class MapperOptions : IPatchTypeInfoProvider
     {
         readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<TypePairKey, TypePair> _typePairs = new ConcurrentDictionary<TypePairKey, TypePair>();
+        readonly ConcurrentDictionary<TypeMapperKey, TypePair> _typePairs = new ConcurrentDictionary<TypeMapperKey, TypePair>();
 
         public MapperOptions()
         {
@@ -91,10 +94,19 @@ namespace Detached.Mappers
                 { typeof(AggregationAttribute), new AggregationAnnotationHandler() },
                 { typeof(CompositionAttribute), new CompositionAnnotationHandler() },
                 { typeof(EntityAttribute), new EntityAnnotationHandler() },
-                { typeof(NotMappedAttribute), new MapIgnoreAnnotationHandler() },
+                { typeof(MapIgnoreAttribute), new MapIgnoreAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() },
                 { typeof(AbstractAttribute), new AbstractAnnotationHandler() },
                 { typeof(PrimitiveAttribute), new PrimitiveAnnotationHandler() }
+            };
+
+            TypeBinders = new List<ITypeBinder>
+            {
+                new PrimitiveTypeBinder(),
+                new ComplexTypeBinder(),
+                new CollectionTypeBinder(),
+                new InheritedTypeBinder(),
+                new NullableTypeBinder()
             };
 
             PropertyNameConventions = new List<IPropertyNameConvention>();
@@ -116,7 +128,7 @@ namespace Detached.Mappers
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
 
-        public virtual bool MergeCollections { get; set; } = false;
+        public virtual List<ITypeBinder> TypeBinders { get; }
 
         public virtual EntityCollectionNullBehavior EntityCollectionNullBehavior { get; set; }
 
@@ -142,16 +154,23 @@ namespace Detached.Mappers
                         return typeOptions;
                 }
 
-                throw new InvalidOperationException($"Can't get options for type {type.GetFriendlyName()}.");
+                throw new InvalidOperationException($"Can't get options for type {keyType.GetFriendlyName()}.");
             });
         }
 
         public TypePair GetTypePair(IType sourceType, IType targetType, TypePairMember parentMember)
         {
-            return _typePairs.GetOrAdd(new TypePairKey(sourceType, targetType, parentMember), key =>
+            return _typePairs.GetOrAdd(new TypeMapperKey(sourceType, targetType, parentMember), key =>
             {
                 return TypePairFactory.Create(this, sourceType, targetType, parentMember);
             });
+        }
+
+        public virtual bool IsPrimitive(Type type)
+        {
+            return Primitives.Contains(type)
+                || type.IsEnum
+                || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
         }
 
         public virtual bool ShouldMap(IType sourceType, IType targetType)
@@ -162,11 +181,9 @@ namespace Detached.Mappers
                     || (targetType.IsComplex() || targetType.IsCollection() && GetType(targetType.ItemClrType).IsComplex());
         }
 
-        public virtual bool IsPrimitive(Type type)
+        public virtual bool ShouldPatch(Type type)
         {
-            return Primitives.Contains(type)
-                || type.IsEnum
-                || type.IsGenericType && Primitives.Contains(type.GetGenericTypeDefinition());
+            return !typeof(IPatch).IsAssignableFrom(type) && GetType(type).IsComplex();
         }
     }
 }

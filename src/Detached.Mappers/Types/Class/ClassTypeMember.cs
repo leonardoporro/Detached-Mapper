@@ -29,7 +29,7 @@ namespace Detached.Mappers.Types.Class
 
         public bool CanTryGet => TryGetter != null;
 
-      
+
         public virtual Expression BuildGetExpression(Expression instance, Expression context)
         {
             return Import(Getter, instance, context);
@@ -37,7 +37,10 @@ namespace Detached.Mappers.Types.Class
 
         public virtual Expression BuildSetExpression(Expression instance, Expression value, Expression context)
         {
-            return Import(Setter, instance, value, context);
+            if (Setter != null)
+                return Import(Setter, instance, value, context);
+            else
+                return value;
         }
 
         public virtual Expression BuildTryGetExpression(Expression instance, Expression context, Expression outVar)

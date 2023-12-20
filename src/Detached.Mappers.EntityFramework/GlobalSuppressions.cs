@@ -5,4 +5,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.Context.DbMapContext.GetExistingEntry``2(``1)~Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{``0}")]
+[assembly: SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.Conventions.EntityTypeConventions.Apply(Detached.Mappers.MapperOptions,Detached.Mappers.Types.Class.ClassType)")]
+[assembly: SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.Conventions.EntityTypeConventions.Apply(Detached.Mappers.MapperOptions,Detached.Mappers.Types.Class.ClassType)")]
+[assembly: SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Pending>", Scope = "member", Target = "~M:Detached.Mappers.EntityFramework.EntityMapContext.GetExistingEntry``2(``1)~Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{``0}")]

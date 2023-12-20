@@ -1,8 +1,13 @@
 using Detached.Mappers;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
 using GraphInheritenceTests.DTOs;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -10,13 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 {
@@ -756,6 +754,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
 
                 var query = dbContext.OrganizationLists.Include(o => o.Organizations);
+
                 var projected = dbContext.Project<OrganizationList, OrganizationListDTO>(query);
                 dto2 = projected.First();
             }
@@ -1034,9 +1033,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             // SELECT changes();
         }
 
-
         [Test]
-
         public void _16_TryBaseListToLinkWithEntity_WithMap_ShouldNotThrow()
         {
             var dto = new EntityOneDTO()
@@ -1122,11 +1119,12 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 var mappedEntityOne = dbContext.Map<Angebot>(dtoAfterSave);
                 dbContext.SaveChanges();
             }
-        }  
+        }
+        
         [Test]
         public void _18_TryToUseOwnedEntitiesInInheritance_WithMap_ShouldNotThrow()
         {
-            var dto = new ArtikelDTO()
+            var dto = new ArtikelDTO() // notice that I set Discriminator to a not null value in the constructor.
             {
                 OwnedOne = new OwnedOneDTO()
                 {

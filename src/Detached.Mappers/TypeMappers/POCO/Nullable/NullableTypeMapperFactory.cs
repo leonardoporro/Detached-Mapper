@@ -27,9 +27,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
             if (typePair.SourceType.IsNullable() && typePair.TargetType.IsNullable())
             {
                 Type mapperType = typeof(NullableTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ItemClrType);
-                ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
             }
             else if (typePair.SourceType.IsNullable())
             {
@@ -42,9 +42,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
                 else
                 {
                     Type mapperType = typeof(NullableSourceTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ClrType);
-                    ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                    return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                    return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
             }
             else
@@ -57,9 +57,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Nullable
                 else
                 {
                     Type mapperType = typeof(NullableTargetTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ItemClrType);
-                    ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                    return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                    return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
             }
         }

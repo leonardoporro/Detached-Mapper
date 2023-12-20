@@ -1,7 +1,12 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Model;
+﻿using Detached.Annotations;
+using Detached.Mappers.EntityFramework.Tests.Fixture;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -12,9 +17,9 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_property_with_value_converter()
         {
-            using var db = await DefaultTestDbContext.CreateAsync();
+            var dbContext = await TestDbContext.Create<ValueConverterTestDbContext>();
 
-            var address = await db.MapAsync<Address>(new Address
+            var address = await dbContext.MapAsync<Address>(new Address
             {
                 Street = "Main St.",
                 Number = "123",
@@ -25,10 +30,10 @@ namespace Detached.Mappers.EntityFramework.Tests
                  }
             });
 
-            await db.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
 
-            await db.MapAsync<Address>(new Address
+            await dbContext.MapAsync<Address>(new Address
             {
                 Id = address.Id,
                 Street = "Main St.",
@@ -40,12 +45,58 @@ namespace Detached.Mappers.EntityFramework.Tests
                  }
             });
 
-            var persisted = db.Set<Address>().FirstOrDefault(a => a.Id == address.Id);
+            var persisted = dbContext.Set<Address>().FirstOrDefault(a => a.Id == address.Id);
 
             Assert.Equal("Main St.", persisted.Street);
             Assert.Equal("1234", persisted.Number);
             Assert.Contains(persisted.Tags, t => t.Name == "primary");
             Assert.Contains(persisted.Tags, t => t.Name == "external");
+        }
+
+        public class Address
+        {
+            [Key]
+            public virtual int Id { get; set; }
+
+            public virtual string Street { get; set; }
+
+            public virtual string Number { get; set; }
+
+
+            [Primitive]
+            public List<Tag> Tags { get; set; }
+        }
+
+        public class Tag
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        public class TagListConverter : ValueConverter<List<Tag>, string>
+        {
+            public TagListConverter()
+                : base(toProvider, fromProvider, null)
+            {
+            }
+
+            static Expression<Func<List<Tag>, string>> toProvider = (tags) => string.Join(", ", tags.Select(t => t.Name));
+
+            static Expression<Func<string, List<Tag>>> fromProvider = (tags) =>
+                tags.Split(", ", StringSplitOptions.TrimEntries & StringSplitOptions.RemoveEmptyEntries)
+                    .Select(n => new Tag { Name = n })
+                    .ToList();
+        }
+
+        public class ValueConverterTestDbContext : TestDbContext
+        {
+            public ValueConverterTestDbContext(DbContextOptions<ValueConverterTestDbContext> options) 
+                : base(options)
+            {
+            }
+
+            public DbSet<Address> Addresses { get; set; }
         }
     }
 }

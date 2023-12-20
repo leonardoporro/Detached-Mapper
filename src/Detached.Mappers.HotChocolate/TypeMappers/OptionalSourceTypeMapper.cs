@@ -5,9 +5,9 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
 {
     public class OptionalSourceTypeMapper<TSource, TTarget> : TypeMapper<Optional<TSource>, TTarget>
     {
-        readonly LazyTypeMapper<TSource, TTarget> _typeMapper;
+        readonly ITypeMapper<TSource, TTarget> _typeMapper;
 
-        public OptionalSourceTypeMapper(LazyTypeMapper<TSource, TTarget> typeMapper)
+        public OptionalSourceTypeMapper(ITypeMapper<TSource, TTarget> typeMapper)
         {
             _typeMapper = typeMapper;
         }
@@ -17,7 +17,7 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
             if (source.IsEmpty)
                 return target;
             else
-                return _typeMapper.Value.Map(source.Value, target, context);
+                return _typeMapper.Map(source.Value, target, context);
         }
     }
 

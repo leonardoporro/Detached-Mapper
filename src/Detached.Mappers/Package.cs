@@ -6,11 +6,11 @@ namespace Detached.Mappers
 {
     public static class Package
     {
-        public static void AddDetached(this IServiceCollection services)
+        public static void AddMapper(this IServiceCollection services)
         {
             services.AddOptions<MapperOptions>();
             services.TryAddSingleton<Mapper>(); 
-            services.TryAddSingleton(sp => new PatchJsonConverterFactory(sp.GetRequiredService<Mapper>()));
+            services.TryAddSingleton(sp => new PatchJsonConverterFactory(sp.GetRequiredService<Mapper>().Options));
         }
     }
 }

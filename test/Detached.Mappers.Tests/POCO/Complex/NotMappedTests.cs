@@ -33,7 +33,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
         {
             public string Text1 { get; set; }
 
-            [NotMapped]
+            [MapIgnore]
             public string Text2 { get; set; }
         }
     }

@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.HotChocolate.Extensions;
-using Detached.Mappers.TypeMappers; 
+using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using System;
@@ -28,9 +28,9 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
             if (typePair.SourceType.IsOptional() && typePair.TargetType.IsOptional())
             {
                 Type mapperType = typeof(OptionalTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ItemClrType);
-                ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
             }
             else if (typePair.SourceType.IsOptional())
             {
@@ -43,9 +43,9 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
                 else
                 {
                     Type mapperType = typeof(OptionalSourceTypeMapper<,>).MakeGenericType(typePair.SourceType.ItemClrType, typePair.TargetType.ClrType);
-                    ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                    return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                    return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
             }
             else
@@ -58,9 +58,9 @@ namespace Detached.Mappers.HotChocolate.TypeMappers
                 else
                 {
                     Type mapperType = typeof(OptionalTargetTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ItemClrType);
-                    ILazyTypeMapper valueMapper = mapper.GetLazyTypeMapper(itemTypePair);
+                    ITypeMapper valueMapper = mapper.GetTypeMapper(itemTypePair);
 
-                    return (ITypeMapper)Activator.CreateInstance(mapperType, new[] { valueMapper });
+                    return (ITypeMapper)Activator.CreateInstance(mapperType, valueMapper);
                 }
             }
         }

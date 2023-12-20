@@ -4,13 +4,12 @@ using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers.Annotations
 {
-    public class MapIgnoreAnnotationHandler : AnnotationHandler<NotMappedAttribute>
+    public class MapIgnoreAnnotationHandler : AnnotationHandler<MapIgnoreAttribute>
     {
-        public override void Apply(NotMappedAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
         {
             memberOptions.Ignore(true);
         }

@@ -1,8 +1,11 @@
-﻿using Detached.Mappers.EntityFramework.Tests.Model;
-using Detached.Mappers.EntityFramework.Tests.Model.DTOs;
+﻿using Detached.Annotations;
+using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,12 +17,12 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            DefaultTestDbContext dbContext = await DefaultTestDbContext.CreateAsync();
+            var dbContext = await TestDbContext.Create<EntityTestDbContext>(); 
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
             dbContext.UserTypes.Add(new UserType { Id = 1, Name = "system" });
-            await dbContext.SaveChangesAsync();
+            dbContext.SaveChanges();
 
             await dbContext.MapAsync<User>(new UserDTO
             {
@@ -70,15 +73,10 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity_not_found()
         {
-            DefaultTestDbContext db = await DefaultTestDbContext.CreateAsync();
-
-            db.Roles.Add(new Role { Id = 1, Name = "admin" });
-            db.Roles.Add(new Role { Id = 2, Name = "user" });
-            db.UserTypes.Add(new UserType { Id = 1, Name = "system" });
-            await db.SaveChangesAsync();
+            var dbContext = await TestDbContext.Create<EntityTestDbContext>();
 
             await Assert.ThrowsAsync<MapperException>(() =>
-                db.MapAsync<User>(new UserDTO
+                dbContext.MapAsync<User>(new UserDTO
                 {
                     Id = 1,
                     Name = "cr",
@@ -88,6 +86,154 @@ namespace Detached.Mappers.EntityFramework.Tests
                     Upsert = false
                 })
             );
+        }
+
+        public class User
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+
+            public virtual DateTime DateOfBirth { get; set; }
+
+            public virtual List<Role> Roles { get; set; }
+
+            [Composition]
+            public virtual List<Address> Addresses { get; set; }
+
+            public virtual UserType UserType { get; set; }
+
+            [Composition]
+            public virtual UserProfile Profile { get; set; }
+        }
+
+        public class UserDTO
+        {
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+
+            public virtual List<RoleDTO> Roles { get; set; }
+
+            public virtual List<AddressDTO> Addresses { get; set; }
+
+            public virtual UserTypeDTO UserType { get; set; }
+
+            public virtual UserProfileDTO Profile { get; set; }
+        }
+
+        public class UserProfile
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public virtual int Id { get; set; }
+
+            public virtual string FirstName { get; set; }
+
+            public virtual string LastName { get; set; }
+        }
+
+        public class UserProfileDTO
+        {
+            public virtual int Id { get; set; }
+
+            public virtual string FirstName { get; set; }
+
+            public virtual string LastName { get; set; }
+        }
+
+        public class Role
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+
+            public virtual List<User> Users { get; set; }
+        }
+
+        public class RoleDTO
+        {
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+        }
+
+        public class UserRole
+        {
+            public virtual int UserId { get; set; }
+
+            public virtual User User { get; set; }
+
+            public virtual int RoleId { get; set; }
+
+            public virtual Role Role { get; set; }
+        }
+
+        public class UserType
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+
+            public virtual List<User> Users { get; set; }
+        }
+
+        public class UserTypeDTO
+        {
+            public virtual int Id { get; set; }
+
+            public virtual string Name { get; set; }
+        }
+
+        public class Address
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public virtual int Id { get; set; }
+
+            public virtual string Street { get; set; }
+
+            public virtual string Number { get; set; }
+        }
+
+        public class AddressDTO
+        {
+            public virtual int Id { get; set; }
+
+            public virtual string Street { get; set; }
+
+            public virtual string Number { get; set; }
+        }
+
+        public class EntityTestDbContext : TestDbContext
+        {
+            public EntityTestDbContext(DbContextOptions<EntityTestDbContext> options) 
+                : base(options)
+            {
+            }
+
+            public DbSet<User> Users { get; set; }
+
+            public DbSet<Role> Roles { get; set; }
+
+            public DbSet<UserType> UserTypes { get; set; }
+             
+            protected override void OnModelCreating(ModelBuilder mb)
+            {
+                mb.Entity<User>()
+                   .HasMany(u => u.Roles)
+                   .WithMany(r => r.Users)
+                   .UsingEntity<UserRole>(
+                       ur => ur.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId),
+                       ur => ur.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId))
+                   .HasKey(ur => new { ur.UserId, ur.RoleId });
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Detached.Mappers.TypeMappers
 {
-    public class LazyTypeMapper<TSource, TTarget> : ILazyTypeMapper
+    public class LazyTypeMapper<TSource, TTarget> : TypeMapper<TSource, TTarget>
     {
         readonly Mapper _mapper;
         readonly TypePair _typePair;
@@ -15,19 +15,14 @@ namespace Detached.Mappers.TypeMappers
 
         private ITypeMapper<TSource, TTarget> _value = null;
 
-        public ITypeMapper<TSource, TTarget> Value
+        public override TTarget Map(TSource source, TTarget target, IMapContext context)
         {
-            get
+            if (_value == null)
             {
-                if (_value == null)
-                {
-                    _value = (ITypeMapper<TSource, TTarget>)_mapper.GetTypeMapper(_typePair);
-                }
-
-                return _value;
+                _value = (ITypeMapper<TSource, TTarget>)_mapper.GetTypeMapper(_typePair);
             }
-        }
 
-        ITypeMapper ILazyTypeMapper.Value => Value;
+            return _value.Map(source, target, context);
+        }
     }
 }

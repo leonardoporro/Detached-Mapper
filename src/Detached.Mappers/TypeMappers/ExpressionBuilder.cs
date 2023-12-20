@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypeMappers.Entity;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
@@ -36,7 +35,6 @@ namespace Detached.Mappers.TypeMappers
 
             foreach (TypePairMember pairMember in typePair.Members.Values)
             {
-                
                 if (pairMember.IsKey())
                 {
                     keyParamTypes.Add(pairMember.TargetMember.ClrType);
@@ -167,9 +165,9 @@ namespace Detached.Mappers.TypeMappers
                 if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
-                    Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
+                    Expression typeMapperExpr = BuildGetMapperExpression(memberTypePair);
 
-                    sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
+                    sourceValueExpr = Call("Map", typeMapperExpr, sourceValueExpr, targetValueExpr, contextExpr);
                 }
 
                 memberSetExpr = Block(
@@ -193,8 +191,8 @@ namespace Detached.Mappers.TypeMappers
                 if (!forceCopy && _mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
                 {
                     Expression targetValueExpr = memberPair.TargetMember.BuildGetExpression(targetExpr, contextExpr);
-                    Expression typeMapperExpr = BuildGetLazyMapperExpression(memberTypePair);
-                    sourceValueExpr = Call("Map", Property(typeMapperExpr, "Value"), sourceValueExpr, targetValueExpr, contextExpr);
+                    Expression typeMapperExpr = BuildGetMapperExpression(memberTypePair);
+                    sourceValueExpr = Call("Map", typeMapperExpr, sourceValueExpr, targetValueExpr, contextExpr);
                 }
 
                 memberSetExpr = memberPair.TargetMember.BuildSetExpression(targetExpr, sourceValueExpr, contextExpr);
@@ -203,10 +201,13 @@ namespace Detached.Mappers.TypeMappers
             return memberSetExpr;
         }
 
-        public Expression BuildGetLazyMapperExpression(TypePair typePair)
+        public Expression BuildGetMapperExpression(TypePair typePair)
         {
             Type lazyType = typeof(LazyTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
-            return Constant(_mapper.GetLazyTypeMapper(typePair), lazyType);
+
+            var memberMapper = (ITypeMapper)Activator.CreateInstance(lazyType, _mapper, typePair);
+
+            return Constant(memberMapper, lazyType);
         }
 
         public LambdaExpression BuildNewExpression(IType typeOptions)

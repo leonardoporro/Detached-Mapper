@@ -1,7 +1,7 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
+using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Linq.Expressions;
 
@@ -24,7 +24,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
 
             return false;
         }
- 
+
         public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
             ExpressionBuilder builder = new ExpressionBuilder(mapper);
@@ -35,25 +35,28 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
             IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
             TypePair itemTypePair = mapper.Options.GetTypePair(sourceItemType, targetItemType, typePair.ParentMember);
 
-            ILazyTypeMapper itemMapper = mapper.GetLazyTypeMapper(itemTypePair);
+            ITypeMapper itemMapper = mapper.GetTypeMapper(itemTypePair);
 
             builder.BuildGetKeyExpressions(itemTypePair, out LambdaExpression getSourceKeyExpr, out LambdaExpression getTargetKeyExpr, out Type keyType);
 
-            Type baseMapperType =
-                    mapper.Options.MergeCollections
-                        ? typeof(MergeEntityCollectionTypeMapper<,,,,>)
-                        : typeof(EntityCollectionTypeMapper<,,,,>);
+            Type baseMapperType = typePair.TargetType.ClrType.IsList(out _)
+                ? typeof(EntityListTypeMapper<,,,,>)
+                : typeof(EntityCollectionTypeMapper<,,,,>);
 
-            Type mapperType = baseMapperType.MakeGenericType(typePair.SourceType.ClrType, typePair.SourceType.ItemClrType, typePair.TargetType.ClrType, typePair.TargetType.ItemClrType, keyType);
+            Type mapperType = baseMapperType.MakeGenericType(
+                typePair.SourceType.ClrType,
+                typePair.SourceType.ItemClrType,
+                typePair.TargetType.ClrType,
+                typePair.TargetType.ItemClrType,
+                keyType);
 
             return (ITypeMapper)Activator.CreateInstance(mapperType,
-                        new object[] {
                             construct.Compile(),
                             getSourceKeyExpr.Compile(),
                             getTargetKeyExpr.Compile(),
                             itemMapper,
                             mapper.Options.EntityCollectionNullBehavior
-                        });
+                        );
         }
     }
 }

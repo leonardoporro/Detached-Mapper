@@ -8,12 +8,12 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
         where TSource : class
         where TTarget : class
     {
-        Func<TSource, IMapContext, TDiscriminator> _getDiscriminator;
-        Dictionary<TDiscriminator, ILazyTypeMapper> _mappers;
+        readonly Func<TSource, IMapContext, TDiscriminator> _getDiscriminator;
+        readonly Dictionary<TDiscriminator, ITypeMapper> _mappers;
 
         public InheritedTypeMapper(
             Func<TSource, IMapContext, TDiscriminator> getDiscriminator, 
-            Dictionary<TDiscriminator, ILazyTypeMapper> mappers)
+            Dictionary<TDiscriminator, ITypeMapper> mappers)
         {
             _getDiscriminator = getDiscriminator;
             _mappers = mappers;
@@ -27,9 +27,9 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
             {
                 TDiscriminator discriminator = _getDiscriminator(source, context);
 
-                if (_mappers.TryGetValue(discriminator, out ILazyTypeMapper mapper))
+                if (_mappers.TryGetValue(discriminator, out ITypeMapper mapper))
                 {
-                    result = (TTarget)mapper.Value.Map(source, target, context);
+                    result = (TTarget)mapper.Map(source, target, context);
                 }
                 else
                 {

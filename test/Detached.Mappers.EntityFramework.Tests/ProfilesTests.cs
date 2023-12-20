@@ -1,6 +1,10 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
@@ -8,12 +12,11 @@ namespace Detached.Mappers.EntityFramework.Tests
     public class ProfilesTests
     {
         [Fact]
-        public void multiple_profiles_create_profile()
+        public async Task multiple_profiles_create_profile()
         {
-            TestDbContext dbContext = new TestDbContext();
-            dbContext.Database.EnsureCreated();
+            var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
 
-            UserDTO dto = new UserDTO  { Id = 1, Name = "user name" };
+            UserDTO dto = new UserDTO { Id = 1, Name = "user name" };
 
             User newUser = dbContext.Map<User>(MappingProfiles.Create, dto);
 
@@ -24,63 +27,29 @@ namespace Detached.Mappers.EntityFramework.Tests
         }
 
         [Fact]
-        public void multiple_profiles_update_profile()
+        public async Task multiple_profiles_update_profile()
         {
-            TestDbContext dbContext = new TestDbContext();
+            var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
             dbContext.Database.EnsureCreated();
 
-            UserDTO dto = new UserDTO { Id = 1, Name = "user name" };
+            UserDTO dto = new UserDTO { Id = 1, Name = "user name" }; 
 
             User newUser = dbContext.Map<User>(MappingProfiles.Update, dto);
 
             Assert.Equal(1, newUser.Id);
             Assert.Equal("user name", newUser.Name);
-           
+
             Assert.Null(newUser.CreatedDate);
             Assert.NotNull(newUser.ModifiedDate);
         }
 
-        public class TestDbContext : DbContext
-        {
-            static SqliteConnection _connection;
-
-            static TestDbContext()
-            {
-                _connection = new SqliteConnection($"DataSource=file:{Guid.NewGuid()}?mode=memory&cache=shared");
-                _connection.Open();
-            }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlite(_connection)
-                    .UseMapping(mapping =>
-                    {
-                        mapping.AddProfile(MappingProfiles.Create, cfg =>
-                        {
-                            cfg.Type<User>()
-                               .FromType<UserDTO>()
-                               .Member(u => u.CreatedDate)
-                               .FromValue((u, c) => (DateTime?)DateTime.Now);
-                        });
-
-                        mapping.AddProfile(MappingProfiles.Update, cfg =>
-                        {
-                            cfg.Type<User>()
-                               .FromType<UserDTO>()
-                               .Member(u => u.ModifiedDate)
-                               .FromValue((u, c) => (DateTime?)DateTime.Now);
-                        });
-                    });
-            }
-
-            public DbSet<User> Users { get; set; }
-        }
-
         public class User
         {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
-            public string Name { get; set; } 
+            public string Name { get; set; }
 
             public DateTime? ModifiedDate { get; set; }
 
@@ -98,6 +67,35 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             Create,
             Update
+        }
+
+        public class ProfilesTestDbContext : TestDbContext
+        {
+            public ProfilesTestDbContext(DbContextOptions<ProfilesTestDbContext> options) 
+                : base(options)
+            {
+            }
+
+            public DbSet<User> Users { get; set; }
+
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
+            {
+                builder.AddProfile(MappingProfiles.Create, cfg =>
+                {
+                    cfg.Type<User>()
+                       .FromType<UserDTO>()
+                       .Member(u => u.CreatedDate)
+                       .FromValue((u, c) => (DateTime?)DateTime.Now);
+                });
+
+                builder.AddProfile(MappingProfiles.Update, cfg =>
+                {
+                    cfg.Type<User>()
+                       .FromType<UserDTO>()
+                       .Member(u => u.ModifiedDate)
+                       .FromValue((u, c) => (DateTime?)DateTime.Now);
+                });
+            }
         }
     }
 }

@@ -18,77 +18,97 @@ namespace Detached.Mappers.Types.Class
             {
                 return null;
             }
+        } 
+
+        public static bool IsPrimitive(this IType type)
+        {
+            return type.MappingSchema == MappingSchema.Primitive;
         }
 
-        public static bool IsPrimitive(this IType typeOptions)
+        public static bool IsCollection(this IType type)
         {
-            return typeOptions.MappingSchema == MappingSchema.Primitive;
+            return type.MappingSchema == MappingSchema.Collection;
         }
 
-        public static bool IsCollection(this IType typeOptions)
+        public static bool IsComplex(this IType type)
         {
-            return typeOptions.MappingSchema == MappingSchema.Collection;
+            return type.MappingSchema == MappingSchema.Complex;
         }
 
-        public static bool IsComplex(this IType typeOptions)
+        public static bool IsComplexOrEntity(this IType type)
         {
-            return typeOptions.MappingSchema == MappingSchema.Complex;
+            return type.IsComplex() || type.IsEntity();
         }
 
-        public static bool IsComplexOrEntity(this IType typeOptions)
+        public static bool IsNullable(this IType type)
         {
-            return typeOptions.IsComplex() || typeOptions.IsEntity();
+            return type.ClrType.IsNullable(out _);
         }
 
-        public static bool IsNullable(this IType typeOptions)
+        public static bool IsConcrete(this IType type)
         {
-            return typeOptions.ClrType.IsNullable(out _);
+            return !(type.IsAbstract() || type.IsInherited());
         }
 
-        public static bool IsConcrete(this IType typeOptions)
+        public static bool IsInherited(this IType type)
         {
-            return !(typeOptions.IsAbstract() || typeOptions.IsInherited());
-        }
-
-        public static bool IsInherited(this IType typeOptions)
-        {
-            return typeOptions.Annotations.ContainsKey(DISCRIMINATOR_NAME_KEY);
+            return type.Annotations.ContainsKey(DISCRIMINATOR_NAME_KEY);
         }
 
         const string DISCRIMINATOR_NAME_KEY = "DETACHED_DISCRIMINATOR_NAME";
 
-        public static void SetDiscriminatorName(this IType typeOptions, string discriminatorName)
+        public static void SetDiscriminatorName(this IType type, string discriminatorName)
         {
             if (string.IsNullOrEmpty(discriminatorName))
             {
-                typeOptions.Annotations.Remove(DISCRIMINATOR_NAME_KEY);
+                type.Annotations.Remove(DISCRIMINATOR_NAME_KEY);
             }
             else
             {
-                typeOptions.Annotations[DISCRIMINATOR_NAME_KEY] = discriminatorName;
+                type.Annotations[DISCRIMINATOR_NAME_KEY] = discriminatorName;
             }
         }
 
-        public static string GetDiscriminatorName(this IType typeOptions)
+        public static string GetDiscriminatorName(this IType type)
         {
-            typeOptions.Annotations.TryGetValue(DISCRIMINATOR_NAME_KEY, out object result);
+            type.Annotations.TryGetValue(DISCRIMINATOR_NAME_KEY, out object result);
             return result as string;
         }
 
         const string DISCRIMINATOR_VALUES_KEY = "DETACHED_DISCRIMINATOR_VALUES";
 
-        public static Dictionary<object, Type> GetDiscriminatorValues(this IType typeOptions)
+        public static Dictionary<object, Type> GetDiscriminatorValues(this IType type)
         {
-            if (!typeOptions.Annotations.TryGetValue(DISCRIMINATOR_VALUES_KEY, out object result))
+            if (!type.Annotations.TryGetValue(DISCRIMINATOR_VALUES_KEY, out object result))
             {
                 var values = new Dictionary<object, Type>();
-                typeOptions.Annotations[DISCRIMINATOR_VALUES_KEY] = values;
+                type.Annotations[DISCRIMINATOR_VALUES_KEY] = values;
                 return values;
             }
             else
             {
                 return result as Dictionary<object, Type>;
             }
+        }
+
+        const string CONCURRENCY_TOKEN_NAME_KEY = "DETACHED_CONCURRENCY_TOKEN_NAME";
+
+        public static void SetConcurrencyTokenName(this IType type, string concurrencyTokenName)
+        {
+            if (string.IsNullOrEmpty(concurrencyTokenName))
+            {
+                type.Annotations.Remove(CONCURRENCY_TOKEN_NAME_KEY);
+            }
+            else
+            {
+                type.Annotations[CONCURRENCY_TOKEN_NAME_KEY] = concurrencyTokenName;
+            }
+        }
+
+        public static string GetConcurrencyTokenName(this IType type)
+        {
+            type.Annotations.TryGetValue(CONCURRENCY_TOKEN_NAME_KEY, out object result);
+            return result as string;
         }
     }
 }
