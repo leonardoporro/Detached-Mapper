@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>7.2.1</Version>
+	  <Version>$(Version)</Version>
     <Authors>Leonardo Porro</Authors>
     <Company />
     <Product>Detached</Product>
@@ -15,14 +15,15 @@
     <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
     <PackageIcon>logo.png</PackageIcon>
     <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Detached.RuntimeTypes" Version="6.0.0" />
-    <PackageReference Include="Detached.PatchTypes" Version="6.0.0" />
+    <PackageReference Include="Detached.RuntimeTypes" Version="8.0.0" />
+    <PackageReference Include="Detached.PatchTypes" Version="8.0.0" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
@@ -33,6 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\..\Detached-PatchTypes\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
