@@ -13,8 +13,7 @@
 		<NeutralLanguage />
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageId>Detached.Mappers.EntityFramework</PackageId>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageId>Detached.Mappers.EntityFramework</PackageId> 		<PackageReadmeFile>Readme.MD</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
@@ -33,6 +32,10 @@
 		<None Include="..\..\logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\Readme.MD">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 

@@ -14,8 +14,7 @@
     <NeutralLanguage />
     <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
     <PackageIcon>logo.png</PackageIcon>
-    <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>     <PackageReadmeFile>Readme.MD</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +33,10 @@
     <None Include="..\..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\Readme.MD">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
