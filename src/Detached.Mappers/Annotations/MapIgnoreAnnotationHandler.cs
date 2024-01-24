@@ -20,25 +20,21 @@ namespace Detached.Mappers
 {
     public static class MapIgnoreAnnotationHandlerExtensions
     {
-        public const string KEY = "DETACHED_MAP_IGNORE";
+        public const string VALUE_KEY = "DETACHED_MAP_IGNORE";
 
         public static bool IsIgnored(this ITypeMember member)
         {
-            return member.Annotations.ContainsKey(KEY);
+            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
+        }
+
+        public static bool IsIgnored(this TypePairMember member)
+        {
+            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
         }
 
         public static void Ignore(this ITypeMember member, bool value = true)
         {
-            if (value)
-                member.Annotations[KEY] = true;
-            else
-                member.Annotations.Remove(KEY);
-        }
-
-        public static ClassTypeMemberBuilder<TType, TMember> Exclude<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member)
-        {
-            member.MemberOptions.Ignore(true);
-            return member;
+            member.Annotations[VALUE_KEY] = value;
         }
 
         public static ClassTypeMemberBuilder<TType, TMember> Include<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
@@ -47,19 +43,26 @@ namespace Detached.Mappers
             return member;
         }
 
-        public static bool IsIgnored(this TypePairMember member)
+        public static void Include(this TypePairMember member)
         {
-            return member.Annotations.ContainsKey(KEY);
+            member.Annotations[VALUE_KEY] = false;
         }
 
-        public static bool IsMapped(this TypePairMember member)
+        public static TypePairMemberBuilder<TType, TMember> Include<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member)
         {
-            return !member.Annotations.ContainsKey(KEY);
+            member.TypePairMember.Include();
+            return member;
+        }
+
+        public static ClassTypeMemberBuilder<TType, TMember> Exclude<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member)
+        {
+            member.MemberOptions.Ignore(true);
+            return member;
         }
 
         public static void Exclude(this TypePairMember member)
         {
-            member.Annotations[KEY] = true;
+            member.Annotations[VALUE_KEY] = true;
         }
 
         public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
@@ -68,15 +71,20 @@ namespace Detached.Mappers
             return member;
         }
 
-        public static void Include(this TypePairMember member)
+        public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member)
         {
-            member.Annotations.Remove(KEY);
+            member.TypePairMember.Exclude();
+            return member;
         }
 
-        public static TypePairMemberBuilder<TType, TMember> Include<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
+        public static bool IsMapped(this TypePairMember member)
         {
-            member.TypePairMember.Include();
-            return member;
+            return !member.IsIgnored();
+        }
+
+        public static bool IsIgnoredConfigured(this ITypeMember member)
+        {
+            return member.Annotations.ContainsKey(VALUE_KEY);
         }
     }
 }

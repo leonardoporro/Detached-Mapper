@@ -18,19 +18,16 @@ namespace Detached.Mappers
 {
     public static class AbstractAnnotationHandlerExtensions
     {
-        public const string KEY = "DETACHED_ABSTRACT";
+        public const string VALUE_KEY = "DETACHED_ABSTRACT";
 
         public static bool IsAbstract(this IType type)
         {
-            return type.Annotations.ContainsKey(KEY);
+            return type.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
         }
 
         public static void Abstract(this IType type, bool value = true)
         {
-            if (value)
-                type.Annotations[KEY] = true;
-            else
-                type.Annotations.Remove(KEY);
+            type.Annotations[VALUE_KEY] = value;
         }
 
         public static ClassTypeBuilder<TType> Abstract<TType>(this ClassTypeBuilder<TType> type, bool value = true)

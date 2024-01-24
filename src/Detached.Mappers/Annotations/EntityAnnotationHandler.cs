@@ -19,11 +19,11 @@ namespace Detached.Mappers
 {
     public static class EntityAnnotationHandlerExtensions
     {
-        public const string KEY = "DETACHED_ENTITY";
+        public const string VALUE_KEY = "DETACHED_ENTITY";
 
         public static bool IsEntity(this IType type)
         {
-            return type.Annotations.ContainsKey(KEY);
+            return type.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
         }
 
         public static void Entity(this IType type, bool value = true)
@@ -33,10 +33,7 @@ namespace Detached.Mappers
                 throw new MapperException($"Only complext types can be marked as Entities.");
             }
 
-            if (value)
-                type.Annotations[KEY] = true;
-            else
-                type.Annotations.Remove(KEY);
+            type.Annotations[VALUE_KEY] = value;
         }
 
         public static ClassTypeBuilder<TType> Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
@@ -44,6 +41,11 @@ namespace Detached.Mappers
             type.TypeOptions.Entity(value);
 
             return type;
+        }
+
+        public static bool IsEntityConfigured(this IType type)
+        {
+            return type.Annotations.ContainsKey(VALUE_KEY);
         }
     }
 }

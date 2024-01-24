@@ -12,7 +12,7 @@ namespace Detached.Mappers.Annotation.Tests
             Mapper mapper = new Mapper();
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
 
-            Assert.True(type.Annotations.ContainsKey(AbstractAnnotationHandlerExtensions.KEY));
+            Assert.True(type.Annotations.TryGetValue(AbstractAnnotationHandlerExtensions.VALUE_KEY, out var value) && Equals(value, true));
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace Detached.Mappers.Annotation.Tests
             Mapper mapper = new Mapper(mapperOptions);
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
 
-            Assert.True(type.Annotations.ContainsKey(AbstractAnnotationHandlerExtensions.KEY));
+            Assert.True(type.Annotations.TryGetValue(AbstractAnnotationHandlerExtensions.VALUE_KEY, out var value) && Equals(value, true));
         }
 
         [Fact]
@@ -36,7 +36,8 @@ namespace Detached.Mappers.Annotation.Tests
             Mapper mapper = new Mapper(mapperOptions);
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
 
-            Assert.False(type.Annotations.ContainsKey(AbstractAnnotationHandlerExtensions.KEY));
+            type.Annotations.TryGetValue(AbstractAnnotationHandlerExtensions.VALUE_KEY, out var value);
+            Assert.Equal(false, value);
         }
 
         [Abstract]

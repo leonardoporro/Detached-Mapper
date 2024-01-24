@@ -20,19 +20,21 @@ namespace Detached.Mappers
 {
     public static class ParentAnnotationHandlerExtensions
     {
-        public const string KEY = "DETACHED_PARENT_REFERENCE";
+        public const string VALUE_KEY = "DETACHED_PARENT_REFERENCE";
 
         public static bool IsParent(this ITypeMember member)
         {
-            return member.Annotations.ContainsKey(KEY);
+            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
+        }
+
+        public static bool IsParent(this TypePairMember member)
+        {
+            return member.Annotations.ContainsKey(VALUE_KEY);
         }
 
         public static void Parent(this ITypeMember member, bool value = true)
         {
-            if (value)
-                member.Annotations[KEY] = true;
-            else
-                member.Annotations.Remove(KEY);
+            member.Annotations[VALUE_KEY] = value;
         }
 
         public static ClassTypeMemberBuilder<TType, TMember> Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
@@ -41,23 +43,20 @@ namespace Detached.Mappers
             return member;
         }
 
-        public static bool IsParent(this TypePairMember member)
-        {
-            return member.Annotations.ContainsKey(KEY);
-        }
-
         public static void Parent(this TypePairMember member, bool value = true)
         {
-            if (value)
-                member.Annotations[KEY] = true;
-            else
-                member.Annotations.Remove(KEY);
+            member.Annotations[VALUE_KEY] = value; 
         }
 
         public static TypePairMemberBuilder<TType, TMember> Parent<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.TypePairMember.Exclude();
+            member.TypePairMember.Parent();
             return member;
+        }
+
+        public static bool IsParentConfigured(this ITypeMember member)
+        {
+            return member.Annotations.ContainsKey(VALUE_KEY);
         }
     }
 }

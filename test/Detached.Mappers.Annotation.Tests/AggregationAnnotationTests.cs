@@ -13,7 +13,7 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(AggregationAnnotationHandlerExtensions.KEY));
+            Assert.True(member.Annotations.TryGetValue(AggregationAnnotationHandlerExtensions.VALUE_KEY, out var value) && Equals(value, true));
         }
 
         [Fact]
@@ -28,19 +28,21 @@ namespace Detached.Mappers.Annotation.Tests
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
             ITypeMember member = type.GetMember("Items");
 
-            Assert.True(member.Annotations.ContainsKey(AggregationAnnotationHandlerExtensions.KEY));
+            Assert.True(member.Annotations.TryGetValue(AggregationAnnotationHandlerExtensions.VALUE_KEY, out var value) && Equals(value, true));
         }
 
         [Fact]
         public void fluent_must_unset_annotation()
         {
             MapperOptions mapperOptions = new MapperOptions();
-            mapperOptions.Type<AnnotatedEntity>().Abstract(false);
+            mapperOptions.Type<AnnotatedEntity>().Member(e => e.Items).Aggregation(false);
 
             Mapper mapper = new Mapper(mapperOptions);
             IType type = mapper.Options.GetType(typeof(AnnotatedEntity));
+            ITypeMember member = type.GetMember("Items");
 
-            Assert.False(type.Annotations.ContainsKey(AbstractAnnotationHandlerExtensions.KEY));
+            member.Annotations.TryGetValue(AggregationAnnotationHandlerExtensions.VALUE_KEY, out var value);
+            Assert.Equal(false, value);
         }
 
         public class AnnotatedEntity
