@@ -1,6 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Types;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.TypePairs
@@ -17,13 +15,13 @@ namespace Detached.Mappers.TypePairs
             {
                 foreach (string targetMemberName in memberNames)
                 {
-                    ITypeMember targetMember = targetType.GetMember(targetMemberName); 
+                    ITypeMember targetMember = targetType.GetMember(targetMemberName);
 
                     if (targetMember != null)
                     {
                         TypePairMember member = new TypePairMember();
-                        
-                        foreach(var annotation in targetMember.Annotations)
+
+                        foreach (var annotation in targetMember.Annotations)
                         {
                             member.Annotations[annotation.Key] = annotation.Value;
                         }
@@ -38,10 +36,6 @@ namespace Detached.Mappers.TypePairs
                         if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsIgnored())
                         {
                             member.SourceMember = sourceMember;
-                        }
-                        else if (!member.IsParent())
-                        {
-                            member.Exclude();
                         }
 
                         typePair.Members.Add(targetMemberName, member);

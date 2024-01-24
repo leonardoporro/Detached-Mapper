@@ -1,6 +1,5 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.TypePairs;
-using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
@@ -26,11 +25,6 @@ namespace Detached.Mappers
             return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
         }
 
-        public static bool IsParent(this TypePairMember member)
-        {
-            return member.Annotations.ContainsKey(VALUE_KEY);
-        }
-
         public static void Parent(this ITypeMember member, bool value = true)
         {
             member.Annotations[VALUE_KEY] = value;
@@ -45,12 +39,6 @@ namespace Detached.Mappers
         public static void Parent(this TypePairMember member, bool value = true)
         {
             member.Annotations[VALUE_KEY] = value; 
-        }
-
-        public static TypePairMemberBuilder<TType, TMember> Parent<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
-        {
-            member.TypePairMember.Parent();
-            return member;
         }
 
         public static bool IsParentConfigured(this ITypeMember member)

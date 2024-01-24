@@ -118,11 +118,11 @@ namespace Detached.Mappers.TypeMappers
             {
                 if (!memberPair.IsIgnored())
                 {
-                    if (memberPair.IsParent())
+                    if (memberPair.TargetMember.IsParent())
                     {
                         memberMapsExprs.Add(BuildFindParentExpression(targetExpr, contextExpr, memberPair.TargetMember));
                     }
-                    else if (isIncluded(memberPair.SourceMember, memberPair.TargetMember))
+                    else if (memberPair.SourceMember != null && isIncluded(memberPair.SourceMember, memberPair.TargetMember))
                     {
                         Expression memberMapExpr = BuildMapSingleMemberExpression(memberPair, sourceExpr, targetExpr, contextExpr);
                         memberMapsExprs.Add(memberMapExpr);

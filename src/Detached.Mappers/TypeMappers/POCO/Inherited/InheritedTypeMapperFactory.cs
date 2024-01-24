@@ -24,7 +24,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
         {
             string targetMemberName = typePair.TargetType.GetDiscriminatorName();
 
-            if (!typePair.Members.TryGetValue(targetMemberName, out TypePairMember member) || member.IsIgnored())
+            if (!typePair.Members.TryGetValue(targetMemberName, out TypePairMember member) || member.IsIgnored() || member.SourceMember == null)
             {
                 throw new MapperException($"Discriminator member {targetMemberName} does not exist in type {typePair.SourceType.ClrType}");
             }

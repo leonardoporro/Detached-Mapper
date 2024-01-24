@@ -73,7 +73,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
 
             foreach (TypePairMember memberPair in typePair.Members.Values.Where(p => p.IsKey()))
             {
-                if (memberPair.IsIgnored())
+                if (memberPair.IsIgnored() || memberPair.SourceMember == null)
                 {
                     return null;
                 }
@@ -145,7 +145,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (memberPair.IsMapped() && !memberPair.IsParent() && !memberPair.IsSetAsPrimitive())
+                if (memberPair.IsMapped() && !memberPair.TargetMember.IsParent() && !memberPair.IsSetAsPrimitive() && memberPair.SourceMember != null)
                 {
                     IType sourceMemberType = Options.GetType(memberPair.SourceMember.ClrType);
                     IType targetMemberType = Options.GetType(memberPair.TargetMember.ClrType);
