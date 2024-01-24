@@ -12,21 +12,21 @@ namespace Detached.Mappers.Tests.POCO.Primitive
         [Fact]
         public void map_as_primitive_fails_different_types()
         {
-            RootDTO dto = new RootDTO
+            RootDto dto = new RootDto
             {
-                Mapped = new InnerDTOClass { Name = "mapped class" },
-                Copied = new InnerDTOClass { Name = "copied class" }
+                Mapped = new InnerDtoClass { Name = "mapped class" },
+                Copied = new InnerDtoClass { Name = "copied class" }
             };
 
-            Assert.Throws<MapperException>(() => mapper.Map<RootDTO, RootEntity>(dto));
+            Assert.Throws<MapperException>(() => mapper.Map<RootDto, RootEntity>(dto));
         }
 
 
-        public class RootDTO
+        public class RootDto
         {
-            public InnerDTOClass Mapped { get; set; }
+            public InnerDtoClass Mapped { get; set; }
 
-            public InnerDTOClass Copied { get; set; }
+            public InnerDtoClass Copied { get; set; }
         }
 
         public class RootEntity
@@ -39,7 +39,7 @@ namespace Detached.Mappers.Tests.POCO.Primitive
             public InnerEntityClass Copied { get; set; }
         }
 
-        public class InnerDTOClass
+        public class InnerDtoClass
         {
             public string Name { get; set; }
         }

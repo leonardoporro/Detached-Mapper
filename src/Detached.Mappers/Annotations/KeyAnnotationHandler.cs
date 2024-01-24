@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,9 +7,9 @@ namespace Detached.Mappers.Annotations
 {
     public class KeyAnnotationHandler : AnnotationHandler<KeyAttribute>
     {
-        public override void Apply(KeyAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(KeyAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            memberOptions.Key(true);
+            member.Key(true);
         }
     }
 }

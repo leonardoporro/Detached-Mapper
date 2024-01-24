@@ -46,27 +46,27 @@ namespace Detached.Mappers.EntityFramework
             return query.Select(projection);
         }
 
-        public async Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
+        public async Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDto, MapParameters parameters = null)
             where TEntity : class
         {
             var profile = GetProfile(profileKey);
 
-            var target = await profile.Loader.LoadAsync(dbContext, typeof(TEntity), entityOrDTO);
+            var target = await profile.Loader.LoadAsync(dbContext, typeof(TEntity), entityOrDto);
 
-            return Map<TEntity>(dbContext, profile, entityOrDTO, target, parameters);
+            return Map<TEntity>(dbContext, profile, entityOrDto, target, parameters);
         }
 
-        public TEntity Map<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDTO, MapParameters parameters = null)
+        public TEntity Map<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDto, MapParameters parameters = null)
            where TEntity : class
         {
             var profile = GetProfile(profileKey);
 
-            var target = profile.Loader.Load(dbContext, typeof(TEntity), entityOrDTO);
+            var target = profile.Loader.Load(dbContext, typeof(TEntity), entityOrDto);
 
-            return Map<TEntity>(dbContext, profile, entityOrDTO, target, parameters);
+            return Map<TEntity>(dbContext, profile, entityOrDto, target, parameters);
         }
 
-        TTarget Map<TTarget>(DbContext dbContext, Profile profile, object entityOrDTO, object target, MapParameters parameters)
+        TTarget Map<TTarget>(DbContext dbContext, Profile profile, object entityOrDto, object target, MapParameters parameters)
             where TTarget : class
         {
             if (parameters == null)
@@ -81,7 +81,7 @@ namespace Detached.Mappers.EntityFramework
 
             var mapContext = new EntityMapContext(Options, dbContext, parameters);
 
-            return (TTarget)profile.Mapper.Map(entityOrDTO, entityOrDTO.GetType(), target, typeof(TTarget), mapContext);
+            return (TTarget)profile.Mapper.Map(entityOrDto, entityOrDto.GetType(), target, typeof(TTarget), mapContext);
         }
 
 

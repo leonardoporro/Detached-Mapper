@@ -1,7 +1,7 @@
 ﻿
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.inheritance;
 
-public class EntityFiveDTO : EntityThreeDTO
+public class EntityFiveDto : EntityThreeDto
 {
     
 }

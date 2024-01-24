@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos
 {
-    public class GovernmentDTO : OrganizationBaseDTO
+    public class GovernmentDto : OrganizationBaseDto
     {
         public string GovernmentIdentifierCode { get; set; }
     }

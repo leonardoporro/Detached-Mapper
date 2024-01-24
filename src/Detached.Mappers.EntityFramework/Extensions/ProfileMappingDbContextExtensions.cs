@@ -34,16 +34,16 @@ namespace Detached.Mappers.EntityFramework
             return dbContext.GetEntityMapper().Project<TEntity, TProjection>(query, new ProfileKey(profileKey));
         }
 
-        public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object profileKey, object entityOrDTO, MapParameters mapParams = null)
+        public static Task<TEntity> MapAsync<TEntity>(this DbContext dbContext, object profileKey, object entityOrDto, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetEntityMapper().MapAsync<TEntity>(dbContext, new ProfileKey(profileKey), entityOrDTO, mapParams);
+            return dbContext.GetEntityMapper().MapAsync<TEntity>(dbContext, new ProfileKey(profileKey), entityOrDto, mapParams);
         }
 
-        public static TEntity Map<TEntity>(this DbContext dbContext, object profileKey, object entityOrDTO, MapParameters mapParams = null)
+        public static TEntity Map<TEntity>(this DbContext dbContext, object profileKey, object entityOrDto, MapParameters mapParams = null)
             where TEntity : class
         {
-            return dbContext.GetEntityMapper().Map<TEntity>(dbContext, new ProfileKey(profileKey), entityOrDTO, mapParams);
+            return dbContext.GetEntityMapper().Map<TEntity>(dbContext, new ProfileKey(profileKey), entityOrDto, mapParams);
         }
 
         public static Task MapJsonAsync<TEntity>(this DbContext dbContext, object profileKey, Stream stream, MapParameters mapParams = null)

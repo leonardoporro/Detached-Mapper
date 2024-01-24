@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos
 {
-    public class OrganizationListDTO : IdBaseDTO
+    public class OrganizationListDto : IdBaseDto
     {
         public string ListName { get; set; }
 
-        public List<OrganizationBaseDTO> Organizations { get; set; } = new List<OrganizationBaseDTO>();
+        public List<OrganizationBaseDto> Organizations { get; set; } = new List<OrganizationBaseDto>();
     }
 }

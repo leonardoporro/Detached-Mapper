@@ -1,6 +1,6 @@
-﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
+﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug18;
 
-public class OwnedTwoDTO
+public class OwnedTwoDto
 {
     public bool Bool { get; set; }
 }

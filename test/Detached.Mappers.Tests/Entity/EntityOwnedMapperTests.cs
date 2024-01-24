@@ -13,11 +13,11 @@ namespace Detached.Mappers.Tests.Entity
         public void create_composition_entity_when_target_is_null()
         {
             // GIVEN models
-            SourceDTO source = new SourceDTO
+            SourceDto source = new SourceDto
             {
                 Id = 1,
                 Name = "dto",
-                Composition = new CompositionDTO
+                Composition = new CompositionDto
                 {
                     Id = 2,
                     Name = "composition_dto"
@@ -56,11 +56,11 @@ namespace Detached.Mappers.Tests.Entity
         public void update_composition_entity_when_key_matches()
         {
             // GIVEN models
-            SourceDTO source = new SourceDTO
+            SourceDto source = new SourceDto
             {
                 Id = 1,
                 Name = "dto",
-                Composition = new CompositionDTO
+                Composition = new CompositionDto
                 {
                     Id = 2,
                     Name = "composition_dto"
@@ -105,11 +105,11 @@ namespace Detached.Mappers.Tests.Entity
         public void replace_composition_entity_when_key_not_matching()
         {
             // GIVEN models
-            SourceDTO source = new SourceDTO
+            SourceDto source = new SourceDto
             {
                 Id = 1,
                 Name = "dto",
-                Composition = new CompositionDTO
+                Composition = new CompositionDto
                 {
                     Id = 2,
                     Name = "composition_dto"
@@ -158,7 +158,7 @@ namespace Detached.Mappers.Tests.Entity
         public void delete_composition_entity_when_source_is_null()
         {
             // GIVEN model
-            SourceDTO source = new SourceDTO
+            SourceDto source = new SourceDto
             {
                 Id = 1,
                 Name = "dto",
@@ -222,7 +222,7 @@ namespace Detached.Mappers.Tests.Entity
             public string Name { get; set; }
         }
 
-        public class SourceDTO
+        public class SourceDto
         {
             public int Id { get; set; }
 
@@ -232,10 +232,10 @@ namespace Detached.Mappers.Tests.Entity
 
             public TestEnum Enum { get; set; }
 
-            public CompositionDTO Composition { get; set; }
+            public CompositionDto Composition { get; set; }
         }
 
-        public class CompositionDTO
+        public class CompositionDto
         {
             public int Id { get; set; }
 

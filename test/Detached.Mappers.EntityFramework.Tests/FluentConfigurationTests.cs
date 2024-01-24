@@ -45,7 +45,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
                 builder.Default(mapperOptions =>
                 {
-                    mapperOptions.Type<ConfiguredTestClass>().TypeOptions.Entity(true);
+                    mapperOptions.Type<ConfiguredTestClass>().Type.Entity(true);
                     mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey1).Key(true);
                     mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey2).Key(true);
                     mapperOptions.Type<ConfiguredTestClass>().Key(c => c.CustomizedKey1, c => c.CustomizedKey2);

@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Linq.Expressions;

@@ -2,16 +2,15 @@
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class MapIgnoreAnnotationHandler : AnnotationHandler<MapIgnoreAttribute>
     {
-        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            memberOptions.Ignore(true);
+            member.Ignore(true);
         }
     }
 }
@@ -63,12 +62,6 @@ namespace Detached.Mappers
         public static void Exclude(this TypePairMember member)
         {
             member.Annotations[VALUE_KEY] = true;
-        }
-
-        public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member, bool value = true)
-        {
-            member.TypePairMember.Exclude();
-            return member;
         }
 
         public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member)

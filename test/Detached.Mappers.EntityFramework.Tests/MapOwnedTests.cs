@@ -18,10 +18,10 @@ namespace Detached.Mappers.EntityFramework.Tests
             Invoice invoice;
             using (var dbContext = await TestDbContext.Create<OwnedTestDbContext>())
             {
-                invoice = await dbContext.MapAsync<Invoice>(new InvoiceDTO
+                invoice = await dbContext.MapAsync<Invoice>(new InvoiceDto
                 {
                     Id = 1,
-                    ShippingAddress = new ShippingAddressDTO
+                    ShippingAddress = new ShippingAddressDto
                     {
                         Line1 = "Zeballos St. 2135",
                         Line2 = "Suite 01",
@@ -53,11 +53,11 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual ShippingAddress ShippingAddress { get; set; }
         }
 
-        public class InvoiceDTO
+        public class InvoiceDto
         {
             public virtual int Id { get; set; }
 
-            public virtual ShippingAddressDTO ShippingAddress { get; set; }
+            public virtual ShippingAddressDto ShippingAddress { get; set; }
         }
 
         [Owned]
@@ -70,7 +70,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Zip { get; set; }
         }
 
-        public class ShippingAddressDTO
+        public class ShippingAddressDto
         {
             public string Line1 { get; set; }
 

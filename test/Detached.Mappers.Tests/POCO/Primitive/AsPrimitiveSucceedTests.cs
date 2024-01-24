@@ -11,13 +11,13 @@ namespace Detached.Mappers.Tests.POCO.Primitive
         [Fact]
         public void map_as_primitive_succeeds()
         {
-            RootDTO dto = new RootDTO
+            RootDto dto = new RootDto
             {
                 Mapped = new InnerClass { Name = "mapped class" },
                 Copied = new InnerClass { Name = "copied class" }
             };
 
-            var result = mapper.Map<RootDTO, RootEntity>(dto);
+            var result = mapper.Map<RootDto, RootEntity>(dto);
 
             Assert.Equal("copied class", result.Copied.Name);
             Assert.Equal("mapped class", result.Mapped.Name);
@@ -26,7 +26,7 @@ namespace Detached.Mappers.Tests.POCO.Primitive
             Assert.Equal(result.Copied, dto.Copied);
         }
 
-        public class RootDTO
+        public class RootDto
         {
             public InnerClass Mapped { get; set; }
 

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug17;
 
-public class AngebotDTO : IdBaseDTO
+public class AngebotDto : IdBaseDto
 {
-    public List<PositionBaseDTO> Positionen { get; set; }
+    public List<PositionBaseDto> Positionen { get; set; }
 }

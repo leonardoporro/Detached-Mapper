@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -121,7 +120,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
             for (int i = result.Count - 1; i >= 0; i--)
             {
                 string descendantPrefix = result[i] + ".";
-                if (result.Any(i => i.StartsWith(descendantPrefix)))
+                if (result.Exists(i => i.StartsWith(descendantPrefix)))
                 {
                     result.RemoveAt(i);
                 }

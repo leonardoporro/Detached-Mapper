@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos
 {
-    public class StudentDTO : IdBaseDTO
+    public class StudentDto : IdBaseDto
     {
         public string Name { get; set; }
         

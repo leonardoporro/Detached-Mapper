@@ -16,7 +16,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
 
-            UserDTO dto = new UserDTO { Id = 1, Name = "user name" };
+            UserDto dto = new UserDto { Id = 1, Name = "user name" };
 
             User newUser = dbContext.Map<User>(MappingProfiles.Create, dto);
 
@@ -32,7 +32,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
             dbContext.Database.EnsureCreated();
 
-            UserDTO dto = new UserDTO { Id = 1, Name = "user name" }; 
+            UserDto dto = new UserDto { Id = 1, Name = "user name" }; 
 
             User newUser = dbContext.Map<User>(MappingProfiles.Update, dto);
 
@@ -56,7 +56,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public DateTime? CreatedDate { get; set; }
         }
 
-        public class UserDTO
+        public class UserDto
         {
             public int Id { get; set; }
 
@@ -83,7 +83,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 builder.AddProfile(MappingProfiles.Create, cfg =>
                 {
                     cfg.Type<User>()
-                       .FromType<UserDTO>()
+                       .FromType<UserDto>()
                        .Member(u => u.CreatedDate)
                        .FromValue((u, c) => (DateTime?)DateTime.Now);
                 });
@@ -91,7 +91,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 builder.AddProfile(MappingProfiles.Update, cfg =>
                 {
                     cfg.Type<User>()
-                       .FromType<UserDTO>()
+                       .FromType<UserDto>()
                        .Member(u => u.ModifiedDate)
                        .FromValue((u, c) => (DateTime?)DateTime.Now);
                 });

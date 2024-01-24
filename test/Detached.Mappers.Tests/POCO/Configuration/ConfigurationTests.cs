@@ -10,12 +10,12 @@ namespace Detached.Mappers.Tests.POCO.Configuration
         {
             MapperOptions opts = new MapperOptions();
             opts.Type<User>()
-                .FromType<UserDTO>()
+                .FromType<UserDto>()
                 .Member(u => u.Id).FromMember(u => u.Key)
                 .Member(u => u.Name).FromMember(u => u.UserName);
 
             Mapper mapper = new Mapper(opts);
-            User user = mapper.Map<UserDTO, User>(new UserDTO { Key = 1, UserName = "leo" });
+            User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Equal("leo", user.Name);
         }
@@ -25,12 +25,12 @@ namespace Detached.Mappers.Tests.POCO.Configuration
         {
             MapperOptions opts = new MapperOptions();
             opts.Type<User>()
-                .FromType<UserDTO>()
+                .FromType<UserDto>()
                 .Member(u => u.Id).FromMember(u => u.Key)
                 .Member(u => u.Name).Exclude();
 
             Mapper mapper = new Mapper(opts);
-            User user = mapper.Map<UserDTO, User>(new UserDTO { Key = 1, UserName = "leo" });
+            User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Null(user.Name);
         }
@@ -42,13 +42,13 @@ namespace Detached.Mappers.Tests.POCO.Configuration
 
             MapperOptions opts = new MapperOptions();
             opts.Type<User>()
-                .FromType<UserDTO>()
+                .FromType<UserDto>()
                 .Member(u => u.Id).FromMember(u => u.Key)
                 .Member(u => u.Name).FromMember(u => u.UserName)
                 .Member(u => u.ModifiedDate).FromValue((u, c) => dateTime);
 
             Mapper mapper = new Mapper(opts);
-            User user = mapper.Map<UserDTO, User>(new UserDTO { Key = 1, UserName = "leo" });
+            User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Equal("leo", user.Name);
             Assert.Equal(dateTime, user.ModifiedDate);
@@ -63,7 +63,7 @@ namespace Detached.Mappers.Tests.POCO.Configuration
             public DateTime ModifiedDate { get; set; }
         }
 
-        class UserDTO
+        class UserDto
         {
             public int Key { get; set; }
 

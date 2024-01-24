@@ -1,6 +1,6 @@
-﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos;
 
-public class StudentGradesDTO
+public class StudentGradesDto
 {
     public string English { get; set; }
 

@@ -1,7 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types.Class;
-using Detached.Mappers.Types.Conventions;
-using Detached.PatchTypes;
+﻿using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Linq;
@@ -39,16 +36,6 @@ namespace Detached.Mappers.Types.Class
                     if (ShouldMap(propInfo))
                     {
                         ClassTypeMember memberOptions = CreateMember(classType, propInfo);
-
-                        // apply member attributes.
-                        foreach (Attribute annotation in propInfo.GetCustomAttributes())
-                        {
-                            if (options.AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
-                            {
-                                handler.Apply(annotation, options, classType, memberOptions);
-                            }
-                        }
-
                         classType.Members.Add(memberOptions);
                     }
                 }
@@ -62,28 +49,12 @@ namespace Detached.Mappers.Types.Class
 
             CreateConstructor(classType);
 
-            // apply type attributes.
-            foreach (Attribute annotation in clrType.GetCustomAttributes())
-            {
-                if (options.AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
-                {
-                    handler.Apply(annotation, options, classType, null);
-                }
-            }
-
-            // apply conventions.
-            foreach (ITypeConvention convention in options.TypeConventions)
-            {
-                 convention.Apply(options, classType);
-            }
-
-            // manual configuration is applied after all of this.
             return classType;
         }
 
         protected virtual void CreateConstructor(ClassType classType)
         {
-            ConstructorInfo constructorInfo = classType.ClrType.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+            ConstructorInfo constructorInfo = Array.Find(classType.ClrType.GetConstructors(), c => c.GetParameters().Length == 0);
             if (!classType.IsAbstract() && constructorInfo != null)
             {
                 classType.Constructor = Lambda(New(constructorInfo));

@@ -11,7 +11,7 @@ namespace Detached.Mappers.Tests.Entity
         public void MapNullableKey()
         {
             Entity target = new Entity();
-            EntityDTO source = new EntityDTO
+            EntityDto source = new EntityDto
             {
                 Id = Guid.NewGuid(),
                 Name = "the dto"
@@ -23,7 +23,7 @@ namespace Detached.Mappers.Tests.Entity
             Assert.Equal(source.Name, target.Name);
         }
 
-        public class EntityDTO
+        public class EntityDto
         {
             public Guid? Id { get; set; }
 

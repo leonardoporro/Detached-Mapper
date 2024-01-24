@@ -23,14 +23,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace Detached.Mappers
 {
     public class MapperOptions : IPatchTypeInfoProvider
     {
-        readonly ConcurrentDictionary<Type, IType> _types = new ConcurrentDictionary<Type, IType>();
-        readonly ConcurrentDictionary<TypeMapperKey, TypePair> _typePairs = new ConcurrentDictionary<TypeMapperKey, TypePair>();
+        readonly ConcurrentDictionary<Type, IType> _allTypes = new();
+        readonly ConcurrentDictionary<TypeMapperKey, TypePair> _typePairs = new();
 
         public MapperOptions()
         {
@@ -135,25 +135,65 @@ namespace Detached.Mappers
             return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
         }
 
-        [Obsolete("Use Type<TType>()")]
-        public virtual ClassTypeBuilder<TType> Configure<TType>()
+        public virtual IType GetType(Type clrType)
         {
-            return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
-        }
-
-        public virtual IType GetType(Type type)
-        {
-            return _types.GetOrAdd(type, keyType =>
+            return _allTypes.GetOrAdd(clrType, keyType =>
             {
+                IType type = null;
+
                 for (int i = TypeFactories.Count - 1; i >= 0; i--)
                 {
-                    IType typeOptions = TypeFactories[i].Create(this, keyType);
-                    if (typeOptions != null)
-                        return typeOptions;
+                    type = TypeFactories[i].Create(this, keyType);
+                    if (type != null)
+                        break;
                 }
 
-                throw new InvalidOperationException($"Can't get options for type {keyType.GetFriendlyName()}.");
+                if (type == null)
+                {
+                    throw new InvalidOperationException($"Can't get options for type {keyType.GetFriendlyName()}.");
+                }
+
+                ApplyAnnotations(type);
+
+                return type;
             });
+        }
+
+        public void ApplyAnnotations(IType type)
+        {
+            foreach (Attribute annotation in type.ClrType.GetCustomAttributes())
+            {
+                if (AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
+                {
+                    handler.Apply(annotation, this, type, null);
+                }
+            }
+
+            if (type.MemberNames != null)
+            {
+                foreach (var memberName in type.MemberNames)
+                {
+                    var member = type.GetMember(memberName);
+
+                    var propInfo = member.GetPropertyInfo();
+
+                    if (propInfo != null)
+                    {
+                        foreach (Attribute annotation in propInfo.GetCustomAttributes())
+                        {
+                            if (AnnotationHandlers.TryGetValue(annotation.GetType(), out IAnnotationHandler handler))
+                            {
+                                handler.Apply(annotation, this, type, member);
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (ITypeConvention convention in TypeConventions)
+            {
+                convention.Apply(this, type);
+            }
         }
 
         public TypePair GetTypePair(IType sourceType, IType targetType, TypePairMember parentMember)

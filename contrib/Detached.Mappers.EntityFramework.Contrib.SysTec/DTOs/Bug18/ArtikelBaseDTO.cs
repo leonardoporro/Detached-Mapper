@@ -1,6 +1,6 @@
-﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
+﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug18;
 
-public abstract class ArtikelBaseDTO : IdBaseDTO
+public abstract class ArtikelBaseDto : IdBaseDto
 {
     public string Discriminator { get; set; }
 }

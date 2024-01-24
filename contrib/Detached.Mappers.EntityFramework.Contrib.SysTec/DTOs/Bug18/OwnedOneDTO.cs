@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug18;
 
-public class OwnedOneDTO
+public class OwnedOneDto
 {
     public DateTime DateTime { get; set; }
 }

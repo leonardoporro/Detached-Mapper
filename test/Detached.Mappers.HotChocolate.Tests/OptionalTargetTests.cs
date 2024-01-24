@@ -13,34 +13,34 @@ namespace Detached.Mappers.HotChocolate.Tests
 
             Mapper mapper = new Mapper(mapperOptions);
 
-            DTO dto = new DTO()
+            Dto dto = new Dto()
             {
                 Id = 1,
                 Name = "dto",
                 Nested =
-                   new SubDTO
+                   new SubDto
                    {
                        Id = 2,
                        Name = "subdto"
                    }
             };
 
-            Entity entity = mapper.Map<DTO, Entity>(dto, null);
+            Entity entity = mapper.Map<Dto, Entity>(dto, null);
 
             Assert.Equal("dto", entity.Name); 
             Assert.Equal("subdto", entity.Nested.Value?.Name);
         }
 
-        public class DTO
+        public class Dto
         {
             public int Id { get; set; }
 
             public string Name { get; set; }
 
-            public SubDTO Nested { get; set; }
+            public SubDto Nested { get; set; }
         }
 
-        public class SubDTO
+        public class SubDto
         {
             public int Id { get; set; }
 

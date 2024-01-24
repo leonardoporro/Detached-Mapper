@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Detached.Mappers
+﻿namespace Detached.Mappers
 {
     /// <summary>
     /// Expected behavior if the root entity being updated doesn't exist in the database.
@@ -14,7 +12,7 @@ namespace Detached.Mappers
         /// <summary>
         /// A MapperException is thrown.
         /// </summary>
-        Throw
+        ThrowException
     }
 
     /// <summary>
@@ -29,7 +27,7 @@ namespace Detached.Mappers
         /// <summary>
         /// A SQL exception of a misisng FK will be thrown.
         /// </summary>
-        Throw
+        ThrowException
     }
 
     /// <summary>
@@ -45,7 +43,7 @@ namespace Detached.Mappers
         /// <summary>
         /// Throw a database exception about a duplicate entity.
         /// </summary>
-        Throw
+        ThrowException
     }
 
     /// <summary>
@@ -79,7 +77,7 @@ namespace Detached.Mappers
         /// avoid the need to sort the dependencies and ensure the aggregation is mapped first.
         /// Default: Throw. Create is not recommended as it consumes resources and breaks the expected behavior of the mapper.
         /// </summary>
-        public MissingAggregationBehavior MissingAggregationBehavior { get; set; } = MissingAggregationBehavior.Throw;
+        public MissingAggregationBehavior MissingAggregationBehavior { get; set; } = MissingAggregationBehavior.ThrowException;
 
         /// <summary>
         /// Expected behavior if a composed entity is assigned and that entity already exists as
@@ -89,7 +87,7 @@ namespace Detached.Mappers
         /// If it exists, a duplicated entity exception is thrown, unless this flag is set to Associate.
         /// Default: Throw. Set it as Create if your use case really needs to share compositions, which is rare.
         /// </summary>
-        public ExistingCompositionBehavior ExistingCompositionBehavior { get; set; } = ExistingCompositionBehavior.Throw;
+        public ExistingCompositionBehavior ExistingCompositionBehavior { get; set; } = ExistingCompositionBehavior.ThrowException;
 
         /// <summary>
         /// When a collection marked as Composition is mapped, entities that exist only in source are created, entities
@@ -99,68 +97,5 @@ namespace Detached.Mappers
         /// Default: Merge. Use Append only in a controlled context, otherwise it could end in tons of duplicated entities.
         /// </summary>
         public CompositeCollectionBehavior CompositeCollectionBehavior { get; set; } = CompositeCollectionBehavior.Merge;
-
-        /// <summary>
-        /// If true, when root entity is not found, then it is created; otherwise, an exception is thrown.
-        /// </summary>
-        [Obsolete("Please use MissingRoot")]
-        public bool Upsert
-        {
-            get
-            {
-                return MissingRootBehavior == MissingRootBehavior.Create;
-            }
-            set
-            {
-                if (value)
-                    MissingRootBehavior = MissingRootBehavior.Create;
-                else
-                    MissingRootBehavior = MissingRootBehavior.Throw;
-            }
-        }
-
-        /// <summary>
-        /// If true, when an aggregation does not exist, it is created; otherwise, Entity Framework throws an FK exception
-        /// when saving.
-        /// This option is used by Json import, to ensure that aggregations always exist, disregarding the order in what
-        /// entities are saved.
-        /// </summary>
-        [Obsolete("Please use MissingAggregation")]
-        public bool AddAggregations
-        {
-            get
-            {
-                return MissingAggregationBehavior == MissingAggregationBehavior.Create;
-            }
-            set
-            {
-                if (value)
-                    MissingAggregationBehavior = MissingAggregationBehavior.Create;
-                else
-                    MissingAggregationBehavior = MissingAggregationBehavior.Throw;
-            }
-        }
-
-        /// <summary>
-        /// When an entity does not exist, before creating a new one, a query is made to the DB to look for an existing one.
-        /// If it exists, an asociation to the existing one is made; otherwise, a new entity is created.
-        /// This option fixes the "duplicated key" error when an existing entity that exists separately is added to a composition.
-        /// Default: false.  
-        /// </summary>
-        [Obsolete("Please use ExistingCompositions")]
-        public bool AssociateExistingCompositions
-        {
-            get
-            {
-                return ExistingCompositionBehavior == ExistingCompositionBehavior.Associate;
-            }
-            set
-            {
-                if (value)
-                    ExistingCompositionBehavior = ExistingCompositionBehavior.Associate;
-                else
-                    ExistingCompositionBehavior = ExistingCompositionBehavior.Throw;
-            }
-        }
     }
 }

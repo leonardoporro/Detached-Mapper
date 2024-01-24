@@ -1,6 +1,6 @@
-﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs
+﻿namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos
 {
-    public class CustomerDTO : OrganizationBaseDTO
+    public class CustomerDto : OrganizationBaseDto
     {
     }
 }

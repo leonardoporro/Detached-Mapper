@@ -1,9 +1,9 @@
 ﻿using Detached.Annotations;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug17;
 
-public class ArtikelPositionDTO : PositionBaseDTO
+public class ArtikelPositionDto : PositionBaseDto
 {
     [Aggregation]
-    public UeberschriftPositionDTO ParentPosition { get; set; }
+    public UeberschriftPositionDto ParentPosition { get; set; }
 }

@@ -14,12 +14,12 @@ namespace Detached.Mappers.Tests.POCO.Complex
         [Fact]
         public void map_direct_cycle()
         {
-            DirectCycleDTO dto = new DirectCycleDTO();
+            DirectCycleDto dto = new DirectCycleDto();
             dto.Id = 1;
             dto.Name = "cycledto";
             dto.Parent = dto;
 
-            var result = mapper.Map<DirectCycleDTO, DirectCycle>(dto);
+            var result = mapper.Map<DirectCycleDto, DirectCycle>(dto);
 
             Assert.Equal(1, dto.Id);
             Assert.Equal("cycledto", dto.Name);
@@ -29,24 +29,24 @@ namespace Detached.Mappers.Tests.POCO.Complex
         [Fact]
         public void map_indirect_cycle()
         {
-            RootDTO root = new RootDTO();
+            RootDto root = new RootDto();
             root.Id = 1;
             root.Name = "root";
-            root.Items = new List<ItemDTO>();
-            root.Items.Add(new ItemDTO
+            root.Items = new List<ItemDto>();
+            root.Items.Add(new ItemDto
             {
                 Id = 1,
                 Name = "item 1",
                 Parent = root
             });
-            root.Items.Add(new ItemDTO
+            root.Items.Add(new ItemDto
             {
                 Id = 2,
                 Name = "item 2",
                 Parent = root
             });
 
-            Root result = mapper.Map<RootDTO, Root>(root);
+            Root result = mapper.Map<RootDto, Root>(root);
 
             Assert.Equal(1, result.Id);
             Assert.Equal("root", result.Name);
@@ -58,9 +58,9 @@ namespace Detached.Mappers.Tests.POCO.Complex
             Assert.Equal(result, result.Items[1].Parent);
         }
 
-        public class DirectCycleDTO
+        public class DirectCycleDto
         {
-            public DirectCycleDTO Parent { get; set; }
+            public DirectCycleDto Parent { get; set; }
 
             public int Id { get; set; }
 
@@ -76,13 +76,13 @@ namespace Detached.Mappers.Tests.POCO.Complex
             public string Name { get; set; }
         }
 
-        public class RootDTO
+        public class RootDto
         { 
             public int Id { get; set; }
 
             public string Name { get; set; }
 
-            public List<ItemDTO> Items { get; set; }
+            public List<ItemDto> Items { get; set; }
         }
 
         public class Root
@@ -94,9 +94,9 @@ namespace Detached.Mappers.Tests.POCO.Complex
             public List<Item> Items { get; set; }
         }
 
-        public class ItemDTO
+        public class ItemDto
         {
-            public RootDTO Parent { get; set; }
+            public RootDto Parent { get; set; }
 
             public int Id { get; set; }
 

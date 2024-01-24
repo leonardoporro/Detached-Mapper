@@ -10,7 +10,7 @@ namespace Detached.Mappers.Tests.Binding
         {
             Mapper mapper = new Mapper();
 
-            var expression = mapper.Bind<List<RootEntity>, List<RootDTO>>();
+            var expression = mapper.Bind<List<RootEntity>, List<RootDto>>();
 
             var fn = expression.Compile();
 
@@ -31,7 +31,7 @@ namespace Detached.Mappers.Tests.Binding
         {
             Mapper mapper = new Mapper();
 
-            var expression = mapper.Bind<RootEntity, RootDTO>();
+            var expression = mapper.Bind<RootEntity, RootDto>();
 
             var fn = expression.Compile();
 
@@ -55,16 +55,16 @@ namespace Detached.Mappers.Tests.Binding
             Assert.Equal("SubEntity", dto.Reference[0].Name);
         }
 
-        public class RootDTO
+        public class RootDto
         {
             public int Id { get; set; }
 
             public string Name { get; set; }
 
-            public List<ReferencedDTO> Reference { get; set; }
+            public List<ReferencedDto> Reference { get; set; }
         }
 
-        public class ReferencedDTO
+        public class ReferencedDto
         {
             public int Id { get; set; }
 

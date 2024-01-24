@@ -1,6 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Nullable

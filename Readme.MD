@@ -1,6 +1,6 @@
 ![Detached Banner](banner.png?raw=true)
 
-#### Maps DTOs directly to entities already attached to a DbContext
+#### Maps Dtos directly to entities already attached to a DbContext
 #### Solves disconnected entities, partial updates and automapping in a single step
 
 ## Getting started

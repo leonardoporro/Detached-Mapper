@@ -1,10 +1,10 @@
-﻿using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Types;
 using System;
 
 namespace Detached.Mappers.Annotations
 {
     public interface IAnnotationHandler
     {
-        void Apply(Attribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions);
+        void Apply(Attribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member);
     }
 }

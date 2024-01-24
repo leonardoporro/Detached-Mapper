@@ -1,6 +1,6 @@
 ﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.TypePairs;
-using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types;
 using System;
 
 namespace Detached.Mappers.TypeMappers.POCO.Abstract

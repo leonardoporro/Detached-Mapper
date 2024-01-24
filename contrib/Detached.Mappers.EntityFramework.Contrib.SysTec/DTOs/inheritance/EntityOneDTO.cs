@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance.BaseModel;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.inheritance.BaseModel;
 
-namespace Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
+namespace Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.inheritance;
 
-public class EntityOneDTO : IdBaseDTO
+public class EntityOneDto : IdBaseDto
 {
-    public List<BaseHeadDTO> BaseHeads { get; set; } = new();
+    public List<BaseHeadDto> BaseHeads { get; set; } = new();
 }

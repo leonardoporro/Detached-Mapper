@@ -4,11 +4,11 @@ using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug17;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.Bug18;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs.inheritance;
-using GraphInheritenceTests.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug17;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug18;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.inheritance;
+using GraphInheritenceTests.Dtos;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using System;
@@ -93,15 +93,12 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         {
             _superCustomer.CustomerName = "Super Customer - Changed to incomplete private";
 
-            // INFO: the following in combination works, too :-)
-            // superCustomer.CustomerKindId = CustomerKindId.Private;
-            // superCustomer.CustomerKind = new CustomerKind() { Id = CustomerKindId.Private };
             // INFO: CustomerKind is has the [Aggregation] attribute
             _superCustomer.CustomerKind = new CustomerKind() { Id = CustomerKindId.Private };
 
             using (var dbContext = new ComplexDbContext())
             {
-                var mapped = dbContext.Map<Customer>(_superCustomer);
+                _ = dbContext.Map<Customer>(_superCustomer);
 
                 dbContext.SaveChanges();
             }
@@ -137,7 +134,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (var dbContext = new ComplexDbContext())
             {
                 // preferred suggested way
-                var mapped = dbContext.Map<OrganizationBase>(new
+                dbContext.Map<OrganizationBase>(new
                 {
                     _superCustomer.Id,
                     _superCustomer.OrganizationType,
@@ -145,9 +142,6 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     _superCustomer.NewAddress,
                     _superCustomer.ConcurrencyToken
                 });
-
-                // works, too
-                // var mappedOrgaList = dbContext.Map<OrganizationBase>(superCustomer);
 
                 dbContext.SaveChanges();
             }
@@ -182,10 +176,8 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
             using (var dbContext = new ComplexDbContext())
             {
-                // dbContext.Update(superCustomer); // EF doesn't support change tracking with removed items as we know
-
-                // Leonardo Porro suggests to use an anonymous type
-                var mapped = dbContext.Map<OrganizationBase>(new
+                // Try to use an anonymous type
+                dbContext.Map<OrganizationBase>(new
                 {
                     _superCustomer.Id,
                     _superCustomer.OrganizationType,
@@ -209,7 +201,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         }
 
         [Test]
-        public void _04_DoChangeOnCompositionOrganizationNotesWithBackReferenceOrganizationId_ShouldNotBeSetInDTO()
+        public void _04_DoChangeOnCompositionOrganizationNotesWithBackReferenceOrganizationId_ShouldNotBeSetInDto()
         {
             // INFO: Back-references don't work with Map!
             _superCustomer.Notes.Add(new OrganizationNotes()
@@ -219,7 +211,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 //OrganizationId = superCustomer.Id // is allowed in entity, but mustn't be set from Frontend
             });
 
-            // so you have to use a DTO or an anonymous type in the test
+            // so you have to use a Dto or an anonymous type in the test
             int id;
             using (var dbContext = new ComplexDbContext())
             {
@@ -256,10 +248,11 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             }
 
             // ... if there is no other reference, then the back reference does work
-            OrganizationNotes note1 = new OrganizationNotes() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 10), Text = "Note for super customer" };
+            OrganizationNotes note1 = new() { OrganizationId = _superCustomer.Id, Date = new DateTime(2000, 05, 10, 0, 0, 0, DateTimeKind.Local), Text = "Note for super customer" };
+
             using (var dbContext = new ComplexDbContext())
             {
-                note1 = dbContext.Map<OrganizationNotes>(note1);
+                dbContext.Map<OrganizationNotes>(note1);
                 dbContext.SaveChanges();
             }
 
@@ -282,26 +275,23 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             child.Children.Add(childChild);
             using (var dbContext = new ComplexDbContext())
             {
-                var mapped1 = dbContext.Add<Customer>(parent);
-                var mapped2 = dbContext.Add<Customer>(child);
-                var mapped3 = dbContext.Add<Customer>(childChild);
+                dbContext.Add(parent);
+                dbContext.Add(child);
+                dbContext.Add(childChild);
 
                 dbContext.SaveChanges();
             }
 
             child.ParentId = parent.Id;
-            // Link tree as aggregation
-            //child.Parent = new Customer { Id = parent.Id };
+
+            // Link tree as aggregation 
             parent.Children.Add(child);
 
             using (var dbContext = new ComplexDbContext())
             {
-                //dbContext.Update(parent); // works - expected
-                //dbContext.Update(child); // works - expected
-
                 // if the whole entities are used - parent gets lost (removed)
                 // so the workaround with anonymous type is working
-                var mapped1 = dbContext.Map<OrganizationBase>(new
+                dbContext.Map<OrganizationBase>(new
                 {
                     parent.Id,
                     parent.OrganizationType,
@@ -311,7 +301,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 });
                 dbContext.SaveChanges();
 
-                var mapped2 = dbContext.Map<OrganizationBase>(new
+                dbContext.Map<OrganizationBase>(new
                 {
                     child.Id,
                     child.OrganizationType,
@@ -377,21 +367,21 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
             }
 
-            int customer1Id, government1Id, subGovernment1LoadedId;
+
             using (var dbContext = new ComplexDbContext())
             {
                 Customer customer1Loaded = dbContext.Customers.SingleOrDefault(c => c.Name == "Customer1");
-                customer1Id = customer1Loaded.Id;
+
                 Assert.That(customer1Loaded, Is.Not.Null);
                 Assert.That(customer1Loaded.CustomerName, Is.EqualTo("Customer1"));
 
                 Government government1Loaded = dbContext.Governments.SingleOrDefault(g => g.Name == "Government1");
-                government1Id = government1Loaded.Id;
+
                 Assert.That(government1Loaded, Is.Not.Null);
                 Assert.That(government1Loaded.GovernmentIdentifierCode, Is.EqualTo("ABC"));
 
                 SubGovernment subGovernment1Loaded = dbContext.SubGovernments.SingleOrDefault(g => g.Name == "SubGovernment1");
-                subGovernment1LoadedId = subGovernment1Loaded.Id;
+
                 Assert.That(subGovernment1Loaded, Is.Not.Null);
                 Assert.That(subGovernment1Loaded.SubName, Is.EqualTo("DEF-123"));
             }
@@ -419,8 +409,8 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var mapped1 = dbContext.Map<TodoItem>(todoItem1);
-                var mapped2 = dbContext.Map<UploadedFile>(newFile1);
+                dbContext.Map<TodoItem>(todoItem1);
+                dbContext.Map<UploadedFile>(newFile1);
                 dbContext.SaveChanges();
             }
 
@@ -453,7 +443,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
                 // AssociateExistingCompositions = true - otherwise you get an UNIQUE constraint error
-                var mapped = dbContext.Map<TodoItem>(updated, new MapParameters { AssociateExistingCompositions = true });
+                dbContext.Map<TodoItem>(updated, new MapParameters { ExistingCompositionBehavior = ExistingCompositionBehavior.Associate });
                 dbContext.SaveChanges();
             }
 
@@ -485,15 +475,15 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                IQueryable<CountryDTO> projection = dbContext.Project<Country, CountryDTO>(dbContext.Countries);
+                IQueryable<CountryDto> projection = dbContext.Project<Country, CountryDto>(dbContext.Countries);
 
-                CountryDTO austriaLoaded = projection.Single(c => c.IsoCode == "AT");
+                CountryDto austriaLoaded = projection.Single(c => c.IsoCode == "AT");
                 Assert.That(austriaLoaded.Name, Is.EqualTo("Austria"));
                 Assert.That(austriaLoaded.FlagPictureId, Is.GreaterThan(0));
                 Assert.That(austriaLoaded.FlagPicture, Is.Not.Null);
                 Assert.That(austriaLoaded.FlagPicture.FileName, Is.EqualTo("rotWeissRot.png"));
 
-                CountryDTO argentinaLoaded = projection.Single(c => c.IsoCode == "AR"); //System.InvalidOperationException : Nullable object must have a value.
+                CountryDto argentinaLoaded = projection.Single(c => c.IsoCode == "AR"); //System.InvalidOperationException : Nullable object must have a value.
                                                                                         // The origin is the empty FlagPicture - which is OK - but it tries to load a null FlagPictureId
                 Assert.That(argentinaLoaded.Name, Is.EqualTo("Argentina"));
                 Assert.That(argentinaLoaded.FlagPictureId, Is.Null);
@@ -521,14 +511,14 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 Id = customerTwoId,
                 CustomerName = "2",
-                //PrimaryAddressId = 1, // can be left out with DTO - will not be changed
+                //PrimaryAddressId = 1, // can be left out with Dto - will not be changed
                 Recommendations = new[]
                 {
                     new
                     {
                         RecommendedById = customerTwoId,
                         RecommendedToId = customerOneId,
-                        RecommendationDate = new DateTime(2022, 05, 19)
+                        RecommendationDate = new DateTime(2022, 05, 19, 0, 0, 0, DateTimeKind.Local)
                     }
                 }
             };
@@ -537,7 +527,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 var mapped = dbContext.Map<Customer>(twoChangedCustomer);
 
-                Assert.That(mapped.Recommendations, Has.Count.EqualTo(1), "EntityinheritanceBaseOneDTO reference has been duplicated, but shouldn't!");
+                Assert.That(mapped.Recommendations, Has.Count.EqualTo(1), "EntityinheritanceBaseOneDto reference has been duplicated, but shouldn't!");
 
                 dbContext.SaveChanges();
             }
@@ -563,21 +553,21 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 Id = fanCustomerId,
                 CustomerName = "fan",
-                //PrimaryAddressId = 1, // can be left out with DTO - will not be changed
+                //PrimaryAddressId = 1, // can be left out with Dto - will not be changed
                 Recommendations = new[]
                 {
                     new
                     {
                         RecommendedById = fanCustomerId,
                         RecommendedToId = newCustomerId,
-                        RecommendationDate = new DateTime(2022, 05, 19)
+                        RecommendationDate = new DateTime(2022, 05, 19, 0, 0, 0, DateTimeKind.Local)
                     }
                 }
             };
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var mapped = dbContext.Map<Customer>(fanChangedCustomer);
+                dbContext.Map<Customer>(fanChangedCustomer);
                 dbContext.SaveChanges();
             }
 
@@ -595,7 +585,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         }
 
         [Test]
-        public void _11_ProjectionToDTO_ShouldNotFailIfPropertyIsNotInDTO()
+        public void _11_ProjectionToDto_ShouldNotFailIfPropertyIsNotInDto()
         {
             var germany = new Country() { IsoCode = "DEU", Name = "Germany", FlagPicture = new Picture() { FileName = "schwarzRotGold.png" } };
 
@@ -608,9 +598,9 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
                 // System Null Reference Exception: 
-                // We Projecting a EntityinheritanceBaseOneDTO on a DTO which has not all Properties on it.
+                // We Projecting a EntityinheritanceBaseOneDto on a Dto which has not all Properties on it.
                 // The type of the missing property doesnt matter (Tested with primitive, lists and complex types).
-                IQueryable<CountryDTOWithoutPicture> dtosQuery = dbContext.Project<Country, CountryDTOWithoutPicture>(dbContext.Countries);
+                IQueryable<CountryDtoWithoutPicture> dtosQuery = dbContext.Project<Country, CountryDtoWithoutPicture>(dbContext.Countries);
                 var dto = dtosQuery.SingleOrDefault(item => item.IsoCode == "DEU");
                 Assert.That(dto, Is.Not.Null);
             }
@@ -647,9 +637,9 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
             }
 
-            // Ok... Seed completed. Now a new DTO comes from the frontend (Completely unchanged).
+            // Ok... Seed completed. Now a new Dto comes from the frontend (Completely unchanged).
 
-            var mikeDTO = new StudentDTO()
+            var mikeDto = new StudentDto()
             {
                 Id = 1,
                 Name = "Mike",
@@ -657,7 +647,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 ConcurrencyToken = 1
             };
 
-            var mathDTO = new CourseDTO()
+            var mathDto = new CourseDto()
             {
                 Id = 1,
                 CourseName = "Math",
@@ -666,37 +656,38 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Students = new()
             };
 
-            mathDTO.Students.Add(mikeDTO);
+            mathDto.Students.Add(mikeDto);
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var mapped = dbContext.Map<Course>(mathDTO);
+                dbContext.Map<Course>(mathDto);
+
                 // on a many to many relation Detached Mappers thinks, the student is added again even though thats not the case.
                 Assert.DoesNotThrow(() => dbContext.SaveChanges());
             }
 
             // just for the sake of testing we try adding a new student
 
-            var karenDTO = new StudentDTO()
+            var karenDto = new StudentDto()
             {
                 Name = "Karen",
                 Age = 22,
                 Id = 2
             };
 
-            mathDTO.Students.Add(karenDTO);
+            mathDto.Students.Add(karenDto);
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
-                var mapped = dbContext.Map<Course>(mathDTO);
-                Assert.That(mapped.Students.Count(), Is.EqualTo(2));
+                var mapped = dbContext.Map<Course>(mathDto);
+                Assert.That(mapped.Students.Count, Is.EqualTo(2));
                 Assert.DoesNotThrow(() => dbContext.SaveChanges());
             }
 
             using (ComplexDbContext dbContext = new ComplexDbContext())
             {
                 var courseFromDB = dbContext.Courses.Include(c => c.Students).SingleOrDefault(c => c.Id == 1);
-                Assert.That(courseFromDB.Students.Count(), Is.EqualTo(2));
+                Assert.That(courseFromDB.Students.Count, Is.EqualTo(2));
             }
         }
 
@@ -704,25 +695,25 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
         public void _13_ProjectInheritanceWithinGraph_ShouldNotLoadOnlyBaseType()
         {
             // graph root
-            var organizationList = new OrganizationListDTO()
+            var organizationList = new OrganizationListDto()
             {
                 ListName = "Europe",
             };
 
-            OrganizationListDTO dto;
+            OrganizationListDto dto;
             using (var dbContext = new ComplexDbContext())
             {
                 dbContext.Map<OrganizationList>(organizationList);
                 dbContext.SaveChanges();
 
                 var query = dbContext.OrganizationLists.Include(o => o.Organizations);
-                var projected = dbContext.Project<OrganizationList, OrganizationListDTO>(query);
+                var projected = dbContext.Project<OrganizationList, OrganizationListDto>(query);
                 dto = projected.First();
             }
 
             // Organizations is type of OrganisationBase
             // It inherits like this: OrganisationBase -> Government -> SubGovernment
-            dto.Organizations.Add(new GovernmentDTO()
+            dto.Organizations.Add(new GovernmentDto()
             {
                 GovernmentIdentifierCode = "DE",
                 OrganizationType = nameof(Government),
@@ -730,7 +721,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Name = "Germany",
             });
 
-            dto.Organizations.Add(new SubGovernmentDTO()
+            dto.Organizations.Add(new SubGovernmentDto()
             {
                 GovernmentIdentifierCode = "AT",
                 OrganizationType = nameof(SubGovernment),
@@ -739,7 +730,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 SubName = "S�dtirol",
             });
 
-            OrganizationListDTO dto2;
+            OrganizationListDto dto2;
             using (var dbContext = new ComplexDbContext())
             {
                 var mappedOrgaList = dbContext.Map<OrganizationList>(dto);
@@ -747,7 +738,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Assert.That((mappedOrgaList.Organizations[1]), Is.TypeOf<SubGovernment>());
 
                 // Detached.Mappers has no chance to know to which type to project to.
-                // Idea: Introduce a new InheritanceDiscriminator attribute - here you can define the projection DTOs in the graph DTO
+                // Idea: Introduce a new InheritanceDiscriminator attribute - here you can define the projection Dtos in the graph Dto
                 Assert.That(((Government)mappedOrgaList.Organizations[0]).GovernmentIdentifierCode, Is.EqualTo("DE"), "Property of concrete type Government gets lost because of mapping only to base type");
                 Assert.That(((Government)mappedOrgaList.Organizations[1]).GovernmentIdentifierCode, Is.EqualTo("AT"), "Property of concrete type Government gets lost because of mapping only to base type");
 
@@ -755,13 +746,13 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
                 var query = dbContext.OrganizationLists.Include(o => o.Organizations);
 
-                var projected = dbContext.Project<OrganizationList, OrganizationListDTO>(query);
+                var projected = dbContext.Project<OrganizationList, OrganizationListDto>(query);
                 dto2 = projected.First();
             }
 
-            Assert.That(dto2.Organizations[1], Is.TypeOf<SubGovernmentDTO>());
-            Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).Name, Is.EqualTo("Austria"));
-            Assert.That(((SubGovernmentDTO)dto2.Organizations[1]).SubName, Is.EqualTo("S�dtirol"));
+            Assert.That(dto2.Organizations[1], Is.TypeOf<SubGovernmentDto>());
+            Assert.That(((SubGovernmentDto)dto2.Organizations[1]).Name, Is.EqualTo("Austria"));
+            Assert.That(((SubGovernmentDto)dto2.Organizations[1]).SubName, Is.EqualTo("S�dtirol"));
         }
 
         [Test]
@@ -826,7 +817,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 dbContext.SaveChanges();
             }
 
-            var client1Change = new StudentDTO()
+            var client1Change = new StudentDto()
             {
                 Id = originalStudent.Id,
                 Name = "Changed Name",
@@ -834,7 +825,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Age = 15
             };
 
-            var client2ChangeInSameTime = new StudentDTO()
+            var client2ChangeInSameTime = new StudentDto()
             {
                 Id = originalStudent.Id,
                 Name = "other change",
@@ -844,7 +835,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
 
             using (var dbContext = new ComplexDbContext())
             {
-                Student mappedStudent = dbContext.Map<Student>(client1Change);
+                dbContext.Map<Student>(client1Change);
 
                 // Assert That Concurrency Token should not be overwritten by map
                 Assert.That(client1Change.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken));
@@ -853,36 +844,24 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             }
             using (var dbContext = new ComplexDbContext())
             {
-                Student mappedStudent = dbContext.Map<Student>(client2ChangeInSameTime);
+                dbContext.Map<Student>(client2ChangeInSameTime);
 
                 // Assert That Concurrency Token should not be overwritten by map
                 Assert.That(client2ChangeInSameTime.ConcurrencyToken, Is.EqualTo(originalStudent.ConcurrencyToken));
 
                 Assert.Throws<DbUpdateConcurrencyException>(() => dbContext.SaveChanges(),
                     "Should throw DbUpdateConcurrencyException because the concurrency token of the mappedStudent differs from the originalStudent.");
-
-                // Following command is executed when dbContext.SaveChanges() is called:
-
-                //Executed DbCommand (0ms) [Parameters=[@p3='1', @p0='15', @p1='12', @p4='1', @p2='Changed Name' (Size = 12)], CommandType='Text', CommandTimeout='30']
-                //UPDATE "Students" SET "Age" = @p0, "ConcurrencyToken" = @p1, "Name" = @p2
-                //WHERE "Id" = @p3 AND "ConcurrencyToken" = @p4;
-                //SELECT changes();
-
-                // The ConcurrencyToken (@p4) in the WHERE clause still is 1, although it should be 11
-                // Note: @p1 gets computed in the overwritten SaveChanges method, with postgresql xmin is used, which gets computed automatically on the db
-
-                // The default EFCore behavior is to throw a DbUpdateConcurrencyException when the concurrency token is different
-                // See Test _14_1
             }
         }
-        
+
         [Test]
         public void _15_1_AddEntityWithOwnedTypes_ShouldAlsoStoreOwnedTypeValues()
         {
-            var newStudentDto = new StudentDTO()
+            var newStudentDto = new StudentDto()
             {
                 Age = 16,
                 Name = "Chuck Norris",
+
                 // This class is marked as owned with the [Owned] attribute
                 // StudentGrades also is a property of the corresponding Student class
                 Grades = new StudentGrades()
@@ -894,43 +873,30 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             };
 
             Student newStudentEntity;
-            
+
             using (var dbContext = new ComplexDbContext())
             {
                 newStudentEntity = dbContext.Map<Student>(newStudentDto);
-                
+
                 // Assert that the owned type is mapped correctly
                 Assert.That(newStudentEntity.Grades, Is.Not.Null);
                 Assert.That(newStudentEntity.Grades.English, Is.EqualTo("A+"));
                 Assert.That(newStudentEntity.Grades.ComputerScience, Is.EqualTo("C++"));
                 Assert.That(newStudentEntity.Grades.Math, Is.EqualTo("A+"));
-                
+
                 dbContext.SaveChanges();
             }
 
             using (var dbContext = new ComplexDbContext())
             {
                 var studentFromDb = dbContext.Students.Single(s => s.Id == newStudentEntity.Id);
-                
+
                 // Assert that the owned type is stored in the db
                 Assert.That(studentFromDb.Grades, Is.Not.Null);
                 Assert.That(studentFromDb.Grades.English, Is.EqualTo("A+"));
                 Assert.That(studentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
                 Assert.That(studentFromDb.Grades.Math, Is.EqualTo("A+"));
             }
-            
-            // Following Insert statement is executed:
-            // Executed DbCommand (0ms) [Parameters=[@p0='16', @p1='0', @p2='Chuck Norris' (Size = 12)], CommandType='Text', CommandTimeout='30']
-            // INSERT INTO "Students" ("Age", "ConcurrencyToken", "Name")
-            // VALUES (@p0, @p1, @p2);
-            // SELECT "Id"
-            // FROM "Students"
-            // WHERE changes() = 1 AND "rowid" = last_insert_rowid();
-            
-            // As you can see, none of the OwnedType columns are present in the statement
-            
-            // Test _15_2 shows the EF Core default behavior which stores the owned type values in the db
-            // Test _15_3 shows that the storing of owned types already works with Detached.Mappers when updating an entity
         }
 
         [Test]
@@ -952,7 +918,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             {
                 dbContext.Add(newStudent);
                 dbContext.SaveChanges();
-                
+
                 Assert.That(newStudent.Grades, Is.Not.Null);
                 Assert.That(newStudent.Grades.English, Is.EqualTo("A+"));
                 Assert.That(newStudent.Grades.ComputerScience, Is.EqualTo("C++"));
@@ -967,21 +933,12 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Assert.That(newStudentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
                 Assert.That(newStudentFromDb.Grades.Math, Is.EqualTo("A+"));
             }
-            
-            // Following Insert statement is executed:
-            // Executed DbCommand (0ms) [Parameters=[@p0='16', @p1='0', @p2='Chuck Norris' (Size = 12), @p3='C++' (Size = 3), @p4='A+' (Size = 2), @p5='A+' (Size = 2)], CommandType='Text', CommandTimeout='30']
-            // INSERT INTO "Students" ("Age", "ConcurrencyToken", "Name", "Grades_ComputerScience", "Grades_English", "Grades_Math")
-            // VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
-            // SELECT "Id"
-            // FROM "Students"
-            // WHERE changes() = 1 AND "rowid" = last_insert_rowid();
-            
         }
 
         [Test]
         public void _15_3_UpdateEntityWithOwnedTypes_AlsoUpdatesOwnedTypeValues()
         {
-            var newStudentDto = new StudentDTO()
+            var newStudentDto = new StudentDto()
             {
                 Age = 16,
                 Name = "Chuck Norris",
@@ -994,14 +951,14 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             };
 
             Student newStudentEntity;
-            
+
             using (var dbContext = new ComplexDbContext())
             {
                 // Store student first
                 newStudentEntity = dbContext.Map<Student>(newStudentDto);
                 dbContext.SaveChanges();
             }
-            
+
             newStudentDto.Id = newStudentEntity.Id;
             newStudentDto.ConcurrencyToken = newStudentEntity.ConcurrencyToken;
 
@@ -1010,7 +967,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 // Now update the student
                 var updatedStudentEntity = dbContext.Map<Student>(newStudentDto);
                 dbContext.SaveChanges();
-                
+
                 Assert.That(updatedStudentEntity.Grades, Is.Not.Null);
                 Assert.That(updatedStudentEntity.Grades.English, Is.EqualTo("A+"));
                 Assert.That(updatedStudentEntity.Grades.ComputerScience, Is.EqualTo("C++"));
@@ -1025,38 +982,32 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Assert.That(updatedStudentFromDb.Grades.ComputerScience, Is.EqualTo("C++"));
                 Assert.That(updatedStudentFromDb.Grades.Math, Is.EqualTo("A+"));
             }
-            
-            // Following Update statement is executed:
-            // Executed DbCommand (0ms) [Parameters=[@p3='1', @p4='1', @p0='C++' (Size = 3), @p1='A+' (Size = 2), @p2='A+' (Size = 2)], CommandType='Text', CommandTimeout='30']
-            // UPDATE "Students" SET "Grades_ComputerScience" = @p0, "Grades_English" = @p1, "Grades_Math" = @p2
-            // WHERE "Id" = @p3 AND "ConcurrencyToken" = @p4;
-            // SELECT changes();
         }
 
         [Test]
         public void _16_TryBaseListToLinkWithEntity_WithMap_ShouldNotThrow()
         {
-            var dto = new EntityOneDTO()
+            var dto = new EntityOneDto()
             {
                 BaseHeads = new()
                 {
-                    new EntityTwoDTO()
+                    new EntityTwoDto()
                     {
                         Discriminator = nameof(EntityTwo)
                     },
-                    new EntityFourDTO()
+                    new EntityFourDto()
                     {
                         Discriminator = nameof(EntityFour),
                         BaseStationOneSeconds = new()
                         {
-                            new EntityThreeDTO()
+                            new EntityThreeDto()
                             {
                                 Discriminator = nameof(EntityThree)
                             }
                         },
                         EntityThrees = new()
                         {
-                            new EntityFiveDTO()
+                            new EntityFiveDto()
                             {
                                 Discriminator = nameof(EntityFive)
                             }
@@ -1064,22 +1015,26 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                     }
                 }
             };
-            
+
+            EntityOne entity;
+
             using (var dbContext = new ComplexDbContext())
             {
-                var mappedEntityOne = dbContext.Map<EntityOne>(dto);
+                entity = dbContext.Map<EntityOne>(dto);
                 dbContext.SaveChanges();
             }
+
+            Assert.That(entity, Is.Not.Null);
         }
-        
+
         [Test]
         public void _17_TryItemsAreMovedFromOneListToAnother_WithMap_ShouldNotThrow()
         {
-            var dto = new AngebotDTO()
+            var dto = new AngebotDto()
             {
                 Positionen = new()
                 {
-                    new ArtikelPositionDTO()
+                    new ArtikelPositionDto()
                     {
                         Positionsart = nameof(ArtikelPosition),
                     }
@@ -1087,61 +1042,64 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
             };
             Angebot dbUpdated;
             using (var dbContext = new ComplexDbContext())
-            { 
-                var mappedEntityOne = dbContext.Map<Angebot>(dto);
+            {
+                dbContext.Map<Angebot>(dto);
                 dbContext.SaveChanges();
                 dbUpdated = dbContext.Angebote.Include(a => a.Positionen).ThenInclude(p => ((UeberschriftPosition)p).Positionen).First();
             }
-            var dtoAfterSave = new AngebotDTO()
+            var dtoAfterSave = new AngebotDto()
             {
                 ConcurrencyToken = dbUpdated.ConcurrencyToken,
                 Id = dbUpdated.Id,
                 Positionen = new()
                 {
-                    new UeberschriftPositionDTO()
+                    new UeberschriftPositionDto()
                     {
                         Positionsart = nameof(UeberschriftPosition),
                         Positionen = new()
                         {
-                            new ArtikelPositionDTO()
+                            new ArtikelPositionDto()
                             {
-                                ConcurrencyToken = dbUpdated.Positionen.First().ConcurrencyToken,
+                                ConcurrencyToken = dbUpdated.Positionen[0].ConcurrencyToken,
                                 Positionsart = nameof(ArtikelPosition),
-                                Id = dbUpdated.Positionen.First().Id
+                                Id = dbUpdated.Positionen[0].Id
                             }
                         }
                     }
                 }
             };
-            
+
+            Angebot angebot = null;
+
             using (var dbContext = new ComplexDbContext())
             {
-                var mappedEntityOne = dbContext.Map<Angebot>(dtoAfterSave);
+                angebot = dbContext.Map<Angebot>(dtoAfterSave);
                 dbContext.SaveChanges();
             }
+
+            Assert.That(angebot, Is.Not.Null);
         }
-        
+
         [Test]
         public void _18_TryToUseOwnedEntitiesInInheritance_WithMap_ShouldNotThrow()
         {
-            var dto = new ArtikelDTO() // notice that I set Discriminator to a not null value in the constructor.
+            var dto = new ArtikelDto() // notice that I set Discriminator to a not null value in the constructor.
             {
-                OwnedOne = new OwnedOneDTO()
+                OwnedOne = new OwnedOneDto()
                 {
                     DateTime = DateTime.Now,
                 },
-                OwnedTwo = new OwnedTwoDTO()
+                OwnedTwo = new OwnedTwoDto()
                 {
                     Bool = true
                 }
             };
-            
+
             Artikel dbUpdated;
             using (var dbContext = new ComplexDbContext())
-            { 
-                var mappedEntityOne = dbContext.Map<Artikel>(dto);
+            {
+                dbContext.Map<Artikel>(dto);
                 dbContext.SaveChanges();
-                dbUpdated = dbContext.Artikel.First();
             }
 
             using (var dbContext = new ComplexDbContext())
@@ -1152,6 +1110,6 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 Assert.That(dbUpdated.OwnedOne.DateTime, Is.Not.Null);
                 Assert.That(dbUpdated.OwnedTwo.Bool, Is.True);
             }
-        }    
+        }
     }
 }

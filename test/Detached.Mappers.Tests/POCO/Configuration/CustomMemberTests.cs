@@ -48,7 +48,7 @@ namespace Detached.Mappers.Tests.POCO.Configuration
             public string Name { get; set; }
         }
 
-        class UserDTO
+        class UserDto
         {
             public int Id { get; set; }
 

@@ -10,7 +10,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
         [Fact]
         public void map_ipatch_type()
         {
-            DTO dto = (DTO)PatchTypeFactory.Create(typeof(DTO));
+            Dto dto = (Dto)PatchTypeFactory.Create(typeof(Dto));
             dto.Id = 1;
 
             Entity entity = new Entity
@@ -26,7 +26,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
         }
     }
 
-    public class DTO
+    public class Dto
     {
         public virtual int Id { get; set; }
 

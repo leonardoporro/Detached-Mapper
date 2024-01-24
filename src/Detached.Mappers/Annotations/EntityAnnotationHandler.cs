@@ -1,16 +1,15 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Exceptions;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class EntityAnnotationHandler : AnnotationHandler<EntityAttribute>
     {
-        public override void Apply(EntityAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(EntityAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            typeOptions.Entity(true);
+            type.Entity(true);
         }
     }
 }
@@ -38,7 +37,7 @@ namespace Detached.Mappers
 
         public static ClassTypeBuilder<TType> Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
         {
-            type.TypeOptions.Entity(value);
+            type.Type.Entity(value);
 
             return type;
         }

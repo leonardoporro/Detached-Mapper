@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
-using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types;
 using System.Linq.Expressions;
 
 namespace Detached.Mappers.TypeBinders.Binders

@@ -1,7 +1,6 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using System;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;

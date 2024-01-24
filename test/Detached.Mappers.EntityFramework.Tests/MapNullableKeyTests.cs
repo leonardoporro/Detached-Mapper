@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             var dbContext = await TestDbContext.Create<NullableKeyTestDbContext>();
 
-            Customer customer = await dbContext.MapAsync<Customer>(new CustomerDTO
+            Customer customer = await dbContext.MapAsync<Customer>(new CustomerDto
             {
                 Id = Guid.NewGuid(),
                 Name = "new customer"
@@ -28,7 +28,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             var dbContext = await TestDbContext.Create<NullableKeyTestDbContext>();
 
-            Customer customer = await dbContext.MapAsync<Customer>(new CustomerDTO
+            Customer customer = await dbContext.MapAsync<Customer>(new CustomerDto
             {
                 Id = null,
                 Name = "new customer"
@@ -45,7 +45,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Name { get; set; }
         }
 
-        public class CustomerDTO
+        public class CustomerDto
         {
             public Guid? Id { get; set; }
 

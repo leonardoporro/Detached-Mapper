@@ -1,11 +1,13 @@
-﻿using Detached.RuntimeTypes.Reflection;
+﻿using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
+using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Detached.Mappers.Types.Class
+namespace Detached.Mappers.Types
 {
-    public static class ClassTypeExtensions
+    public static class TypeExtensions
     {
         public static PropertyInfo GetPropertyInfo(this ITypeMember memberOptions)
         {
@@ -17,7 +19,7 @@ namespace Detached.Mappers.Types.Class
             {
                 return null;
             }
-        } 
+        }
 
         public static bool IsPrimitive(this IType type)
         {
@@ -74,6 +76,11 @@ namespace Detached.Mappers.Types.Class
             return result as string;
         }
 
+        public static bool IsDiscriminatorNameConfigured(this IType type)
+        {
+            return type.Annotations.ContainsKey(DISCRIMINATOR_NAME_KEY);
+        }
+
         const string DISCRIMINATOR_VALUES_KEY = "DETACHED_DISCRIMINATOR_VALUES";
 
         public static Dictionary<object, Type> GetDiscriminatorValues(this IType type)
@@ -108,6 +115,26 @@ namespace Detached.Mappers.Types.Class
         {
             type.Annotations.TryGetValue(CONCURRENCY_TOKEN_NAME_KEY, out object result);
             return result as string;
+        }
+
+        public static bool IsConcurrencyTokenNameSet(this IType type)
+        {
+            return type.Annotations.ContainsKey(CONCURRENCY_TOKEN_NAME_KEY);
+        }
+
+        public static bool IsKeyConfigured(this IType type)
+        {
+            foreach(string memberName in type.MemberNames)
+            {
+                var member = type.GetMember(memberName);
+
+                if (member.IsKeyConfigured())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             dbContext.Users.Add(newUser);
             await dbContext.SaveChangesAsync();
              
-            User mappedUser = await dbContext.MapAsync<User>(new EditUserInput
+            await dbContext.MapAsync<User>(new EditUserInput
             {
                 Id = 1,
                 Roles = new List<Role>
@@ -64,11 +64,11 @@ namespace Detached.Mappers.EntityFramework.Tests
             Assert.Equal("test", savedUser.Profile.FirstName);
             Assert.Equal("user", savedUser.Profile.LastName);
             Assert.NotNull(savedUser.Addresses);
-            Assert.Equal(1, savedUser.Addresses.Count);
+            Assert.Single(savedUser.Addresses);
             Assert.Equal("original street", savedUser.Addresses[0].Street);
             Assert.Equal("123", savedUser.Addresses[0].Number);
             Assert.NotNull(savedUser.Roles);
-            Assert.Equal(1, savedUser.Roles.Count);
+            Assert.Single(savedUser.Roles);
             Assert.Contains(savedUser.Roles, r => r.Id == 1);
             Assert.NotNull(savedUser.UserType);
             Assert.Equal(1, savedUser.UserType.Id);
@@ -169,9 +169,9 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public DbSet<UserType> UserTypes { get; set; } 
 
-            protected override void OnModelCreating(ModelBuilder mb)
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                mb.Entity<User>()
+                modelBuilder.Entity<User>()
                    .HasMany(u => u.Roles)
                    .WithMany(r => r.Users)
                    .UsingEntity<UserRole>(

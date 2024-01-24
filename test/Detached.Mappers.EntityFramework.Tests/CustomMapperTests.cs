@@ -2,7 +2,7 @@
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
-using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +17,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             var dbContext = await TestDbContext.Create<CustomMapperDbContext>();
 
-            var userDTO = new UserDto
+            var userDto = new UserDto
             {
                 Id = 1,
                 Name = "the user",
@@ -28,7 +28,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 }
             };
 
-            var trackedUser = dbContext.Map<User>(userDTO);
+            var trackedUser = dbContext.Map<User>(userDto);
 
             Assert.NotNull(trackedUser);
             Assert.Equal(2, trackedUser.Type);

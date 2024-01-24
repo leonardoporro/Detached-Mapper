@@ -16,12 +16,12 @@ namespace Detached.Mappers.HotChocolate.Tests
 
             Mapper mapper = new Mapper(mapperOptions);
 
-            DTO dto = new DTO()
+            Dto dto = new Dto()
             {
                 Id = 1,
                 Name = "dto",
-                Nested = new Optional<SubDTO>(
-                   new SubDTO
+                Nested = new Optional<SubDto>(
+                   new SubDto
                    {
                        Id = 2,
                        Name = "subdto"
@@ -29,7 +29,7 @@ namespace Detached.Mappers.HotChocolate.Tests
                 )
             };
 
-            Entity entity = mapper.Map<DTO, Entity>(dto, null);
+            Entity entity = mapper.Map<Dto, Entity>(dto, null);
 
             Assert.Equal("dto", entity.Name);
             Assert.NotNull(entity.Nested);
@@ -44,11 +44,11 @@ namespace Detached.Mappers.HotChocolate.Tests
 
             Mapper mapper = new Mapper(mapperOptions);
 
-            DTO dto = new DTO()
+            Dto dto = new Dto()
             {
                 Id = 1,
-                Nested = new Optional<SubDTO>(
-                   new SubDTO
+                Nested = new Optional<SubDto>(
+                   new SubDto
                    {
                        Id = 2,
                        Name = "subdto"
@@ -59,7 +59,7 @@ namespace Detached.Mappers.HotChocolate.Tests
             Entity entity = new Entity();
             entity.Name = "entity";
 
-            Entity mapped = mapper.Map<DTO, Entity>(dto, entity);
+            Entity mapped = mapper.Map<Dto, Entity>(dto, entity);
 
             Assert.Equal("entity", mapped.Name);
             Assert.NotNull(mapped.Nested);
@@ -74,30 +74,30 @@ namespace Detached.Mappers.HotChocolate.Tests
 
             Mapper mapper = new Mapper(mapperOptions);
 
-            DTO dto = new DTO()
+            Dto dto = new Dto()
             {
                 Id = 1
             };
 
             Entity entity = PatchTypeFactory.Create<Entity>();
 
-            Entity mapped = mapper.Map<DTO, Entity>(dto, entity);
+            Entity mapped = mapper.Map<Dto, Entity>(dto, entity);
 
             IPatch patch = mapped as IPatch;
             Assert.True(patch.IsSet("Id"));
             Assert.False(patch.IsSet("Name"));
         }
 
-        public class DTO
+        public class Dto
         {
             public int Id { get; set; }
 
             public Optional<string> Name { get; set; }
 
-            public Optional<SubDTO> Nested { get; set; }
+            public Optional<SubDto> Nested { get; set; }
         }
 
-        public class SubDTO
+        public class SubDto
         {
             public int Id { get; set; }
 

@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{6DF4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F39537CD-6420-43FC-8E81-F6F0FB99535B}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		logo.png = logo.png
 		Readme.MD = Readme.MD
 	EndProjectSection
@@ -41,7 +42,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.HotChocola
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "contrib", "contrib", "{5409CE02-02AD-448B-85A5-EFEABA6C52C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detached.Mappers.Annotation.Tests", "test\Detached.Mappers.Annotation.Tests\Detached.Mappers.Annotation.Tests.csproj", "{713EB397-9271-45F6-811C-CD84CD6BB194}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Detached.Mappers.Annotation.Tests", "test\Detached.Mappers.Annotation.Tests\Detached.Mappers.Annotation.Tests.csproj", "{713EB397-9271-45F6-811C-CD84CD6BB194}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,16 +2,15 @@
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class CompositionAnnotationHandler : AnnotationHandler<CompositionAttribute>
     {
-        public override void Apply(CompositionAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(CompositionAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            memberOptions.Composition(true);
+            member.Composition(true);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Detached.Mappers.Tests.Entity
                 Name = "the entity"
             };
 
-            NoKeyDTO dto = new NoKeyDTO
+            NoKeyDto dto = new NoKeyDto
             {
                 Name = "the dto"
             };
@@ -40,7 +40,7 @@ namespace Detached.Mappers.Tests.Entity
             public string Name { get; set; }
         }
 
-        public class NoKeyDTO
+        public class NoKeyDto
         {
             public string Name { get; set; }
         }

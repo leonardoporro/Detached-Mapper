@@ -17,32 +17,32 @@ namespace Detached.Mappers.EntityFramework.Tests
         [Fact]
         public async Task map_entity()
         {
-            var dbContext = await TestDbContext.Create<EntityTestDbContext>(); 
+            var dbContext = await TestDbContext.Create<EntityTestDbContext>();
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
             dbContext.UserTypes.Add(new UserType { Id = 1, Name = "system" });
             dbContext.SaveChanges();
 
-            await dbContext.MapAsync<User>(new UserDTO
+            await dbContext.MapAsync<User>(new UserDto
             {
                 Id = 1,
                 Name = "cr",
-                Profile = new UserProfileDTO
+                Profile = new UserProfileDto
                 {
                     FirstName = "chris",
                     LastName = "redfield"
                 },
-                Addresses = new List<AddressDTO>
+                Addresses = new List<AddressDto>
                 {
-                    new AddressDTO { Street = "rc", Number = "123" }
+                    new AddressDto { Street = "rc", Number = "123" }
                 },
-                Roles = new List<RoleDTO>
+                Roles = new List<RoleDto>
                 {
-                    new RoleDTO { Id = 1 },
-                    new RoleDTO { Id = 2 }
+                    new RoleDto { Id = 1 },
+                    new RoleDto { Id = 2 }
                 },
-                UserType = new UserTypeDTO { Id = 1 }
+                UserType = new UserTypeDto { Id = 1 }
             });
 
             await dbContext.SaveChangesAsync();
@@ -76,14 +76,14 @@ namespace Detached.Mappers.EntityFramework.Tests
             var dbContext = await TestDbContext.Create<EntityTestDbContext>();
 
             await Assert.ThrowsAsync<MapperException>(() =>
-                dbContext.MapAsync<User>(new UserDTO
+                dbContext.MapAsync<User>(new UserDto
                 {
                     Id = 1,
                     Name = "cr",
                 },
                 new MapParameters
                 {
-                    Upsert = false
+                    MissingRootBehavior = MissingRootBehavior.ThrowException
                 })
             );
         }
@@ -109,19 +109,19 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual UserProfile Profile { get; set; }
         }
 
-        public class UserDTO
+        public class UserDto
         {
             public virtual int Id { get; set; }
 
             public virtual string Name { get; set; }
 
-            public virtual List<RoleDTO> Roles { get; set; }
+            public virtual List<RoleDto> Roles { get; set; }
 
-            public virtual List<AddressDTO> Addresses { get; set; }
+            public virtual List<AddressDto> Addresses { get; set; }
 
-            public virtual UserTypeDTO UserType { get; set; }
+            public virtual UserTypeDto UserType { get; set; }
 
-            public virtual UserProfileDTO Profile { get; set; }
+            public virtual UserProfileDto Profile { get; set; }
         }
 
         public class UserProfile
@@ -135,7 +135,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual string LastName { get; set; }
         }
 
-        public class UserProfileDTO
+        public class UserProfileDto
         {
             public virtual int Id { get; set; }
 
@@ -155,7 +155,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual List<User> Users { get; set; }
         }
 
-        public class RoleDTO
+        public class RoleDto
         {
             public virtual int Id { get; set; }
 
@@ -184,7 +184,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual List<User> Users { get; set; }
         }
 
-        public class UserTypeDTO
+        public class UserTypeDto
         {
             public virtual int Id { get; set; }
 
@@ -202,7 +202,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public virtual string Number { get; set; }
         }
 
-        public class AddressDTO
+        public class AddressDto
         {
             public virtual int Id { get; set; }
 
@@ -213,7 +213,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class EntityTestDbContext : TestDbContext
         {
-            public EntityTestDbContext(DbContextOptions<EntityTestDbContext> options) 
+            public EntityTestDbContext(DbContextOptions<EntityTestDbContext> options)
                 : base(options)
             {
             }
@@ -223,10 +223,10 @@ namespace Detached.Mappers.EntityFramework.Tests
             public DbSet<Role> Roles { get; set; }
 
             public DbSet<UserType> UserTypes { get; set; }
-             
-            protected override void OnModelCreating(ModelBuilder mb)
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                mb.Entity<User>()
+                modelBuilder.Entity<User>()
                    .HasMany(u => u.Roles)
                    .WithMany(r => r.Users)
                    .UsingEntity<UserRole>(

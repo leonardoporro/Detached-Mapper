@@ -1,16 +1,17 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Types.Class;
 using System.Linq;
 
 namespace Detached.Mappers.Types.Conventions
 {
     public class KeyConvention : ITypeConvention
     {
-        public void Apply(MapperOptions mapperOptions, ClassType typeOptions)
+        public void Apply(MapperOptions mapperOptions, IType type)
         {
-            if (!typeOptions.Members.Any(m => m.IsKey()))
+            var classType = type as ClassType;
+
+            if (classType != null && !classType.Members.Any(m => m.IsKey()))
             {
-                foreach (ClassTypeMember memberOptions in typeOptions.Members)
+                foreach (ClassTypeMember memberOptions in classType.Members)
                 {
                     if (memberOptions.Name == "Id")
                     {

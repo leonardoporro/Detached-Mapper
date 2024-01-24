@@ -1,5 +1,5 @@
-﻿using Detached.Mappers.Types.Class;
-using Detached.Mappers.Types.Conventions;
+﻿using Detached.Mappers.Types;
+using Detached.Mappers.Types.Class;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
 
@@ -14,51 +14,68 @@ namespace Detached.Mappers.EntityFramework.Conventions
             _model = model;
         }
 
-        public void Apply(MapperOptions mapperOptions, ClassType type)
+        public void Apply(MapperOptions mapperOptions, IType type)
         {
-            IEntityType entityType = _model.FindEntityType(type.ClrType);
+            var classType = type as ClassType;
 
-            if (entityType != null && !entityType.IsOwned())
+            if (classType != null)
             {
-                type.Entity(true);
+                IEntityType entityType = _model.FindEntityType(type.ClrType);
 
-                SetKey(type, entityType);
-
-                SetDiscriminator(type, entityType);
-
-                SetConcurrencyToken(type, entityType);
-            }
-        }
-
-        void SetConcurrencyToken(ClassType type, IEntityType entityType)
-        {
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.IsConcurrencyToken)
+                if (entityType != null && !entityType.IsOwned())
                 {
-                    type.SetConcurrencyTokenName(property.Name);
-                }
-            }
-        }
-
-        void SetDiscriminator(ClassType type, IEntityType entityType)
-        {
-            IProperty discriminator = entityType.FindDiscriminatorProperty();
-            if (discriminator != null && (entityType.BaseType == null || entityType.IsAbstract()))
-            {
-                type.SetDiscriminatorName(discriminator.Name);
-
-                foreach (var inheritedType in entityType.Model.GetEntityTypes())
-                {
-                    if (IsBaseType(inheritedType, entityType))
+                    if (!classType.IsEntityConfigured())
                     {
-                        type.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
+                        classType.Entity(true);
+                    }
+
+                    if (!classType.IsKeyConfigured())
+                    {
+                        SetKey(classType, entityType);
+                    }
+
+                    if (!classType.IsDiscriminatorNameConfigured())
+                    {
+                        SetDiscriminator(classType, entityType);
+                    }
+
+                    if (!classType.IsConcurrencyTokenNameSet())
+                    {
+                        SetConcurrencyToken(classType, entityType);
                     }
                 }
             }
         }
 
-        void SetKey(ClassType type, IEntityType entityType)
+        void SetConcurrencyToken(ClassType classType, IEntityType entityType)
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.IsConcurrencyToken)
+                {
+                    classType.SetConcurrencyTokenName(property.Name);
+                }
+            }
+        }
+
+        void SetDiscriminator(ClassType classType, IEntityType entityType)
+        {
+            IProperty discriminator = entityType.FindDiscriminatorProperty();
+            if (discriminator != null && (entityType.BaseType == null || entityType.IsAbstract()))
+            {
+                classType.SetDiscriminatorName(discriminator.Name);
+
+                foreach (var inheritedType in entityType.Model.GetEntityTypes())
+                {
+                    if (IsBaseType(inheritedType, entityType))
+                    {
+                        classType.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
+                    }
+                }
+            }
+        }
+
+        void SetKey(ClassType classType, IEntityType entityType)
         {
             IKey pk = entityType.FindPrimaryKey();
             if (pk != null)
@@ -66,11 +83,11 @@ namespace Detached.Mappers.EntityFramework.Conventions
                 // don't think we need a hashset here, for 1 or 2 values...
                 string[] keyMembers = pk.Properties.Select(p => p.Name).ToArray();
 
-                if (type.MemberNames != null && type.MemberNames.Any())
+                if (classType.MemberNames != null && classType.MemberNames.Any())
                 {
-                    foreach (string memberName in type.MemberNames)
+                    foreach (string memberName in classType.MemberNames)
                     {
-                        ClassTypeMember member = type.GetMember(memberName) as ClassTypeMember;
+                        ClassTypeMember member = classType.GetMember(memberName) as ClassTypeMember;
                         member.Key(keyMembers.Contains(memberName));
                     }
                 }

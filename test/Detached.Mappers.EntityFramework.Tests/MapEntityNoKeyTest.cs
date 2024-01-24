@@ -21,7 +21,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
             await dbContext.SaveChangesAsync();
 
-            User user = await dbContext.MapAsync<User>(new NoKeyUserDTO
+            User user = await dbContext.MapAsync<User>(new NoKeyUserDto
             {
                 Name = "nokeyuser",
                 Roles = new List<Role>
@@ -42,7 +42,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             Assert.NotNull(persisted.Roles);
         }
 
-        public class NoKeyUserDTO
+        public class NoKeyUserDto
         {
             public string Name { get; set; }
 

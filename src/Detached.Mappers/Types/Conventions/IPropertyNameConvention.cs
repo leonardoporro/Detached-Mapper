@@ -2,6 +2,6 @@
 {
     public interface IPropertyNameConvention
     {
-        string GetSourcePropertyName(IType sourceType, IType targetType, string memberName);
+        string GetSourcePropertyName(IType sourceType, IType targetType, string targetMemberName);
     }
 }

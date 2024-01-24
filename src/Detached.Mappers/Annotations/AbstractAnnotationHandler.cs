@@ -1,15 +1,14 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Types;
-using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers.Annotations
 {
     public class AbstractAnnotationHandler : AnnotationHandler<AbstractAttribute>
     {
-        public override void Apply(AbstractAttribute annotation, MapperOptions mapperOptions, ClassType typeOptions, ClassTypeMember memberOptions)
+        public override void Apply(AbstractAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            typeOptions.Abstract(true);
+            type.Abstract(true);
         }
     }
 }
@@ -28,12 +27,13 @@ namespace Detached.Mappers
         public static void Abstract(this IType type, bool value = true)
         {
             type.Annotations[VALUE_KEY] = value;
-        }
+        } 
 
-        public static ClassTypeBuilder<TType> Abstract<TType>(this ClassTypeBuilder<TType> type, bool value = true)
+        public static ClassTypeBuilder<TType> Abstract<TType>(this ClassTypeBuilder<TType> typeBuilder, bool value = true)
         {
-            type.TypeOptions.Abstract(value);
-            return type;
+            typeBuilder.Type.Abstract(value);
+
+            return typeBuilder;
         }
     }
 }

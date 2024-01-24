@@ -1,5 +1,5 @@
 ﻿using Detached.Mappers.TypePairs;
-using Detached.Mappers.Types.Class;
+using Detached.Mappers.Types;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
 using static System.Linq.Expressions.Expression;

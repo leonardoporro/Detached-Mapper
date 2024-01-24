@@ -4,7 +4,7 @@ using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels.inheritance.BaseModel;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.DeepModel;
-using Detached.Mappers.EntityFramework.Contrib.SysTec.DTOs;
+using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -76,11 +76,11 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 {
                     config.Default(options =>
                     { 
-                        options.Type<OrganizationBaseDTO>()
+                        options.Type<OrganizationBaseDto>()
                             .Discriminator(o => o.OrganizationType)
-                            .HasValue<GovernmentDTO>(nameof(Government))
-                            .HasValue<SubGovernmentDTO>(nameof(SubGovernment))
-                            .HasValue<CustomerDTO>(nameof(Customer));
+                            .HasValue<GovernmentDto>(nameof(Government))
+                            .HasValue<SubGovernmentDto>(nameof(SubGovernment))
+                            .HasValue<CustomerDto>(nameof(Customer));
 
                         options.Type<BaseHead>()
                             .Discriminator(o => o.Discriminator)
