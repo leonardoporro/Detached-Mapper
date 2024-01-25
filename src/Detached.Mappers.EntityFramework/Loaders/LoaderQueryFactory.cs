@@ -145,7 +145,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
 
             foreach (TypePairMember memberPair in typePair.Members.Values)
             {
-                if (memberPair.IsMapped() && !memberPair.TargetMember.IsParent() && !memberPair.IsSetAsPrimitive() && memberPair.SourceMember != null)
+                if (memberPair.IsIncluded() && !memberPair.TargetMember.IsParent() && !memberPair.IsSetAsPrimitive() && memberPair.SourceMember != null)
                 {
                     IType sourceMemberType = Options.GetType(memberPair.SourceMember.ClrType);
                     IType targetMemberType = Options.GetType(memberPair.TargetMember.ClrType);

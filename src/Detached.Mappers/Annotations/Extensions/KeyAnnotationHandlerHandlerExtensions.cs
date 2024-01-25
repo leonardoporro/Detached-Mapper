@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
@@ -6,39 +7,40 @@ namespace Detached.Mappers
 {
     public static class KeyAnnotationHandlerHandlerExtensions
     {
-        public const string VALUE_KEY = "DETACHED_KEY";
+        public static Annotation<bool> Key(this AnnotationCollection annotations)
+        {
+            return annotations.Annotation<bool>("DETACHED_KEY");
+        }
+
+        public static ITypeMember Key(this ITypeMember member, bool value = true)
+        {
+            member.Annotations.Key().Set(value);
+
+            return member;
+        }
+
+        public static ClassTypeMemberBuilder<TType, TMember> Key<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> memberBuilder, bool value = true)
+        {
+            memberBuilder.Member.Key(value);
+
+            return memberBuilder;
+        }
+
+        public static TypePairMember Key(this TypePairMember memberPair, bool value = true)
+        {
+            memberPair.Annotations.Key().Set(value);
+
+            return memberPair;
+        }
 
         public static bool IsKey(this ITypeMember member)
         {
-            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
+            return member.Annotations.Key().Value();
         }
 
-        public static bool IsKey(this TypePairMember member)
+        public static bool IsKey(this TypePairMember memberPair)
         {
-            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
-        }
-
-        public static void Key(this ITypeMember member, bool value = true)
-        {
-            member.Annotations[VALUE_KEY] = value;
-        }
-
-        public static void Key<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
-        {
-            member.Member.Key(value);
-        }
-
-        public static void Key(this TypePairMember member, bool value = true)
-        {
-            if (value)
-                member.Annotations[VALUE_KEY] = true;
-            else
-                member.Annotations[VALUE_KEY] = false;
-        }
-
-        public static bool IsKeyConfigured(this ITypeMember member)
-        {
-            return member.Annotations.ContainsKey(VALUE_KEY);
+            return memberPair.Annotations.Key().Value();
         }
     }
 }

@@ -12,11 +12,6 @@ namespace Detached.Mappers
             return annotations.Annotation<bool>("DETACHED_ENTITY");
         }
 
-        public static bool IsEntity(this IType type)
-        {
-            return type.Annotations.Entity().Value();
-        }
-
         public static void Entity(this IType type, bool value = true)
         {
             if (type.MappingSchema != MappingSchema.Complex)
@@ -32,6 +27,11 @@ namespace Detached.Mappers
             type.Type.Entity(value);
 
             return type;
+        }
+
+        public static bool IsEntity(this IType type)
+        {
+            return type.Annotations.Entity().Value();
         }
     }
 }

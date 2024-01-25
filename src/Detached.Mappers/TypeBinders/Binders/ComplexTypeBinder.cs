@@ -22,7 +22,7 @@ namespace Detached.Mappers.TypeBinders.Binders
 
             List<MemberBinding> bindings = new List<MemberBinding>();
 
-            foreach (TypePairMember memberPair in typePair.Members.Values.Where(v => v.IsMapped()))
+            foreach (TypePairMember memberPair in typePair.Members.Values.Where(v => v.IsIncluded()))
             {
                 PropertyInfo propInfo = memberPair.TargetMember.GetPropertyInfo();
                 if (propInfo != null)

@@ -128,7 +128,7 @@ namespace Detached.Mappers.Types
             {
                 var member = type.GetMember(memberName);
 
-                if (member.IsKeyConfigured())
+                if (member.Annotations.Key().IsDefined())
                 {
                     return true;
                 }

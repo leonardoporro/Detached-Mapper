@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
@@ -6,32 +7,35 @@ namespace Detached.Mappers
 {
     public static class ParentAnnotationHandlerExtensions
     {
-        public const string VALUE_KEY = "DETACHED_PARENT_REFERENCE";
-
-        public static bool IsParent(this ITypeMember member)
+        public static Annotation<bool> Parent(this AnnotationCollection annotations)
         {
-            return member.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
+            return annotations.Annotation<bool>("DETACHED_PARENT_REFERENCE");
         }
 
-        public static void Parent(this ITypeMember member, bool value = true)
+        public static ITypeMember Parent(this ITypeMember member, bool value = true)
         {
-            member.Annotations[VALUE_KEY] = value;
-        }
+            member.Annotations.Parent().Set(value);
 
-        public static ClassTypeMemberBuilder<TType, TMember> Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
-        {
-            member.Member.Parent(value);
             return member;
         }
 
-        public static void Parent(this TypePairMember member, bool value = true)
+        public static ClassTypeMemberBuilder<TType, TMember> Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> memberPair, bool value = true)
         {
-            member.Annotations[VALUE_KEY] = value;
+            memberPair.Member.Parent(value);
+
+            return memberPair;
         }
 
-        public static bool IsParentConfigured(this ITypeMember member)
+        public static TypePairMember Parent(this TypePairMember memberPair, bool value = true)
         {
-            return member.Annotations.ContainsKey(VALUE_KEY);
+            memberPair.Annotations.Parent().Set(value);
+
+            return memberPair;
+        }
+
+        public static bool IsParent(this ITypeMember member)
+        {
+            return member.Annotations.Parent().Value();
         }
     }
 }
