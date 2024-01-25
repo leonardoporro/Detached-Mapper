@@ -49,7 +49,7 @@ namespace Detached.Mappers
             {
                 var member = type.GetMember(memberName);
 
-                if (member.Annotations.Key().IsDefined())
+                if (member.Annotations.Key().HasValue())
                 {
                     return true;
                 }

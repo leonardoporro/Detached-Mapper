@@ -7,7 +7,7 @@ namespace Detached.Mappers.Annotations.Handlers
     {
         public override void Apply(CompositionAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            member.Composition(true);
+            member.Composition();
         }
     }
 }

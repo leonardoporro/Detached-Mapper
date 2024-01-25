@@ -2,7 +2,7 @@
 {
     public class Annotation<TValue>
     {
-        public Annotation(AnnotationCollection collection, string name) 
+        public Annotation(AnnotationCollection collection, string name)
         {
             Collection = collection;
             Name = name;
@@ -14,7 +14,27 @@
 
         public bool IsDefined()
         {
-            return Collection.ContainsKey(Name); 
+            return Collection.ContainsKey(Name);
+        }
+
+        public bool HasValue()
+        {
+            if (Collection.ContainsKey(Name))
+            {
+                return true;
+            }
+            else if (Collection.Sources != null)
+            {
+                for (int i = Collection.Count - 1; i >= 0; i--)
+                {
+                    if (Collection.Annotation<TValue>(Name).HasValue())
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void Reset()

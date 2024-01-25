@@ -7,7 +7,7 @@ namespace Detached.Mappers.Annotations.Handlers
     {
         public override void Apply(AggregationAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
         {
-            member.Aggregation(true);
+            member.Aggregation();
         }
     }
 } 
