@@ -6,7 +6,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class CompositionAnnotationHandlerExtensions
+    public static class CompositionAnnotationExtensions
     {
         public static Annotation<bool> Composition(this AnnotationCollection annotations)
         {

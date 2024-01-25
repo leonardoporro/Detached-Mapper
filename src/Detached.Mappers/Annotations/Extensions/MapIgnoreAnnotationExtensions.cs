@@ -6,7 +6,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class MapIgnoreAnnotationHandlerExtensions
+    public static class MapIgnoreAnnotationExtensions
     {
         public static Annotation<bool> Ignored(this AnnotationCollection annotations)
         {

@@ -4,7 +4,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class AbstractAnnotationHandlerExtensions
+    public static class AbstractAnnotationExtensions
     {
         public static Annotation<bool> Abstract(this AnnotationCollection annotations)
         {

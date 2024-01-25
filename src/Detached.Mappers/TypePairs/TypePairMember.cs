@@ -13,6 +13,6 @@ namespace Detached.Mappers.TypePairs
 
         public ITypeMember TargetMember { get; set; }
 
-        public AnnotationCollection Annotations { get; } = new();
+        public AnnotationCollection Annotations { get; set; } = new();
     }
 }

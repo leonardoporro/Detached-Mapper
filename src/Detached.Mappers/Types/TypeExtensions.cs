@@ -3,12 +3,58 @@ using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Detached.Mappers.Types
 {
     public static class TypeExtensions
     {
+        static Dictionary<Type, string> _shortNames = new Dictionary<Type, string>
+        {
+            {typeof(sbyte), "sbyte"},
+            {typeof(bool), "bool"},
+            {typeof(float), "float"},
+            {typeof(double), "double"},
+            {typeof(decimal), "decimal"},
+            {typeof(char), "char"},
+            {typeof(string), "string"},
+            {typeof(object), "object"},
+            {typeof(void), "void"},
+            {typeof(int), "int"},
+            {typeof(uint), "uint"},
+            {typeof(long), "long"},
+            {typeof(ulong), "ulong"},
+            {typeof(short), "short"},
+            {typeof(ushort), "ushort"},
+            {typeof(byte), "byte"}
+        };
+
+        public static string GetFriendlyName(this Type type, Dictionary<Type, string> translations)
+        {
+            if (translations.ContainsKey(type))
+                return translations[type];
+            else if (type.IsArray)
+            {
+                var rank = type.GetArrayRank();
+                var commas = rank > 1
+                    ? new string(',', rank - 1)
+                    : "";
+                return GetFriendlyName(type.GetElementType(), translations) + $"[{commas}]";
+            }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return type.GetGenericArguments()[0].GetFriendlyName() + "?";
+            else if (type.IsGenericType)
+                return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(x => GetFriendlyName(x)).ToArray()) + ">";
+            else
+                return type.Name;
+        }
+
+        public static string GetFriendlyName(this Type type)
+        {
+            return type.GetFriendlyName(_shortNames);
+        }
+
         public static PropertyInfo GetPropertyInfo(this ITypeMember memberOptions)
         {
             if (memberOptions is ClassTypeMember clrMemberOptions)
@@ -49,92 +95,6 @@ namespace Detached.Mappers.Types
         public static bool IsConcrete(this IType type)
         {
             return !(type.Annotations.Abstract().Value() || type.IsInherited());
-        }
-
-        public static bool IsInherited(this IType type)
-        {
-            return type.Annotations.ContainsKey(DISCRIMINATOR_NAME_KEY);
-        }
-
-        const string DISCRIMINATOR_NAME_KEY = "DETACHED_DISCRIMINATOR_NAME";
-
-        public static void SetDiscriminatorName(this IType type, string discriminatorName)
-        {
-            if (string.IsNullOrEmpty(discriminatorName))
-            {
-                type.Annotations.Remove(DISCRIMINATOR_NAME_KEY);
-            }
-            else
-            {
-                type.Annotations[DISCRIMINATOR_NAME_KEY] = discriminatorName;
-            }
-        }
-
-        public static string GetDiscriminatorName(this IType type)
-        {
-            type.Annotations.TryGetValue(DISCRIMINATOR_NAME_KEY, out object result);
-            return result as string;
-        }
-
-        public static bool IsDiscriminatorNameConfigured(this IType type)
-        {
-            return type.Annotations.ContainsKey(DISCRIMINATOR_NAME_KEY);
-        }
-
-        const string DISCRIMINATOR_VALUES_KEY = "DETACHED_DISCRIMINATOR_VALUES";
-
-        public static Dictionary<object, Type> GetDiscriminatorValues(this IType type)
-        {
-            if (!type.Annotations.TryGetValue(DISCRIMINATOR_VALUES_KEY, out object result))
-            {
-                var values = new Dictionary<object, Type>();
-                type.Annotations[DISCRIMINATOR_VALUES_KEY] = values;
-                return values;
-            }
-            else
-            {
-                return result as Dictionary<object, Type>;
-            }
-        }
-
-        const string CONCURRENCY_TOKEN_NAME_KEY = "DETACHED_CONCURRENCY_TOKEN_NAME";
-
-        public static void SetConcurrencyTokenName(this IType type, string concurrencyTokenName)
-        {
-            if (string.IsNullOrEmpty(concurrencyTokenName))
-            {
-                type.Annotations.Remove(CONCURRENCY_TOKEN_NAME_KEY);
-            }
-            else
-            {
-                type.Annotations[CONCURRENCY_TOKEN_NAME_KEY] = concurrencyTokenName;
-            }
-        }
-
-        public static string GetConcurrencyTokenName(this IType type)
-        {
-            type.Annotations.TryGetValue(CONCURRENCY_TOKEN_NAME_KEY, out object result);
-            return result as string;
-        }
-
-        public static bool IsConcurrencyTokenNameSet(this IType type)
-        {
-            return type.Annotations.ContainsKey(CONCURRENCY_TOKEN_NAME_KEY);
-        }
-
-        public static bool IsKeyConfigured(this IType type)
-        {
-            foreach(string memberName in type.MemberNames)
-            {
-                var member = type.GetMember(memberName);
-
-                if (member.Annotations.Key().IsDefined())
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

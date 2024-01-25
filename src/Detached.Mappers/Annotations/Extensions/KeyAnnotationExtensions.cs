@@ -5,7 +5,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class KeyAnnotationHandlerHandlerExtensions
+    public static class KeyAnnotationExtensions
     {
         public static Annotation<bool> Key(this AnnotationCollection annotations)
         {
@@ -41,6 +41,21 @@ namespace Detached.Mappers
         public static bool IsKey(this TypePairMember memberPair)
         {
             return memberPair.Annotations.Key().Value();
+        }
+
+        public static bool IsKeyDefined(this IType type)
+        {
+            foreach (string memberName in type.MemberNames)
+            {
+                var member = type.GetMember(memberName);
+
+                if (member.Annotations.Key().IsDefined())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -5,7 +5,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class ParentAnnotationHandlerExtensions
+    public static class ParentAnnotationExtensions
     {
         public static Annotation<bool> Parent(this AnnotationCollection annotations)
         {

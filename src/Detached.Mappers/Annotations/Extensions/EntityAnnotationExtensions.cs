@@ -5,7 +5,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class EntityAnnotationHandlerExtensions
+    public static class EntityAnnotationExtensions
     {
         public static Annotation<bool> Entity(this AnnotationCollection annotations)
         {

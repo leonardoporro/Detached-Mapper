@@ -1,5 +1,5 @@
-﻿using System;
-using Detached.Mappers.Extensions;
+﻿using Detached.Mappers.Types;
+using System;
 
 namespace Detached.Mappers.Tests.Mocks
 {

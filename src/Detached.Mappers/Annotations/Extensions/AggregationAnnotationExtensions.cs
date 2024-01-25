@@ -6,7 +6,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class AggregationAnnotationHandlerExtensions
+    public static class AggregationAnnotationExtensions
     {
         public static Annotation<bool> Aggregation(this AnnotationCollection annotations)
         {

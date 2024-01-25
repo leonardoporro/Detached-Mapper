@@ -29,17 +29,17 @@ namespace Detached.Mappers.EntityFramework.Conventions
                         classType.Entity(true);
                     }
 
-                    if (!classType.IsKeyConfigured())
+                    if (!classType.IsKeyDefined())
                     {
                         SetKey(classType, entityType);
                     }
 
-                    if (!classType.IsDiscriminatorNameConfigured())
+                    if (!classType.Annotations.DiscriminatorName().IsDefined())
                     {
                         SetDiscriminator(classType, entityType);
                     }
 
-                    if (!classType.IsConcurrencyTokenNameSet())
+                    if (!classType.Annotations.ConcurrencyTokenName().IsDefined())
                     {
                         SetConcurrencyToken(classType, entityType);
                     }

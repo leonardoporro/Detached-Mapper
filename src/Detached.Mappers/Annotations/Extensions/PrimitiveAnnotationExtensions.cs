@@ -6,7 +6,7 @@ using Detached.Mappers.Types.Class.Builder;
 
 namespace Detached.Mappers
 {
-    public static class PrimitiveAnnotationHandlerExtensions
+    public static class PrimitiveAnnotationExtensions
     {
         public static Annotation<bool> Primitive(this AnnotationCollection annotations)
         {

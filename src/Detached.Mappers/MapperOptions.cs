@@ -1,7 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Annotations;
 using Detached.Mappers.Annotations.Handlers;
-using Detached.Mappers.Extensions;
 using Detached.Mappers.TypeBinders;
 using Detached.Mappers.TypeBinders.Binders;
 using Detached.Mappers.TypeMappers;

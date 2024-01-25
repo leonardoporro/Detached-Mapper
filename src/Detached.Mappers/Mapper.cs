@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Exceptions;
-using Detached.Mappers.Extensions;
 using Detached.Mappers.TypeBinders;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;

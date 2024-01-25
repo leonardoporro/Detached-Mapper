@@ -33,10 +33,7 @@ namespace Detached.Mappers.TypePairs
                         string sourceMemberName = GetSourcePropertyName(mapperOptions, sourceType, targetType, targetMemberName);
 
                         ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
-                        if (sourceMember != null && sourceMember.CanRead && !sourceMember.IsIgnored())
-                        {
-                            member.SourceMember = sourceMember;
-                        }
+                        member.SourceMember = sourceMember;
 
                         typePair.Members.Add(targetMemberName, member);
                     }
