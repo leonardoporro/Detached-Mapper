@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Detached.Mappers.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -18,7 +19,7 @@ namespace Detached.Mappers.Types
 
         Type ItemClrType { get; }
 
-        Dictionary<string, object> Annotations { get; }
+        AnnotationCollection Annotations { get; }
 
         MappingSchema MappingSchema { get; } 
 

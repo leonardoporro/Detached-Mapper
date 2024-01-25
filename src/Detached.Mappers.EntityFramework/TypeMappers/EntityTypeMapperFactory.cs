@@ -31,7 +31,7 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
 
             builder.BuildGetKeyExpressions(typePair, out getSourceKeyExpr, out getTargetKeyExpr, out keyType);
 
-            if (typePair.ParentMember == null || typePair.ParentMember.IsComposition())
+            if (typePair.ParentMember == null || typePair.ParentMember.Annotations.Composition().Value())
             {
                 mapperType = typeof(CompositionEntityTypeMapper<,,>)
                     .MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);

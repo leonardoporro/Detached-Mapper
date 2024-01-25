@@ -10,19 +10,19 @@ namespace Detached.Mappers.TypePairs.Builder
         public TypePairMemberBuilder(MapperOptions mapperOptions, TypePair typePairOptions, TypePairMember typePairMemberOptions)
             : base(mapperOptions, typePairOptions)
         {
-            TypePairMember = typePairMemberOptions;
+            Member = typePairMemberOptions;
         }
 
-        public TypePairMember TypePairMember { get; }
+        public TypePairMember Member { get; }
 
         public TypePairMemberBuilder<TSource, TTarget> FromMember(string memberName)
         {
-            ITypeMember typeMember = TypePairMember.SourceType.GetMember(memberName);
+            ITypeMember typeMember = Member.SourceType.GetMember(memberName);
             if (typeMember == null)
-                throw new ArgumentException($"Member {memberName} doesn't exist on type {TypePairMember.SourceType}");
+                throw new ArgumentException($"Member {memberName} doesn't exist on type {Member.SourceType}");
 
-            TypePairMember.SourceMember = typeMember;
-            TypePairMember.Include();
+            Member.SourceMember = typeMember;
+            Member.Include();
             return this;
         }
 
@@ -34,16 +34,16 @@ namespace Detached.Mappers.TypePairs.Builder
 
         public TypePairMemberBuilder<TSource, TTarget> FromValue<TMember>(Expression<Func<TSource, IMapContext, TMember>> expression)
         {
-            TypePairMember.SourceMember = new ClassTypeMember
+            Member.SourceMember = new ClassTypeMember
             {
                 Getter = expression,
                 Setter = null,
                 TryGetter = null,
                 ClrType = typeof(TMember),
-                Name = TypePairMember.TargetMember?.Name
+                Name = Member.TargetMember?.Name
             };
 
-            TypePairMember.Include();
+            Member.Include();
             return this;
         }
     }

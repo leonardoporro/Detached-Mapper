@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Detached.Mappers.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -15,7 +16,7 @@ namespace Detached.Mappers.Types.Dictionary
             _name = name;
         }
 
-        public Dictionary<string, object> Annotations { get; set; } = new Dictionary<string, object>();
+        public AnnotationCollection Annotations { get; set; } = new();
 
         public bool IsIgnored => false;
 

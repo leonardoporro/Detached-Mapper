@@ -15,7 +15,7 @@ namespace Detached.Mappers.TypeMappers.POCO.Inherited
     {
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
-            return ((typePair.SourceType.IsComplex() || typePair.SourceType.IsEntity()) && !typePair.SourceType.IsAbstract())
+            return ((typePair.SourceType.IsComplex() || typePair.SourceType.IsEntity()) && !typePair.SourceType.Annotations.Abstract().Value())
                && (typePair.TargetType.IsComplex() || typePair.TargetType.IsEntity())
                && typePair.TargetType.IsInherited();
         }

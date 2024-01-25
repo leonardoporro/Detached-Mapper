@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Extensions;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -18,7 +19,7 @@ namespace Detached.Mappers.Types.Class
 
         public virtual IEnumerable<string> MemberNames => Members.Keys;
 
-        public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public virtual AnnotationCollection Annotations { get; } = new();
 
         public virtual LambdaExpression Constructor { get; set; }
 

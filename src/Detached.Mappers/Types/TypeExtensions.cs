@@ -48,7 +48,7 @@ namespace Detached.Mappers.Types
 
         public static bool IsConcrete(this IType type)
         {
-            return !(type.IsAbstract() || type.IsInherited());
+            return !(type.Annotations.Abstract().Value() || type.IsInherited());
         }
 
         public static bool IsInherited(this IType type)

@@ -1,5 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers.Annotations;
+using Detached.Mappers.Annotations.Handlers;
 using Detached.Mappers.Extensions;
 using Detached.Mappers.TypeBinders;
 using Detached.Mappers.TypeBinders.Binders;
@@ -214,8 +215,8 @@ namespace Detached.Mappers
         public virtual bool ShouldMap(IType sourceType, IType targetType)
         {
             return sourceType != targetType
-                    || sourceType.IsAbstract()
-                    || targetType.IsAbstract()
+                    || sourceType.Annotations.Abstract().Value()
+                    || targetType.Annotations.Abstract().Value()
                     || (targetType.IsComplex() || targetType.IsCollection() && GetType(targetType.ItemClrType).IsComplex());
         }
 

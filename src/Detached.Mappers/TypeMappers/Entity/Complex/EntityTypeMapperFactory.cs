@@ -35,7 +35,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Complex
                  
                 mapNoKeyMembers = builder.BuildMapMembersExpression(typePair, (s, t) => !t.IsKey());
             }
-            else if (typePair.ParentMember.IsComposition())
+            else if (typePair.ParentMember.Annotations.Composition().Value())
             {
                 mapperType = typeof(ComposedEntityTypeMapper<,,>)
                     .MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType, keyType);

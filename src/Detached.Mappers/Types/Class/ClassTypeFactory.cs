@@ -1,7 +1,6 @@
 ﻿using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -55,7 +54,7 @@ namespace Detached.Mappers.Types.Class
         protected virtual void CreateConstructor(ClassType classType)
         {
             ConstructorInfo constructorInfo = Array.Find(classType.ClrType.GetConstructors(), c => c.GetParameters().Length == 0);
-            if (!classType.IsAbstract() && constructorInfo != null)
+            if (!classType.Annotations.Abstract().Value() && constructorInfo != null)
             {
                 classType.Constructor = Lambda(New(constructorInfo));
             }

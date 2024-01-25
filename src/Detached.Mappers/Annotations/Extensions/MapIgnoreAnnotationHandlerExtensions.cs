@@ -1,19 +1,7 @@
-﻿using Detached.Annotations;
-using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
-
-namespace Detached.Mappers.Annotations
-{
-    public class MapIgnoreAnnotationHandler : AnnotationHandler<MapIgnoreAttribute>
-    {
-        public override void Apply(MapIgnoreAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
-        {
-            member.Ignore(true);
-        }
-    }
-}
 
 namespace Detached.Mappers
 {
@@ -38,7 +26,7 @@ namespace Detached.Mappers
 
         public static ClassTypeMemberBuilder<TType, TMember> Include<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.Ignore(false);
+            member.Member.Ignore(false);
             return member;
         }
 
@@ -49,13 +37,13 @@ namespace Detached.Mappers
 
         public static TypePairMemberBuilder<TType, TMember> Include<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member)
         {
-            member.TypePairMember.Include();
+            member.Member.Include();
             return member;
         }
 
         public static ClassTypeMemberBuilder<TType, TMember> Exclude<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member)
         {
-            member.MemberOptions.Ignore(true);
+            member.Member.Ignore(true);
             return member;
         }
 
@@ -66,7 +54,7 @@ namespace Detached.Mappers
 
         public static TypePairMemberBuilder<TType, TMember> Exclude<TType, TMember>(this TypePairMemberBuilder<TType, TMember> member)
         {
-            member.TypePairMember.Exclude();
+            member.Member.Exclude();
             return member;
         }
 

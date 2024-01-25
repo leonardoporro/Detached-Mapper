@@ -1,18 +1,6 @@
-﻿using Detached.Annotations;
-using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
-
-namespace Detached.Mappers.Annotations
-{
-    public class ParentAnnotationHandler : AnnotationHandler<ParentAttribute>
-    {
-        public override void Apply(ParentAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
-        {
-            member.Parent(true);
-        }
-    }
-}
 
 namespace Detached.Mappers
 {
@@ -32,13 +20,13 @@ namespace Detached.Mappers
 
         public static ClassTypeMemberBuilder<TType, TMember> Parent<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.Parent(value);
+            member.Member.Parent(value);
             return member;
         }
 
         public static void Parent(this TypePairMember member, bool value = true)
         {
-            member.Annotations[VALUE_KEY] = value; 
+            member.Annotations[VALUE_KEY] = value;
         }
 
         public static bool IsParentConfigured(this ITypeMember member)

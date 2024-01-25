@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Detached.Mappers.Annotations;
+using System;
 using System.Linq.Expressions;
 
 namespace Detached.Mappers.Types
 {
     public interface ITypeMember
     {
-        Dictionary<string, object> Annotations { get; }
+        AnnotationCollection Annotations { get; }
 
         string Name { get; }
 

@@ -1,6 +1,6 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.Json.Nodes;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -17,7 +17,7 @@ namespace Detached.Mappers.Json.TypeOptions
             _memberName = memberName;
         }
 
-        public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public AnnotationCollection Annotations { get; } = new();
 
         public string Name => _memberName;
 

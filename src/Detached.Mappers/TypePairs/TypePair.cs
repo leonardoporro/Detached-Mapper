@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.TypePairs
@@ -19,6 +20,8 @@ namespace Detached.Mappers.TypePairs
         public TypePairMember ParentMember { get; } 
 
         public Dictionary<string, TypePairMember> Members { get; } = new Dictionary<string, TypePairMember>();
+
+        public AnnotationCollection Annotations { get; } = new();
 
         public TypePairMember GetMember(string name)
         {

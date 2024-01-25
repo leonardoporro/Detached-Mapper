@@ -1,18 +1,6 @@
 ﻿using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
-using System.ComponentModel.DataAnnotations;
-
-namespace Detached.Mappers.Annotations
-{
-    public class KeyAnnotationHandler : AnnotationHandler<KeyAttribute>
-    {
-        public override void Apply(KeyAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
-        {
-            member.Key(true);
-        }
-    }
-}
 
 namespace Detached.Mappers
 {
@@ -37,7 +25,7 @@ namespace Detached.Mappers
 
         public static void Key<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
-            member.MemberOptions.Key(value);
+            member.Member.Key(value);
         }
 
         public static void Key(this TypePairMember member, bool value = true)

@@ -1,6 +1,6 @@
-﻿using Detached.Mappers.Extensions;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -15,7 +15,7 @@ namespace Detached.Mappers.Types.Class
 
         public virtual Type ClrType { get; set; }
 
-        public virtual Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public virtual AnnotationCollection Annotations { get; } = new();
 
         public virtual LambdaExpression Getter { get; set; }
 

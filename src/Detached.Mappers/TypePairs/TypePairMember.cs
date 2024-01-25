@@ -1,6 +1,5 @@
-﻿using Detached.Mappers.Types;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 
 namespace Detached.Mappers.TypePairs
 {
@@ -14,6 +13,6 @@ namespace Detached.Mappers.TypePairs
 
         public ITypeMember TargetMember { get; set; }
 
-        public Dictionary<string, object> Annotations { get; } = new();
+        public AnnotationCollection Annotations { get; } = new();
     }
 }

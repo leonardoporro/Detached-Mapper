@@ -11,9 +11,9 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             if (typePair.SourceType.IsCollection()
-                  && !typePair.SourceType.IsAbstract()
+                  && !typePair.SourceType.Annotations.Abstract().Value()
                   && typePair.TargetType.IsCollection()
-                  && !typePair.TargetType.IsAbstract())
+                  && !typePair.TargetType.Annotations.Abstract().Value())
             {
                 IType sourceItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
                 IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);

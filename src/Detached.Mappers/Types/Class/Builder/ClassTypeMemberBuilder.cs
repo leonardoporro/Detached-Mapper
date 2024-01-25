@@ -10,14 +10,14 @@ namespace Detached.Mappers.Types.Class.Builder
         public ClassTypeMemberBuilder(ClassType typeOptions, ClassTypeMember memberOptions, MapperOptions mapperOptions)
             : base(typeOptions, mapperOptions)
         {
-            MemberOptions = memberOptions;
+            Member = memberOptions;
         }
 
-        public ClassTypeMember MemberOptions { get; }
+        public ClassTypeMember Member { get; }
 
         public ClassTypeMemberBuilder<TType, TMember> Getter(LambdaExpression lambda)
         {
-            MemberOptions.Getter = lambda;
+            Member.Getter = lambda;
             return this;
         }
 
@@ -29,7 +29,7 @@ namespace Detached.Mappers.Types.Class.Builder
                 instance = Constant(fn.Target, fn.Target.GetType());
             }
 
-            MemberOptions.Getter =
+            Member.Getter =
                 Lambda(
                    typeof(Func<TType, IMapContext, TMember>),
                    Parameter("target", typeof(TType), out Expression target),
@@ -43,7 +43,7 @@ namespace Detached.Mappers.Types.Class.Builder
 
         public ClassTypeMemberBuilder<TType, TMember> Setter(LambdaExpression lambda)
         {
-            MemberOptions.Setter = lambda;
+            Member.Setter = lambda;
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace Detached.Mappers.Types.Class.Builder
                 instance = Constant(fn.Target, fn.Target.GetType());
             }
 
-            MemberOptions.Setter =
+            Member.Setter =
                 Lambda(
                    typeof(Action<TType, TMember, IMapContext>),
                    Parameter("target", typeof(TType), out Expression target),

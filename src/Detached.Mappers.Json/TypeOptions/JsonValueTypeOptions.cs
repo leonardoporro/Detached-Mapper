@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -12,7 +13,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public Type ItemClrType => throw new NotImplementedException();
 
-        public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public AnnotationCollection Annotations { get; } = new();
 
         public MappingSchema MappingSchema => MappingSchema.Primitive;
 

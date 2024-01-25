@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -17,11 +18,11 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public Type ItemClrType => default;
 
-        public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public AnnotationCollection Annotations { get; } = new();
 
         public MappingSchema MappingSchema => MappingSchema.None;
 
-        public IEnumerable<string> MemberNames => null; 
+        public IEnumerable<string> MemberNames => new string[0]; 
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {

@@ -1,18 +1,6 @@
-﻿using Detached.Annotations;
-using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Exceptions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
-
-namespace Detached.Mappers.Annotations
-{
-    public class EntityAnnotationHandler : AnnotationHandler<EntityAttribute>
-    {
-        public override void Apply(EntityAttribute annotation, MapperOptions mapperOptions, IType type, ITypeMember member)
-        {
-            type.Entity(true);
-        }
-    }
-}
 
 namespace Detached.Mappers
 {

@@ -157,7 +157,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
                             string name = prefix + memberPair.TargetMember.Name;
                             result.Add(name);
 
-                            if (memberPair.TargetMember.IsComposition())
+                            if (memberPair.TargetMember.Annotations.Composition().Value())
                             {
                                 IType sourceItemType = Options.GetType(sourceMemberType.ItemClrType);
                                 IType targetItemType = Options.GetType(targetMemberType.ItemClrType);
@@ -172,7 +172,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
                             string name = prefix + memberPair.TargetMember.Name;
                             result.Add(name);
 
-                            if (memberPair.TargetMember.IsComposition())
+                            if (memberPair.TargetMember.Annotations.Composition().Value())
                             {
                                 TypePair memberTypePair = Options.GetTypePair(sourceMemberType, targetMemberType, memberPair);
                                 GetIncludes(memberTypePair, stack, name + ".", result);
