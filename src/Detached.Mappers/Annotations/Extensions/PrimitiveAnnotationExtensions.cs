@@ -40,14 +40,14 @@ namespace Detached.Mappers
             return member;
         }
 
-        public static bool IsPrimitive(this ITypeMember member, bool value = true)
+        public static bool IsSetAsPrimitive(this ITypeMember member, bool value = true)
         {
             return member.Annotations.Primitive().Value();
         }
 
         public static bool IsSetAsPrimitive(this TypePairMember memberPair)
         {
-            return memberPair.TargetMember.IsPrimitive()
+            return memberPair.TargetMember.IsSetAsPrimitive()
                 || memberPair.SourceType.IsPrimitive()
                 || memberPair.Annotations.Primitive().Value();
         }

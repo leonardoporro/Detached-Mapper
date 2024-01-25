@@ -73,9 +73,9 @@ namespace Detached.Mappers
             return member;
         }
 
-        public static bool IsIncluded(this TypePairMember member)
+        public static bool IsIncluded(this TypePairMember memberPair)
         {
-            return !member.IsIgnored();
+            return !memberPair.IsIgnored();
         }
 
         public static bool IsIgnored(this ITypeMember member)
@@ -83,9 +83,14 @@ namespace Detached.Mappers
             return member.Annotations.Ignored().Value();
         }
 
-        public static bool IsIgnored(this TypePairMember member)
+        public static bool IsIgnored(this TypePairMember memberPair)
         {
-            return member.Annotations.Ignored().Value();
+            var annotation = memberPair.Annotations.Ignored();
+
+            if (annotation.IsDefined())
+                return annotation.Value();
+            else
+                return memberPair.TargetMember.IsIgnored();
         }
     }
 }

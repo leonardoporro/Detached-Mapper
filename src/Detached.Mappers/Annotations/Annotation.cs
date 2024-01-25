@@ -17,26 +17,6 @@
             return Collection.ContainsKey(Name);
         }
 
-        public bool HasValue()
-        {
-            if (Collection.ContainsKey(Name))
-            {
-                return true;
-            }
-            else if (Collection.Sources != null)
-            {
-                for (int i = Collection.Count - 1; i >= 0; i--)
-                {
-                    if (Collection.Annotation<TValue>(Name).HasValue())
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public void Reset()
         {
             Collection.Remove(Name);
@@ -54,18 +34,6 @@
             if (Collection.TryGetValue(Name, out object value))
             {
                 return (TValue)value;
-            }
-            else if (Collection.Sources != null)
-            {
-                for (int i = Collection.Count - 1; i >= 0; i--)
-                {
-                    var annotation = Collection.Annotation<TValue>(Name);
-
-                    if (annotation.IsDefined())
-                    {
-                        result = annotation.Value();
-                    }
-                }
             }
 
             return result;

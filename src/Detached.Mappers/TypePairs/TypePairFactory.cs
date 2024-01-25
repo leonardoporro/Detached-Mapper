@@ -22,11 +22,6 @@ namespace Detached.Mappers.TypePairs
                     {
                         TypePairMember member = new TypePairMember();
 
-                        foreach (var annotation in targetMember.Annotations)
-                        {
-                            member.Annotations[annotation.Key] = annotation.Value;
-                        }
-
                         member.TargetType = targetType;
                         member.SourceType = sourceType;
                         member.TargetMember = targetMember;

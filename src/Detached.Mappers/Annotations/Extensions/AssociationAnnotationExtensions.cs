@@ -48,7 +48,12 @@ namespace Detached.Mappers
 
         public static bool IsComposition(this TypePairMember member)
         {
-            return member.Annotations.Composition().Value();
+            var annotation = member.Annotations.Composition();
+
+            if (annotation.IsDefined())
+                return annotation.Value();
+            else
+                return member.TargetMember.IsComposition();
         }
 
         public static ITypeMember Aggregation(this ITypeMember member)

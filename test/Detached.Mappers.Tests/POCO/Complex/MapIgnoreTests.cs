@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Complex
 {
-    public class NotMappedTests
+    public class MapIgnoreTests
     {
         readonly Mapper _mapper = new Mapper();
 

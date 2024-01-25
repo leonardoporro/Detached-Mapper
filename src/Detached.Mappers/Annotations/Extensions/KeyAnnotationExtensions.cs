@@ -26,13 +26,6 @@ namespace Detached.Mappers
             return memberBuilder;
         }
 
-        public static TypePairMember Key(this TypePairMember memberPair, bool value = true)
-        {
-            memberPair.Annotations.Key().Set(value);
-
-            return memberPair;
-        }
-
         public static bool IsKey(this ITypeMember member)
         {
             return member.Annotations.Key().Value();
@@ -40,7 +33,7 @@ namespace Detached.Mappers
 
         public static bool IsKey(this TypePairMember memberPair)
         {
-            return memberPair.Annotations.Key().Value();
+            return memberPair.TargetMember.IsKey();
         }
 
         public static bool IsKeyDefined(this IType type)
@@ -49,7 +42,7 @@ namespace Detached.Mappers
             {
                 var member = type.GetMember(memberName);
 
-                if (member.Annotations.Key().HasValue())
+                if (member.Annotations.Key().IsDefined())
                 {
                     return true;
                 }
