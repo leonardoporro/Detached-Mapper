@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Annotations;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
@@ -6,11 +7,14 @@ namespace Detached.Mappers
 {
     public static class EntityAnnotationHandlerExtensions
     {
-        public const string VALUE_KEY = "DETACHED_ENTITY";
+        public static Annotation<bool> Entity(this AnnotationCollection annotations)
+        {
+            return annotations.Annotation<bool>("DETACHED_ENTITY");
+        }
 
         public static bool IsEntity(this IType type)
         {
-            return type.Annotations.TryGetValue(VALUE_KEY, out var value) && Equals(value, true);
+            return type.Annotations.Entity().Value();
         }
 
         public static void Entity(this IType type, bool value = true)
@@ -20,7 +24,7 @@ namespace Detached.Mappers
                 throw new MapperException($"Only complext types can be marked as Entities.");
             }
 
-            type.Annotations[VALUE_KEY] = value;
+            type.Annotations.Entity().Set(value);
         }
 
         public static ClassTypeBuilder<TType> Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
@@ -28,11 +32,6 @@ namespace Detached.Mappers
             type.Type.Entity(value);
 
             return type;
-        }
-
-        public static bool IsEntityConfigured(this IType type)
-        {
-            return type.Annotations.ContainsKey(VALUE_KEY);
         }
     }
 }

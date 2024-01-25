@@ -20,7 +20,7 @@ namespace Detached.Mappers
 
         public static ClassTypeMemberBuilder<TType, TMember> Aggregation<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> memberBuilder, bool value = true)
         {
-            memberBuilder.Member.Annotations.Aggregation().Set(value);
+            memberBuilder.Member.Aggregation(value);
 
             return memberBuilder;
         }
@@ -34,7 +34,7 @@ namespace Detached.Mappers
 
         public static TypePairMemberBuilder<TType, TMember> Aggregation<TType, TMember>(this TypePairMemberBuilder<TType, TMember> memberBuilder, bool value = true)
         {
-            memberBuilder.Member.Annotations.Aggregation().Set(value);
+            memberBuilder.Member.Aggregation(value);
 
             return memberBuilder;
         }

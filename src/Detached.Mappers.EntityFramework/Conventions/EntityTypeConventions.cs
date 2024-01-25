@@ -24,7 +24,7 @@ namespace Detached.Mappers.EntityFramework.Conventions
 
                 if (entityType != null && !entityType.IsOwned())
                 {
-                    if (!classType.IsEntityConfigured())
+                    if (!classType.Annotations.Entity().IsDefined())
                     {
                         classType.Entity(true);
                     }
