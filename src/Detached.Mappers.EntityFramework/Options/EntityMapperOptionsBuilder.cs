@@ -1,8 +1,5 @@
-﻿using Detached.Mappers.EntityFramework.Conventions;
-using Detached.Mappers.EntityFramework.Profiles;
-using Detached.Mappers.EntityFramework.TypeMappers;
+﻿using Detached.Mappers.EntityFramework.Profiles;
 using Detached.PatchTypes;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Text.Json;
 
@@ -10,12 +7,9 @@ namespace Detached.Mappers.EntityFramework.Configuration
 {
     public class EntityMapperOptionsBuilder
     {
-        readonly DbContext _dbContext;
-
-        public EntityMapperOptionsBuilder(DbContext dbContext)
+        public EntityMapperOptionsBuilder(EntityMapperOptions options = null)
         {
-            _dbContext = dbContext;
-            Options = new EntityMapperOptions();
+            Options = options ?? new EntityMapperOptions();
 
             Options.JsonSerializerOptions = new JsonSerializerOptions();
             Options.JsonSerializerOptions.AllowTrailingCommas = true;
@@ -25,14 +19,14 @@ namespace Detached.Mappers.EntityFramework.Configuration
             Options.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
             Options.JsonSerializerOptions.Converters.Add(new PatchJsonConverterFactory());
           
-            Options.MapperOptions.TryAdd(new ProfileKey(null), CreateMapperOptions());
+            Options.MapperOptions.TryAdd(new ProfileKey(null), new MapperOptions());
         }
 
         public EntityMapperOptions Options { get; }
 
         public EntityMapperOptionsBuilder AddProfile(object profileKey, Action<MapperOptions> configure)
         {
-            var mapperOptions = Options.MapperOptions.GetOrAdd(new ProfileKey(profileKey), key => CreateMapperOptions());
+            var mapperOptions = Options.MapperOptions.GetOrAdd(new ProfileKey(profileKey), key => new MapperOptions());
 
             configure?.Invoke(mapperOptions);
 
@@ -41,21 +35,11 @@ namespace Detached.Mappers.EntityFramework.Configuration
 
         public EntityMapperOptionsBuilder Default(Action<MapperOptions> configure)
         {
-            var mapperOptions = Options.MapperOptions.GetOrAdd(ProfileKey.Empty, key => CreateMapperOptions());
+            var mapperOptions = Options.MapperOptions.GetOrAdd(ProfileKey.Empty, key => new MapperOptions());
 
             configure?.Invoke(mapperOptions);
 
             return this;
-        }
-
-        MapperOptions CreateMapperOptions()
-        {
-            var mapperOptions = new MapperOptions();
-            
-            mapperOptions.TypeConventions.Add(new EntityTypeConventions(_dbContext.Model));
-            mapperOptions.TypeMapperFactories.Add(new EntityTypeMapperFactory());
-
-            return mapperOptions;
         }
     }
 }

@@ -10,7 +10,11 @@ namespace Detached.Mappers.EntityFramework
     {
         public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
         {
-            AddMappingExtension(dbContextBuilder, configure);
+            var builder = new EntityMapperOptionsBuilder();
+
+            configure?.Invoke(builder);
+
+            AddMappingExtension(dbContextBuilder, builder.Options);
 
             return dbContextBuilder;
         }
@@ -18,14 +22,20 @@ namespace Detached.Mappers.EntityFramework
         public static DbContextOptionsBuilder<TDbContext> UseMapping<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
             where TDbContext : DbContext
         {
-            AddMappingExtension(dbContextBuilder, configure);
+            var builder = new EntityMapperOptionsBuilder();
+
+            configure?.Invoke(builder);
+
+            AddMappingExtension(dbContextBuilder, builder.Options);
 
             return dbContextBuilder;
         }
 
-        static void AddMappingExtension(DbContextOptionsBuilder dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
+        static void AddMappingExtension(DbContextOptionsBuilder dbContextBuilder, EntityMapperOptions options)
         {
-            ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder).AddOrUpdateExtension(new EntityMapperDbContextOptionsExtension(dbContextBuilder.Options.ContextType, configure));
+            var builder = ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder);
+            
+            builder.AddOrUpdateExtension(new EntityMapperDbContextOptionsExtension(dbContextBuilder.Options.ContextType, options));
         }
     }
 }

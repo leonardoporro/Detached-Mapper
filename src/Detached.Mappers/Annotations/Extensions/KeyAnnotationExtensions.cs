@@ -38,13 +38,16 @@ namespace Detached.Mappers
 
         public static bool IsKeyDefined(this IType type)
         {
-            foreach (string memberName in type.MemberNames)
+            if (type.MemberNames != null)
             {
-                var member = type.GetMember(memberName);
-
-                if (member.Annotations.Key().IsDefined())
+                foreach (string memberName in type.MemberNames)
                 {
-                    return true;
+                    var member = type.GetMember(memberName);
+
+                    if (member.Annotations.Key().IsDefined())
+                    {
+                        return true;
+                    }
                 }
             }
 

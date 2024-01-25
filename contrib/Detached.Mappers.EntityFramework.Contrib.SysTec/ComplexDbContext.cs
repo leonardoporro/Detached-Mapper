@@ -75,7 +75,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                 .UseMapping(config =>
                 {
                     config.Default(options =>
-                    { 
+                    {
                         options.Type<OrganizationBaseDto>()
                             .Discriminator(o => o.OrganizationType)
                             .HasValue<GovernmentDto>(nameof(Government))
@@ -87,7 +87,7 @@ namespace Detached.Mappers.EntityFramework.Contrib.SysTec
                             .HasValue<EntityTwo>(nameof(EntityTwo))
                             .HasValue<EntityThree>(nameof(EntityThree))
                             .HasValue<EntityFour>(nameof(EntityFour))
-                            .HasValue<EntityFive>(nameof(EntityFive));  
+                            .HasValue<EntityFive>(nameof(EntityFive));
                     });
                 }); 
         }

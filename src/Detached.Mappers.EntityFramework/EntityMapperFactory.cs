@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.EntityFramework.Configuration;
+using Detached.Mappers.EntityFramework.Conventions;
+using Detached.Mappers.EntityFramework.TypeMappers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -10,35 +10,25 @@ namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapperFactory
     {
-        readonly ConcurrentDictionary<Type, Action<EntityMapperOptionsBuilder>> _configureActions = new();
-        readonly ConcurrentDictionary<Type, EntityMapperOptions> _options = new();
+        readonly ConcurrentDictionary<Type, EntityMapperOptions> _allOptions = new();
         readonly ConcurrentDictionary<Type, EntityMapper> _mappers = new();
 
-        public virtual void RegisterConfigureAction(Type dbContexType, Action<EntityMapperOptionsBuilder> configureAction)
+        public virtual void Configure(Type dbContexType, EntityMapperOptions options)
         {
-            _configureActions.TryAdd(dbContexType, configureAction);
+            _allOptions.TryAdd(dbContexType, options);
         }
 
         public EntityMapper CreateMapper(DbContext dbContext)
         {
-            var options = _options.GetOrAdd(dbContext.GetType(), key =>
+            return _mappers.GetOrAdd(dbContext.GetType(), key =>
             {
-                var builder = new EntityMapperOptionsBuilder(dbContext);
-
-                if (_configureActions.TryRemove(key, out var configureAction))
+                if (!(_allOptions.TryGetValue(dbContext.GetType(), out EntityMapperOptions options)
+                     || _allOptions.TryGetValue(typeof(DbContext), out options)))
                 {
-                    configureAction(builder);
+                    options = new EntityMapperOptions();
                 }
 
-                if (_configureActions.TryRemove(typeof(DbContext), out var genericConfigureAction))
-                {
-                    genericConfigureAction(builder);
-                }
-
-                foreach (IEntityMapperCustomizer customizer in dbContext.GetInfrastructure().GetServices<IEntityMapperCustomizer>())
-                {
-                    customizer.Customize(builder);
-                }
+                var builder = new EntityMapperOptionsBuilder(options);
 
                 MethodInfo configureMapperMethodInfo = dbContext.GetType().GetMethod("OnMapperCreating");
                 if (configureMapperMethodInfo != null)
@@ -52,11 +42,14 @@ namespace Detached.Mappers.EntityFramework
                     configureMapperMethodInfo.Invoke(dbContext, new[] { builder });
                 }
 
-                return builder.Options;
+                foreach (var entry in builder.Options.MapperOptions)
+                {
+                    entry.Value.TypeConventions.Add(new EntityTypeConventions(dbContext.Model));
+                    entry.Value.TypeMapperFactories.Add(new EntityTypeMapperFactory());
+                }
+
+                return new EntityMapper(builder.Options);
             });
-
-            return _mappers.GetOrAdd(dbContext.GetType(), key => new EntityMapper(options));
-
         }
     }
 }

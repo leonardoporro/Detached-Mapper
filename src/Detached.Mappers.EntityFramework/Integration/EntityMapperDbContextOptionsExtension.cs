@@ -7,15 +7,13 @@ namespace Detached.Mappers.EntityFramework.Features
 {
     public class EntityMapperDbContextOptionsExtension : IDbContextOptionsExtension
     {
-        readonly EntityMapperFactory _mapperFactory = new EntityMapperFactory();
+        readonly static EntityMapperFactory _mapperFactory = new EntityMapperFactory();
 
-        public EntityMapperDbContextOptionsExtension(Type dbContextType, Action<EntityMapperOptionsBuilder> configure)
+        public EntityMapperDbContextOptionsExtension(Type dbContextType, EntityMapperOptions options)
         {
             Info = new EntityMapperDbContextOptionsExtensionInfo(this);
-            if (configure != null)
-            {
-                _mapperFactory.RegisterConfigureAction(dbContextType, configure);
-            }
+ 
+            _mapperFactory.Configure(dbContextType, options);
         }
 
         public DbContextOptionsExtensionInfo Info { get; }

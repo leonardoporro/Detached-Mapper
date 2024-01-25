@@ -29,6 +29,7 @@ namespace Detached.Mappers
 {
     public class MapperOptions : IPatchTypeInfoProvider
     {
+        readonly ConcurrentDictionary<Type, IType> _configuredTypes = new();
         readonly ConcurrentDictionary<Type, IType> _allTypes = new();
         readonly ConcurrentDictionary<TypeMapperKey, TypePair> _typePairs = new();
 
@@ -132,26 +133,16 @@ namespace Detached.Mappers
 
         public virtual ClassTypeBuilder<TType> Type<TType>()
         {
-            return new ClassTypeBuilder<TType>((ClassType)GetType(typeof(TType)), this);
+            IType type = GetTypeConfiguration(typeof(TType));
+
+            return new ClassTypeBuilder<TType>((ClassType)type, this);
         }
 
         public virtual IType GetType(Type clrType)
         {
-            return _allTypes.GetOrAdd(clrType, keyType =>
+            return _allTypes.GetOrAdd(clrType, clrType =>
             {
-                IType type = null;
-
-                for (int i = TypeFactories.Count - 1; i >= 0; i--)
-                {
-                    type = TypeFactories[i].Create(this, keyType);
-                    if (type != null)
-                        break;
-                }
-
-                if (type == null)
-                {
-                    throw new InvalidOperationException($"Can't get options for type {keyType.GetFriendlyName()}.");
-                }
+                IType type = GetTypeConfiguration(clrType);
 
                 ApplyAnnotations(type);
 
@@ -159,7 +150,29 @@ namespace Detached.Mappers
             });
         }
 
-        public void ApplyAnnotations(IType type)
+        IType GetTypeConfiguration(Type clrType)
+        {
+            return _configuredTypes.GetOrAdd(clrType, clrType =>
+            {
+                IType type = null;
+
+                for (int i = TypeFactories.Count - 1; i >= 0; i--)
+                {
+                    type = TypeFactories[i].Create(this, clrType);
+                    if (type != null)
+                        break;
+                }
+
+                if (type == null)
+                {
+                    throw new InvalidOperationException($"Can't get options for type {clrType.GetFriendlyName()}.");
+                }
+
+                return type;
+            });
+        }
+
+        void ApplyAnnotations(IType type)
         {
             foreach (Attribute annotation in type.ClrType.GetCustomAttributes())
             {
@@ -190,9 +203,9 @@ namespace Detached.Mappers
                 }
             }
 
-            foreach (ITypeConvention convention in TypeConventions)
+            for (int i = TypeConventions.Count - 1; i >= 0; i--)
             {
-                convention.Apply(this, type);
+                TypeConventions[i].Apply(this, type);
             }
         }
 

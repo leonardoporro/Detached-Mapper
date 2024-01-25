@@ -1,5 +1,4 @@
 ﻿using Detached.Mappers.Types.Class;
-using System.Linq;
 
 namespace Detached.Mappers.Types.Conventions
 {
@@ -9,7 +8,7 @@ namespace Detached.Mappers.Types.Conventions
         {
             var classType = type as ClassType;
 
-            if (classType != null && !classType.Members.Any(m => m.IsKey()))
+            if (classType != null && classType.IsComplexOrEntity() && !classType.IsKeyDefined())
             {
                 foreach (ClassTypeMember memberOptions in classType.Members)
                 {
