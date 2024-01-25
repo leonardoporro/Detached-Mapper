@@ -71,7 +71,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
 
             Expression expression = null;
 
-            foreach (TypePairMember memberPair in typePair.Members.Values.Where(p => p.IsKey()))
+            foreach (TypePairMember memberPair in typePair.Members.Values.Where(p => p.TargetMember.IsKey()))
             {
                 if (memberPair.IsIgnored() || memberPair.SourceMember == null)
                 {

@@ -14,6 +14,6 @@ namespace Detached.Mappers.TypePairs
 
         public ITypeMember TargetMember { get; set; }
 
-        public Dictionary<string, object> Annotations { get; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Annotations { get; } = new();
     }
 }
