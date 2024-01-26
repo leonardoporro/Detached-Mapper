@@ -3,6 +3,7 @@ using Detached.Mappers.EntityFramework.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
+using System.Collections.Generic;
 
 namespace Detached.Mappers.EntityFramework
 {
@@ -14,28 +15,32 @@ namespace Detached.Mappers.EntityFramework
 
             configure?.Invoke(builder);
 
-            AddMappingExtension(dbContextBuilder, builder.Options);
+            UseMapping(dbContextBuilder, builder.Options);
 
             return dbContextBuilder;
         }
 
-        public static DbContextOptionsBuilder<TDbContext> UseMapping<TDbContext>(this DbContextOptionsBuilder<TDbContext> dbContextBuilder, Action<EntityMapperOptionsBuilder> configure = null)
-            where TDbContext : DbContext
+        public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, IEnumerable<IEntityMapperConfiguration> configs)
         {
             var builder = new EntityMapperOptionsBuilder();
 
-            configure?.Invoke(builder);
+            foreach (var config in configs)
+            {
+                config.Apply(builder);
+            }
 
-            AddMappingExtension(dbContextBuilder, builder.Options);
+            UseMapping(dbContextBuilder, builder.Options);
 
             return dbContextBuilder;
         }
 
-        static void AddMappingExtension(DbContextOptionsBuilder dbContextBuilder, EntityMapperOptions options)
+        public static DbContextOptionsBuilder UseMapping(this DbContextOptionsBuilder dbContextBuilder, EntityMapperOptions options)
         {
             var builder = ((IDbContextOptionsBuilderInfrastructure)dbContextBuilder);
             
             builder.AddOrUpdateExtension(new EntityMapperDbContextOptionsExtension(dbContextBuilder.Options.ContextType, options));
+
+            return dbContextBuilder;
         }
     }
 }

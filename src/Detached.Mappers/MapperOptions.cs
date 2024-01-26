@@ -227,8 +227,8 @@ namespace Detached.Mappers
         public virtual bool ShouldMap(IType sourceType, IType targetType)
         {
             return sourceType != targetType
-                    || sourceType.Annotations.Abstract().Value()
-                    || targetType.Annotations.Abstract().Value()
+                    || sourceType.IsAbstract()
+                    || targetType.IsAbstract()
                     || (targetType.IsComplex() || targetType.IsCollection() && GetType(targetType.ItemClrType).IsComplex());
         }
 

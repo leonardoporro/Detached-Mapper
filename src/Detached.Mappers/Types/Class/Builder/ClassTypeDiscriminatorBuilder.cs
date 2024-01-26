@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Detached.Mappers.Types.Class.Builder
 {
@@ -13,7 +14,16 @@ namespace Detached.Mappers.Types.Class.Builder
 
         public ClassTypeDiscriminatorBuilder<TType, TMember> HasValue(TMember value, Type instantiationType)
         {
-            TypeOptions.GetDiscriminatorValues()[value] = instantiationType;
+            var annotation = TypeOptions.Annotations.DiscriminatorValues();
+
+            if (annotation.IsDefined())
+            {
+                annotation.Value()[value] = instantiationType;
+            }
+            else
+            {
+                annotation.Set(new Dictionary<object, Type> { { value, instantiationType } });
+            }
 
             return this;
         }

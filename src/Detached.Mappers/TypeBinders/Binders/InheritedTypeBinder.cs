@@ -13,20 +13,20 @@ namespace Detached.Mappers.TypeBinders.Binders
         {
             return typePair.SourceType.IsComplex()
                 && typePair.TargetType.IsComplex()
-                && typePair.SourceType.GetDiscriminatorName() != null 
-                && typePair.TargetType.GetDiscriminatorName() != null;
+                && typePair.SourceType.GetDiscriminator(out _, out _)
+                && typePair.TargetType.GetDiscriminator(out _, out _);
         }
 
         public Expression Bind(Mapper mapper, TypePair typePair, Expression sourceExpr)
         {
             var options = mapper.Options;
 
-            var sourceName = typePair.SourceType.GetDiscriminatorName();
-            var targetName = typePair.TargetType.GetDiscriminatorName();
+            typePair.SourceType.GetDiscriminator(out var sourceName, out var sourceValues);
+            typePair.TargetType.GetDiscriminator(out var targetName, out var targetValues);
 
             if (sourceName != targetName)
             {
-               throw new MapperException($"Discriminator members '{typePair.SourceType}.{sourceName}' and '{typePair.TargetType}.{targetName}' doesn't match.");
+                throw new MapperException($"Discriminator members '{typePair.SourceType}.{sourceName}' and '{typePair.TargetType}.{targetName}' doesn't match.");
             }
 
             var member = typePair.GetMember(sourceName);
@@ -35,17 +35,14 @@ namespace Detached.Mappers.TypeBinders.Binders
                 throw new MapperException($"Discriminator member '{sourceName}' must be mapped for both {typePair.SourceType} and {typePair.TargetType}");
             }
 
-            var sourceValues = typePair.SourceType.GetDiscriminatorValues();
-            var targetValues = typePair.TargetType.GetDiscriminatorValues();
-
             var propertyExpr = member.SourceMember.BuildGetExpression(sourceExpr, null);
 
             Expression resultExpr = Constant(null, typePair.TargetType.ClrType);
-            
+
             foreach (var entry in sourceValues)
             {
                 var sourceValue = entry.Key;
-                
+
                 if (!targetValues.TryGetValue(sourceValue, out Type targetClrType))
                 {
                     throw new MapperException($"Value '{sourceValue}' for discriminator '{sourceName}' doesn't have an concrete type for '{typePair.TargetType.ClrType}'");
@@ -57,7 +54,7 @@ namespace Detached.Mappers.TypeBinders.Binders
                 var binder = mapper.GetTypeBinder(concreteTypePair);
 
                 var conditionExpr = Equal(propertyExpr, Constant(sourceValue, sourceValue.GetType()));
- 
+
                 var bindExpr = binder.Bind(mapper, concreteTypePair, Convert(sourceExpr, sourceType.ClrType));
 
                 resultExpr = Condition(conditionExpr, Convert(bindExpr, typePair.TargetType.ClrType), resultExpr);

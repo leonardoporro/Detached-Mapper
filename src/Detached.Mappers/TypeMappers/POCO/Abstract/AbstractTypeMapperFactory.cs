@@ -9,14 +9,14 @@ namespace Detached.Mappers.TypeMappers.POCO.Abstract
     {
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
-            return typePair.SourceType.Annotations.Abstract().Value() || typePair.TargetType.Annotations.Abstract().Value();
+            return typePair.SourceType.IsAbstract() || typePair.TargetType.IsAbstract();
         }
 
         public ITypeMapper Create(Mapper mapper, TypePair typePair)
         {
             Type mapperType = typeof(AbstractTypeMapper<,>).MakeGenericType(typePair.SourceType.ClrType, typePair.TargetType.ClrType);
 
-            Type concreteTargetType = typePair.TargetType.Annotations.Abstract().Value() && !typePair.TargetType.IsInherited() && typePair.TargetType.ClrType != typeof(object)
+            Type concreteTargetType = typePair.TargetType.IsAbstract() && !typePair.TargetType.IsInherited() && typePair.TargetType.ClrType != typeof(object)
                 ? GetConcreteType(mapper.Options, typePair.TargetType.ClrType)
                 : typePair.TargetType.ClrType;
 

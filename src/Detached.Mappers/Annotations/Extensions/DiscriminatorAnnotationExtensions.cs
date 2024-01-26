@@ -22,28 +22,26 @@ namespace Detached.Mappers
             return type.Annotations.DiscriminatorName().Value() != null;
         }
 
-        public static string GetDiscriminatorName(this IType type)
+        public static IType SetDiscriminator(this IType type, string propertyName, Dictionary<object, Type> values)
         {
-            return type.Annotations.DiscriminatorName().Value();
-        }
+            var propertyNameAnnotation = type.Annotations.DiscriminatorName();
+            var valuesAnnotation = type.Annotations.DiscriminatorValues();
 
-        public static IType SetDiscriminatorName(this IType type, string name)
-        {
-            type.Annotations.DiscriminatorName().Set(name);
+            propertyNameAnnotation.Set(propertyName);
+            valuesAnnotation.Set(values);
 
             return type;
         }
 
-        public static Dictionary<object, Type> GetDiscriminatorValues(this IType type)
+        public static bool GetDiscriminator(this IType type, out string propertyName, out Dictionary<object, Type> values)
         {
-            var annotation = type.Annotations.DiscriminatorValues();
+            var propertyNameAnnotation = type.Annotations.DiscriminatorName();
+            var valuesAnnotation = type.Annotations.DiscriminatorValues();
 
-            if (!annotation.IsDefined())
-            {
-                annotation.Set(new());
-            }
+            propertyName = propertyNameAnnotation.Value();
+            values = valuesAnnotation.Value();
 
-            return annotation.Value();
+            return propertyNameAnnotation.IsDefined() && valuesAnnotation.IsDefined();
         }
     }
 }

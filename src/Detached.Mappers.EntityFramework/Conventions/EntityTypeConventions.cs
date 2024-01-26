@@ -1,6 +1,8 @@
 ﻿using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Detached.Mappers.EntityFramework.Conventions
@@ -63,15 +65,16 @@ namespace Detached.Mappers.EntityFramework.Conventions
             IProperty discriminator = entityType.FindDiscriminatorProperty();
             if (discriminator != null && (entityType.BaseType == null || entityType.IsAbstract()))
             {
-                classType.SetDiscriminatorName(discriminator.Name);
-
+                var values = new Dictionary<object, Type>();
                 foreach (var inheritedType in entityType.Model.GetEntityTypes())
                 {
                     if (IsBaseType(inheritedType, entityType))
                     {
-                        classType.GetDiscriminatorValues()[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
+                        values[inheritedType.GetDiscriminatorValue()] = inheritedType.ClrType;
                     }
                 }
+
+                classType.SetDiscriminator(discriminator.Name, values);
             }
         }
 

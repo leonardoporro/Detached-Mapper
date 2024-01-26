@@ -24,5 +24,10 @@ namespace Detached.Mappers
 
             return typeBuilder;
         }
+
+        public static bool IsAbstract(this IType type)
+        {
+            return type.Annotations.Abstract().Value();
+        }
     }
 }

@@ -82,7 +82,7 @@ namespace Detached.Mappers.Types.Class.Builder
         public ClassTypeDiscriminatorBuilder<TType, TMember> Discriminator<TMember>(Expression<Func<TType, TMember>> selector)
         {
             ClassTypeMember memberOptions = GetMember(selector);
-            Type.SetDiscriminatorName(memberOptions.Name);
+            Type.Annotations.DiscriminatorName().Set(memberOptions.Name);
 
             return new ClassTypeDiscriminatorBuilder<TType, TMember>(Type);
         }
