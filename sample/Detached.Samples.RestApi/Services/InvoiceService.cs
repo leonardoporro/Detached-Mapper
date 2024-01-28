@@ -1,10 +1,10 @@
-﻿using Detached.Mappers.Samples.RestApi.Models.Inputs;
-using Detached.Mappers.Samples.RestApi.Models.Outputs;
-using Detached.Mappers.Samples.RestApi.Stores;
+﻿using Detached.Samples.RestApi.Models.Inputs;
+using Detached.Samples.RestApi.Models.Outputs;
+using Detached.Samples.RestApi.Stores;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.Samples.RestApi.Services
+namespace Detached.Samples.RestApi.Services
 {
     public class InvoiceService
     {
@@ -20,7 +20,12 @@ namespace Detached.Mappers.Samples.RestApi.Services
             return _invoiceStore.GetAsync();
         }
 
-        public Task SaveAsync(SaveInvoiceInput input)
+        public Task SaveAsync(SaveInvoiceInput_Identity input)
+        {
+            return _invoiceStore.SaveAsync(input);
+        }
+
+        public Task SaveAsync(SaveInvoiceInput_Primitive input)
         {
             return _invoiceStore.SaveAsync(input);
         }

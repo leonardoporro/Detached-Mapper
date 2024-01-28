@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
+﻿using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
@@ -70,7 +70,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public DbSet<User> Users { get; set; }
 
-            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
+            public override void OnMapperCreating(EntityMapperOptions builder)
             {
                 builder.Default(mapperOptions =>
                 {

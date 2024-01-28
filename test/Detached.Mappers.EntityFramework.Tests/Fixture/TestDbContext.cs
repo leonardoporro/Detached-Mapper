@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Fixture
         {
         }
 
-        public virtual void OnMapperCreating(EntityMapperOptionsBuilder builder)
+        public virtual void OnMapperCreating(EntityMapperOptions builder)
         {
 
         } 

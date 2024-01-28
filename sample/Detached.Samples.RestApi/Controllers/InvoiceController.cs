@@ -1,11 +1,11 @@
-﻿using Detached.Mappers.Samples.RestApi.Models.Inputs;
-using Detached.Mappers.Samples.RestApi.Models.Outputs;
-using Detached.Mappers.Samples.RestApi.Services;
+﻿using Detached.Samples.RestApi.Models.Inputs;
+using Detached.Samples.RestApi.Models.Outputs;
+using Detached.Samples.RestApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.Samples.RestApi.Controllers
+namespace Detached.Samples.RestApi.Controllers
 {
     [ApiController]
     [Route("api/invoices")]
@@ -24,8 +24,15 @@ namespace Detached.Mappers.Samples.RestApi.Controllers
             return Ok(await _invoiceService.GetAsync());
         }
 
-        [HttpPost]
-        public async Task<ActionResult> SaveAsync([FromBody]SaveInvoiceInput input)
+        [HttpPost("identity_fks")]
+        public async Task<ActionResult> SaveAsync_Identity([FromBody] SaveInvoiceInput_Identity input)
+        {
+            await _invoiceService.SaveAsync(input);
+            return Ok();
+        }
+
+        [HttpPost("primitive_fks")]
+        public async Task<ActionResult> SaveAsync_Primitive([FromBody] SaveInvoiceInput_Primitive input)
         {
             await _invoiceService.SaveAsync(input);
             return Ok();

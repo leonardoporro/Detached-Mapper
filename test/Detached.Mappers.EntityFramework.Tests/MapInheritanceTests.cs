@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Xunit;
+using Detached.Mappers.EntityFramework.Extensions;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {

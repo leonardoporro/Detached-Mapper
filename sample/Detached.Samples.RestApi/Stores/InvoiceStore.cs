@@ -1,12 +1,12 @@
-﻿using Detached.Mappers.Samples.RestApi.Models;
-using Detached.Mappers.Samples.RestApi.Models.Inputs;
-using Detached.Mappers.Samples.RestApi.Models.Outputs;
+﻿using Detached.Mappers.EntityFramework.Extensions;
+using Detached.Samples.RestApi.Models;
+using Detached.Samples.RestApi.Models.Inputs;
+using Detached.Samples.RestApi.Models.Outputs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Detached.Mappers.EntityFramework;
 
-namespace Detached.Mappers.Samples.RestApi.Stores
+namespace Detached.Samples.RestApi.Stores
 {
     public class InvoiceStore
     {
@@ -22,7 +22,13 @@ namespace Detached.Mappers.Samples.RestApi.Stores
             return await _context.Project<Invoice, InvoiceListItem>(_context.Invoices).ToListAsync();
         }
 
-        public async Task SaveAsync(SaveInvoiceInput input)
+        public async Task SaveAsync(SaveInvoiceInput_Identity input)
+        {
+            await _context.MapAsync<Invoice>(input);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SaveAsync(SaveInvoiceInput_Primitive input)
         {
             await _context.MapAsync<Invoice>(input);
             await _context.SaveChangesAsync();

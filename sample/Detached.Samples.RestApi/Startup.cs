@@ -1,7 +1,8 @@
+using Detached.Mappers;
 using Detached.Mappers.EntityFramework;
-using Detached.Mappers.Samples.RestApi.Models;
-using Detached.Mappers.Samples.RestApi.Services;
-using Detached.Mappers.Samples.RestApi.Stores;
+using Detached.Samples.RestApi.Models;
+using Detached.Samples.RestApi.Services;
+using Detached.Samples.RestApi.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 
-namespace Detached.Mappers.Samples.RestApi
+namespace Detached.Samples.RestApi
 {
     public class Startup
     {
@@ -79,11 +80,19 @@ namespace Detached.Mappers.Samples.RestApi
         void Seed(MainDbContext db)
         {
             db.InvoiceTypes.Add(new InvoiceType { Name = "Taxed" });
+            db.InvoiceTypes.Add(new InvoiceType { Name = "Free" });
             db.Customers.Add(new Customer
             {
                 DocumentNumber = "123",
                 Name = "sample customer",
                 Email = "samplecustomer@example.com",
+                Phone = "123 456 7890"
+            });
+            db.Customers.Add(new Customer
+            {
+                DocumentNumber = "457",
+                Name = "another customer",
+                Email = "anothercustomer@example.com",
                 Phone = "123 456 7890"
             });
             db.StockUnits.Add(new StockUnit { Name = "Potato", Quantity = 10 });

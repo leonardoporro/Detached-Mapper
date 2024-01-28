@@ -1,7 +1,7 @@
 ﻿using Detached.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace Detached.Mappers.Samples.RestApi.Models
+namespace Detached.Samples.RestApi.Models
 {
     [Entity]
     public class InvoiceType

@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Detached.Mappers.EntityFramework.Profiles;
+﻿using Detached.Mappers.EntityFramework.Loaders;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -13,60 +12,49 @@ namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapper
     {
-        readonly Dictionary<ProfileKey, Profile> _profiles = new();
-
-        public EntityMapper(EntityMapperOptions options)
+        public EntityMapper(MapperOptions mapperOptions, JsonSerializerOptions jsonOptions)
         {
-            Options = options;
-
-            foreach (var entry in options.MapperOptions)
-            {
-                _profiles.Add(entry.Key, new Profile(entry.Value));
-            }
+            MapperOptions = mapperOptions;
+            JsonOptions = jsonOptions;
+            Mapper = new Mapper(mapperOptions);
+            Loader = new Loader(mapperOptions);
         }
 
-        public EntityMapperOptions Options { get; }
+        public MapperOptions MapperOptions { get; }
 
-        public Profile GetProfile(ProfileKey profileKey)
-        {
-            if (!_profiles.TryGetValue(profileKey, out var profile))
-            {
-                throw new MapperException($"Profile {profileKey.Value} not found.");
-            }
+        public JsonSerializerOptions JsonOptions { get; }
 
-            return profile;
-        }
+        public Mapper Mapper { get; }
 
-        public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query, ProfileKey profileKey)
+
+        public Loader Loader { get; }
+
+        public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
            where TEntity : class
            where TProjection : class
         {
-            var projection = GetProfile(profileKey).Mapper.Bind<TEntity, TProjection>();
+            var projection = Mapper.Bind<TEntity, TProjection>();
 
             return query.Select(projection);
         }
 
-        public async Task<TEntity> MapAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDto, MapParameters parameters = null)
+        public async Task<TEntity> MapAsync<TEntity>(DbContext dbContext, object entityOrDto, MapParameters parameters = null)
             where TEntity : class
         {
-            var profile = GetProfile(profileKey);
+            var target = await Loader.LoadAsync(dbContext, typeof(TEntity), entityOrDto);
 
-            var target = await profile.Loader.LoadAsync(dbContext, typeof(TEntity), entityOrDto);
-
-            return Map<TEntity>(dbContext, profile, entityOrDto, target, parameters);
+            return Map<TEntity>(dbContext, entityOrDto, target, parameters);
         }
 
-        public TEntity Map<TEntity>(DbContext dbContext, ProfileKey profileKey, object entityOrDto, MapParameters parameters = null)
+        public TEntity Map<TEntity>(DbContext dbContext, object entityOrDto, MapParameters parameters = null)
            where TEntity : class
         {
-            var profile = GetProfile(profileKey);
+            var target = Loader.Load(dbContext, typeof(TEntity), entityOrDto);
 
-            var target = profile.Loader.Load(dbContext, typeof(TEntity), entityOrDto);
-
-            return Map<TEntity>(dbContext, profile, entityOrDto, target, parameters);
+            return Map<TEntity>(dbContext, entityOrDto, target, parameters);
         }
 
-        TTarget Map<TTarget>(DbContext dbContext, Profile profile, object entityOrDto, object target, MapParameters parameters)
+        TTarget Map<TTarget>(DbContext dbContext, object entityOrDto, object target, MapParameters parameters)
             where TTarget : class
         {
             if (parameters == null)
@@ -79,13 +67,13 @@ namespace Detached.Mappers.EntityFramework
                 throw new MapperException($"Entity {typeof(TTarget)} does not exist and MissingRootBehavior is set to Throw.");
             }
 
-            var mapContext = new EntityMapContext(Options, dbContext, parameters);
+            var mapContext = new EntityMapContext(MapperOptions, dbContext, parameters);
 
-            return (TTarget)profile.Mapper.Map(entityOrDto, entityOrDto.GetType(), target, typeof(TTarget), mapContext);
+            return (TTarget)Mapper.Map(entityOrDto, entityOrDto.GetType(), target, typeof(TTarget), mapContext);
         }
 
 
-        public async Task MapJsonAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, Stream stream, MapParameters mapParams = null)
+        public async Task MapJsonAsync<TEntity>(DbContext dbContext, Stream stream, MapParameters mapParams = null)
             where TEntity : class
         {
             if (mapParams == null)
@@ -96,16 +84,16 @@ namespace Detached.Mappers.EntityFramework
                 };
             }
 
-            foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, Options.JsonSerializerOptions))
+            foreach (TEntity entity in await JsonSerializer.DeserializeAsync<IEnumerable<TEntity>>(stream, JsonOptions))
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(dbContext, profileKey, entity, mapParams);
+                    await MapAsync<TEntity>(dbContext, entity, mapParams);
                 }
             }
         }
 
-        public async Task MapJsonAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string json, MapParameters mapParams = null)
+        public async Task MapJsonAsync<TEntity>(DbContext dbContext, string json, MapParameters mapParams = null)
             where TEntity : class
         {
             if (mapParams == null)
@@ -116,25 +104,25 @@ namespace Detached.Mappers.EntityFramework
                 };
             }
 
-            foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, Options.JsonSerializerOptions))
+            foreach (TEntity entity in JsonSerializer.Deserialize<IEnumerable<TEntity>>(json, JsonOptions))
             {
                 if (entity != null)
                 {
-                    await MapAsync<TEntity>(dbContext, profileKey, entity, mapParams);
+                    await MapAsync<TEntity>(dbContext, entity, mapParams);
                 }
             }
         }
 
-        public async Task MapJsonFileAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string filePath, MapParameters mapParams = null)
+        public async Task MapJsonFileAsync<TEntity>(DbContext dbContext, string filePath, MapParameters mapParams = null)
            where TEntity : class
         {
             using (Stream fileStream = File.OpenRead(filePath))
             {
-                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapParams);
+                await MapJsonAsync<TEntity>(dbContext, fileStream, mapParams);
             }
         }
 
-        public async Task MapJsonResourceAsync<TEntity>(DbContext dbContext, ProfileKey profileKey, string resourceName, Assembly assembly = null, MapParameters mapParams = null)
+        public async Task MapJsonResourceAsync<TEntity>(DbContext dbContext, string resourceName, Assembly assembly = null, MapParameters mapParams = null)
            where TEntity : class
         {
             if (assembly == null)
@@ -144,7 +132,7 @@ namespace Detached.Mappers.EntityFramework
 
             using (Stream fileStream = assembly.GetManifestResourceStream(resourceName))
             {
-                await MapJsonAsync<TEntity>(dbContext, profileKey, fileStream, mapParams);
+                await MapJsonAsync<TEntity>(dbContext, fileStream, mapParams);
             }
         }
     }

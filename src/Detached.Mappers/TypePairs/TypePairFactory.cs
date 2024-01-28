@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.Annotations;
-using Detached.Mappers.Types;
+﻿using Detached.Mappers.Types;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.TypePairs
@@ -14,6 +13,8 @@ namespace Detached.Mappers.TypePairs
 
             if (memberNames != null)
             {
+                var keyMember = targetType.GetKeyMember();
+
                 foreach (string targetMemberName in memberNames)
                 {
                     ITypeMember targetMember = targetType.GetMember(targetMemberName);
@@ -29,6 +30,13 @@ namespace Detached.Mappers.TypePairs
                         string sourceMemberName = GetSourcePropertyName(mapperOptions, sourceType, targetType, targetMemberName);
 
                         ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
+
+                        if (sourceMember == null)
+                        {
+                            string keyName = targetMemberName + keyMember.Name;
+                            sourceMember = sourceType.GetMember(keyName);
+                        }
+
                         member.SourceMember = sourceMember;
 
                         typePair.Members.Add(targetMemberName, member);

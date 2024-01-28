@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Detached.Samples.RestApi.Models.Core;
+using System;
 using System.Collections.Generic;
 
-namespace Detached.Mappers.Samples.RestApi.Models.Inputs
+namespace Detached.Samples.RestApi.Models.Inputs
 {
-    public class SaveInvoiceInput
+    public class SaveInvoiceInput_Identity
     {
         public int Id { get; set; }
- 
-        public List<SaveInvoiceRowInput> Rows { get; set; }
+
+        public List<SaveInvoiceRowInput_Identity> Rows { get; set; }
 
         public Identity Type { get; set; }
 

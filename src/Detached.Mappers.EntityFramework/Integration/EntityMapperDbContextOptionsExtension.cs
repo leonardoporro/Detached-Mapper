@@ -1,9 +1,8 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Detached.Mappers.EntityFramework.Features
+namespace Detached.Mappers.EntityFramework.Integration
 {
     public class EntityMapperDbContextOptionsExtension : IDbContextOptionsExtension
     {
@@ -12,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.Features
         public EntityMapperDbContextOptionsExtension(Type dbContextType, EntityMapperOptions options)
         {
             Info = new EntityMapperDbContextOptionsExtensionInfo(this);
- 
+
             _mapperFactory.Configure(dbContextType, options);
         }
 

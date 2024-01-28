@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace Detached.Mappers.Samples.RestApi
+namespace Detached.Samples.RestApi
 {
     public class Program
     {

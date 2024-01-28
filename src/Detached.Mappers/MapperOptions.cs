@@ -79,6 +79,7 @@ namespace Detached.Mappers
                 new InheritedTypeMapperFactory(),
                 new EntityCollectionTypeMapperFactory(),
                 new EntityTypeMapperFactory(),
+                new KeyToComplexTypeMapperFactory()
             };
 
             ConcreteTypes = new Dictionary<Type, Type>

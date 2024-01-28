@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Collections.Generic;
 
-namespace Detached.Mappers.EntityFramework.Features
+namespace Detached.Mappers.EntityFramework.Integration
 {
     public class EntityMapperDbContextOptionsExtensionInfo : DbContextOptionsExtensionInfo
     {

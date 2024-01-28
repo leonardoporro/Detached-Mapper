@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Detached.Mappers.Samples.RestApi": {
+    "Kestrel": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

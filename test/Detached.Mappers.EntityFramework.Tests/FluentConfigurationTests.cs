@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Detached.Mappers.EntityFramework.Profiles;
+﻿using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Types;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +14,7 @@ namespace Detached.Mappers.EntityFramework.Tests
         {
             var dbContext = await TestDbContext.Create<FluentTestDbContext>();
 
-            IType typeOptions = dbContext.GetMapper(ProfileKey.Empty).Options.GetType(typeof(ConfiguredTestClass));
+            IType typeOptions = dbContext.GetMapper().Options.GetType(typeof(ConfiguredTestClass));
 
             Assert.True(typeOptions.IsEntity());
             Assert.True(typeOptions.GetMember(nameof(ConfiguredTestClass.CustomizedKey1)).IsKey());
@@ -41,7 +40,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
             }
 
-            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
+            public override void OnMapperCreating(EntityMapperOptions builder)
             {
                 builder.Default(mapperOptions =>
                 {

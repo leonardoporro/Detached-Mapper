@@ -1,6 +1,8 @@
-﻿namespace Detached.Mappers.Samples.RestApi.Models.Inputs
+﻿using Detached.Samples.RestApi.Models.Core;
+
+namespace Detached.Samples.RestApi.Models.Inputs
 {
-    public class SaveInvoiceRowInput
+    public class SaveInvoiceRowInput_Identity
     {
         public int Id { get; set; }
 

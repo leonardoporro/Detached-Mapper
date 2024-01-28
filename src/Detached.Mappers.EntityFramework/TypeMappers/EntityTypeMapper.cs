@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -141,14 +142,20 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
 
             return entry;
         }
+          
+        IKey _keyType = null;
 
         [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "I still need to use internal things to make this library work.")]
         public EntityEntry<TTarget> GetExistingEntry(TKey key, DbContext dbContext)
         {
+            if (_keyType == null)
+            {
+                var entityType = dbContext.Model.FindEntityType(typeof(TTarget));
+                _keyType = entityType.FindPrimaryKey();
+            }
+
             var stateManager = dbContext.GetService<IStateManager>();
-            var entityType = dbContext.Model.FindEntityType(typeof(TTarget));
-            var keyType = entityType.FindPrimaryKey();
-            var internalEntry = stateManager.TryGetEntry(keyType, key.ToObject());
+            var internalEntry = stateManager.TryGetEntry(_keyType, key.ToObject());
 
             if (internalEntry != null)
                 return new EntityEntry<TTarget>(internalEntry);

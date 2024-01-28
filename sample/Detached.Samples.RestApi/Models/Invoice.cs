@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Detached.Mappers.Samples.RestApi.Models
+namespace Detached.Samples.RestApi.Models
 {
     [Entity]
     public class Invoice

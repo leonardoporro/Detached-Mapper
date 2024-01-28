@@ -1,12 +1,11 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Detached.Mappers.EntityFramework
 {
     public class EntityMapContext : MapContext
     {
         public EntityMapContext(
-            EntityMapperOptions mapperOptions,
+            MapperOptions mapperOptions,
             DbContext dbContext,  
             MapParameters parameters)
             : base(parameters)
@@ -15,7 +14,7 @@ namespace Detached.Mappers.EntityFramework
             DbContext = dbContext; 
         }
 
-        public EntityMapperOptions Options { get; } 
+        public MapperOptions Options { get; } 
 
         public DbContext DbContext { get; } 
     }

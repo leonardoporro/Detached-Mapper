@@ -96,5 +96,30 @@ namespace Detached.Mappers.Types
         {
             return !(type.IsAbstract() || type.IsInherited());
         }
+
+        public static ITypeMember? GetKeyMember(this IType type)
+        {
+            ITypeMember result = null;
+
+            foreach (string memberName in type.MemberNames)
+            {
+                var member = type.GetMember(memberName);
+
+                if (member.IsKey())
+                {
+                    if (result == null)
+                    {
+                        result = member;
+                    }
+                    else
+                    {
+                        result = null;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Configuration;
-using System;
+﻿using System;
 
 namespace Detached.Mappers.EntityFramework.Loaders
 {
