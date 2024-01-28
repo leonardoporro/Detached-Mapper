@@ -11,7 +11,7 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
             return typePair.SourceType.IsPrimitive()
-                && typePair.TargetType.IsEntity()
+                && typePair.TargetType.IsEntity() && !typePair.TargetType.IsAbstract()
                 && typePair.TargetType.GetKeyMember() != null;
         }
 

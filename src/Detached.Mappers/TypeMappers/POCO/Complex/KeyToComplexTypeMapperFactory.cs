@@ -9,8 +9,8 @@ namespace Detached.Mappers.TypeMappers.POCO.Complex
     {
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
-            return typePair.SourceType.IsPrimitive()
-                && typePair.TargetType.IsEntity()
+            return typePair.SourceType.IsPrimitive() 
+                && typePair.TargetType.IsComplex() && !typePair.TargetType.IsAbstract()
                 && typePair.TargetType.GetKeyMember() != null;
         }
 

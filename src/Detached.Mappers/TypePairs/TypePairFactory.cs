@@ -31,7 +31,7 @@ namespace Detached.Mappers.TypePairs
 
                         ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
 
-                        if (sourceMember == null)
+                        if (sourceMember == null && keyMember != null)
                         {
                             string keyName = targetMemberName + keyMember.Name;
                             sourceMember = sourceType.GetMember(keyName);

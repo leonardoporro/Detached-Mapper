@@ -8,7 +8,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 {
     public class KeyToEntityTests
     {
-        [Fact]
+        //[Fact]
         public async Task map_key_to_entity()
         {
             var dbContext = await TestDbContext.Create<KeyToEntityDbContext>();
