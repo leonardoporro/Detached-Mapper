@@ -9,17 +9,17 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonArrayTypeOptions : IType
+    public class JsonObjectType : IType
     {
-        public Type ClrType => typeof(JsonArray);
+        public Type ClrType => typeof(JsonObject);
 
-        public Type ItemClrType => typeof(JsonNode);
+        public Type ItemClrType => null;
 
         public AnnotationCollection Annotations { get; } = new();
 
-        public MappingSchema MappingSchema => MappingSchema.Collection;
+        public MappingSchema MappingSchema => MappingSchema.Complex;
 
-        public IEnumerable<string> MemberNames => null;
+        public IEnumerable<string> MemberNames => new string[0];
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {
@@ -28,7 +28,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public ITypeMember GetMember(string memberName)
         {
-            throw new NotImplementedException();
+            return new JsonObjectMember(memberName);
         }
     }
 }

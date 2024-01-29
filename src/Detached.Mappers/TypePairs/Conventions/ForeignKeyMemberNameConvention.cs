@@ -26,6 +26,11 @@ namespace Detached.Mappers.TypePairs.Conventions
                     {
                         memberName = targetMemberName + key.Name;
                     }
+
+                    if (targetType.GetMember(memberName) != null)
+                    {
+                        memberName = null; // do not map fk to entity if there is already an entity to entity option.
+                    }
                 }
             }
 

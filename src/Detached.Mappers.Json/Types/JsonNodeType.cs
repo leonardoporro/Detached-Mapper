@@ -7,17 +7,22 @@ using System.Text.Json.Nodes;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonValueTypeOptions : IType
+    public class JsonNodeType : IType
     {
-        public Type ClrType => typeof(JsonValue);
+        public JsonNodeType()
+        {
+            this.Abstract(true);
+        }
 
-        public Type ItemClrType => throw new NotImplementedException();
+        public Type ClrType => typeof(JsonNode);
+
+        public Type ItemClrType => default;
 
         public AnnotationCollection Annotations { get; } = new();
 
-        public MappingSchema MappingSchema => MappingSchema.Primitive;
+        public MappingSchema MappingSchema => MappingSchema.None;
 
-        public IEnumerable<string> MemberNames => null;
+        public IEnumerable<string> MemberNames => new string[0]; 
 
         public Expression BuildNewExpression(Expression context, Expression discriminator)
         {
@@ -26,7 +31,7 @@ namespace Detached.Mappers.Json.TypeOptions
 
         public ITypeMember GetMember(string memberName)
         {
-            throw new NotImplementedException();
+            return new JsonObjectMember(memberName);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Detached.Mappers.EntityFramework
 
                 mapperOptions.TypeConventions.Add(new EntityTypeConventions(dbContext.Model));
                 mapperOptions.TypeMapperFactories.Add(new EntityTypeMapperFactory());
-                mapperOptions.TypeMapperFactories.Add(new KeyToEntityTypeMapperFactory());
+                //mapperOptions.TypeMapperFactories.Add(new KeyToEntityTypeMapperFactory());
 
                 return new EntityMapper(mapperOptions, entityMapperOptions.JsonOptions);
             });

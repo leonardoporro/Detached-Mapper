@@ -10,7 +10,8 @@ namespace Detached.Mappers.EntityFramework.TypeMappers
     {
         public bool CanCreate(Mapper mapper, TypePair typePair)
         {
-            return typePair.TargetType.IsEntity()
+            return (typePair.SourceType.IsComplexOrEntity() || typePair.SourceType.IsPrimitive())
+                   && typePair.TargetType.IsEntity()
                    && typePair.TargetType.IsConcrete();
         }
 

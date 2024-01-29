@@ -8,11 +8,11 @@ using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Json.TypeOptions
 {
-    public class JsonObjectMemberOptions : ITypeMember
+    public class JsonObjectMember : ITypeMember
     {
         readonly string _memberName;
 
-        public JsonObjectMemberOptions(string memberName)
+        public JsonObjectMember(string memberName)
         {
             _memberName = memberName;
         }

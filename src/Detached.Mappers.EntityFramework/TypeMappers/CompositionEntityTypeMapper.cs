@@ -4,7 +4,6 @@ using System;
 namespace Detached.Mappers.EntityFramework.TypeMappers
 {
     public class CompositionEntityTypeMapper<TSource, TTarget, TKey> : EntityTypeMapper<TSource, TTarget, TKey>
-        where TSource : class
         where TTarget : class
         where TKey : IEntityKey
     {

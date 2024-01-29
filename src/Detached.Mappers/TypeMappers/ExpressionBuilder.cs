@@ -4,6 +4,7 @@ using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
@@ -20,50 +21,67 @@ namespace Detached.Mappers.TypeMappers
             _mapper = mapper;
         }
 
+        [SuppressMessage("Minor Code Smell", "S3878:Arrays should not be created for params parameters", Justification = "Extension method collisions.")]
         public void BuildGetKeyExpressions(
             TypePair typePair,
             out LambdaExpression getSourceKeyExpr,
             out LambdaExpression getTargetKeyExpr,
             out Type keyType)
         {
-            List<Type> keyParamTypes = new List<Type>();
-            ParameterExpression sourceExpr = Parameter(typePair.SourceType.ClrType, "source");
-            ParameterExpression targetExpr = Parameter(typePair.TargetType.ClrType, "target");
-            ParameterExpression contextExpr = Parameter(typeof(IMapContext), "context");
-            List<Expression> sourceParamExprList = new List<Expression>();
-            List<Expression> targetParamExprList = new List<Expression>();
+            var keyParamTypes = new List<Type>();
+            var sourceExpr = Parameter(typePair.SourceType.ClrType, "source");
+            var targetExpr = Parameter(typePair.TargetType.ClrType, "target");
+            var contextExpr = Parameter(typeof(IMapContext), "context");
+            var sourceParamExprList = new List<Expression>();
+            var targetParamExprList = new List<Expression>();
 
-            foreach (TypePairMember pairMember in typePair.Members.Values)
+            if (typePair.SourceType.IsComplexOrEntity() || typePair.SourceType.IsAbstract())
             {
-                if (pairMember.IsKey())
+                foreach (TypePairMember pairMember in typePair.Members.Values)
                 {
-                    keyParamTypes.Add(pairMember.TargetMember.ClrType);
-                    Expression targetParamExpr = pairMember.TargetMember.BuildGetExpression(targetExpr, contextExpr);
-                    targetParamExprList.Add(targetParamExpr);
- 
-                    if (pairMember.SourceMember == null || !pairMember.SourceMember.CanRead || pairMember.SourceMember.IsIgnored())
+                    if (pairMember.IsKey())
                     {
-                        keyType = typeof(NoKey);
-                        getSourceKeyExpr = Lambda(New(typeof(NoKey)), new[] { sourceExpr, contextExpr });
-                        getTargetKeyExpr = Lambda(New(typeof(NoKey)), new[] { targetExpr, contextExpr });
-                        return;
+                        if (pairMember.SourceMember == null || !pairMember.SourceMember.CanRead || pairMember.SourceMember.IsIgnored())
+                        {
+                            keyType = typeof(NoKey);
+                            getSourceKeyExpr = Lambda(New(typeof(NoKey)), new[] { sourceExpr, contextExpr });
+                            getTargetKeyExpr = Lambda(New(typeof(NoKey)), new[] { targetExpr, contextExpr });
+                            return;
+                        }
+
+                        keyParamTypes.Add(pairMember.TargetMember.ClrType);
+                        Expression targetParamExpr = pairMember.TargetMember.BuildGetExpression(targetExpr, contextExpr);
+                        targetParamExprList.Add(targetParamExpr);
+
+                        Expression sourceParamExpr = pairMember.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
+
+                        IType sourceMemberType = _mapper.Options.GetType(pairMember.SourceMember.ClrType);
+                        IType targetMemberType = _mapper.Options.GetType(pairMember.TargetMember.ClrType);
+
+                        if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
+                        {
+                            TypePair memberTypePair = _mapper.Options.GetTypePair(sourceMemberType, targetMemberType, null);
+                            ITypeMapper typeMapper = _mapper.GetTypeMapper(memberTypePair);
+
+                            sourceParamExpr = Call("Map", Constant(typeMapper, typeMapper.GetType()), sourceParamExpr, Default(targetMemberType.ClrType), contextExpr);
+                        }
+
+                        sourceParamExprList.Add(sourceParamExpr);
                     }
-
-                    Expression sourceParamExpr = pairMember.SourceMember.BuildGetExpression(sourceExpr, contextExpr);
-
-                    IType sourceMemberType = _mapper.Options.GetType(pairMember.SourceMember.ClrType);
-                    IType targetMemberType = _mapper.Options.GetType(pairMember.TargetMember.ClrType);
-
-                    if (_mapper.Options.ShouldMap(sourceMemberType, targetMemberType))
-                    {
-                        TypePair memberTypePair = _mapper.Options.GetTypePair(sourceMemberType, targetMemberType, null);
-                        ITypeMapper typeMapper = _mapper.GetTypeMapper(memberTypePair);
-
-                        sourceParamExpr = Call("Map", Constant(typeMapper, typeMapper.GetType()), sourceParamExpr, Default(targetMemberType.ClrType), contextExpr);
-                    }
-
-                    sourceParamExprList.Add(sourceParamExpr);
                 }
+            }
+            else if (typePair.SourceType.IsPrimitive())
+            {
+                var keyMember = typePair.TargetType.GetKeyMember();
+
+                keyParamTypes.Add(keyMember.ClrType);
+
+                sourceParamExprList.Add(sourceExpr);
+                targetParamExprList.Add(keyMember.BuildGetExpression(targetExpr, contextExpr));
+            }
+            else 
+            {
+                throw new MapperException($"Can't build key getters for {typePair}, types don´t match.");
             }
 
             keyType = GetKeyType(keyParamTypes.ToArray());

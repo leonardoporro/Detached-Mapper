@@ -15,10 +15,10 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                   && typePair.TargetType.IsCollection()
                   && !typePair.TargetType.IsAbstract())
             {
-                IType sourceItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
+                //IType sourceItemType = mapper.Options.GetType(typePair.SourceType.ItemClrType);
                 IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
 
-                return targetItemType.IsEntity() && (sourceItemType.IsComplexOrEntity() || sourceItemType.IsPrimitive());
+                return targetItemType.IsEntity();
             }
 
             return false;
