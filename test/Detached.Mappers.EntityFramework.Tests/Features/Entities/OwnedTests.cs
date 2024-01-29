@@ -1,5 +1,4 @@
-﻿
-using Detached.Annotations;
+﻿using Detached.Annotations;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +8,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Entities
 {
-    public class MapOwnedTests
+    public class OwnedTests
     {
         [Fact]
         public async Task map_owned()
@@ -82,7 +81,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class OwnedTestDbContext : TestDbContext
         {
-            public OwnedTestDbContext(DbContextOptions<OwnedTestDbContext> options) 
+            public OwnedTestDbContext(DbContextOptions<OwnedTestDbContext> options)
                 : base(options)
             {
             }

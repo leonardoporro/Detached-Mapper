@@ -5,9 +5,9 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Keys
 {
-    public class MapNullableKeyTests
+    public class NullableKeyTests
     {
         [Fact]
         public async Task map_dto_with_nullable_key_value()
@@ -55,7 +55,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class NullableKeyTestDbContext : TestDbContext
         {
-            public NullableKeyTestDbContext(DbContextOptions<NullableKeyTestDbContext> options) 
+            public NullableKeyTestDbContext(DbContextOptions<NullableKeyTestDbContext> options)
                 : base(options)
             {
             }

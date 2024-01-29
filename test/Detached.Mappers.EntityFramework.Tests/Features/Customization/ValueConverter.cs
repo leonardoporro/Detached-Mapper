@@ -11,9 +11,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Customization
 {
-    public class MapValueConverter
+    public class ValueConverter
     {
         [Fact]
         public async Task map_property_with_value_converter()
@@ -92,7 +92,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ValueConverterTestDbContext : TestDbContext
         {
-            public ValueConverterTestDbContext(DbContextOptions<ValueConverterTestDbContext> options) 
+            public ValueConverterTestDbContext(DbContextOptions<ValueConverterTestDbContext> options)
                 : base(options)
             {
             }

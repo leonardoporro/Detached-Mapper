@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -10,17 +11,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Associations
 {
-    public class MapAssociatedListTests
+    public class AssociatedListTests
     {
         [Fact]
         public async Task map_associated_list()
         {
-            var dbContext = await TestDbContext.Create<AssociationTestDbContext>(); 
+            var dbContext = await TestDbContext.Create<AssociationTestDbContext>();
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
-            dbContext.Roles.Add(new Role { Id = 2,  Name = "user" });
+            dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
             dbContext.UserTypes.Add(new UserType { Id = 1, Name = "system" });
             await dbContext.SaveChangesAsync();
 
@@ -46,7 +47,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             };
             dbContext.Users.Add(newUser);
             await dbContext.SaveChangesAsync();
-             
+
             await dbContext.MapAsync<User>(new EditUserInput
             {
                 Id = 1,
@@ -168,7 +169,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public DbSet<Role> Roles { get; set; }
 
-            public DbSet<UserType> UserTypes { get; set; } 
+            public DbSet<UserType> UserTypes { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -179,7 +180,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                        ur => ur.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId),
                        ur => ur.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId))
                    .HasKey(ur => new { ur.UserId, ur.RoleId });
-            } 
+            }
         }
     }
 }

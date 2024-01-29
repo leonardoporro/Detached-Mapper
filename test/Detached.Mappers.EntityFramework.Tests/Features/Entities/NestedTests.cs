@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Entities
 {
-    public class MapNestedTests
+    public class NestedTests
     {
         [Fact]
         public async Task map_two_levels()

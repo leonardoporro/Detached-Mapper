@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Associations
 {
-    public class MapAssociatedNoSetterTests
+    public class AssociatedInterfaceTests
     {
         [Fact]
-        public async Task map_collection_nosetter()
+        public async Task map_collection_interface()
         {
             var dbContext = await TestDbContext.Create<CollectionNoSetterTestDbContext>();
 
@@ -37,7 +37,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Name { get; set; }
 
             [Composition]
-            public List<Address> Addresses { get; } = new List<Address>();
+            public IList<Address> Addresses { get; set; }
         }
 
         public class Address
@@ -51,7 +51,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class CollectionNoSetterTestDbContext : TestDbContext
         {
-            public CollectionNoSetterTestDbContext(DbContextOptions<CollectionNoSetterTestDbContext> options) 
+            public CollectionNoSetterTestDbContext(DbContextOptions<CollectionNoSetterTestDbContext> options)
                 : base(options)
             {
             }

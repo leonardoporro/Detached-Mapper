@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Customization
 {
     public class ProfilesTests
     {
@@ -32,7 +32,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             var dbContext = await TestDbContext.Create<ProfilesTestDbContext>();
             dbContext.Database.EnsureCreated();
 
-            UserDto dto = new UserDto { Id = 1, Name = "user name" }; 
+            UserDto dto = new UserDto { Id = 1, Name = "user name" };
 
             User newUser = dbContext.Map<User>(MappingProfiles.Update, dto);
 
@@ -71,7 +71,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class ProfilesTestDbContext : TestDbContext
         {
-            public ProfilesTestDbContext(DbContextOptions<ProfilesTestDbContext> options) 
+            public ProfilesTestDbContext(DbContextOptions<ProfilesTestDbContext> options)
                 : base(options)
             {
             }

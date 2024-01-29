@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using Xunit;
 using Detached.Mappers.EntityFramework.Extensions;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Entities
 {
-    public class MapInheritanceTests
+    public class InheritanceTests
     {
         [Fact]
         public async Task map_inherited_entities_success()
@@ -160,7 +160,7 @@ namespace Detached.Mappers.EntityFramework.Tests
                 mb.Entity<DeliveryArea>().HasDiscriminator(d => d.AreaType)
                     .HasValue(typeof(CircleDeliveryArea), DeliveryAreaType.Circle)
                     .HasValue(typeof(RectangleDeliveryArea), DeliveryAreaType.Rectangle);
-            } 
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -10,9 +11,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Entities
 {
-    public class MapInputTests
+    public class InputTests
     {
         [Fact]
         public async Task map_input()
@@ -107,7 +108,7 @@ namespace Detached.Mappers.EntityFramework.Tests
             [Composition]
             public virtual UserProfile Profile { get; set; }
         }
- 
+
         public class UserProfile
         {
             [Key]
@@ -118,7 +119,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public virtual string LastName { get; set; }
         }
- 
+
         public class Role
         {
             [Key]
@@ -129,7 +130,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public virtual List<User> Users { get; set; }
         }
- 
+
         public class UserRole
         {
             public virtual int UserId { get; set; }
@@ -151,7 +152,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
             public virtual List<User> Users { get; set; }
         }
- 
+
         public class Address
         {
             [Key]
@@ -165,7 +166,7 @@ namespace Detached.Mappers.EntityFramework.Tests
 
         public class InputTestDbContext : TestDbContext
         {
-            public InputTestDbContext(DbContextOptions<InputTestDbContext> options) 
+            public InputTestDbContext(DbContextOptions<InputTestDbContext> options)
                 : base(options)
             {
             }

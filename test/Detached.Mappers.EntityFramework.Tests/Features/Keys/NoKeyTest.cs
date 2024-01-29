@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.EntityFramework.Extensions;
+﻿using Detached.Mappers;
+using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,9 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests
+namespace Detached.Mappers.EntityFramework.Tests.Features.Keys
 {
-    public class MapEntityNoKeyTest
+    public class NoKeyTest
     {
         [Fact]
         public async Task map_entity_nokey_dto()
