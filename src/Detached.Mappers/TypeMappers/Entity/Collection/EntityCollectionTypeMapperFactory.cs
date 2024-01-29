@@ -18,7 +18,7 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
                 IType sourceItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
                 IType targetItemType = mapper.Options.GetType(typePair.TargetType.ItemClrType);
 
-                return targetItemType.IsEntity() && sourceItemType.IsComplexOrEntity();
+                return targetItemType.IsEntity() && (sourceItemType.IsComplexOrEntity() || sourceItemType.IsPrimitive());
             }
 
             return false;

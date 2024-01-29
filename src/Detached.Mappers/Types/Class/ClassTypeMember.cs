@@ -47,6 +47,6 @@ namespace Detached.Mappers.Types.Class
             return Import(TryGetter, instance, outVar, context);
         }
 
-        public override string ToString() => $"{Name} [{ClrType.GetFriendlyName()}] (MemberOptions)";
+        public override string ToString() => $"ClassTypeMember ({Name}: {ClrType.GetFriendlyName()})";
     }
 }

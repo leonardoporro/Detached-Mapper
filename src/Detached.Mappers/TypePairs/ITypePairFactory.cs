@@ -4,6 +4,6 @@ namespace Detached.Mappers.TypePairs
 {
     public interface ITypePairFactory
     {
-        TypePair Create(MapperOptions mapperOptions, IType sourceType, IType targetType, TypePairMember sourceMember);
+        TypePair Create(MapperOptions mapperOptions, IType sourceType, IType targetType, TypePairMember parentMember);
     }
 }

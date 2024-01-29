@@ -1,15 +1,16 @@
 ﻿using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests
 {
-    public class KeyToEntityTests
+    public class ForeignKeyTests
     {
-        //[Fact]
-        public async Task map_key_to_entity()
+        [Fact]
+        public async Task map_fk_to_entity()
         {
             var dbContext = await TestDbContext.Create<KeyToEntityDbContext>();
 
@@ -22,12 +23,20 @@ namespace Detached.Mappers.EntityFramework.Tests
             {
                 Id = 1,
                 Name = "test user",
-                ChildId = 2
+                ChildId = 2,
+                ChildIds = new[] { 1, 2 }
             });
 
             Assert.NotNull(result.Child);
             Assert.Equal(2, result.Child.Id);
             Assert.Equal("Child 2", result.Child.Name);
+
+            Assert.NotNull(result.Children);
+            Assert.Equal(1, result.Children[0].Id);
+            Assert.Equal("Child 1", result.Children[0].Name);
+
+            Assert.Equal(2, result.Children[1].Id);
+            Assert.Equal("Child 2", result.Children[1].Name);
         }
 
         public class ParentEntity
@@ -37,6 +46,8 @@ namespace Detached.Mappers.EntityFramework.Tests
             public string Name { get; set; }
 
             public ChildEntity Child { get; set; }
+
+            public List<ChildEntity> Children { get; set; }
         }
 
         public class ChildEntity

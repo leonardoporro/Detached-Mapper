@@ -13,6 +13,7 @@ using Detached.Mappers.TypeMappers.POCO.Inherited;
 using Detached.Mappers.TypeMappers.POCO.Nullable;
 using Detached.Mappers.TypeMappers.POCO.Primitive;
 using Detached.Mappers.TypePairs;
+using Detached.Mappers.TypePairs.Conventions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.Mappers.Types.Class.Builder;
@@ -78,8 +79,7 @@ namespace Detached.Mappers
                 new NullableTypeMapperFactory(),
                 new InheritedTypeMapperFactory(),
                 new EntityCollectionTypeMapperFactory(),
-                new EntityTypeMapperFactory(),
-                new KeyToComplexTypeMapperFactory()
+                new EntityTypeMapperFactory()
             };
 
             ConcreteTypes = new Dictionary<Type, Type>
@@ -111,7 +111,11 @@ namespace Detached.Mappers
                 new NullableTypeBinder()
             };
 
-            PropertyNameConventions = new List<IPropertyNameConvention>();
+            MemberNameConventions = new List<IMemberNameConvention>
+            {
+                new ForeignKeyMemberNameConvention(),
+                new DefaultMemberNameConvention()
+            };
         }
 
         public virtual HashSet<Type> Primitives { get; }
@@ -126,7 +130,7 @@ namespace Detached.Mappers
 
         public virtual List<ITypeConvention> TypeConventions { get; }
 
-        public virtual List<IPropertyNameConvention> PropertyNameConventions { get; }
+        public virtual List<IMemberNameConvention> MemberNameConventions { get; }
 
         public virtual Dictionary<Type, Type> ConcreteTypes { get; }
 

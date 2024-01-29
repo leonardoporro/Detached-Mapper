@@ -6,7 +6,6 @@ namespace Detached.Mappers.TypeMappers.Entity.Collection
     public class EntityListTypeMapper<TSource, TSourceItem, TTarget, TTargetItem, TKey> : TypeMapper<TSource, TTarget>
         where TSource : IEnumerable<TSourceItem>
         where TTarget : IList<TTargetItem>
-        where TSourceItem : class
         where TTargetItem : class
         where TKey : IEntityKey
     {

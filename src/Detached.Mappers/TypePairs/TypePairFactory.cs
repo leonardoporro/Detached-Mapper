@@ -13,8 +13,6 @@ namespace Detached.Mappers.TypePairs
 
             if (memberNames != null)
             {
-                var keyMember = targetType.GetKeyMember();
-
                 foreach (string targetMemberName in memberNames)
                 {
                     ITypeMember targetMember = targetType.GetMember(targetMemberName);
@@ -26,18 +24,7 @@ namespace Detached.Mappers.TypePairs
                         member.TargetType = targetType;
                         member.SourceType = sourceType;
                         member.TargetMember = targetMember;
-
-                        string sourceMemberName = GetSourcePropertyName(mapperOptions, sourceType, targetType, targetMemberName);
-
-                        ITypeMember sourceMember = sourceType.GetMember(sourceMemberName);
-
-                        if (sourceMember == null && keyMember != null)
-                        {
-                            string keyName = targetMemberName + keyMember.Name;
-                            sourceMember = sourceType.GetMember(keyName);
-                        }
-
-                        member.SourceMember = sourceMember;
+                        member.SourceMember = GetSourceMember(targetMemberName, sourceType, targetType, mapperOptions);
 
                         typePair.Members.Add(targetMemberName, member);
                     }
@@ -47,14 +34,26 @@ namespace Detached.Mappers.TypePairs
             return typePair;
         }
 
-        public string GetSourcePropertyName(MapperOptions mapperOptions, IType sourceType, IType targetType, string memberName)
+        public ITypeMember GetSourceMember(string targetMemberName, IType sourceType, IType targetType, MapperOptions mapperOptions)
         {
-            for (int i = mapperOptions.PropertyNameConventions.Count - 1; i >= 0; i--)
+            ITypeMember result = null;
+
+            for (int i = mapperOptions.MemberNameConventions.Count - 1; i >= 0; i--)
             {
-                memberName = mapperOptions.PropertyNameConventions[i].GetSourcePropertyName(sourceType, targetType, memberName);
+                var convention = mapperOptions.MemberNameConventions[i];
+
+                var sourceMemberName = convention.GetSourceMemberName(targetMemberName, sourceType, targetType, mapperOptions);
+
+                if (sourceMemberName != null)
+                {
+                    result = sourceType.GetMember(sourceMemberName);
+
+                    if (result != null)
+                        break;
+                }
             }
 
-            return memberName;
+            return result;
         }
     }
 }

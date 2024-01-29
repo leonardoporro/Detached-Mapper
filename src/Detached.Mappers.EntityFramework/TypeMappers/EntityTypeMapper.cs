@@ -11,7 +11,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace Detached.Mappers.EntityFramework.TypeMappers
 {
     public abstract class EntityTypeMapper<TSource, TTarget, TKey> : TypeMapper<TSource, TTarget>
-        where TSource : class
         where TTarget : class
         where TKey : IEntityKey
     {

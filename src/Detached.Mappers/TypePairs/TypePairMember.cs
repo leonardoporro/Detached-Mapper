@@ -14,5 +14,16 @@ namespace Detached.Mappers.TypePairs
         public ITypeMember TargetMember { get; set; }
 
         public AnnotationCollection Annotations { get; set; } = new();
+
+        public override string ToString()
+        {
+            string sourceName = SourceMember == null
+                ? "null"
+                : SourceMember.Name + ": " + SourceMember.ClrType.GetFriendlyName();
+
+            string targetName = TargetMember.ClrType.GetFriendlyName();
+
+            return $"TypePairMember ({sourceName} -> {targetName})";
+        }
     }
 }

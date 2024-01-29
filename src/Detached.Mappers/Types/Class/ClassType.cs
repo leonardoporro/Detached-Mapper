@@ -38,6 +38,6 @@ namespace Detached.Mappers.Types.Class
             return Import(Constructor, context);
         }
 
-        public override string ToString() => $"{ClrType.GetFriendlyName()} (ClassType)";
+        public override string ToString() => $"ClassType ({ClrType.GetFriendlyName()})";
     }
 }

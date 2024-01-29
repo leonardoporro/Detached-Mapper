@@ -1,5 +1,5 @@
 using Detached.Mappers.Json.Tests.Fixture;
-using Detached.Mappers.Types.Conventions;
+using Detached.Mappers.TypePairs.Conventions;
 using System.Text.Json.Nodes;
 using Xunit;
 
@@ -22,7 +22,7 @@ namespace Detached.Mappers.Json.Tests
             // create options. Json lib is a separate package to avoid adding System.Text.Json dependency to the main lib, call WithJson() to integrate.
             MapperOptions mapperOptions = new MapperOptions().WithJson();
 
-            mapperOptions.PropertyNameConventions.Add(new CamelCasePropertyNameConvention());
+            mapperOptions.MemberNameConventions.Add(new CamelCaseMemberNameConvention());
 
             // create the mapper.
             Mapper mapper = new Mapper(mapperOptions);
