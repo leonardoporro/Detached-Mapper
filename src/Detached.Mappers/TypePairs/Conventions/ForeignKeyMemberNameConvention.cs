@@ -11,21 +11,33 @@ namespace Detached.Mappers.TypePairs.Conventions
 
             if (targetType.IsEntity())
             {
-                var key = targetType.GetKeyMember();
+                var member = targetType.GetMember(targetMemberName);
+                var memberType = mapperOptions.GetType(member.ClrType);
 
+                var key = memberType.IsCollection()
+                     ? mapperOptions.GetType(memberType.ItemClrType).GetKeyMember()
+                     : memberType.GetKeyMember();
+ 
                 if (key != null)
                 {
-                    var member = targetType.GetMember(targetMemberName);
-                    var memberType = mapperOptions.GetType(member.ClrType);
+                    string entityPart;
+                    string keyPart;
 
                     if (memberType.IsCollection())
                     {
-                        memberName = targetMemberName.Singularize(false) + key.Name.Pluralize(false);
+                        entityPart = targetMemberName.Singularize(false);
+                        keyPart = key.Name.Pluralize(false);
                     }
                     else
                     {
-                        memberName = targetMemberName + key.Name;
+                        entityPart = targetMemberName;
+                        keyPart = key.Name;
                     }
+
+                    if (keyPart.StartsWith(entityPart))
+                        memberName = keyPart;
+                    else
+                        memberName = entityPart + keyPart;
 
                     if (targetType.GetMember(memberName) != null)
                     {

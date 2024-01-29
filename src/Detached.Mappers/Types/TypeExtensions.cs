@@ -101,20 +101,23 @@ namespace Detached.Mappers.Types
         {
             ITypeMember result = null;
 
-            foreach (string memberName in type.MemberNames)
+            if (type.MemberNames != null)
             {
-                var member = type.GetMember(memberName);
-
-                if (member.IsKey())
+                foreach (string memberName in type.MemberNames)
                 {
-                    if (result == null)
+                    var member = type.GetMember(memberName);
+
+                    if (member.IsKey())
                     {
-                        result = member;
-                    }
-                    else
-                    {
-                        result = null;
-                        break;
+                        if (result == null)
+                        {
+                            result = member;
+                        }
+                        else
+                        {
+                            result = null;
+                            break;
+                        }
                     }
                 }
             }
