@@ -12,7 +12,7 @@ namespace Detached.Mappers
     public class Mapper
     {
         readonly ConcurrentDictionary<TypeMapperKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypeMapperKey, ITypeMapper>();
-        readonly ConcurrentDictionary<TypeBoundKey, Expression> _typeBindings = new ConcurrentDictionary<TypeBoundKey, Expression>();
+        readonly ConcurrentDictionary<TypeBinderKey, Expression> _typeBindings = new ConcurrentDictionary<TypeBinderKey, Expression>();
 
         public Mapper(MapperOptions options = null)
         {
@@ -53,7 +53,7 @@ namespace Detached.Mappers
 
         public Expression Bind(Type sourceClrType, Type targetClrType)
         {
-            return _typeBindings.GetOrAdd(new TypeBoundKey(sourceClrType, targetClrType), key =>
+            return _typeBindings.GetOrAdd(new TypeBinderKey(sourceClrType, targetClrType), key =>
             {
                 var sourceType = Options.GetType(key.SourceClrType);
                 var targetType = Options.GetType(key.TargetClrType);

@@ -28,23 +28,27 @@ namespace Detached.Mappers.TypeBinders.Binders
                 if (propInfo != null)
                 {
                     IType projectionMemberType = options.GetType(memberPair.TargetMember.ClrType);
-                    IType entityMemberType = options.GetType(memberPair.SourceMember.ClrType);
-                    TypePair memberTypePair = options.GetTypePair(entityMemberType, projectionMemberType, memberPair);
 
-                    Expression memberSourceExpr = memberPair.SourceMember.BuildGetExpression(sourceExpr, null);
-
-                    var memberBinder = mapper.GetTypeBinder(memberTypePair);
-
-                    var memberExpr = memberBinder.Bind(mapper, memberTypePair, memberSourceExpr);
-
-                    if (memberExpr != null)
+                    if (memberPair.SourceMember != null && !memberPair.SourceMember.IsIgnored())
                     {
-                        if (!entityMemberType.IsPrimitive())
-                        {
-                            memberExpr = Condition(NotEqual(memberSourceExpr, Constant(null, memberSourceExpr.Type)), memberExpr, Constant(null, memberExpr.Type));
-                        }
+                        IType entityMemberType = options.GetType(memberPair.SourceMember.ClrType);
+                        TypePair memberTypePair = options.GetTypePair(entityMemberType, projectionMemberType, memberPair);
 
-                        bindings.Add(Expression.Bind(propInfo, memberExpr));
+                        Expression memberSourceExpr = memberPair.SourceMember.BuildGetExpression(sourceExpr, null);
+
+                        var memberBinder = mapper.GetTypeBinder(memberTypePair);
+
+                        var memberExpr = memberBinder.Bind(mapper, memberTypePair, memberSourceExpr);
+
+                        if (memberExpr != null)
+                        {
+                            if (!entityMemberType.IsPrimitive())
+                            {
+                                memberExpr = Condition(NotEqual(memberSourceExpr, Constant(null, memberSourceExpr.Type)), memberExpr, Default(memberExpr.Type));
+                            }
+
+                            bindings.Add(Expression.Bind(propInfo, memberExpr));
+                        }
                     }
                 }
             }

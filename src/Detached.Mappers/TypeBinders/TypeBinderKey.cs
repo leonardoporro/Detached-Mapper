@@ -2,9 +2,9 @@
 
 namespace Detached.Mappers.TypeBinders
 {
-    public struct TypeBoundKey
+    public struct TypeBinderKey
     {
-        public TypeBoundKey(Type sourceClrType, Type targetClrType)
+        public TypeBinderKey(Type sourceClrType, Type targetClrType)
         {
             SourceClrType = sourceClrType;
             TargetClrType = targetClrType;
@@ -16,14 +16,14 @@ namespace Detached.Mappers.TypeBinders
 
         public override bool Equals(object obj)
         {
-            return obj is TypeBoundKey other 
+            return obj is TypeBinderKey other 
                 && SourceClrType == other.SourceClrType 
                 && TargetClrType == other.TargetClrType;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(typeof(TypeBoundKey), SourceClrType, TargetClrType);
+            return HashCode.Combine(typeof(TypeBinderKey), SourceClrType, TargetClrType);
         }
     }
 }

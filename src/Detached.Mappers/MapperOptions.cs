@@ -106,6 +106,7 @@ namespace Detached.Mappers
             {
                 new PrimitiveTypeBinder(),
                 new ComplexTypeBinder(),
+                new ForeignKeyTypeBinder(),
                 new CollectionTypeBinder(),
                 new InheritedTypeBinder(),
                 new NullableTypeBinder()
