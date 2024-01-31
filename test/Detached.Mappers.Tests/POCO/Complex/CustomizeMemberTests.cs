@@ -1,9 +1,6 @@
 ﻿using Detached.PatchTypes;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Xunit;
-using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
-using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Tests.POCO.Complex
 {
@@ -14,18 +11,12 @@ namespace Detached.Mappers.Tests.POCO.Complex
         {
             MapperOptions mapperOptions = new MapperOptions();
             mapperOptions.Type<TargetEntity>()
-                        .Member(m => m.Value)
-                        .Setter((@this, value, mapContext) =>
-                            {
-                                @this.Value = value + 1;
-                            });
+                .Member(m => m.Value)
+                .Setter((@this, value, mapContext) => { @this.Value = value + 1; });
 
             mapperOptions.Type<SourceEntity>()
-                        .Member(m => m.Value)
-                        .Getter((@this, mapContext) =>
-                            {
-                                return @this.Value + 1;
-                            });
+                .Member(m => m.Value)
+                .Getter((@this, mapContext) => { return @this.Value + 1; });
 
             Mapper mapper = new Mapper(mapperOptions);
 
@@ -47,10 +38,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
 
             public int Value
             {
-                get
-                {
-                    return _value;
-                }
+                get { return _value; }
                 set
                 {
                     if (_value != value)

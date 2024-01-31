@@ -1,6 +1,6 @@
 ﻿using Detached.Annotations;
 using Detached.Mappers;
-using Detached.Mappers.EntityFramework.Extensions;
+using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Exceptions;
 using Microsoft.EntityFrameworkCore;

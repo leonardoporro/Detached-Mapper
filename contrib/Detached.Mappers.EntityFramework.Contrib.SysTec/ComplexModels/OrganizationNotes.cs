@@ -1,6 +1,5 @@
 ﻿using Detached.Annotations;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Detached.Mappers.EntityFramework.Contrib.SysTec.ComplexModels
 {

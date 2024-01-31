@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Extensions;
+﻿using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
         [Fact]
         public async Task map_fk_longname_to_entity()
         {
-            var dbContext = await TestDbContext.Create<KeyToEntityDbContext>();
+            var dbContext = await TestDbContext.Create<MapForeignKeyLongNameToEntityDbContext>();
 
             dbContext.Children.Add(new ChildEntity { Name = "Child 1" });
             dbContext.Children.Add(new ChildEntity { Name = "Child 2" });
@@ -60,9 +60,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public string Name { get; set; }
         }
 
-        public class KeyToEntityDbContext : TestDbContext
+        public class MapForeignKeyLongNameToEntityDbContext : TestDbContext
         {
-            public KeyToEntityDbContext(DbContextOptions<KeyToEntityDbContext> options)
+            public MapForeignKeyLongNameToEntityDbContext(DbContextOptions<MapForeignKeyLongNameToEntityDbContext> options)
                 : base(options)
             {
             }

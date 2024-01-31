@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.Json.Nodes;
 using static Detached.RuntimeTypes.Expressions.ExtendedExpression;
-using static System.Linq.Expressions.Expression;
 
 namespace Detached.Mappers.Json.TypeOptions
 {

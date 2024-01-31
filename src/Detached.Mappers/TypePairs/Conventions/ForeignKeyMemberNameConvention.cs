@@ -1,7 +1,5 @@
 ﻿using Detached.Mappers.Types;
 using Humanizer;
-using System;
-using System.Text.Json;
 
 namespace Detached.Mappers.TypePairs.Conventions
 {
@@ -13,38 +11,29 @@ namespace Detached.Mappers.TypePairs.Conventions
 
             if (targetType.IsEntity())
             {
-                var key = targetType.GetKeyMember();
-
-                if (key != null)
-                {
-                    var member = targetType.GetMember(targetMemberName);
-                    var memberType = mapperOptions.GetType(member.ClrType);
-
-                    if (memberType.IsCollection())
-                    {
-                        memberName = targetMemberName.Singularize(false) + key.Name.Pluralize(false);
-                    }
-                    else
-                    {
-                        memberName = targetMemberName + key.Name;
-                    }
-
-                    if (targetType.GetMember(memberName) != null)
-                    {
-                        memberName = null; // do not map fk to entity if there is already an entity to entity option.
-                    }
-                }
-            } 
+                memberName = GetTargetForeignKeyName(targetMemberName, targetType, mapperOptions);
+            }
             else if (sourceType.IsEntity())
             {
-                var key = sourceType.GetKeyMember();
+                memberName = GetSourceForeignKeyName(targetMemberName, sourceType);
+            }
 
+            return memberName;
+        }
+
+        string GetSourceForeignKeyName(string targetMemberName, IType sourceType)
+        {
+            string memberName = null;
+
+            var key = sourceType.GetKeyMember();
+            if (key != null)
+            {
                 if (targetMemberName.EndsWith(key.Name))
                 {
                     memberName = targetMemberName.Substring(0, targetMemberName.Length - key.Name.Length);
 
-                } 
-                else 
+                }
+                else
                 {
                     string pluralKeyName = key.Name.Pluralize(false);
 
@@ -59,6 +48,47 @@ namespace Detached.Mappers.TypePairs.Conventions
                 if (sourceType.GetMember(memberName) == null)
                 {
                     memberName = null;
+                }
+            }
+
+            return memberName;
+        }
+
+        string GetTargetForeignKeyName(string targetMemberName, IType targetType, MapperOptions mapperOptions)
+        {
+            string memberName = null;
+            var member = targetType.GetMember(targetMemberName);
+            var memberType = mapperOptions.GetType(member.ClrType);
+
+
+            var key = memberType.IsCollection()
+                ? mapperOptions.GetType(memberType.ItemClrType).GetKeyMember()
+                : memberType.GetKeyMember();
+
+            if (key != null)
+            {
+                string entityName;
+                string keyName;
+
+                if (memberType.IsCollection())
+                {
+                    entityName = targetMemberName.Singularize(false);
+                    keyName = key.Name.Pluralize(false);
+                }
+                else
+                {
+                    entityName = targetMemberName;
+                    keyName = key.Name;
+                }
+
+                if (keyName.StartsWith(entityName))
+                    memberName = keyName;
+                else
+                    memberName = entityName + keyName;
+
+                if (targetType.GetMember(memberName) != null)
+                {
+                    memberName = null; // do not map fk to entity if there is already an entity to entity option.
                 }
             }
 

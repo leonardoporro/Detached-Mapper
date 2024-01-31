@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Extensions;
+﻿using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class ForeignKeyTests
+    public class MapForeignKeyToEntity
     {
         [Fact]
         public async Task map_fk_to_entity()
         {
-            var dbContext = await TestDbContext.Create<FkToEntityDbContext>();
+            var dbContext = await TestDbContext.Create<MapForeignKeyToEntityDbContext>();
 
             dbContext.Children.Add(new ChildEntity { Name = "Child 1" });
             dbContext.Children.Add(new ChildEntity { Name = "Child 2" });
@@ -57,9 +57,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public string Name { get; set; }
         }
 
-        public class FkToEntityDbContext : TestDbContext
+        public class MapForeignKeyToEntityDbContext : TestDbContext
         {
-            public FkToEntityDbContext(DbContextOptions<FkToEntityDbContext> options)
+            public MapForeignKeyToEntityDbContext(DbContextOptions<MapForeignKeyToEntityDbContext> options)
                 : base(options)
             {
             }

@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Complex

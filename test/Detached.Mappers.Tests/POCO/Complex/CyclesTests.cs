@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Xunit;
 
 namespace Detached.Mappers.Tests.POCO.Complex
@@ -86,7 +82,7 @@ namespace Detached.Mappers.Tests.POCO.Complex
         }
 
         public class Root
-        { 
+        {
             public int Id { get; set; }
 
             public string Name { get; set; }

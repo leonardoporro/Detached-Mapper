@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace Detached.Samples.RestApi.Models

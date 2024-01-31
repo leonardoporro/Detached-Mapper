@@ -1,4 +1,4 @@
-﻿using Detached.Mappers.EntityFramework.Extensions;
+﻿using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System;

@@ -1,5 +1,3 @@
-using Detached.Mappers;
-using Detached.Mappers.HotChocolate;
 using Detached.PatchTypes;
 using HotChocolate;
 using Xunit;

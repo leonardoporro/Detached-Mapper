@@ -8,7 +8,7 @@ using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug17;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.Bug18;
 using Detached.Mappers.EntityFramework.Contrib.SysTec.Dtos.inheritance;
-using Detached.Mappers.EntityFramework.Extensions;
+using Detached.Mappers.EntityFramework;
 using GraphInheritenceTests.Dtos;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
