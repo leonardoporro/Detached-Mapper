@@ -7,14 +7,14 @@ namespace Detached.Mappers.Types.Class.Builder
     {
         public ClassTypeDiscriminatorBuilder(ClassType typeOptions)
         {
-            TypeOptions = typeOptions;
+            Type = typeOptions;
         }
 
-        public ClassType TypeOptions { get; }
+        public ClassType Type { get; }
 
         public ClassTypeDiscriminatorBuilder<TType, TMember> HasValue(TMember value, Type instantiationType)
         {
-            var annotation = TypeOptions.Annotations.DiscriminatorValues();
+            var annotation = Type.Annotations.DiscriminatorValues();
 
             if (annotation.IsDefined())
             {

@@ -2,6 +2,7 @@
 using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 
 namespace Detached.Mappers
 {
@@ -29,6 +30,31 @@ namespace Detached.Mappers
 
             propertyNameAnnotation.Set(propertyName);
             valuesAnnotation.Set(values);
+
+            return type;
+        }
+
+        public static IType SetDiscriminatorName(this IType type, string propertyName)
+        {
+            var propertyNameAnnotation = type.Annotations.DiscriminatorName(); 
+
+            propertyNameAnnotation.Set(propertyName); 
+
+            return type;
+        }
+
+        public static IType AddDiscriminatorValue(this IType type, object value, Type concreteType)
+        {
+            var annotation = type.Annotations.DiscriminatorValues();
+
+            if (annotation.IsDefined())
+            {
+                annotation.Value()[value] = concreteType;
+            }
+            else
+            {
+                annotation.Set(new Dictionary<object, Type> { { value, concreteType } });
+            }
 
             return type;
         }

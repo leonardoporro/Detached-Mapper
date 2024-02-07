@@ -99,7 +99,11 @@ namespace Detached.Mappers
                 { typeof(MapIgnoreAttribute), new MapIgnoreAnnotationHandler() },
                 { typeof(ParentAttribute), new ParentAnnotationHandler() },
                 { typeof(AbstractAttribute), new AbstractAnnotationHandler() },
-                { typeof(PrimitiveAttribute), new PrimitiveAnnotationHandler() }
+                { typeof(PrimitiveAttribute), new PrimitiveAnnotationHandler() }, 
+                { typeof(MapToAttribute), new MapToAnnotationHandler() },
+                { typeof(MapFromAttribute), new MapFromAnnotationHandler() },
+                { typeof(DiscriminatorNameAttribute), new DiscriminatorNameAnnotationHandler() },
+                { typeof(DiscriminatorValueAttribute), new DiscriminatorValueAnnotationHandler() }
             };
 
             TypeBinders = new List<ITypeBinder>
@@ -115,7 +119,9 @@ namespace Detached.Mappers
             MemberNameConventions = new List<IMemberNameConvention>
             {
                 new ForeignKeyMemberNameConvention(),
-                new DefaultMemberNameConvention()
+                new DefaultMemberNameConvention(),
+                new MapToMemberNameConvention(),
+                new MapFromMemberNameConvention()
             };
         }
 

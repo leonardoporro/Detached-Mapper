@@ -16,7 +16,7 @@ namespace Detached.Mappers
         {
             if (type.MappingSchema != MappingSchema.Complex)
             {
-                throw new MapperException($"Only complext types can be marked as Entities.");
+                throw new MapperException($"Only complex types can be marked as Entities.");
             }
 
             type.Annotations.Entity().Set(value);
