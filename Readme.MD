@@ -19,6 +19,11 @@ All feedback is welcome, I'll try to prioritize and fix everything, but I have l
 ## Changes & Breaking Changes
 Please take a look at the new list [here](https://github.com/leonardoporro/Detached-Mapper/wiki/Changes-&-Breaking-Changes).
 
+## PR your test!
+Fork the project and send me a PR with your tests in the Contrib folder and I will include them so that
+in the future I won´t break your solution with changes. And I'll make it pass if they are broken because of an issue.
+I know the library needs ton more of tests, but resources here are limited. Sorry and thanks for your contribution!
+
 ## Urgent issues
 If something is blocking your project and you need help asap, contact me at my [e-mail](mailto:mail@leonardoporro.com.ar).
 
