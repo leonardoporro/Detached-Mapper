@@ -12,8 +12,7 @@ namespace Detached.Mappers.EntityFramework.Loaders
 
         public Type SourceType { get; }
 
-        public Type TargetType { get; } 
-         
+        public Type TargetType { get; }  
 
         public override bool Equals(object obj)
         {

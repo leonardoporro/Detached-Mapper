@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +20,12 @@ namespace Detached.Mappers.EntityFramework
             where TEntity : class
         {
             return dbContext.GetEntityMapper().MapAsync<TEntity>(dbContext, entityOrDto, mapParams);
+        }
+
+        public static Task<IEnumerable<TEntity>> MapAsync<TEntity>(this DbContext dbContext, IEnumerable<object> entitiesOrDtos, MapParameters mapParams = null)
+            where TEntity : class
+        {
+            return dbContext.GetEntityMapper().MapAsync<TEntity>(dbContext, entitiesOrDtos, mapParams);
         }
 
         public static TEntity Map<TEntity>(this DbContext dbContext, object entityOrDto, MapParameters mapParams = null)

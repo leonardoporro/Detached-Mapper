@@ -26,7 +26,6 @@ namespace Detached.Mappers.EntityFramework
 
         public Mapper Mapper { get; }
 
-
         public Loader Loader { get; }
 
         public IQueryable<TProjection> Project<TEntity, TProjection>(IQueryable<TEntity> query)
@@ -46,12 +45,38 @@ namespace Detached.Mappers.EntityFramework
             return Map<TEntity>(dbContext, entityOrDto, target, parameters);
         }
 
+        public async Task<IEnumerable<TEntity>> MapAsync<TEntity>(DbContext dbContext, IEnumerable<object> entitiesOrDtos, MapParameters parameters = null)
+            where TEntity : class
+        {
+            var targets = await Loader.LoadAsync(dbContext, typeof(TEntity), entitiesOrDtos);
+
+            return Map<TEntity>(dbContext, entitiesOrDtos, targets, parameters);
+        }
+
         public TEntity Map<TEntity>(DbContext dbContext, object entityOrDto, MapParameters parameters = null)
            where TEntity : class
         {
             var target = Loader.Load(dbContext, typeof(TEntity), entityOrDto);
 
             return Map<TEntity>(dbContext, entityOrDto, target, parameters);
+        }
+
+        IEnumerable<TTarget> Map<TTarget>(DbContext dbContext, IEnumerable<object> entitiesOrDtos, IEnumerable<object> targets, MapParameters parameters)
+           where TTarget : class
+        {
+            if (parameters == null)
+            {
+                parameters = new MapParameters();
+            }
+
+            if (targets == null && parameters.MissingRootBehavior != MissingRootBehavior.Create)
+            {
+                throw new MapperException($"Entity {typeof(TTarget)} does not exist and MissingRootBehavior is set to Throw.");
+            }
+
+            var mapContext = new EntityMapContext(MapperOptions, dbContext, parameters);
+
+            return (IEnumerable<TTarget>)Mapper.Map(entitiesOrDtos, entitiesOrDtos.GetType(), targets, typeof(IEnumerable<TTarget>), mapContext);
         }
 
         TTarget Map<TTarget>(DbContext dbContext, object entityOrDto, object target, MapParameters parameters)
