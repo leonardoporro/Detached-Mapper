@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
 using Xunit;
 
-namespace Detached.Mappers.Annotation.Tests
+namespace Detached.Mappers.Tests.Annotations
 {
     public class SetGenericAnnotation
     {

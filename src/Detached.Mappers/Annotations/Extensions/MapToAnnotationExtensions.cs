@@ -3,7 +3,7 @@ using Detached.Mappers.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class MapToAnnotationExtensions
     {

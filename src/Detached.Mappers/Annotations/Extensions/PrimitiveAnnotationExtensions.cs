@@ -4,7 +4,7 @@ using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class PrimitiveAnnotationExtensions
     {
@@ -25,7 +25,7 @@ namespace Detached.Mappers
             memberPair.Annotations.Primitive().Set(value);
 
             return memberPair;
-        } 
+        }
         public static ClassTypeMemberBuilder<TType, TMember> Primitive<TType, TMember>(this ClassTypeMemberBuilder<TType, TMember> member, bool value = true)
         {
             member.Member.Primitive(value);

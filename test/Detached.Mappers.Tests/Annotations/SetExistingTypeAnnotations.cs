@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Exceptions;
+﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.Exceptions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using System;

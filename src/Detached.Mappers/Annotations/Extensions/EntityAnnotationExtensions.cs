@@ -3,7 +3,7 @@ using Detached.Mappers.Exceptions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class EntityAnnotationExtensions
     {

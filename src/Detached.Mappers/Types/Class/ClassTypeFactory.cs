@@ -1,4 +1,6 @@
-﻿using Detached.PatchTypes;
+﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.Options;
+using Detached.PatchTypes;
 using Detached.RuntimeTypes.Reflection;
 using System;
 using System.Linq.Expressions;

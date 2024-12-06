@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Context;
+using Detached.Mappers.Types;
 
 namespace Detached.Mappers.Tests.Mocks
 {

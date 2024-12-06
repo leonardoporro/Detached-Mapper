@@ -4,7 +4,7 @@ using Detached.Mappers.TypePairs.Builder;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class.Builder;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class AssociationAnnotationExtensions
     {
@@ -39,11 +39,11 @@ namespace Detached.Mappers
             memberBuilder.Member.Composition();
 
             return memberBuilder;
-        }        
-        
+        }
+
         public static bool IsComposition(this ITypeMember member)
         {
-            return member.Annotations.Composition().Value(); 
+            return member.Annotations.Composition().Value();
         }
 
         public static bool IsComposition(this TypePairMember member)

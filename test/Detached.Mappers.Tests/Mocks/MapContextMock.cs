@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypeMappers.Entity;
+﻿using Detached.Mappers.Context;
+using Detached.Mappers.TypeMappers.Entity;
 using System.Collections.Concurrent;
 
 namespace Detached.Mappers.Tests.Mocks

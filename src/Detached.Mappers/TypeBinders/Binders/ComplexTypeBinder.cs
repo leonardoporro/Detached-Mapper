@@ -1,4 +1,6 @@
-﻿using Detached.Mappers.TypePairs;
+﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.Options;
+using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Detached.Mappers.Context;
 
 namespace Detached.Mappers.TypeMappers.Entity.Collection
 {

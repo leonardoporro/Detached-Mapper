@@ -1,5 +1,6 @@
 ﻿using Detached.Mappers.HotChocolate.TypeMappers;
 using Detached.Mappers.HotChocolate.Types;
+using Detached.Mappers.Options;
 
 namespace Detached.Mappers.HotChocolate
 {

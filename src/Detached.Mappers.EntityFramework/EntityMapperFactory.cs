@@ -1,5 +1,7 @@
 ﻿using Detached.Mappers.EntityFramework.Conventions;
+using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.TypeMappers;
+using Detached.Mappers.Options;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;

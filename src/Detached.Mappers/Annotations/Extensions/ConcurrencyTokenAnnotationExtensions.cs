@@ -1,7 +1,7 @@
 ﻿using Detached.Mappers.Annotations;
 using Detached.Mappers.Types;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class ConcurrencyTokenAnnotationExtensions
     {

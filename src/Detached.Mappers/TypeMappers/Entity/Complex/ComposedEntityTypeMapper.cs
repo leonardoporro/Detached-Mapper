@@ -1,4 +1,5 @@
 ﻿using System;
+using Detached.Mappers.Context;
 
 namespace Detached.Mappers.TypeMappers.Entity.Complex
 {

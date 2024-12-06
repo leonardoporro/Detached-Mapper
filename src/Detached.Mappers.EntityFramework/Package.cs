@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.EntityFramework.Integration;
+using Detached.Mappers.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;

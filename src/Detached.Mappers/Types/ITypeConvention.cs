@@ -1,4 +1,6 @@
-﻿namespace Detached.Mappers.Types
+﻿using Detached.Mappers.Options;
+
+namespace Detached.Mappers.Types
 {
     public interface ITypeConvention
     {

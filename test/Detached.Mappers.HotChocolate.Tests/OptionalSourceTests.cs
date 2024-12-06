@@ -1,3 +1,4 @@
+using Detached.Mappers.Options;
 using Detached.PatchTypes;
 using HotChocolate;
 using Xunit;

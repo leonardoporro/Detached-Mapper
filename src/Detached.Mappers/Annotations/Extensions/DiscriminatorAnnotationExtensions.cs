@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Pipes;
 
-namespace Detached.Mappers
+namespace Detached.Mappers.Annotations.Extensions
 {
     public static class DiscriminatorAnnotationExtensions
     {
@@ -36,9 +36,9 @@ namespace Detached.Mappers
 
         public static IType SetDiscriminatorName(this IType type, string propertyName)
         {
-            var propertyNameAnnotation = type.Annotations.DiscriminatorName(); 
+            var propertyNameAnnotation = type.Annotations.DiscriminatorName();
 
-            propertyNameAnnotation.Set(propertyName); 
+            propertyNameAnnotation.Set(propertyName);
 
             return type;
         }

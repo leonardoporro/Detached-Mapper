@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Detached.Mappers.Annotations.Extensions;
+using System;
 using System.Collections.Generic;
 
 namespace Detached.Mappers.Types.Class.Builder

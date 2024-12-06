@@ -1,4 +1,5 @@
-﻿using Detached.PatchTypes;
+﻿using Detached.Mappers.Options;
+using Detached.PatchTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

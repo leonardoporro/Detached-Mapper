@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
 using Detached.RuntimeTypes.Reflection;
 using System;

@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.EntityFramework;
+﻿using Detached.Mappers.Context;
+using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;

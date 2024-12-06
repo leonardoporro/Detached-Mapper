@@ -1,33 +1,38 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <Authors>Leonardo Porro</Authors>
-    <Company />
-    <Product>Detached</Product>
-    <Description>A general purpose object-oriented mapper.</Description>
-    <Copyright>2017</Copyright>
-    <PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
-    <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
-    <NeutralLanguage />
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>$(Version)</Version>
-    <PackageIcon>logo.png</PackageIcon>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-  	<ProjectReference Include="..\Detached.Mappers\Detached.Mappers.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="..\..\logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="HotChocolate.Abstractions" Version="13.8.1" />
-  </ItemGroup>
+	<PropertyGroup>
+		<Authors>Leonardo Porro</Authors>
+		<Company />
+		<Product>Detached</Product>
+		<Description>A general purpose object-oriented mapper.</Description>
+		<Copyright>2017</Copyright>
+		<PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
+		<PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
+		<NeutralLanguage />
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>$(Version)</Version>
+		<PackageIcon>logo.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Detached.Mappers\Detached.Mappers.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="HotChocolate.Abstractions" Version="14.2.0" />
+	</ItemGroup>
 
 </Project>

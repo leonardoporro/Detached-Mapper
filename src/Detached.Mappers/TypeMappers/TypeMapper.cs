@@ -1,4 +1,6 @@
-﻿namespace Detached.Mappers.TypeMappers
+﻿using Detached.Mappers.Context;
+
+namespace Detached.Mappers.TypeMappers
 {
     public abstract class TypeMapper<TSource, TTarget> : ITypeMapper<TSource, TTarget>
     {

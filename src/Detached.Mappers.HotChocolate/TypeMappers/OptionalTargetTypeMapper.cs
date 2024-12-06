@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.TypeMappers;
+﻿using Detached.Mappers.Context;
+using Detached.Mappers.TypeMappers;
 using HotChocolate;
 
 namespace Detached.Mappers.HotChocolate.TypeMappers

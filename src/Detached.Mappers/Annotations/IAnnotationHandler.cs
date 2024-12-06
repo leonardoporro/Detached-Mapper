@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.Types;
+﻿using Detached.Mappers.Options;
+using Detached.Mappers.Types;
 using System;
 
 namespace Detached.Mappers.Annotations

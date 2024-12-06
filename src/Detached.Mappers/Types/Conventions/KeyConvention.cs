@@ -1,4 +1,6 @@
-﻿using Detached.Mappers.Types.Class;
+﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.Options;
+using Detached.Mappers.Types.Class;
 
 namespace Detached.Mappers.Types.Conventions
 {

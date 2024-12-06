@@ -1,44 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-	  <Version>$(Version)</Version>
-    <Authors>Leonardo Porro</Authors>
-    <Company />
-    <Product>Detached</Product>
-    <Description>A general purpose object-oriented mapper.</Description>
-    <Copyright>2017</Copyright>
-    <PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
-    <NeutralLanguage />
-    <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
-    <PackageIcon>logo.png</PackageIcon>
-    <UserSecretsId>fce27d9c-812b-4f23-bd8f-9a8ee994297d</UserSecretsId>     <PackageReadmeFile>Readme.MD</PackageReadmeFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>13</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Detached.RuntimeTypes" Version="8.0.0" />
-    <PackageReference Include="Detached.PatchTypes" Version="8.0.0" />
-    <PackageReference Include="Humanizer" Version="2.14.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<Version>$(Version)</Version>
+		<Authors>Leonardo Porro</Authors>
+		<Company />
+		<Product>Detached</Product>
+		<Description>A general purpose object-oriented mapper.</Description>
+		<Copyright>2017</Copyright>
+		<PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
+		<NeutralLanguage />
+		<PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageReadmeFile>Readme.MD</PackageReadmeFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Detached.Annotations\Detached.Annotations.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Detached.RuntimeTypes" Version="8.0.0" />
+		<PackageReference Include="Detached.PatchTypes" Version="8.0.0" />
+		<PackageReference Include="Humanizer" Version="2.14.1" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="..\..\Readme.MD">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\Readme.MD">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Detached.Mappers.Annotations\Detached.Mappers.Annotations.csproj" />
+	</ItemGroup>
 
 </Project>
