@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapOwnedEntity
+    public class OwnedEntityTests
     {
         [Fact]
         public async Task map_owned_entity()

@@ -3,17 +3,18 @@ using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapForeignKeyToEntity
+    public class ForeignKeyLongNameToEntityTests
     {
         [Fact]
-        public async Task map_fk_to_entity()
+        public async Task map_fk_longname_to_entity()
         {
-            var dbContext = await TestDbContext.Create<MapForeignKeyToEntityDbContext>();
+            var dbContext = await TestDbContext.Create<MapForeignKeyLongNameToEntityDbContext>();
 
             dbContext.Children.Add(new ChildEntity { Name = "Child 1" });
             dbContext.Children.Add(new ChildEntity { Name = "Child 2" });
@@ -29,20 +30,21 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             });
 
             Assert.NotNull(result.Child);
-            Assert.Equal(2, result.Child.Id);
+            Assert.Equal(2, result.Child.ChildId);
             Assert.Equal("Child 2", result.Child.Name);
 
             Assert.NotNull(result.Children);
-            Assert.Equal(1, result.Children[0].Id);
+            Assert.Equal(1, result.Children[0].ChildId);
             Assert.Equal("Child 1", result.Children[0].Name);
 
-            Assert.Equal(2, result.Children[1].Id);
+            Assert.Equal(2, result.Children[1].ChildId);
             Assert.Equal("Child 2", result.Children[1].Name);
         }
 
         public class ParentEntity
         {
-            public int Id { get; set; }
+            [Key]
+            public int ParentId { get; set; }
 
             public string Name { get; set; }
 
@@ -53,14 +55,15 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
 
         public class ChildEntity
         {
-            public int Id { get; set; }
+            [Key]
+            public int ChildId { get; set; }
 
             public string Name { get; set; }
         }
 
-        public class MapForeignKeyToEntityDbContext : TestDbContext
+        public class MapForeignKeyLongNameToEntityDbContext : TestDbContext
         {
-            public MapForeignKeyToEntityDbContext(DbContextOptions<MapForeignKeyToEntityDbContext> options)
+            public MapForeignKeyLongNameToEntityDbContext(DbContextOptions<MapForeignKeyLongNameToEntityDbContext> options)
                 : base(options)
             {
             }

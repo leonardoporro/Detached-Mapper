@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapEntityNullableKey
+    public class EntityNullableKeyTests
     {
         [Fact]
         public async Task map_entity_nullable_key()

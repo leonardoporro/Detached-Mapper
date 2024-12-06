@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapMemberWithValueConverter
+    public class MemberWithValueConverterTests
     {
         [Fact]
         public async Task map_meber_with_value_converter()

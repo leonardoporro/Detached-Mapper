@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapEntityNoKey
+    public class EntityNoKeyTests
     {
         [Fact]
         public async Task map_entity_nokey_dto()

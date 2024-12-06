@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapMany
+    public class BatchTests
     {
         [Fact]
         public async Task map_many()

@@ -8,9 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Configuration
 {
-    public class ConfigureProfiles
+    public class ConfigureProfilesTests
     {
         [Fact]
         public async Task configure_profiles_profile1()

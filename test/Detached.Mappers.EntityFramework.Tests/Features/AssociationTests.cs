@@ -14,19 +14,19 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class InputTests
+    public class AssociationTests
     {
         [Fact]
-        public async Task map_input()
+        public async Task map_association()
         {
-            var dbContext = await TestDbContext.Create<InputTestDbContext>();
+            var dbContext = await TestDbContext.Create<AssociationTestDbContext>();
 
             dbContext.Roles.Add(new Role { Id = 1, Name = "admin" });
             dbContext.Roles.Add(new Role { Id = 2, Name = "user" });
             dbContext.UserTypes.Add(new UserType { Id = 1, Name = "system" });
             await dbContext.SaveChangesAsync();
 
-            User user = new User
+            User newUser = new User
             {
                 Id = 1,
                 Name = "test user",
@@ -37,36 +37,32 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
                 },
                 Addresses = new List<Address>
                 {
-                    new Address { Id = 1, Street = "original street", Number = "123" }
+                    new Address { Street = "original street", Number = "123" }
                 },
                 Profile = new UserProfile
                 {
-                    Id = 1,
                     FirstName = "test",
                     LastName = "user"
                 },
                 UserType = dbContext.Find<UserType>(1)
             };
-
-            dbContext.Users.Add(user);
-
+            dbContext.Users.Add(newUser);
             await dbContext.SaveChangesAsync();
-
-            User savedUser = await dbContext.Users.Where(u => u.Id == 1)
-                    .Include(u => u.Roles)
-                    .Include(u => u.Addresses)
-                    .Include(u => u.Profile)
-                    .Include(u => u.UserType)
-                    .FirstOrDefaultAsync();
 
             await dbContext.MapAsync<User>(new EditUserInput
             {
                 Id = 1,
-                Name = "edited name"
+                Roles = new List<Role>
+                {
+                    new Role { Id = 1 }
+                }
             });
+            await dbContext.SaveChangesAsync();
+
+            User savedUser = dbContext.Users.Where(u => u.Id == 1).Include(u => u.Roles).FirstOrDefault();
 
             Assert.Equal(1, savedUser.Id);
-            Assert.Equal("edited name", savedUser.Name);
+            Assert.Equal("test user", savedUser.Name);
             Assert.NotNull(savedUser.Profile);
             Assert.Equal("test", savedUser.Profile.FirstName);
             Assert.Equal("user", savedUser.Profile.LastName);
@@ -75,9 +71,8 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             Assert.Equal("original street", savedUser.Addresses[0].Street);
             Assert.Equal("123", savedUser.Addresses[0].Number);
             Assert.NotNull(savedUser.Roles);
-            Assert.Equal(2, savedUser.Roles.Count);
+            Assert.Single(savedUser.Roles);
             Assert.Contains(savedUser.Roles, r => r.Id == 1);
-            Assert.Contains(savedUser.Roles, r => r.Id == 2);
             Assert.NotNull(savedUser.UserType);
             Assert.Equal(1, savedUser.UserType.Id);
         }
@@ -86,7 +81,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public List<Role> Roles { get; set; }
         }
 
         public class User
@@ -120,7 +115,6 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
 
             public virtual string LastName { get; set; }
         }
-
         public class Role
         {
             [Key]
@@ -165,9 +159,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public virtual string Number { get; set; }
         }
 
-        public class InputTestDbContext : TestDbContext
+        public class AssociationTestDbContext : TestDbContext
         {
-            public InputTestDbContext(DbContextOptions<InputTestDbContext> options)
+            public AssociationTestDbContext(DbContextOptions<AssociationTestDbContext> options)
                 : base(options)
             {
             }

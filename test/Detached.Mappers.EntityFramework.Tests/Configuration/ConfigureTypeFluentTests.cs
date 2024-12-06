@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Configuration
 {
-    public class ConfigureTypeFluent
+    public class ConfigureTypeFluentTests
     {
         [Fact]
         public async Task apply_conventions_to_fluent()

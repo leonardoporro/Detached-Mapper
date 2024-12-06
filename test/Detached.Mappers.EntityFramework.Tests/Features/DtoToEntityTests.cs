@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapDtoToEntity
+    public class DtoToEntityTests
     {
         [Fact]
         public async Task map_dto_to_entity()

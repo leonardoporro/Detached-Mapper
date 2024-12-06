@@ -10,9 +10,9 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Configuration
 {
-    public class ConfigureCustomMapper
+    public class ConfigureCustomMapperTests
     {
         [Fact]
         public async Task configure_custom_mapper()

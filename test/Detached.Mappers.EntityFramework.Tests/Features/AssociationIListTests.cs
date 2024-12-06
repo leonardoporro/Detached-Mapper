@@ -9,10 +9,10 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapAssociationNoSetter
+    public class AssociationIListTests
     {
         [Fact]
-        public async Task map_association_nosetter()
+        public async Task map_association_ilist()
         {
             var dbContext = await TestDbContext.Create<CollectionNoSetterTestDbContext>();
 
@@ -38,7 +38,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public string Name { get; set; }
 
             [Composition]
-            public List<Address> Addresses { get; } = new List<Address>();
+            public IList<Address> Addresses { get; set; }
         }
 
         public class Address

@@ -15,7 +15,7 @@ using static Detached.Mappers.EntityFramework.Tests.Extensions.StringExtensions;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class ImportJson
+    public class ImportJsonTests
     {
         [Fact]
         public async Task map_json_string()

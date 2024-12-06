@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Detached.Mappers.EntityFramework.Tests.Features
 {
-    public class MapInheritedEntity
+    public class InheritedEntityTests
     {
         [Fact]
         public async Task map_inherited_entity()
