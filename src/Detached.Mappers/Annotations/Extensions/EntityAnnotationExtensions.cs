@@ -24,7 +24,7 @@ namespace Detached.Mappers.Annotations.Extensions
 
         public static ClassTypeBuilder<TType> Entity<TType>(this ClassTypeBuilder<TType> type, bool value = true)
         {
-            type.Type.Entity(value);
+            type.ClassType.Entity(value);
 
             return type;
         }

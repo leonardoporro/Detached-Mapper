@@ -8,10 +8,13 @@ namespace Detached.Mappers.Tests.Class.Members
         [Fact]
         public void configure_member_getter_fluent()
         {
-            MapperOptions opts = new MapperOptions();
-            opts.Type<User>().Member(u => u.Name).Getter((user, context) => user.Name + "+1");
+            var options = new MapperOptionsBuilder()
+                .Type<User>()
+                    .Member(u => u.Name)
+                    .Getter((user, context) => user.Name + "+1")
+                .Options;
 
-            Mapper mapper = new Mapper(opts);
+            Mapper mapper = new Mapper(options);
 
             User source = new User { Id = 1, Name = "user" };
             User target = new User();
@@ -24,14 +27,14 @@ namespace Detached.Mappers.Tests.Class.Members
         [Fact]
         public void configure_member_setter_fluent()
         {
-            MapperOptions opts = new MapperOptions();
+            var options = new MapperOptionsBuilder()
+                .Type<User>().Member(u => u.Name).Setter((user, value, context) =>
+                    {
+                        user.Name = value + "+1";
+                    })
+                .Options;
 
-            opts.Type<User>().Member(u => u.Name).Setter((user, value, context) =>
-            {
-                user.Name = value + "+1";
-            });
-
-            Mapper mapper = new Mapper(opts);
+            Mapper mapper = new Mapper(options);
 
             User source = new User { Id = 1, Name = "user" };
             User target = new User();

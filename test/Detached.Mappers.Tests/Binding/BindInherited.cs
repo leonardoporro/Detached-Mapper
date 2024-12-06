@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Exceptions;
+using Detached.Mappers.Options;
 using Xunit;
 
 namespace Detached.Mappers.Tests.Binding
@@ -8,17 +9,20 @@ namespace Detached.Mappers.Tests.Binding
         [Fact]
         public void Bind_Inherited()
         {
-            Mapper mapper = new Mapper();
-            mapper.Options.Type<BaseDto>()
-                .Discriminator(b => b.Type)
-                .HasValue(1, typeof(ConcreteDto1))
-                .HasValue(2, typeof(ConcreteDto2));
+            var options = new MapperOptionsBuilder()
+                .Type<BaseDto>()
+                    .Discriminator(b => b.Type)
+                    .HasValue(1, typeof(ConcreteDto1))
+                    .HasValue(2, typeof(ConcreteDto2))
+                .Type<BaseEntity>()
+                    .Discriminator(b => b.Type)
+                    .HasValue(1, typeof(ConcreteEntity1))
+                    .HasValue(2, typeof(ConcreteEntity2))
+                .Options;
 
-            mapper.Options.Type<BaseEntity>()
-                .Discriminator(b => b.Type)
-                .HasValue(1, typeof(ConcreteEntity1))
-                .HasValue(2, typeof(ConcreteEntity2));
-            
+
+            var mapper = new Mapper(options);
+ 
             var expression = mapper.Bind<BaseEntity, BaseDto>();
 
             var fn = expression.Compile();
@@ -39,34 +43,37 @@ namespace Detached.Mappers.Tests.Binding
         [Fact]
         public void Bind_Inherited_MissingValue()
         {
-            Mapper mapper = new Mapper();
-            mapper.Options.Type<BaseDto>()
-                .Discriminator(b => b.Type)
-                .HasValue(1, typeof(ConcreteDto1));
+            var options = new MapperOptionsBuilder()
+                .Type<BaseDto>()
+                    .Discriminator(b => b.Type)
+                    .HasValue(1, typeof(ConcreteDto1))
+                .Type<BaseEntity>()
+                    .Discriminator(b => b.Type)
+                    .HasValue(1, typeof(ConcreteEntity1))
+                    .HasValue(2, typeof(ConcreteEntity2))
+                .Options;
 
-            mapper.Options.Type<BaseEntity>()
-                .Discriminator(b => b.Type)
-                .HasValue(1, typeof(ConcreteEntity1))
-                .HasValue(2, typeof(ConcreteEntity2));
-
+            var mapper = new Mapper(options);
+ 
             Assert.Throws<MapperException>(() => mapper.Bind<BaseEntity, BaseDto>());
         }
-
 
         [Fact]
         public void Bind_Inherited_InvalidDiscriminator()
         {
-            Mapper mapper = new Mapper();
-            mapper.Options.Type<BaseDto>()
-                .Discriminator(b => b.Id)
-                .HasValue(1, typeof(ConcreteDto1))
-                .HasValue(2, typeof(ConcreteDto2));
+            var options = new MapperOptionsBuilder()
+                .Type<BaseDto>()
+                    .Discriminator(b => b.Id)
+                    .HasValue(1, typeof(ConcreteDto1))
+                    .HasValue(2, typeof(ConcreteDto2))
+                .Type<BaseEntity>()
+                    .Discriminator(b => b.Type)
+                    .HasValue(1, typeof(ConcreteEntity1))
+                    .HasValue(2, typeof(ConcreteEntity2))
+                .Options;
 
-            mapper.Options.Type<BaseEntity>()
-                .Discriminator(b => b.Type)
-                .HasValue(1, typeof(ConcreteEntity1))
-                .HasValue(2, typeof(ConcreteEntity2));
-
+            var mapper = new Mapper(options);
+ 
             Assert.Throws<MapperException>(() => mapper.Bind<BaseEntity, BaseDto>());
         }
 

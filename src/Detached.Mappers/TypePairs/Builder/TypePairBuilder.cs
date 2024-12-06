@@ -8,11 +8,11 @@ namespace Detached.Mappers.TypePairs.Builder
     {
         public TypePairBuilder(MapperOptions mapperOptions, TypePair typePairOptions)
         {
-            MapperOptions = mapperOptions;
+            Options = mapperOptions;
             TypePairOptions = typePairOptions;
         }
 
-        public MapperOptions MapperOptions { get; }
+        public MapperOptions Options { get; }
 
         public TypePair TypePairOptions { get; }
 
@@ -25,7 +25,7 @@ namespace Detached.Mappers.TypePairs.Builder
                 throw new ArgumentException($"Member {memberName} does not exist.");
             }
 
-            return new TypePairMemberBuilder<TSource, TTarget>(MapperOptions, TypePairOptions, memberOptions);
+            return new TypePairMemberBuilder<TSource, TTarget>(Options, TypePairOptions, memberOptions);
         }
     }
 }

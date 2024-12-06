@@ -3,7 +3,6 @@ using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.TypeMappers;
 using Detached.Mappers.Options;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -50,16 +49,17 @@ namespace Detached.Mappers.EntityFramework
 
         static void ApplyOnMapperCreating(DbContext dbContext, EntityMapperOptions options)
         {
-            MethodInfo configureMapperMethodInfo = dbContext.GetType().GetMethod("OnMapperCreating");
+            var builder = new EntityMapperOptionsBuilder(options);
+            var configureMapperMethodInfo = dbContext.GetType().GetMethod("OnMapperCreating");
             if (configureMapperMethodInfo != null)
             {
                 var parameters = configureMapperMethodInfo.GetParameters();
-                if (parameters.Length != 1 && parameters[0].ParameterType != typeof(EntityMapperOptions))
+                if (parameters.Length != 1 && parameters[0].ParameterType != typeof(EntityMapperOptionsBuilder))
                 {
-                    throw new ArgumentException($"OnMapperCreating method must have a single argument of type {nameof(EntityMapperOptions)}");
+                    throw new ArgumentException($"OnMapperCreating method must have a single argument of type {nameof(EntityMapperOptionsBuilder)}");
                 }
 
-                configureMapperMethodInfo.Invoke(dbContext, new[] { options });
+                configureMapperMethodInfo.Invoke(dbContext, new[] { builder });
             }
         }
     }

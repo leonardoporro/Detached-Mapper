@@ -15,13 +15,14 @@ namespace Detached.Mappers.Tests.Class.Inherited
                 new { AnimalType = "fish", Id = 2, Name = "Nemo", HasTeeth = true },
             };
 
-            MapperOptions mapperOptions = new MapperOptions();
-            mapperOptions.Type<Animal>()
-                .Discriminator(a => a.AnimalType)
-                .HasValue("cat", typeof(Cat))
-                .HasValue("fish", typeof(Fish));
+            var options = new MapperOptionsBuilder()
+                .Type<Animal>()
+                    .Discriminator(a => a.AnimalType)
+                    .HasValue("cat", typeof(Cat))
+                    .HasValue("fish", typeof(Fish))
+                .Options;
 
-            Mapper mapper = new Mapper(mapperOptions);
+            Mapper mapper = new Mapper(options);
 
             List<Animal> result = mapper.Map<List<object>, List<Animal>>(animals);
 
@@ -35,7 +36,6 @@ namespace Detached.Mappers.Tests.Class.Inherited
             Assert.Equal("Nemo", result[1].Name);
             Assert.True(((Fish)result[1]).HasTeeth);
         }
-
 
         public abstract class Animal
         {

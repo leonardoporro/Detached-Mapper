@@ -3,7 +3,6 @@ using Detached.Mappers.Context;
 using Detached.Mappers.Options;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Builder;
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -13,42 +12,49 @@ namespace Detached.Mappers.Types.Class.Builder
     {
         public ClassTypeBuilder(ClassType typeOptions, MapperOptions mapperOptions)
         {
-            Type = typeOptions;
-            MapperOptions = mapperOptions;
+            ClassType = typeOptions;
+            Options = mapperOptions;
         }
 
-        public ClassType Type { get; }
+        public ClassType ClassType { get; }
 
-        public MapperOptions MapperOptions { get; }
+        public MapperOptions Options { get; }
+
+        public virtual ClassTypeBuilder<TNewType> Type<TNewType>()
+        {
+            var newType = (ClassType)Options.GetType(typeof(TNewType));
+
+            return new ClassTypeBuilder<TNewType>(newType, Options);
+        }
 
         public ClassTypeMemberBuilder<TType, TMember> Member<TMember>(Expression<Func<TType, TMember>> selector)
         {
             ClassTypeMember memberOptions = GetMember(selector);
 
-            return new ClassTypeMemberBuilder<TType, TMember>(Type, memberOptions, MapperOptions);
+            return new ClassTypeMemberBuilder<TType, TMember>(ClassType, memberOptions, Options);
         }
 
         public TypePairBuilder<TSource, TType> FromType<TSource>()
         {
-            IType sourceType = MapperOptions.GetType(typeof(TSource));
-            IType targetType = MapperOptions.GetType(typeof(TType));
+            IType sourceType = Options.GetType(typeof(TSource));
+            IType targetType = Options.GetType(typeof(TType));
 
-            TypePair typePair = MapperOptions.GetTypePair(sourceType, targetType, null);
+            TypePair typePair = Options.GetTypePair(sourceType, targetType, null);
 
-            return new TypePairBuilder<TSource, TType>(MapperOptions, typePair);
+            return new TypePairBuilder<TSource, TType>(Options, typePair);
         }
 
         public ClassTypeBuilder<TType> Constructor(Expression<Func<IMapContext, TType>> constructor)
         {
-            Type.Constructor = constructor;
+            ClassType.Constructor = constructor;
             return this;
         }
 
         public ClassTypeBuilder<TType> IncludeAll()
         {
-            foreach (var memberName in Type.MemberNames)
+            foreach (var memberName in ClassType.MemberNames)
             {
-                Type.GetMember(memberName).Ignore(false);
+                ClassType.GetMember(memberName).Ignore(false);
             }
 
             return this;
@@ -56,9 +62,9 @@ namespace Detached.Mappers.Types.Class.Builder
 
         public ClassTypeBuilder<TType> ExcludeAll()
         {
-            foreach (var memberName in Type.MemberNames)
+            foreach (var memberName in ClassType.MemberNames)
             {
-                Type.GetMember(memberName).Ignore(true);
+                ClassType.GetMember(memberName).Ignore(true);
             }
 
             return this;
@@ -66,10 +72,10 @@ namespace Detached.Mappers.Types.Class.Builder
 
         public ClassTypeBuilder<TType> IncludePrimitives()
         {
-            foreach (var memberName in Type.MemberNames)
+            foreach (var memberName in ClassType.MemberNames)
             {
-                ITypeMember memberOptions = Type.GetMember(memberName);
-                if (MapperOptions.IsPrimitive(memberOptions.ClrType))
+                ITypeMember memberOptions = ClassType.GetMember(memberName);
+                if (Options.IsPrimitive(memberOptions.ClrType))
                 {
                     memberOptions.Ignore(false);
                 }
@@ -86,16 +92,16 @@ namespace Detached.Mappers.Types.Class.Builder
             Expression<Func<TType, TMember>> selector)
         {
             ClassTypeMember memberOptions = GetMember(selector);
-            Type.Annotations.DiscriminatorName().Set(memberOptions.Name);
+            ClassType.Annotations.DiscriminatorName().Set(memberOptions.Name);
 
-            return new ClassTypeDiscriminatorBuilder<TType, TMember>(Type);
+            return new ClassTypeDiscriminatorBuilder<TType, TMember>(ClassType, Options);
         }
 
         public ClassTypeBuilder<TType> Key(params Expression<Func<TType, object>>[] members)
         {
-            foreach (string memberName in Type.MemberNames)
+            foreach (string memberName in ClassType.MemberNames)
             {
-                ITypeMember memberOptions = Type.GetMember(memberName);
+                ITypeMember memberOptions = ClassType.GetMember(memberName);
                 memberOptions.Key(false);
             }
 
@@ -105,7 +111,7 @@ namespace Detached.Mappers.Types.Class.Builder
                 var member = convert.Operand as MemberExpression;
                 var propInfo = member.Member as PropertyInfo;
 
-                if (Type.Members.TryGetValue(propInfo.Name, out ClassTypeMember memberOptions))
+                if (ClassType.Members.TryGetValue(propInfo.Name, out ClassTypeMember memberOptions))
                 {
                     memberOptions.Key(true);
                 }
@@ -117,7 +123,7 @@ namespace Detached.Mappers.Types.Class.Builder
         ClassTypeMember GetMember<TMember>(Expression<Func<TType, TMember>> selector)
         {
             string memberName = ((MemberExpression)selector.Body).Member.Name;
-            if (!Type.Members.TryGetValue(memberName, out ClassTypeMember memberOptions))
+            if (!ClassType.Members.TryGetValue(memberName, out ClassTypeMember memberOptions))
                 throw new ArgumentException($"Member {memberName} does not exist.");
 
             return memberOptions;

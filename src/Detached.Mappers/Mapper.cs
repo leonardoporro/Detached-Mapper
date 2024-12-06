@@ -5,7 +5,6 @@ using Detached.Mappers.TypeBinders;
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
@@ -16,17 +15,12 @@ namespace Detached.Mappers
         readonly ConcurrentDictionary<TypeMapperKey, ITypeMapper> _typeMappers = new ConcurrentDictionary<TypeMapperKey, ITypeMapper>();
         readonly ConcurrentDictionary<TypeBinderKey, Expression> _typeBindings = new ConcurrentDictionary<TypeBinderKey, Expression>();
 
-        public Mapper(MapperOptions options = null)
+        public Mapper(MapperOptions? options = null)
         {
             Options = options ?? new MapperOptions();
         }
 
         public MapperOptions Options { get; }
-
-        public void Reset()
-        {
-            _typeMappers.Clear();
-        }
 
         public virtual object Map(object source, Type sourceClrType, object target, Type targetClrType, IMapContext context = default)
         {

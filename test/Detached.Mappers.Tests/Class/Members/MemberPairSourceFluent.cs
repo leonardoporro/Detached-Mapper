@@ -10,13 +10,14 @@ namespace Detached.Mappers.Tests.Class.Members
         [Fact]
         public void configure_member_pair_source()
         {
-            MapperOptions opts = new MapperOptions();
-            opts.Type<User>()
-                .FromType<UserDto>()
-                .Member(u => u.Id).FromMember(u => u.Key)
-                .Member(u => u.Name).FromMember(u => u.UserName);
+            var options = new MapperOptionsBuilder()
+                .Type<User>()
+                    .FromType<UserDto>()
+                        .Member(u => u.Id).FromMember(u => u.Key)
+                        .Member(u => u.Name).FromMember(u => u.UserName)
+                .Options;
 
-            Mapper mapper = new Mapper(opts);
+            Mapper mapper = new Mapper(options);
             User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Equal("leo", user.Name);
@@ -25,13 +26,14 @@ namespace Detached.Mappers.Tests.Class.Members
         [Fact]
         public void configure_member_pair_exclude_source()
         {
-            MapperOptions opts = new MapperOptions();
-            opts.Type<User>()
-                .FromType<UserDto>()
-                .Member(u => u.Id).FromMember(u => u.Key)
-                .Member(u => u.Name).Exclude();
+            var options = new MapperOptionsBuilder()
+                .Type<User>()
+                    .FromType<UserDto>()
+                        .Member(u => u.Id).FromMember(u => u.Key)
+                        .Member(u => u.Name).Exclude()
+                .Options;
 
-            Mapper mapper = new Mapper(opts);
+            Mapper mapper = new Mapper(options);
             User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Null(user.Name);
@@ -42,14 +44,15 @@ namespace Detached.Mappers.Tests.Class.Members
         {
             DateTime dateTime = DateTime.Now;
 
-            MapperOptions opts = new MapperOptions();
-            opts.Type<User>()
-                .FromType<UserDto>()
-                .Member(u => u.Id).FromMember(u => u.Key)
-                .Member(u => u.Name).FromMember(u => u.UserName)
-                .Member(u => u.ModifiedDate).FromValue((u, c) => dateTime);
+            var options = new MapperOptionsBuilder()
+                .Type<User>()
+                    .FromType<UserDto>()
+                        .Member(u => u.Id).FromMember(u => u.Key)
+                        .Member(u => u.Name).FromMember(u => u.UserName)
+                        .Member(u => u.ModifiedDate).FromValue((u, c) => dateTime)
+                .Options;
 
-            Mapper mapper = new Mapper(opts);
+            Mapper mapper = new Mapper(options);
             User user = mapper.Map<UserDto, User>(new UserDto { Key = 1, UserName = "leo" });
             Assert.Equal(1, user.Id);
             Assert.Equal("leo", user.Name);

@@ -8,10 +8,12 @@ namespace Detached.Mappers.Tests.Class.Complex
         [Fact]
         public void map_customized_constructor()
         {
-            MapperOptions mapperOptions = new MapperOptions();
-            mapperOptions.Type<TargetEntity>().Constructor(c => new TargetEntity(1));
+            var options = new MapperOptionsBuilder()
+                .Type<TargetEntity>()
+                    .Constructor(c => new TargetEntity(1))
+                .Options;
 
-            Mapper mapper = new Mapper(mapperOptions);
+            Mapper mapper = new Mapper(options);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 

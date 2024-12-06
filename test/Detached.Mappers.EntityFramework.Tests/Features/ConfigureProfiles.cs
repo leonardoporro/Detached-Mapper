@@ -1,4 +1,5 @@
-﻿using Detached.Mappers.EntityFramework.Options;
+﻿using Detached.Mappers.EntityFramework.Extensions;
+using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -78,7 +79,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
 
             public DbSet<User> Users { get; set; }
 
-            public override void OnMapperCreating(EntityMapperOptions builder)
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
                 builder.AddProfile(MappingProfiles.Profile1, cfg =>
                 {

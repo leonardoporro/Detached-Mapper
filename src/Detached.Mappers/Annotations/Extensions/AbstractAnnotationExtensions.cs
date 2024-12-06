@@ -20,7 +20,7 @@ namespace Detached.Mappers.Annotations.Extensions
 
         public static ClassTypeBuilder<TType> Abstract<TType>(this ClassTypeBuilder<TType> typeBuilder, bool value = true)
         {
-            typeBuilder.Type.Abstract(value);
+            typeBuilder.ClassType.Abstract(value);
 
             return typeBuilder;
         }

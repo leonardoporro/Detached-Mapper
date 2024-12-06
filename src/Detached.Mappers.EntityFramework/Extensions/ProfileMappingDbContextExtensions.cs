@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Detached.Mappers.EntityFramework
+namespace Detached.Mappers.EntityFramework.Extensions
 {
     public static class ProfileMappingDbContextExtensions
     {

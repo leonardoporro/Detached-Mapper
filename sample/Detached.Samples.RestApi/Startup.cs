@@ -38,8 +38,6 @@ namespace Detached.Samples.RestApi
 
             services.AddScoped<InvoiceService>();
             services.AddScoped<InvoiceStore>();
-
-            services.Configure<MapperOptions>(m => { m.Type<User>().Entity(true); });
         }
 
         public class User { }

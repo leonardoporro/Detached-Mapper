@@ -10,16 +10,16 @@ namespace Detached.Mappers.Tests.Class.Complex
         [Fact]
         public void map_custom_member()
         {
-            MapperOptions mapperOptions = new MapperOptions();
-            mapperOptions.Type<TargetEntity>()
-                .Member(m => m.Value)
-                .Setter((@this, value, mapContext) => { @this.Value = value + 1; });
+            var options = new MapperOptionsBuilder()
+                .Type<TargetEntity>()
+                    .Member(m => m.Value)
+                    .Setter((@this, value, mapContext) => { @this.Value = value + 1; })
+                .Type<SourceEntity>()
+                    .Member(m => m.Value)
+                    .Getter((@this, mapContext) => { return @this.Value + 1; })
+                .Options;
 
-            mapperOptions.Type<SourceEntity>()
-                .Member(m => m.Value)
-                .Getter((@this, mapContext) => { return @this.Value + 1; });
-
-            Mapper mapper = new Mapper(mapperOptions);
+            Mapper mapper = new Mapper(options);
 
             var result = mapper.Map<SourceEntity, TargetEntity>(new SourceEntity { Value = 2 });
 

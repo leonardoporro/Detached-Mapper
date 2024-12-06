@@ -12,7 +12,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Fixture
         {
         }
 
-        public virtual void OnMapperCreating(EntityMapperOptions builder)
+        public virtual void OnMapperCreating(EntityMapperOptionsBuilder builder)
         {
 
         } 

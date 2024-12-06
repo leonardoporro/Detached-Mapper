@@ -18,14 +18,11 @@ using Detached.Mappers.TypePairs;
 using Detached.Mappers.TypePairs.Conventions;
 using Detached.Mappers.Types;
 using Detached.Mappers.Types.Class;
-using Detached.Mappers.Types.Class.Builder;
 using Detached.Mappers.Types.Conventions;
 using Detached.Mappers.Types.Dictionary;
 using Detached.Mappers.Types.Json;
 using Detached.PatchTypes;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -148,13 +145,6 @@ namespace Detached.Mappers.Options
 
         public virtual List<ITypeBinder> TypeBinders { get; }
 
-        public virtual ClassTypeBuilder<TType> Type<TType>()
-        {
-            IType type = GetTypeConfiguration(typeof(TType));
-
-            return new ClassTypeBuilder<TType>((ClassType)type, this);
-        }
-
         public virtual IType GetType(Type clrType)
         {
             return _allTypes.GetOrAdd(clrType, clrType =>
@@ -167,7 +157,7 @@ namespace Detached.Mappers.Options
             });
         }
 
-        IType GetTypeConfiguration(Type clrType)
+        public IType GetTypeConfiguration(Type clrType)
         {
             return _configuredTypes.GetOrAdd(clrType, clrType =>
             {

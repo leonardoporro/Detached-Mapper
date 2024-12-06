@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Context;
+using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.TypeMappers;
@@ -35,7 +36,6 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             Assert.Equal(2, trackedUser.Type);
         }
 
-
         public class UserDto : IIdentity
         {
             public int Id { get; set; }
@@ -61,7 +61,6 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public int Type { get; set; }
         }
 
-
         public class CustomMapperDbContext : TestDbContext
         {
             public CustomMapperDbContext(DbContextOptions<CustomMapperDbContext> options)
@@ -71,12 +70,9 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
 
             public DbSet<User> Users { get; set; }
 
-            public override void OnMapperCreating(EntityMapperOptions builder)
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
-                builder.Default(mapperOptions =>
-                {
-                    mapperOptions.TypeMapperFactories.Add(new EntityToIdMapperFactory());
-                });
+                builder.Options.TypeMapperFactories.Add(new EntityToIdMapperFactory());
             }
         }
 

@@ -2,7 +2,6 @@
 using Detached.Mappers.TypeMappers;
 using Detached.Mappers.TypePairs;
 using Detached.Mappers.Types;
-using System;
 using System.Linq.Expressions;
 
 namespace Detached.Mappers.EntityFramework.TypeMappers

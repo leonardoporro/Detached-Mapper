@@ -1,4 +1,5 @@
 ﻿using Detached.Mappers.Annotations.Extensions;
+using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Options;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Types;
@@ -41,15 +42,12 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             {
             }
 
-            public override void OnMapperCreating(EntityMapperOptions builder)
+            public override void OnMapperCreating(EntityMapperOptionsBuilder builder)
             {
-                builder.Default(mapperOptions =>
-                {
-                    mapperOptions.Type<ConfiguredTestClass>().Type.Entity(true);
-                    mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey1).Key(true);
-                    mapperOptions.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey2).Key(true);
-                    mapperOptions.Type<ConfiguredTestClass>().Key(c => c.CustomizedKey1, c => c.CustomizedKey2);
-                });
+                builder.Type<ConfiguredTestClass>().Entity(true);
+                builder.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey1).Key(true);
+                builder.Type<ConfiguredTestClass>().Member(c => c.CustomizedKey2).Key(true);
+                builder.Type<ConfiguredTestClass>().Key(c => c.CustomizedKey1, c => c.CustomizedKey2);
             }
 
             protected override void OnModelCreating(ModelBuilder mb)

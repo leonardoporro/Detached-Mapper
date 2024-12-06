@@ -1,21 +1,30 @@
 ﻿using Detached.Mappers.Annotations.Extensions;
-using System;
-using System.Collections.Generic;
+using Detached.Mappers.Options;
 
 namespace Detached.Mappers.Types.Class.Builder
 {
     public class ClassTypeDiscriminatorBuilder<TType, TMember>
     {
-        public ClassTypeDiscriminatorBuilder(ClassType typeOptions)
+        public ClassTypeDiscriminatorBuilder(ClassType typeOptions, MapperOptions mapperOptions)
         {
-            Type = typeOptions;
+            ClassType = typeOptions;
+            Options = mapperOptions;
         }
 
-        public ClassType Type { get; }
+        public ClassType ClassType { get; }
+
+        public MapperOptions Options { get; }
+
+        public virtual ClassTypeBuilder<TNewType> Type<TNewType>()
+        {
+            var newType = (ClassType)Options.GetType(typeof(TNewType));
+
+            return new ClassTypeBuilder<TNewType>(newType, Options);
+        }
 
         public ClassTypeDiscriminatorBuilder<TType, TMember> HasValue(TMember value, Type instantiationType)
         {
-            var annotation = Type.Annotations.DiscriminatorValues();
+            var annotation = ClassType.Annotations.DiscriminatorValues();
 
             if (annotation.IsDefined())
             {
@@ -34,6 +43,6 @@ namespace Detached.Mappers.Types.Class.Builder
             HasValue(value, typeof(TInstantiation));
 
             return this;
-        }
+        } 
     }
 }
