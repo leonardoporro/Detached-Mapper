@@ -1,9 +1,7 @@
-﻿using Detached.Mappers.EntityFramework.Options;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
-namespace Detached.Mappers.EntityFramework.Integration
+namespace Detached.Mappers.EntityFramework.Options
 {
     public class EntityMapperDbContextOptionsExtension : IDbContextOptionsExtension
     {
