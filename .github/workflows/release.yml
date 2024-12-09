@@ -16,7 +16,7 @@ jobs:
     - name: Set up .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.x.x' # You can adjust the version if needed
+        dotnet-version: '9.x.x' # You can adjust the version if needed
  
     - name: Build
       run: | 
