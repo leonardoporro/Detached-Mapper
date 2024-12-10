@@ -1,6 +1,4 @@
-﻿using Detached.Mappers;
-using Detached.Mappers.EntityFramework;
-using Detached.Mappers.EntityFramework.Extensions;
+﻿using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Keys
 {
     public class EntityNoKeyTests
     {

@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Exceptions;
@@ -12,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Batch
 {
     public class BatchTests
     {

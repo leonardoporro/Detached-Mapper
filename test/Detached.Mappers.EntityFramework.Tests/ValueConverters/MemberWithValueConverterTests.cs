@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.ValueConverters
 {
     public class MemberWithValueConverterTests
     {

@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -7,12 +6,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Association
 {
-    public class AssociationNoSetterTests
+    public class AssociationIListTests
     {
         [Fact]
-        public async Task map_association_nosetter()
+        public async Task map_association_ilist()
         {
             var dbContext = await TestDbContext.Create<CollectionNoSetterTestDbContext>();
 
@@ -38,7 +37,7 @@ namespace Detached.Mappers.EntityFramework.Tests.Features
             public string Name { get; set; }
 
             [Composition]
-            public List<Address> Addresses { get; } = new List<Address>();
+            public IList<Address> Addresses { get; set; }
         }
 
         public class Address

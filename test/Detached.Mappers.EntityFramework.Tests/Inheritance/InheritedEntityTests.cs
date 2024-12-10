@@ -1,5 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Exceptions;
@@ -11,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Inheritance
 {
     public class InheritedEntityTests
     {

@@ -1,6 +1,4 @@
 ﻿using Detached.Annotations;
-using Detached.Mappers;
-using Detached.Mappers.EntityFramework;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +11,7 @@ using System.Threading.Tasks;
 using Xunit;
 using static Detached.Mappers.EntityFramework.Tests.Extensions.StringExtensions;
 
-namespace Detached.Mappers.EntityFramework.Tests.Features
+namespace Detached.Mappers.EntityFramework.Tests.Import
 {
     public class ImportJsonTests
     {
