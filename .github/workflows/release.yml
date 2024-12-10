@@ -31,7 +31,7 @@ jobs:
         echo ${{ steps.extract-version.outputs.version }}
 
         for package in $packages; do
-           dotnet nuget push $package --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
+           dotnet nuget push $package --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY --skip-duplicate
         done
  
       env:
