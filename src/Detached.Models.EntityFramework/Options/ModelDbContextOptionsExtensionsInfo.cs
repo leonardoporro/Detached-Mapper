@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Detached.Model.EntityFramework.Options
+namespace Detached.Models.EntityFramework.Options
 {
     public class ModelDbContextOptionsExtensionInfo : DbContextOptionsExtensionInfo
     {

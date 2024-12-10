@@ -1,9 +1,9 @@
-﻿using Detached.Model.EntityFramework.Options;
+﻿using Detached.Models.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Detached.Model.EntityFramework
+namespace Detached.Models.EntityFramework
 {
     public static class Package
     {
@@ -24,7 +24,7 @@ namespace Detached.Model.EntityFramework
         public static IServiceCollection ConfigureModel<TDbContext>(this IServiceCollection services, Action<ModelBuilder, TDbContext> configure)
             where TDbContext : DbContext
         {
-            services.AddTransient(sp => new DelegateModelConfiguration<TDbContext>(configure));
+            services.AddTransient<IModelConfiguration<TDbContext>>(sp => new DelegateModelConfiguration<TDbContext>(configure));
 
             return services;
         }

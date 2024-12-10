@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Detached.Model.EntityFramework.Options
+namespace Detached.Models.EntityFramework.Options
 {
     public class ModelCustomizer<TDbContext> : IModelCustomizer
         where TDbContext : DbContext

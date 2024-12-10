@@ -1,4 +1,4 @@
-![Detached Banner](banner.png?raw=true)
+![Detached Banner](https://raw.githubusercontent.com/leonardoporro/Detached-Mapper/refs/heads/main/banner.png?raw=true)
 
 #### Maps Dtos directly to entities already attached to a DbContext
 #### Solves disconnected entities, partial updates and automapping in a single step

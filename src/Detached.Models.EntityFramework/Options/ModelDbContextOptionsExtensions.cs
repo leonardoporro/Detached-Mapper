@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Detached.Model.EntityFramework.Options
+namespace Detached.Models.EntityFramework.Options
 {
     public class ModelDbContextOptionsExtension : IDbContextOptionsExtension
     {

@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>13</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Version>$(Version)</Version>
+		<Authors>Leonardo Porro</Authors>
+		<Company />
+		<Product>Detached</Product>
+		<Description>A general purpose object-oriented mapper.</Description>
+		<Copyright>2017</Copyright>
+		<PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
+		<PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
+		<NeutralLanguage />
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageId>Detached.Mappers.EntityFramework</PackageId>
+		<PackageReadmeFile>Readme.MD</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\logo.png" Link="logo.png">
+	    <PackagePath></PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	  <None Include="..\..\Readme.MD" Link="Readme.MD">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	</ItemGroup>
+	
+</Project>

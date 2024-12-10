@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Detached.Model.EntityFramework.Options
+namespace Detached.Models.EntityFramework.Options
 {
     public interface IModelConfiguration<TDbContext>
         where TDbContext : DbContext
