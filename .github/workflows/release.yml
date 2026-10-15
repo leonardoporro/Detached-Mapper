@@ -1,9 +1,20 @@
 name: Release
 
+# Pushing a branch named release/<version> builds and publishes every package as <version>.
+# `push` honours the branch filter; `create` does not, and fired a release for every new branch.
+#
+# nuget.org is reached by Trusted Publishing: NuGet/login trades this run's OIDC token for a
+# short-lived key, against a policy on the leonardoporro nuget.org account that names this
+# repository and this workflow file. No API key is stored, so none expires.
+
 on:
-  create:
+  push:
     branches:
       - 'release/*'
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   release:
@@ -11,28 +22,30 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Set up .NET Core
+    - name: Set up .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.x'
- 
+
     - name: Build
-      run: | 
-        version=$(echo "${{ github.ref }}" | sed 's/refs\/heads\/release\///')
-        echo $version
+      run: |
+        version="${GITHUB_REF_NAME#release/}"
+        echo "$version"
         dotnet restore
         dotnet build --configuration Release -p:Version=$version
+
+    - name: NuGet login
+      id: nuget
+      uses: NuGet/login@v1
+      with:
+        user: leonardoporro
+
     - name: Push
-      run: | 
-        packages=$(find . -name '*.nupkg')
-
-        echo ${{ steps.extract-version.outputs.version }}
-
-        for package in $packages; do
-           dotnet nuget push $package --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY --skip-duplicate
+      run: |
+        for package in $(find src -name '*.nupkg'); do
+          dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
         done
- 
       env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
