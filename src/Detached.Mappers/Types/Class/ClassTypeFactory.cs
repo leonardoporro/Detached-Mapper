@@ -118,7 +118,13 @@ namespace Detached.Mappers.Types.Class
         {
             bool result = true;
 
-            if (propInfo.Name == "Modified"
+            MethodInfo accessor = propInfo.GetMethod ?? propInfo.SetMethod;
+            if (accessor == null || accessor.IsStatic)
+            {
+                // static properties (e.g. DateOnly.MinValue) are not instance members.
+                result = false;
+            }
+            else if (propInfo.Name == "Modified"
                 && typeof(IPatch).IsAssignableFrom(propInfo.DeclaringType))
             {
                 result = false;

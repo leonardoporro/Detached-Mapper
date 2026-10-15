@@ -1,4 +1,5 @@
 ﻿using Detached.Annotations;
+using Detached.Mappers.Annotations.Extensions;
 using Detached.Mappers.EntityFramework.Extensions;
 using Detached.Mappers.EntityFramework.Tests.Fixture;
 using Detached.Mappers.Exceptions;
@@ -89,6 +90,20 @@ namespace Detached.Mappers.EntityFramework.Tests.Inheritance
             }
 
             await dbContext.SaveChangesAsync();
+        }
+
+        // https://github.com/leonardoporro/Detached-Mapper/issues/125
+        [Fact]
+        public async Task discriminator_is_read_from_ef_model()
+        {
+            var dbContext = await TestDbContext.Create<InheritanceTestDbContext>();
+
+            var type = dbContext.GetEntityMapper().MapperOptions.GetType(typeof(DeliveryArea));
+
+            Assert.True(type.GetDiscriminator(out string propertyName, out var values));
+            Assert.Equal(nameof(DeliveryArea.AreaType), propertyName);
+            Assert.Equal(typeof(CircleDeliveryArea), values[DeliveryAreaType.Circle]);
+            Assert.Equal(typeof(RectangleDeliveryArea), values[DeliveryAreaType.Rectangle]);
         }
 
         public class SellPoint

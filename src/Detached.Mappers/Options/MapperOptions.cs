@@ -54,6 +54,8 @@ namespace Detached.Mappers.Options
                 typeof(DateTime),
                 typeof(DateTimeOffset),
                 typeof(TimeSpan),
+                typeof(DateOnly),
+                typeof(TimeOnly),
                 typeof(Guid)
             };
 
