@@ -17,9 +17,9 @@
 		<PackageProjectUrl>https://github.com/leonardoporro/Detached</PackageProjectUrl>
 		<PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
 		<NeutralLanguage />
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<IsPackable>false</IsPackable>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageId>Detached.Mappers.EntityFramework</PackageId>
 		<PackageReadmeFile>Readme.MD</PackageReadmeFile>
 	</PropertyGroup>
 
