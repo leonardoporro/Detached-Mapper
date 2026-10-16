@@ -6,7 +6,6 @@
 >
 > Its model lives on in [NSail.Mapping](https://github.com/nsail-ar/nsail-stack/blob/main/docs/mapping.md), part of the [NSail Stack](https://github.com/nsail-ar/nsail-stack): the same graph semantics, rebuilt as a compile-time source generator. No reflection, AOT-compatible, and build errors where Detached threw at runtime. It is not a drop-in replacement: it targets the NSail Stack (EF Core on PostgreSQL).
 
-
 #### Maps Dtos directly to entities already attached to a DbContext
 #### Solves disconnected entities, partial updates and automapping in a single step
 
