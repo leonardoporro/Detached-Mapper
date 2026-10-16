@@ -2,9 +2,17 @@
 
 > [!IMPORTANT]
 > **Detached Mapper is in maintenance mode.**
-> 10.0.0 supports EF Core 10. One final release, 11.0.0, will follow when EF Core 11 ships (November 2026); after that the repository will be archived.
 >
-> Its model lives on in [NSail.Mapping](https://github.com/nsail-ar/nsail-stack/blob/main/docs/mapping.md), part of the [NSail Stack](https://github.com/nsail-ar/nsail-stack): the same graph semantics, rebuilt as a compile-time source generator. No reflection, AOT-compatible, and build errors where Detached threw at runtime. It is not a drop-in replacement: it targets the NSail Stack (EF Core on PostgreSQL).
+> It's been a long journey since I got tired of mapping and attaching entities by hand and started learning and writing this code. AI has changed how we program in a very short time: most of us no longer worry about mapping, and I doubt many still reach for this library.
+>
+> Thank you to everyone who wrote in, reported, contributed and donated: you made this journey interesting and rewarding.
+>
+> One last release, 11.0.0, will ship when EF Core 11 does (November 2026); after that the repository will be archived.
+>
+> If deterministic mapping, messaging and frameworks still interest you, [NSail](https://github.com/nsail-ar/nsail-stack) is the next iteration of everything learned here. Its [mapper](https://github.com/nsail-ar/nsail-stack/blob/main/docs/mapping.md) keeps Detached's graph semantics, rebuilt as a compile-time source generator: no reflection, AOT-compatible, build errors instead of runtime surprises. It is not a drop-in replacement: it is part of the NSail Stack. Anyone who wants to join is welcome!
+>
+> Thanks for everything.
+> — Leonardo
 
 #### Maps Dtos directly to entities already attached to a DbContext
 #### Solves disconnected entities, partial updates and automapping in a single step
