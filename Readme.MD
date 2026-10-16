@@ -7,12 +7,12 @@
 >
 > Thank you to everyone who wrote in, reported, contributed and donated: you made this journey interesting and rewarding.
 >
-> One last release, 11.0.0, will ship when EF Core 11 does (November 2026); after that the repository will be archived.
+> One last release, 11.0.0, will ship when EF Core 11 does (November 2026).
 >
 > If deterministic mapping, messaging and frameworks still interest you, [NSail](https://github.com/nsail-ar/nsail-stack) is the next iteration of everything learned here. Its [mapper](https://github.com/nsail-ar/nsail-stack/blob/main/docs/mapping.md) keeps Detached's graph semantics, rebuilt as a compile-time source generator: no reflection, AOT-compatible, build errors instead of runtime surprises. It is not a drop-in replacement: it is part of the NSail Stack. Anyone who wants to join is welcome!
 >
 > Thanks for everything.
-> â€” Leonardo
+> Leonardo
 
 #### Maps Dtos directly to entities already attached to a DbContext
 #### Solves disconnected entities, partial updates and automapping in a single step
@@ -35,7 +35,7 @@ Please take a look at the new list [here](https://github.com/leonardoporro/Detac
 
 ## PR your test!
 Fork the project and send me a PR with your tests in the Contrib folder and I will include them so that
-in the future I won´t break your solution with changes. And I'll make it pass if they are broken because of an issue.
+in the future I won't break your solution with changes. And I'll make it pass if they are broken because of an issue.
 I know the library needs ton more of tests, but resources here are limited. Sorry and thanks for your contribution!
 
 ## Urgent issues
